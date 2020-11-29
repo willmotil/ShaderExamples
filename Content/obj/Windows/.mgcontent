@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SourceFileCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Profile>Reach</Profile>
+  <Platform>Windows</Platform>
+  <Config />
+  <SourceFiles>
+    <File>C:/Users/will/MainFiles/MyProjects2020/ShaderExamples/Content/blue_atmosphere.png</File>
+    <File>C:/Users/will/MainFiles/MyProjects2020/ShaderExamples/Content/blue-square-button-editted-md.png</File>
+    <File>C:/Users/will/MainFiles/MyProjects2020/ShaderExamples/Content/clouds-heavy.png</File>
+    <File>C:/Users/will/MainFiles/MyProjects2020/ShaderExamples/Content/cutePuppy.jpeg</File>
+    <File>C:/Users/will/MainFiles/MyProjects2020/ShaderExamples/Content/GausianBlurEffect.fx</File>
+    <File>C:/Users/will/MainFiles/MyProjects2020/ShaderExamples/Content/GeneratedSphere.png</File>
+    <File>C:/Users/will/MainFiles/MyProjects2020/ShaderExamples/Content/MaskAndBlendTextures.fx</File>
+    <File>C:/Users/will/MainFiles/MyProjects2020/ShaderExamples/Content/planet_stencil.png</File>
+    <File>C:/Users/will/MainFiles/MyProjects2020/ShaderExamples/Content/Terran02.png</File>
+  </SourceFiles>
+  <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+  </DestFiles>
+</SourceFileCollection>
