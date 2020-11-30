@@ -4,18 +4,18 @@
   <Platform>Windows</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/GausianBlurEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/blue_atmosphere.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/blue-square-button-editted-md.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/clouds-heavy.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/cutePuppy.jpeg</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/GeneratedSphere.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/GeneratedSphereBlue.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/MgFont.spritefont</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/planet_stencil.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Terran02.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/MaskBlend.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/MaskBlendScroll.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/GausianBlurEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/blue_atmosphere.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/blue-square-button-editted-md.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/clouds-heavy.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/cutePuppy.jpeg</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/GeneratedSphere.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/GeneratedSphereBlue.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/MgFont.spritefont</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/planet_stencil.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/Terran02.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/MaskBlend.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/MaskBlendScroll.fx</File>
   </SourceFiles>
   <DestFiles>
     <File xsi:nil="true" />

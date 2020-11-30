@@ -11,10 +11,13 @@ namespace ShaderExamples
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Effect effect;
-        Texture2D texture;
-        Texture2D shadingMultiTexture;
+        Texture2D loadedBackgroundTexture01;
+        Texture2D loadedForgroundTexture02;
+        Texture2D loadedStencilTexture03;
+        Texture2D generatedAlphaStencilTexture;
+        Texture2D backGroundTexture;
+        Texture2D foreGroundTexture;
         Texture2D stenciledTexture;
-        Texture2D generatedTexture;
 
         bool _useBlend = false;
         float _elapsed = 0.0f;
@@ -28,7 +31,7 @@ namespace ShaderExamples
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
-            graphics.PreferredBackBufferWidth = 800;
+            graphics.PreferredBackBufferWidth = 1200;
             graphics.PreferredBackBufferHeight = 600;
         }
         protected override void Initialize()
@@ -40,67 +43,24 @@ namespace ShaderExamples
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            generatedTexture = GenerateCircle(GraphicsDevice, Color.White);
-
             Content.RootDirectory = @"Content/Images";
 
-            texture = Content.Load<Texture2D>("Terran02");
-            shadingMultiTexture = Content.Load<Texture2D>("clouds-heavy");
-            //stenciledTexture = Content.Load<Texture2D>("GeneratedSphere");  //"planet_stencil"
+            loadedBackgroundTexture01 = Content.Load<Texture2D>("Terran02");
+            loadedForgroundTexture02 = Content.Load<Texture2D>("clouds-heavy");
+            loadedStencilTexture03 = Content.Load<Texture2D>("planet_stencil"); 
+            generatedAlphaStencilTexture = MgTextureGenerator.GenerateAlphaStencilCircle(GraphicsDevice, Color.White);
 
-            stenciledTexture = generatedTexture;
+            backGroundTexture = loadedBackgroundTexture01;
+            foreGroundTexture = loadedForgroundTexture02;
+            stenciledTexture = generatedAlphaStencilTexture;
 
             Content.RootDirectory = @"Content";
 
             effect = Content.Load<Effect>("MaskBlendScroll");
             effect.CurrentTechnique = effect.Techniques["MaskAndBlend"];
-            effect.Parameters["SpriteMultiTexture"].SetValue(shadingMultiTexture);
             effect.Parameters["SpriteStencilTexture"].SetValue(stenciledTexture);
         }
-
-        public static Texture2D GenerateCircle(GraphicsDevice device, Color color)
-        {
-            Color[] data = new Color[100 * 100];
-            var center = new Vector2(50, 50);
-            var a = new Vector2(0, 1.00f);
-            var b = new Vector2(80, 0.90f);
-            var c = new Vector2(90, 0.00f);
-            for (int x =0; x < 100; x++)
-            {
-                for (int y = 0; y < 100; y++)
-                {
-                    var p = new Vector2(x, y);
-                    var dist = Vector2.Distance(center, p);
-                    var curvepoint = GetPointAtTimeOn2ndDegreePolynominalCurve(a, b, c, dist);
-
-                    data[x + y * 100] = new Color(curvepoint.Y* 255, curvepoint.Y * 255, curvepoint.Y * 255, curvepoint.Y * 255);
-                }
-            }
-            Texture2D tex = new Texture2D(device, 100, 100);
-            tex.SetData<Color>(data);
-            return tex;
-        }
-
-        public static Vector2 GetPointAtTimeOn2ndDegreePolynominalCurve(Vector2 A, Vector2 B, Vector2 C, float t)
-        {
-            float i = 1.0f - t;
-            float plotX = 0; 
-            float plotY = 0;
-            plotX = (float)( A.X * 1 * (i * i) + B.X * 2 * (i * t) + C.X * 1 * (t * t) );
-            plotY = (float)( A.Y * 1 * (i * i) + B.Y * 2 * (i * t) + C.Y * 1 * (t * t) );
-            return new Vector2(plotX, plotY);
-        }
-        public float Power(float baseVal, float exponentVal)
-        {
-            float result = 0;
-            for (float exponent = exponentVal; exponent > 0; exponent--)
-            {
-                result = result * baseVal;
-            }
-            return result;
-        }
         
-
         protected override void UnloadContent()
         {
         }
@@ -128,15 +88,15 @@ namespace ShaderExamples
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-
+            GraphicsDevice.Clear(Color.Black);
 
             effect.CurrentTechnique = effect.Techniques["Basic"];
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, effect, null);
-            spriteBatch.Draw(texture, new Rectangle(0, 0, 300, 300), Color.White);
-            spriteBatch.Draw(shadingMultiTexture, new Rectangle(0, 300, 300, 300), Color.White);
-            spriteBatch.Draw(stenciledTexture, new Rectangle(300, 300, 300, 300), Color.White);
+            spriteBatch.Draw(backGroundTexture, new Rectangle(0, 0, 300, 300), Color.White);
+            spriteBatch.Draw(foreGroundTexture, new Rectangle(0, 320, 300, 300), Color.White);
+            spriteBatch.Draw(loadedStencilTexture03, new Rectangle(310, 320, 300, 300), Color.White);
+            spriteBatch.Draw(generatedAlphaStencilTexture, new Rectangle(620, 320, 300, 300), Color.White);
             spriteBatch.End();
 
             if (_useBlend)
@@ -144,11 +104,16 @@ namespace ShaderExamples
             else
                 effect.CurrentTechnique = effect.Techniques["MaskAndOverlay"];
 
-            effect.Parameters["CycleTime"].SetValue(_elapsedCycle);
-            effect.Parameters["CycleTime2"].SetValue(_elapsedCycle2);
-
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, effect, null);
-            spriteBatch.Draw(texture, new Rectangle(300, 0, 300, 300), Color.White);
+
+            effect.Parameters["SpriteStencilTexture"].SetValue(loadedStencilTexture03);
+            effect.Parameters["CycleTime"].SetValue(_elapsedCycle);
+            spriteBatch.Draw(backGroundTexture, new Rectangle(310, 0, 300, 300), Color.White);
+
+            effect.Parameters["SpriteStencilTexture"].SetValue(generatedAlphaStencilTexture);
+            effect.Parameters["CycleTime"].SetValue(_elapsedCycle2);
+            spriteBatch.Draw(foreGroundTexture, new Rectangle(310, 0, 300, 300), Color.White);
+
             spriteBatch.End();
 
             base.Draw(gameTime);

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.Xna.Framework
 {
-    public static class DrawHelper
+    public static class MgDrawHelper
     {
         static SpriteBatch spriteBatch;
         static Texture2D dot;
@@ -17,11 +17,11 @@ namespace Microsoft.Xna.Framework
 
         public static void Initialize(GraphicsDevice device, SpriteBatch spriteBatch, Texture2D dot)
         {
-            DrawHelper.spriteBatch = spriteBatch;
-            if (DrawHelper.dot == null)
-                DrawHelper.dot = dot;
-            if (DrawHelper.dot == null)
-                DrawHelper.dot = CreateDotTexture(device, Color.White);
+            MgDrawHelper.spriteBatch = spriteBatch;
+            if (MgDrawHelper.dot == null)
+                MgDrawHelper.dot = dot;
+            if (MgDrawHelper.dot == null)
+                MgDrawHelper.dot = CreateDotTexture(device, Color.White);
         }
 
         public static Vector2 ToVector2(this Vector3 v)
@@ -36,6 +36,30 @@ namespace Microsoft.Xna.Framework
             tex.SetData<Color>(data);
             return tex;
         }
+
+        public static Texture2D GenerateFractal(GraphicsDevice device, Color color)
+        {
+            Color[] data = new Color[100 * 100];
+            var center = new Vector2(50, 50);
+            var a = new Vector2(0, 1.00f);
+            var b = new Vector2(80, 0.90f);
+            var c = new Vector2(90, 0.00f);
+            for (int x = 0; x < 100; x++)
+            {
+                for (int y = 0; y < 100; y++)
+                {
+                    var p = new Vector2(x, y);
+                    var dist = Vector2.Distance(center, p);
+                    var curvepoint = GetPointAtTimeOn2ndDegreePolynominalCurve(a, b, c, dist);
+
+                    data[x + y * 100] = new Color((byte)(curvepoint.Y * 255), (byte)(curvepoint.Y * 255), (byte)(curvepoint.Y * 255), (byte)(curvepoint.Y * 255));
+                }
+            }
+            Texture2D tex = new Texture2D(device, 100, 100);
+            tex.SetData<Color>(data);
+            return tex;
+        }
+
 
         public static void DrawRectangleOutline(Rectangle r, int lineThickness, Color c)
         {
@@ -56,8 +80,8 @@ namespace Microsoft.Xna.Framework
 
         public static void DrawCrossHair(Vector2 position, float radius, Color color)
         {
-            DrawHelper.DrawBasicLine(new Vector2(-radius, 0) + position, new Vector2(0 + radius, 0) + position, 1, color);
-            DrawHelper.DrawBasicLine(new Vector2(0, 0 - radius) + position, new Vector2(0, radius) + position, 1, color);
+            MgDrawHelper.DrawBasicLine(new Vector2(-radius, 0) + position, new Vector2(0 + radius, 0) + position, 1, color);
+            MgDrawHelper.DrawBasicLine(new Vector2(0, 0 - radius) + position, new Vector2(0, radius) + position, 1, color);
         }
 
         public static void DrawBasicLine(Vector2 s, Vector2 e, int thickness, Color linecolor)
@@ -69,12 +93,29 @@ namespace Microsoft.Xna.Framework
         {
             spriteBatch.Draw(dot, new Rectangle((int)p.X, (int)p.Y, 2, 2), new Rectangle(0, 0, 1, 1), c, 0.0f, Vector2.One, SpriteEffects.None, 0);
         }
+
+        public static void DrawBasicPoint(Vector2 p, Color c, int size)
+        {
+            int half = (int)(size / 2);
+            spriteBatch.Draw(dot, new Rectangle((int)p.X, (int)p.Y, 1 + size, 1 + size), new Rectangle(0, 0, 1, 1), c, 0.0f, new Vector2(.5f, .5f), SpriteEffects.None, 0);
+        }
+
         public static float Atan2Xna(float difx, float dify)
         {
             if (SpriteBatchAtan2)
                 return (float)System.Math.Atan2(difx, dify) * -1f;
             else
                 return (float)System.Math.Atan2(difx, dify);
+        }
+
+        public static Vector2 GetPointAtTimeOn2ndDegreePolynominalCurve(Vector2 A, Vector2 B, Vector2 C, float t)
+        {
+            float i = 1.0f - t;
+            float plotX = 0;
+            float plotY = 0;
+            plotX = (float)(A.X * 1 * (i * i) + B.X * 2 * (i * t) + C.X * 1 * (t * t));
+            plotY = (float)(A.Y * 1 * (i * i) + B.Y * 2 * (i * t) + C.Y * 1 * (t * t));
+            return new Vector2(plotX, plotY);
         }
     }
 }
