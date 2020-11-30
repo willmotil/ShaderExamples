@@ -24,11 +24,6 @@ namespace Microsoft.Xna.Framework
                 MgDrawHelper.dot = CreateDotTexture(device, Color.White);
         }
 
-        public static Vector2 ToVector2(this Vector3 v)
-        {
-            return new Vector2(v.X, v.Y);
-        }
-
         public static Texture2D CreateDotTexture(GraphicsDevice device, Color color)
         {
             Color[] data = new Color[1] { color };
@@ -36,30 +31,6 @@ namespace Microsoft.Xna.Framework
             tex.SetData<Color>(data);
             return tex;
         }
-
-        public static Texture2D GenerateFractal(GraphicsDevice device, Color color)
-        {
-            Color[] data = new Color[100 * 100];
-            var center = new Vector2(50, 50);
-            var a = new Vector2(0, 1.00f);
-            var b = new Vector2(80, 0.90f);
-            var c = new Vector2(90, 0.00f);
-            for (int x = 0; x < 100; x++)
-            {
-                for (int y = 0; y < 100; y++)
-                {
-                    var p = new Vector2(x, y);
-                    var dist = Vector2.Distance(center, p);
-                    var curvepoint = GetPointAtTimeOn2ndDegreePolynominalCurve(a, b, c, dist);
-
-                    data[x + y * 100] = new Color((byte)(curvepoint.Y * 255), (byte)(curvepoint.Y * 255), (byte)(curvepoint.Y * 255), (byte)(curvepoint.Y * 255));
-                }
-            }
-            Texture2D tex = new Texture2D(device, 100, 100);
-            tex.SetData<Color>(data);
-            return tex;
-        }
-
 
         public static void DrawRectangleOutline(Rectangle r, int lineThickness, Color c)
         {

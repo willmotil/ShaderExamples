@@ -17,6 +17,11 @@ namespace Microsoft.Xna.Framework
             return new Vector2(plotX, plotY);
         }
 
+        public static Vector3 BiCubic(Vector3 a0, Vector3 a1, Vector3 a2, Vector3 a3, float time)
+        {
+            return (((((a3 - a2) * time + a2) - ((a2 - a1) * time + a1)) * time + ((a2 - a1) * time + a1)) - ((((a2 - a1) * time + a1) - ((a1 - a0) * time + a0)) * time + ((a1 - a0) * time + a0))) * time + ((((a2 - a1) * time + a1) - ((a1 - a0) * time + a0)) * time + ((a1 - a0) * time + a0));
+        }
+
         public static float Atan2Xna(float difx, float dify, bool useSpriteBatchAtan2)
         {
             if (useSpriteBatchAtan2)
@@ -34,5 +39,16 @@ namespace Microsoft.Xna.Framework
             }
             return result;
         }
+
+        public static Vector2 ToVector2(this Vector3 v)
+        {
+            return new Vector2(v.X, v.Y);
+        }
+
+        public static Vector3 ToVector3(this Vector4 v)
+        {
+            return new Vector3(v.X, v.Y, v.Z);
+        }
+
     }
 }

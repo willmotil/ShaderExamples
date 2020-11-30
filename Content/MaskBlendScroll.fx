@@ -38,15 +38,8 @@ struct VertexShaderOutput
 float4 MaskAndOverlayPS(VertexShaderOutput input) : COLOR
 {
 	float2 texCoordOffset = float2(CycleTime,0.0f);
-	//float2 texCoordOffset2 = float2(CycleTime2, 0.0f);
 	float4 color = tex2D(SpriteTextureSampler, input.TextureCoordinates + texCoordOffset);
-	//float4 overlayColor = tex2D(SpriteMultiTextureSampler, input.TextureCoordinates + texCoordOffset2);
 	float4 stencilColor = tex2D(SpriteStencilTextureSampler, input.TextureCoordinates);
-
-	//float alpha = overlayColor.a;
-	//float invalpha = 1.0f - overlayColor.a;
-
-	//color.rgb = color.rgb * invalpha + overlayColor.rgb * alpha;
 
 	color.rgba *= stencilColor.rgba;
 
@@ -60,12 +53,8 @@ float4 MaskAndOverlayPS(VertexShaderOutput input) : COLOR
 float4 MaskAndBlendPS(VertexShaderOutput input) : COLOR
 {
     float2 texCoordOffset = float2(CycleTime, 0.0f);
-	//float2 texCoordOffset2 = float2(CycleTime2, 0.0f);
 	float4 color = tex2D(SpriteTextureSampler, input.TextureCoordinates + texCoordOffset);
-	//float4 textureBlendColor = tex2D(SpriteMultiTextureSampler, input.TextureCoordinates + texCoordOffset2);
 	float4 stencilColor = tex2D(SpriteStencilTextureSampler, input.TextureCoordinates);
-
-	//color.rgb *= textureBlendColor.rgb;
 
 	color.a *= stencilColor.a;
 	if (stencilColor.a < 0.01f)

@@ -7,24 +7,25 @@ namespace ShaderExamples
 {
     public class Game1_MaskBlendScroll : Game
     {
-
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Effect effect;
+
+        Texture2D dotTexture;
         Texture2D loadedBackgroundTexture01;
         Texture2D loadedForgroundTexture02;
         Texture2D loadedStencilTexture03;
         Texture2D generatedAlphaStencilTexture;
+        Texture2D generatedAlphaStencilEdgeTexture;
         Texture2D backGroundTexture;
         Texture2D foreGroundTexture;
-        Texture2D stenciledTexture;
 
         bool _useBlend = false;
         float _elapsed = 0.0f;
         float _elapsedCycle = 0.0f;
-        float _cycleRate = 1f / 12.0f;
+        float _cycleRate = 1f / -35.0f;
         float _elapsedCycle2 = 0.0f;
-        float _cycleRate2 = 1f / 10.0f;
+        float _cycleRate2 = 1f / -30.0f;
 
         public Game1_MaskBlendScroll()
         {
@@ -32,8 +33,9 @@ namespace ShaderExamples
             Content.RootDirectory = "Content";
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
             graphics.PreferredBackBufferWidth = 1200;
-            graphics.PreferredBackBufferHeight = 600;
+            graphics.PreferredBackBufferHeight = 800;
         }
+
         protected override void Initialize()
         {
             base.Initialize();
@@ -47,18 +49,18 @@ namespace ShaderExamples
 
             loadedBackgroundTexture01 = Content.Load<Texture2D>("Terran02");
             loadedForgroundTexture02 = Content.Load<Texture2D>("clouds-heavy");
-            loadedStencilTexture03 = Content.Load<Texture2D>("planet_stencil"); 
-            generatedAlphaStencilTexture = MgTextureGenerator.GenerateAlphaStencilCircle(GraphicsDevice, Color.White);
+            loadedStencilTexture03 = Content.Load<Texture2D>("planet_stencil");
+            generatedAlphaStencilTexture = MgTextureGenerator.GenerateSplinedAlphaStencilCircle(GraphicsDevice, Color.White);
+            generatedAlphaStencilEdgeTexture = MgTextureGenerator.GenerateAlphaStencilCircleEdge(GraphicsDevice, Color.White, .93f, .07f, .6f);
+            dotTexture = MgTextureGenerator.CreateDotTexture(GraphicsDevice, Color.White);
 
             backGroundTexture = loadedBackgroundTexture01;
             foreGroundTexture = loadedForgroundTexture02;
-            stenciledTexture = generatedAlphaStencilTexture;
 
             Content.RootDirectory = @"Content";
 
             effect = Content.Load<Effect>("MaskBlendScroll");
             effect.CurrentTechnique = effect.Techniques["MaskAndBlend"];
-            effect.Parameters["SpriteStencilTexture"].SetValue(stenciledTexture);
         }
         
         protected override void UnloadContent()
@@ -93,10 +95,11 @@ namespace ShaderExamples
             effect.CurrentTechnique = effect.Techniques["Basic"];
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, effect, null);
-            spriteBatch.Draw(backGroundTexture, new Rectangle(0, 0, 300, 300), Color.White);
-            spriteBatch.Draw(foreGroundTexture, new Rectangle(0, 320, 300, 300), Color.White);
-            spriteBatch.Draw(loadedStencilTexture03, new Rectangle(310, 320, 300, 300), Color.White);
-            spriteBatch.Draw(generatedAlphaStencilTexture, new Rectangle(620, 320, 300, 300), Color.White);
+            spriteBatch.Draw(backGroundTexture, new Rectangle(0, 0, 190, 190), Color.White);
+            spriteBatch.Draw(foreGroundTexture, new Rectangle(200, 0, 190, 190), Color.White);
+            spriteBatch.Draw(loadedStencilTexture03, new Rectangle(400, 0, 190, 190), Color.White);
+            spriteBatch.Draw(generatedAlphaStencilTexture, new Rectangle(600, 0, 190, 190), Color.White);
+            spriteBatch.Draw(generatedAlphaStencilEdgeTexture, new Rectangle(800, 0, 190, 190), Color.White);
             spriteBatch.End();
 
             if (_useBlend)
@@ -108,11 +111,14 @@ namespace ShaderExamples
 
             effect.Parameters["SpriteStencilTexture"].SetValue(loadedStencilTexture03);
             effect.Parameters["CycleTime"].SetValue(_elapsedCycle);
-            spriteBatch.Draw(backGroundTexture, new Rectangle(310, 0, 300, 300), Color.White);
+            spriteBatch.Draw(backGroundTexture, new Rectangle(310, 210, 300, 300), Color.White);
+
+            effect.Parameters["SpriteStencilTexture"].SetValue(generatedAlphaStencilEdgeTexture);
+            spriteBatch.Draw(dotTexture, new Rectangle(300, 200, 320, 320), Color.LightSkyBlue);
 
             effect.Parameters["SpriteStencilTexture"].SetValue(generatedAlphaStencilTexture);
             effect.Parameters["CycleTime"].SetValue(_elapsedCycle2);
-            spriteBatch.Draw(foreGroundTexture, new Rectangle(310, 0, 300, 300), Color.White);
+            spriteBatch.Draw(foreGroundTexture, new Rectangle(300, 200, 320, 320), Color.White);
 
             spriteBatch.End();
 
