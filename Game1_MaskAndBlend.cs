@@ -20,6 +20,8 @@ namespace ShaderExamples
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
+            graphics.PreferredBackBufferWidth = 800;
+            graphics.PreferredBackBufferHeight = 600;
         }
         protected override void Initialize()
         {
@@ -30,12 +32,15 @@ namespace ShaderExamples
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // "Terran02" "GeneratedSphere" "planet_stencil" "clouds-heavy" "cutePuppy"
+            Content.RootDirectory = @"Content/Images";
+
             texture = Content.Load<Texture2D>("Terran02");
-            shadingMultiTexture = Content.Load<Texture2D>("clouds-heavy"); 
+            shadingMultiTexture = Content.Load<Texture2D>("clouds-heavy");
             stenciledTexture = Content.Load<Texture2D>("planet_stencil");
 
-            effect = Content.Load<Effect>("MaskAndBlendTextures");
+            Content.RootDirectory = @"Content";
+
+            effect = Content.Load<Effect>("MaskBlend");
             effect.CurrentTechnique = effect.Techniques["MaskAndBlend"];
             effect.Parameters["SpriteMultiTexture"].SetValue(shadingMultiTexture);
             effect.Parameters["SpriteStencilTexture"].SetValue(stenciledTexture);
@@ -65,6 +70,8 @@ namespace ShaderExamples
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, effect, null);
             spriteBatch.Draw(texture, new Rectangle(0, 0, 300, 300), Color.White);
+            spriteBatch.Draw(shadingMultiTexture, new Rectangle(0, 300, 300, 300), Color.White);
+            spriteBatch.Draw(stenciledTexture, new Rectangle(300, 300, 300, 300), Color.White);
             spriteBatch.End();
 
             if (_useBlend)

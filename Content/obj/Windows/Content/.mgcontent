@@ -4,17 +4,23 @@
   <Platform>Windows</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/Users/will/MainFiles/MyProjects2020/ShaderExamples/Content/blue_atmosphere.png</File>
-    <File>C:/Users/will/MainFiles/MyProjects2020/ShaderExamples/Content/blue-square-button-editted-md.png</File>
-    <File>C:/Users/will/MainFiles/MyProjects2020/ShaderExamples/Content/clouds-heavy.png</File>
-    <File>C:/Users/will/MainFiles/MyProjects2020/ShaderExamples/Content/cutePuppy.jpeg</File>
-    <File>C:/Users/will/MainFiles/MyProjects2020/ShaderExamples/Content/GausianBlurEffect.fx</File>
-    <File>C:/Users/will/MainFiles/MyProjects2020/ShaderExamples/Content/GeneratedSphere.png</File>
-    <File>C:/Users/will/MainFiles/MyProjects2020/ShaderExamples/Content/MaskAndBlendTextures.fx</File>
-    <File>C:/Users/will/MainFiles/MyProjects2020/ShaderExamples/Content/planet_stencil.png</File>
-    <File>C:/Users/will/MainFiles/MyProjects2020/ShaderExamples/Content/Terran02.png</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/GausianBlurEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/blue_atmosphere.png</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/blue-square-button-editted-md.png</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/clouds-heavy.png</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/cutePuppy.jpeg</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/GeneratedSphere.png</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/GeneratedSphereBlue.png</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/MgFont.spritefont</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/planet_stencil.png</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Terran02.png</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/MaskBlend.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/MaskBlendScroll.fx</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

@@ -8,7 +8,8 @@ namespace ShaderExamples
         static void Main()
         {
             //using (var game = new Game1_Blur()) game.Run();
-            using (var game = new Game1_MaskAndBlend()) game.Run();
+            //using (var game = new Game1_MaskAndBlend()) game.Run();
+            using (var game = new Game1_MaskBlendScroll()) game.Run();
         }
     }
 }

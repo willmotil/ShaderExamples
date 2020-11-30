@@ -29,8 +29,13 @@ namespace ShaderExamples
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            Content.RootDirectory = @"Content/Images";
+
             texture = Content.Load<Texture2D>("cutePuppy");
             effect = Content.Load<Effect>("GausianBlurEffect");
+
+            Content.RootDirectory = @"Content";
+
             effect.CurrentTechnique = effect.Techniques["Blur"];
             effect.Parameters["numberOfSamplesPerDimension"].SetValue(20);
             effect.Parameters["pixelResolutionX"].SetValue(1f / texture.Width);
