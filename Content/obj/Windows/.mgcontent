@@ -4,20 +4,34 @@
   <Platform>Windows</Platform>
   <Config />
   <SourceFiles>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/FadingEdgeEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Fonts/MgFont.spritefont</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/GausianBlurEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/GreyScaleEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/blue_atmosphere.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/blue-square-button-editted-md.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/clouds-heavy.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/cutePuppy.jpeg</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/GeneratedSphere.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/GeneratedSphereBlue.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/MgFont.spritefont</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/MG_Logo_Med_exCanvs.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/planet_stencil.png</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/RefactionTexture.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Terran02.png</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/wallnormmap.png</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/walltomap.png</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/water04.jpeg</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/MaskBlend.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/MaskBlendScroll.fx</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
