@@ -163,4 +163,3 @@ C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\ShaderFad
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\ScrollEffect.xnb
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\RefractionEffect.xnb
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\GlowingEffect.xnb
-C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.csprojAssemblyReference.cache
