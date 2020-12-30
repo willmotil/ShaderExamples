@@ -32,6 +32,12 @@
 /processorParam:DebugMode=Auto
 /build:GausianBlurEffect.fx
 
+#begin GlowingEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:GlowingEffect.fx
+
 #begin GreyScaleEffect.fx
 /importer:EffectImporter
 /processor:EffectProcessor
@@ -205,4 +211,16 @@
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
 /build:MaskBlendScroll.fx
+
+#begin RefractionEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:RefractionEffect.fx
+
+#begin ScrollEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:ScrollEffect.fx
 
