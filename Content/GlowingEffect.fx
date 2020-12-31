@@ -13,7 +13,7 @@ float2 TextureSize;
 
 
 Texture2D SpriteTexture;
-Texture2D DisplacementTexture;
+//Texture2D DisplacementTexture;
 SamplerState Sampler = sampler_state
 {
     Texture = <SpriteTexture>;
@@ -98,7 +98,17 @@ float4 FuncBoxGlowV2(float2 texCoord, float halfRange,float percent, float4 colo
 {
     //float4(0.0f, 0.0f, 0.0f, 0.0f);
     int range = halfRange;
-    float2 inc = float2(1.0f / TextureSize.x, 1.0f / TextureSize.y);
+
+    
+    //float2 inc = float2(1.0f / TextureSize.x, 1.0f / TextureSize.y);
+
+
+    // void SpriteTexture.GetDimensions( UINT MipLevel, typeX Width, typeX Height, typeX Elements, typeX Depth, typeX NumberOfLevels, typeX NumberOfSamples );
+    float w = 500.0f;
+    float h = 500.0f;
+    SpriteTexture.GetDimensions(w, h);
+    float2 inc = float2(1.0f / w, 1.0f / h);
+
     float2 texelRange = float2(range * inc.x, range * inc.y);
     float4 col = tex2D(Sampler, (texCoord.xy)) *2.0f;
     float total = 1.0f * 2.0f;

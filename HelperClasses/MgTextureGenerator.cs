@@ -15,6 +15,83 @@ namespace Microsoft.Xna.Framework
             return tex;
         }
 
+        public static Texture2D CreateCheckerBoard(GraphicsDevice device, int w, int h, Color c0, Color c1)
+        {
+            Color[] data = new Color[w * h];
+            for (int x = 0; x < w; x++)
+            {
+                for (int y = 0; y < h; y++)
+                {
+                    int index = y * w + x;
+                    Color c = c0;
+                    if ((y % 2 == 0))
+                    {
+                        if ((x % 2 == 0))
+                            c = c0;
+                        else
+                            c = c1;
+                    }
+                    else
+                    {
+                        if ((x % 2 == 0))
+                            c = c1;
+                        else
+                            c = c0;
+                    }
+                    data[index] = c;
+                }
+            }
+            Texture2D tex = new Texture2D(device, w, h);
+            tex.SetData<Color>(data);
+            return tex;
+        }
+
+        public static Texture2D CreateGrid(GraphicsDevice device, int w, int h, Color c0, Color c1, Color c2)
+        {
+            Color[] data = new Color[w * h];
+            for (int x = 0; x < w; x++)
+            {
+                for (int y = 0; y < h; y++)
+                {
+                    int index = y * w + x;
+                    Color c = c2;
+                    if ((y % 4 == 0))
+                        c = c0;
+                    if ((x % 4 == 0))
+                        c = c1;
+                    if ((x % 4 == 0) && (y % 4 == 0))
+                    {
+                        var r = (c0.R + c1.R) / 2;
+                        var g = (c0.R + c1.R) / 2;
+                        var b = (c0.R + c1.R) / 2;
+                        c = new Color(r, g, b, 255);
+                    }
+                    data[index] = c;
+                }
+            }
+            Texture2D tex = new Texture2D(device, w, h);
+            tex.SetData<Color>(data);
+            return tex;
+        }
+
+        public Texture2D GenerateTexture2DWithTopLeftDiscoloration(GraphicsDevice gd)
+        {
+            var cdata = new Color[250 * 250];
+            for (int i = 0; i < 250; i++)
+            {
+                for (int j = 0; j < 250; j++)
+                {
+                        if (i < 50 && j < 50)
+                            cdata[i * 250 + j] = new Color(120, 120, 120, 255);
+                        else
+                            cdata[i * 250 + j] = new Color(i, j,( i+j) /2, 255);
+                }
+            }
+            Texture2D t = new Texture2D(gd, 250, 250);
+            t.SetData(cdata);
+            return t;
+        }
+
         public static Texture2D GenerateAlphaStencilCircle(GraphicsDevice device, Color color)
         {
             float sliderControl = 2.00f; // increase beyond 1.0f that gives a more opaque interior
@@ -33,7 +110,7 @@ namespace Microsoft.Xna.Framework
                     var p = new Vector2(x, y);
                     var dist = Vector2.Distance(center, p);
                     var coeff = dist / radius;
-                    var curvepoint = MgMath.GetPointAtTimeOn2ndDegreePolynominalCurve(a, b, c, coeff);
+                    var curvepoint = MgHelpers.GetPointAtTimeOn2ndDegreePolynominalCurve(a, b, c, coeff);
 
                     if (coeff < 0f)
                         coeff = 0.0f;
@@ -68,7 +145,7 @@ namespace Microsoft.Xna.Framework
                     var p = new Vector2(x, y);
                     var dist = Vector2.Distance(center, p);
                     var coeff = dist / radius;
-                    var curvepoint = MgMath.BiCubic(a, b, c, d, coeff).ToVector2();
+                    var curvepoint = MgHelpers.BiCubicSubdivision(a, b, c, d, coeff).ToVector2();
 
                     if (coeff < 0f)
                         coeff = 0.0f;
@@ -132,7 +209,7 @@ namespace Microsoft.Xna.Framework
                 {
                     var p = new Vector2(x, y);
                     var dist = Vector2.Distance(center, p);
-                    var curvepoint = MgMath.GetPointAtTimeOn2ndDegreePolynominalCurve(a, b, c, dist);
+                    var curvepoint = MgHelpers.GetPointAtTimeOn2ndDegreePolynominalCurve(a, b, c, dist);
 
                     data[x + y * 100] = new Color((byte)(curvepoint.Y * 255), (byte)(curvepoint.Y * 255), (byte)(curvepoint.Y * 255), (byte)(curvepoint.Y * 255));
                 }

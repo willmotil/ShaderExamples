@@ -212,6 +212,12 @@
 /processorParam:DebugMode=Auto
 /build:MaskBlendScroll.fx
 
+#begin RadialBlurEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:RadialBlurEffect.fx
+
 #begin RefractionEffect.fx
 /importer:EffectImporter
 /processor:EffectProcessor
@@ -223,4 +229,10 @@
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
 /build:ScrollEffect.fx
+
+#begin ShockwaveRippleEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:ShockwaveRippleEffect.fx
 

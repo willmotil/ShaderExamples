@@ -24,10 +24,14 @@
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/water04.jpeg</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/MaskBlend.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/MaskBlendScroll.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/RadialBlurEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/RefractionEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/ScrollEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/ShockwaveRippleEffect.fx</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

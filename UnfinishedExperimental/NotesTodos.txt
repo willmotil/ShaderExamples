@@ -1,0 +1,225 @@
+﻿Stuff to implement that would make for good simple examples ...
+Gamma correction  in 2d this makes a good example and reference.
+Instancing particles.
+
+https://www.geeks3d.com/20110316/shader-library-simple-2d-effects-sphere-and-ripple-in-glsl/
+shockwave https://www.geeks3d.com/20091116/shader-library-2d-shockwave-post-processing-filter-glsl/
+radial blur ... prolly pretty easy to do that one straight up.
+normal map
+bloom shader .... 
+figures this dudes got one too https://learnopengl.com/Advanced-Lighting/Bloom
+kinda gotta have that one in there the real one.  here is scribbles http://www.alienscribbleinteractive.com/Tutorials/bloom_tutorial.html
+and kosmo has one somewere.
+
+i have a 2d toon shader i made already but heres another one to look at.  https://www.geeks3d.com/20140523/glsl-shader-library-toonify-post-processing-filter/
+tons of ideas here for simple shaders https://www.geeks3d.com/shader-library/
+looks like a good idea http://www.stanleyhayes.com/2d-wibble-shader-hlsl.html
+meatball shader http://www.stanleyhayes.com/2d-metaball-shaderhlsl.html
+Make a grid with a blank texture that would be a pretty useful idea.
+Aura around a sprite also a good idea.
+
+
+http://ninslash.com/5-simple-fragment-shaders-for-2d-games-glsl/
+
+// ah did this dude try the same thing i did a while back but he got it to work right been meaning to take another shot at it.
+https://ahamnett.blogspot.com/2013/05/2d-shadows-shader.html
+
+Once i finish making a bunch of 2d shaders 
+
+Simple 2d quad geometry and lining up with spritebatch.
+VTF coming up that is technically 3d mostly but might be considered 2d as well in some cases.
+
+Then ill start a more serious 3d shader section.
+Triangle Geometry
+Meshs primitives.
+Texture mapping.
+A sky cube or sphere  (well texture map it thats easy i already have it).
+Conversion shaders.
+Planetary hight map geometry from images (might as well i already did it).
+Simple lighting.
+Diffuse.
+Specular.
+Normal mapping.
+Enviromental mapping reflections.
+3d Refraction.
+Water
+Basic depth shadow maping.
+ssao i need to learn that myself.
+Lens flare
+Instancing.
+Hdr loading.
+Basic pbr lighting concepts.
+
+
+
+
+
+//  fx in glsl to convert
+
+// Swirl effect parameters
+
+uniform float radius = 200.0;
+uniform float angle = 0.8;
+uniform vec2 center = vec2(400.0, 300.0);
+
+vec4 PostFX(sampler2D tex, vec2 uv, float time)
+{
+  vec2 texSize = vec2(rt_w, rt_h);
+  vec2 tc = uv * texSize;
+  tc -= center;
+  float dist = length(tc);
+  if (dist < radius) 
+  {
+    float percent = (radius - dist) / radius;
+    float theta = percent * percent * angle * 8.0;
+    float s = sin(theta);
+    float c = cos(theta);
+    tc = vec2(dot(tc, vec2(c, -s)), dot(tc, vec2(s, c)));
+  }
+  tc += center;
+  vec3 color = texture2D(tex0, tc / texSize).rgb;
+  return vec4(color, 1.0);
+}
+
+
+Lens
+
+uniform sampler2D sceneTex; // 0
+uniform vec2 lensRadius; // 0.45, 0.38
+
+void main() 
+{ 
+  vec4 Color = texture2D(sceneTex, gl_TexCoord[0].xy);
+  float dist = distance(gl_TexCoord[0].xy, vec2(0.5,0.5));
+  Color.rgb *= smoothstep(lensRadius.x, lensRadius.y, dist);
+  gl_FragColor = Color;
+}
+
+
+Posterization
+
+uniform sampler2D sceneTex; // 0
+uniform float gamma; // 0.6
+uniform float numColors; // 8.0
+void main() 
+{ 
+  vec3 c = texture2D(sceneTex, gl_TexCoord[0].xy).rgb;
+  c = pow(c, vec3(gamma, gamma, gamma));
+  c = c * numColors;
+  c = floor(c);
+  c = c / numColors;
+  c = pow(c, vec3(1.0/gamma));
+  gl_FragColor = vec4(c, 1.0);
+}
+
+crosshatch  this is pretty cool
+
+[Pixel_Shader]
+uniform sampler2D sceneTex; // 0
+uniform float vx_offset;
+uniform float rt_w; // GeeXLab built-in
+uniform float rt_h; // GeeXLab built-in
+uniform float hatch_y_offset; // 5.0
+uniform float lum_threshold_1; // 1.0
+uniform float lum_threshold_2; // 0.7
+uniform float lum_threshold_3; // 0.5
+uniform float lum_threshold_4; // 0.3
+void main() 
+{ 
+  vec2 uv = gl_TexCoord[0].xy;
+  
+  vec3 tc = vec3(1.0, 0.0, 0.0);
+  if (uv.x < (vx_offset-0.005))
+  {
+    float lum = length(texture2D(sceneTex, uv).rgb);
+    tc = vec3(1.0, 1.0, 1.0);
+  
+    if (lum < lum_threshold_1) 
+    {
+      if (mod(gl_FragCoord.x + gl_FragCoord.y, 10.0) == 0.0) 
+        tc = vec3(0.0, 0.0, 0.0);
+    }  
+  
+    if (lum < lum_threshold_2) 
+    {
+      if (mod(gl_FragCoord.x - gl_FragCoord.y, 10.0) == 0.0) 
+        tc = vec3(0.0, 0.0, 0.0);
+    }  
+  
+    if (lum < lum_threshold_3) 
+    {
+      if (mod(gl_FragCoord.x + gl_FragCoord.y - hatch_y_offset, 10.0) == 0.0) 
+        tc = vec3(0.0, 0.0, 0.0);
+    }  
+  
+    if (lum < lum_threshold_4) 
+    {
+      if (mod(gl_FragCoord.x - gl_FragCoord.y - hatch_y_offset, 10.0) == 0.0) 
+        tc = vec3(0.0, 0.0, 0.0);
+    }
+  }
+  else if (uv.x>=(vx_offset+0.005))
+  {
+    tc = texture2D(sceneTex, uv).rgb;
+  }
+  
+  gl_FragColor = vec4(tc, 1.0);
+}
+
+
+
+another cross stich
+
+[Pixel_Shader]
+uniform sampler2D tex0; 
+uniform float time;
+uniform float rt_w;
+uniform float rt_h;
+uniform float stitching_size = 6.0;
+uniform int invert = 0;
+
+vec4 PostFX(sampler2D tex, vec2 uv, float time)
+{
+  vec4 c = vec4(0.0);
+  float size = stitching_size;
+  vec2 cPos = uv * vec2(rt_w, rt_h);
+  vec2 tlPos = floor(cPos / vec2(size, size));
+  tlPos *= size;
+  int remX = int(mod(cPos.x, size));
+  int remY = int(mod(cPos.y, size));
+  if (remX == 0 && remY == 0)
+    tlPos = cPos;
+  vec2 blPos = tlPos;
+  blPos.y += (size - 1.0);
+  if ((remX == remY) || 
+     (((int(cPos.x) - int(blPos.x)) == (int(blPos.y) - int(cPos.y)))))
+  {
+    if (invert == 1)
+      c = vec4(0.2, 0.15, 0.05, 1.0);
+    else
+      c = texture2D(tex, tlPos * vec2(1.0/rt_w, 1.0/rt_h)) * 1.4;
+  }
+  else
+  {
+    if (invert == 1)
+      c = texture2D(tex, tlPos * vec2(1.0/rt_w, 1.0/rt_h)) * 1.4;
+    else
+      c = vec4(0.0, 0.0, 0.0, 1.0);
+  }
+  return c;
+}
+
+void main (void)
+{
+  vec2 uv = gl_TexCoord[0].st;
+  if (uv.y > 0.5)
+  {
+    gl_FragColor = PostFX(tex0, uv, time);
+  }
+  else
+  {
+    uv.y += 0.5;
+    vec4 c1 = texture2D(tex0, uv);
+    gl_FragColor = c1;			
+  }
+}

@@ -8,8 +8,8 @@
 #endif
 
 int numberOfSamplesPerDimension;
-float pixelResolutionX;
-float pixelResolutionY;
+float2 textureSize;
+
 
 sampler2D SpriteTextureSampler : register(s0)
 {
@@ -27,12 +27,13 @@ float4 MainPS(VertexShaderOutput input) : COLOR
 {
 	float4 color = tex2D(SpriteTextureSampler, input.TextureCoordinates);
 	float halfnumberOfSamplesPerDimension = numberOfSamplesPerDimension / 2.0f;
+	float2 texelCoef = 1.0f / float2(textureSize.x, textureSize.y);
 	for (float u = 0.0f; u < numberOfSamplesPerDimension; u += 1.0f)
 	{
 		for (float v = 0.0f; v < numberOfSamplesPerDimension; v += 1.0f)
 		{
-			float su = (u - halfnumberOfSamplesPerDimension) * pixelResolutionX;
-			float sv = (v - halfnumberOfSamplesPerDimension) * pixelResolutionY;
+			float su = (u - halfnumberOfSamplesPerDimension) * texelCoef.x;
+			float sv = (v - halfnumberOfSamplesPerDimension) * texelCoef.y;
 			color += tex2D(SpriteTextureSampler, input.TextureCoordinates + float2(su, sv));
 		}
 	}

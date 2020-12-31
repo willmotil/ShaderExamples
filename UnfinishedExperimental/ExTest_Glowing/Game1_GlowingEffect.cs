@@ -94,38 +94,16 @@ namespace ShaderExamples
             if (Keyboard.GetState().IsKeyDown(Keys.OemMinus))
                 refractionRange -= .002f;
 
-            percent = ClampInRange(percent, 0f, 1f);
-            strength = WrapInRange(strength, 0f, 20f);
-            refractionRange = WrapInRange(refractionRange, 0f, 2f);
+            percent = MgHelpers.EnsureClampInRange(percent, 0f, 1f);
+            strength = MgHelpers.EnsureWrapInRange(strength, 0f, 20f);
+            refractionRange = MgHelpers.EnsureWrapInRange(refractionRange, 0f, 2f);
 
             base.Update(gameTime);
-        }
-
-        float WrapInRange(float n, float min, float max)
-        {
-            if (n > max)
-                n = min;
-            if (n < min)
-                n = max;
-            return n;
-        }
-        float ClampInRange(float n, float min, float max)
-        {
-            if (n > max)
-                n = max;
-            if (n < min)
-                n = min;
-            return n;
         }
 
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            //effect.Parameters["refractionRange"].SetValue(refractionRange);
-            //effect.Parameters["strength"].SetValue(strength);
-            //effect.Parameters["scrolldir"].SetValue(scroll);
-            //effect.Parameters["DisplacementTexture"].SetValue(textureDisplacementTexture);
 
             effect.Parameters["percent"].SetValue(percent);
 
@@ -133,9 +111,6 @@ namespace ShaderExamples
 
             effect.Parameters["TextureSize"].SetValue(texture.Bounds.Size.ToVector2());
             spriteBatch.Draw(texture, new Rectangle(0, 0, 300, 300), Color.Red);
-
-            ////effect.Parameters["TextureSize"].SetValue(font.Texture.Bounds.Size.ToVector2() );
-            //spriteBatch.DrawString(font, $"Hello World", new Vector2(210, 310), Color.White); // ,0,Vector2.Zero, 10f, SpriteEffects.None, 0);
 
             spriteBatch.End();
 
@@ -145,5 +120,6 @@ namespace ShaderExamples
 
             base.Draw(gameTime);
         }
+
     }
 }

@@ -51,7 +51,7 @@ namespace ShaderExamples
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Space)  || Keyboard.GetState().IsKeyDown(Keys.Left))
+            if (IsPressedWithDelay(Keys.Space, gameTime)  || Keyboard.GetState().IsKeyDown(Keys.Left))
             {
                 percent -= .005f;
                 if (percent <= 0)
@@ -75,6 +75,29 @@ namespace ShaderExamples
             spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        public bool IsPressedWithDelay(Keys key, GameTime gameTime)
+        {
+            if (Keyboard.GetState().IsKeyDown(key) && IsUnDelayed(gameTime))
+                return true;
+            else
+                return false;
+        }
+
+        float delay = 0f;
+        bool IsUnDelayed(GameTime gametime)
+        {
+            if (delay < 0)
+            {
+                delay = .25f;
+                return true;
+            }
+            else
+            {
+                delay -= (float)gametime.ElapsedGameTime.TotalSeconds;
+                return false;
+            }
         }
     }
 }
