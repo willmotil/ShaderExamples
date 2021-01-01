@@ -25,7 +25,7 @@ namespace ShaderExamples
         float distortionRange = .03f;
         float distortionRadius = .06f;
         // edge fade and inner fade percentages.
-        float fadePercent = 0.5f;
+        float fadePercent = 0.8f;
         float fadeStrength = 7.0f;
         // refraction time and direction of refraction.
         float displacementTime = 0;
@@ -133,29 +133,33 @@ namespace ShaderExamples
             return n;
         }
 
-        protected override void Draw(GameTime gameTime)
+        public void SetShaderParameters()
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-            GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1,0);
-
-            // we tell the graphics device that we want to draw onto the offscreen rendertarget.
-            GraphicsDevice.SetRenderTarget(rt);
-
             effect.Parameters["displacementTime"].SetValue(displacementTime);
             effect.Parameters["displacementDirection"].SetValue(displacementDirection);
             effect.Parameters["distortionRange"].SetValue(distortionRange);
             effect.Parameters["distortionRadius"].SetValue(distortionRadius);
             effect.Parameters["percent"].SetValue(fadePercent);
             effect.Parameters["strength"].SetValue(fadeStrength);
-
             effect.Parameters["DisplacementTexture"].SetValue(textureDisplacementTexture);
+        }
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, null, null);
+        protected override void Draw(GameTime gameTime)
+        {
+            //GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1,0);
+
+            // we tell the graphics device that we want to draw onto the offscreen rendertarget.
+            GraphicsDevice.SetRenderTarget(rt);
+
+            SetShaderParameters();
+
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, null, null, null, null, null);
             spriteBatch.Draw(texture, GraphicsDevice.Viewport.Bounds, Color.White);
             spriteBatch.End();
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
-            spriteBatch.DrawString(font, $"Controls mouse, plus or minus keys and arrow keys \n distortionRange: {distortionRange.ToString("##0.000")} \n distortionRadius: {distortionRadius.ToString("##0.000")} \n Fade Percent: {fadePercent.ToString("##0.000")} \n Fade Strength: {fadeStrength.ToString("##0.000")}  \n displacementDirection: {displacementDirection} \n displacementTime: {displacementTime.ToString("##0.000")}", new Vector2(10, 10), Color.White);
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, null, null, null, null, null);
+            spriteBatch.DrawString(font, $"Controls mouse, plus or minus keys brackets + - {"{ }" } and arrow keys \n distortionRange: {distortionRange.ToString("##0.000")} \n distortionRadius: {distortionRadius.ToString("##0.000")} \n Fade Percent: {fadePercent.ToString("##0.000")} \n Fade Strength: {fadeStrength.ToString("##0.000")}  \n displacementDirection: {displacementDirection} \n displacementTime: {displacementTime.ToString("##0.000")}", new Vector2(10, 10), Color.White);
             int cyc = (int)(255f * Math.Sin(_elapsedCycle * 3.1459));
             int icyc = 255 - cyc;
             var color = new Color(cyc, cyc, icyc, icyc); 
@@ -164,6 +168,8 @@ namespace ShaderExamples
 
             // we now tell the graphics device that we intend to draw to the actual backbuffer that is presented to the gpu as the monitors frame data to output.
             GraphicsDevice.SetRenderTarget(null);
+
+            GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, effect, null);
             spriteBatch.Draw(rt, GraphicsDevice.Viewport.Bounds, Color.White); //  <<<<< here we pass the render target itself to spritebatch for the texture to use.

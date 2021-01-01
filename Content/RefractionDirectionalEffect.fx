@@ -59,7 +59,6 @@ float4 RefractPS(float4 position : SV_Position, float4 color : COLOR0, float2 Te
     float dis = ((percent)-length(dif) / 1.579f) * strength;
     float da = saturate(dis);
     col.a = col.a * da + da * 0.001f;
-
     return col;
 }
 
