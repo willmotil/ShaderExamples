@@ -168,3 +168,4 @@ C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExa
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.pdb
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.genruntimeconfig.cache
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Fonts\MgFont2.xnb
+C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.csprojAssemblyReference.cache
