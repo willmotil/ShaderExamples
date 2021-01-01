@@ -25,11 +25,15 @@
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/MaskBlend.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/MaskBlendScroll.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/RadialBlurEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/RefractionDirectionalEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/RefractionEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/ScrollEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/ShockwaveRippleEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/TestingCanidateEffects.fx</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

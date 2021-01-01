@@ -120,7 +120,7 @@ namespace ShaderExamples
             spriteBatch.End();
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
-            spriteBatch.DrawString(font, $"Controls arrow keys \n radialScalar: {time.ToString("##0.000")} \n numberOfSamples: {shockParams} \n textureBlurUvOrigin: {center.ToString()} ", new Vector2(10, 10), Color.White);
+            spriteBatch.DrawString(font, $"Controls left click .. arrow keys \n radialScalar: {time.ToString("##0.000")} \n numberOfSamples: {shockParams} \n textureBlurUvOrigin: {center.ToString()} ", new Vector2(10, 10), Color.White);
             spriteBatch.End();
 
             base.Draw(gameTime);

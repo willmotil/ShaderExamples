@@ -31,7 +31,40 @@ namespace Microsoft.Xna.Framework
             return new Vector4(v.X, v.Y, v.Z, w);
         }
 
-        public static Vector2 VirtualScreenCoords(this GraphicsDevice gd, Vector2 v)
+        public static float EnsureWrapInRange(this float n, float min, float max)
+        {
+            if (n > max)
+                n = min;
+            if (n < min)
+                n = max;
+            return n;
+        }
+        public static int EnsureWrapInRange(this int n, int min, int max)
+        {
+            if (n > max)
+                n = min;
+            if (n < min)
+                n = max;
+            return n;
+        }
+        public static float EnsureClampInRange(this float n, float min, float max)
+        {
+            if (n > max)
+                n = max;
+            if (n < min)
+                n = min;
+            return n;
+        }
+        public static int EnsureClampInRange(this int n, int min, int max)
+        {
+            if (n > max)
+                n = max;
+            if (n < min)
+                n = min;
+            return n;
+        }
+
+        public static Vector2 VirtualScreenCoords(this Vector2 v, GraphicsDevice gd)
         {
             return v / gd.Viewport.Bounds.Size.ToVector2();
         }

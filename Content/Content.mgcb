@@ -26,6 +26,13 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/MgFont.spritefont
 
+#begin Fonts/MgFont2.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/MgFont2.spritefont
+
 #begin GausianBlurEffect.fx
 /importer:EffectImporter
 /processor:EffectProcessor
@@ -218,6 +225,12 @@
 /processorParam:DebugMode=Auto
 /build:RadialBlurEffect.fx
 
+#begin RefractionDirectionalEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:RefractionDirectionalEffect.fx
+
 #begin RefractionEffect.fx
 /importer:EffectImporter
 /processor:EffectProcessor
@@ -235,4 +248,10 @@
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
 /build:ShockwaveRippleEffect.fx
+
+#begin TestingCanidateEffects.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:TestingCanidateEffects.fx
 
