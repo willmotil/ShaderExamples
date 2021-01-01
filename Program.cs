@@ -17,8 +17,8 @@ namespace ShaderExamples
             ////using (var game = new Game1_MaskAndBlend()) game.Run();
             ////using (var game = new Game1_MaskBlendScroll()) game.Run();
             //using (var game = new Game1_Refraction()) game.Run();
-            using (var game = new Game1_RefractionDirectional()) game.Run();
-
+            //using (var game = new Game1_RefractionDirectional()) game.Run();
+            using (var game = new Game1_Mesh()) game.Run();
 
 
             // tests or imcomplete.

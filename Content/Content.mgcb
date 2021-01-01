@@ -219,6 +219,12 @@
 /processorParam:DebugMode=Auto
 /build:MaskBlendScroll.fx
 
+#begin MeshDrawEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:MeshDrawEffect.fx
+
 #begin RadialBlurEffect.fx
 /importer:EffectImporter
 /processor:EffectProcessor
