@@ -155,13 +155,14 @@ namespace ShaderExamples
             GraphicsDevice.SetRenderTarget(offscreenRenderTarget);
             GraphicsDevice.Clear(ClearOptions.Target, clearingColor, 1, 0);
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null); 
+            spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
             spriteBatch.Draw(texture, GraphicsDevice.Viewport.Bounds, Color.White);
             spriteBatch.End();
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null,null, null, null, null, null); 
             spriteBatch.DrawString(font, msgInfo, new Vector2(10, 10), Color.White);
-            spriteBatch.DrawString(font2, $"MonoGame RenderTargets and Shaders ", new Vector2(30, 430), colorCycle.GetColor(gameTime, 20f) );
+            spriteBatch.DrawString(font2, $"MonoGame RenderTargets and Shaders ", new Vector2(30, 430), colorCycle.GetColor(gameTime, 20f));
+            spriteBatch.DrawString(font2, $"It's AOS time", new Vector2(230, 230), colorCycle.GetColor(gameTime, 20f), 0, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0);
             spriteBatch.End();
 
             GraphicsDevice.SetRenderTarget(null);
