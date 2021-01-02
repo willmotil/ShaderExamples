@@ -22,8 +22,8 @@ namespace ShaderExamples
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         SpriteFont font;
-        Texture2D dot;
         Texture2D texture;
+        Texture2D texture2;
         BasicEffect basicEffect;
         Effect meshEffect;
 
@@ -85,6 +85,35 @@ namespace ShaderExamples
                 cinematicCamera.VisualizationOffset = new Vector3(GraphicsDevice.Viewport.Bounds.Right - 100, 1, GraphicsDevice.Viewport.Bounds.Bottom - 100);
         }
 
+        protected override void Initialize()
+        {
+            displayModesMsg = GraphicsDevice.GetListingOfSupportedDisplayModesToString();
+            base.Initialize();
+        }
+
+        protected override void LoadContent()
+        {
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            Content.RootDirectory = @"Content";
+            meshEffect = Content.Load<Effect>("MeshDrawEffect");
+
+            Content.RootDirectory = @"Content/Images";
+            texture = Content.Load<Texture2D>("MG_Logo_Med_exCanvs");
+            texture2 = Content.Load<Texture2D>("wallToMap");
+
+            Content.RootDirectory = @"Content/Fonts";
+            font = Content.Load<SpriteFont>("MgFont");
+
+            gridPlanes3d = new GridPlanes3D(100, 100, .0002f, Color.Red, Color.Blue, Color.Green);
+            mesh.GetMesh(new Rectangle(-100, -100, 200, 200), 8, 8, true, true, false);
+            prism = Prism.Load(GraphicsDevice, 5, 8, 20, texture);
+
+            SetupMyCamera();
+            SetUpOrthographicBasicEffect(GraphicsDevice);
+            SetUpDirectWorldViewPerspectiveProjectionMatrices();
+        }
+
         public void SetupMyCamera()
         {
             // a 90 degree field of view is needed for the projection matrix.
@@ -103,34 +132,6 @@ namespace ShaderExamples
             Window.ClientSizeChanged += cinematicCamera.CalledOnClientSizeChanged;
         }
 
-        protected override void Initialize()
-        {
-            displayModesMsg = GraphicsDevice.GetListingOfSupportedDisplayModesToString();
-            base.Initialize();
-        }
-
-        protected override void LoadContent()
-        {
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            Content.RootDirectory = @"Content";
-            meshEffect = Content.Load<Effect>("MeshDrawEffect");
-
-            Content.RootDirectory = @"Content/Images";
-            texture = Content.Load<Texture2D>("MG_Logo_Med_exCanvs");
-
-            Content.RootDirectory = @"Content/Fonts";
-            font = Content.Load<SpriteFont>("MgFont");
-
-            gridPlanes3d = new GridPlanes3D(100, 100, .0002f, Color.Red, Color.Blue, Color.Green);
-            prism = Prism.Load(GraphicsDevice, 6, 5, 20, texture);
-            mesh.GetMesh(new Rectangle(-100, -100, 200, 200), 8, 8, true, true, false);
-
-            SetupMyCamera();
-            SetUpOrthographicBasicEffect(GraphicsDevice);
-            SetUpDirectWorldViewPerspectiveProjectionMatrices();
-        }
-
         public void SetUpOrthographicBasicEffect(GraphicsDevice device)
         {
             basicEffect = new BasicEffect(GraphicsDevice);
@@ -141,11 +142,8 @@ namespace ShaderExamples
             basicEffect.World = Matrix.Identity;
             basicEffect.View = cinematicCamera.View;
             basicEffect.Projection = cinematicCamera.Projection;
-
-            //float forwardDepthDirection = 1f;
-            //_basicEffect.View = Matrix.Invert(Matrix.CreateWorld(new Vector3(0, 0, 0), new Vector3(0, 0, 1), Vector3.Down));
-            //_basicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, device.Viewport.Width, -device.Viewport.Height, 0, forwardDepthDirection * 0, forwardDepthDirection * 1f);
         }
+
         public void SetUpDirectWorldViewPerspectiveProjectionMatrices()
         {
             proj = Matrix.CreatePerspectiveFieldOfView(1f, GraphicsDevice.Viewport.AspectRatio, .01f, 1000f); // once orthographic or perspective.
@@ -184,12 +182,12 @@ namespace ShaderExamples
             else
                 cinematicCamera.Update(gameTime);
 
-            ComposeMessege();
+            ComposeMsgs();
 
             base.Update(gameTime);
         }
 
-        public void ComposeMessege()
+        public void ComposeMsgs()
         {
             string msg2 = "";
             if (useDesignatedTarget)
@@ -273,6 +271,35 @@ namespace ShaderExamples
             base.Draw(gameTime);
         }
 
+        public void DrawOurGeometryWithBasicEffect(GameTime gameTime)
+        {
+            basicEffect.Projection = cinematicCamera.Projection;
+            basicEffect.View = cinematicCamera.View;
+            basicEffect.VertexColorEnabled = false;
+            basicEffect.TextureEnabled = true;
+            basicEffect.Texture = texture;
+
+            // draw the primitive grid first it has different requisites including state.
+            if (showVisualGrids)
+            {
+                GraphicsDevice.RasterizerState = rs_nocull_solid;
+                basicEffect.World = Matrix.Identity;
+                gridPlanes3d.DrawWithBasicEffect(GraphicsDevice, basicEffect, Matrix.Identity, 10000, DrawHelpers.Dot, true, true, false);
+            }
+
+            SetStates();
+
+            // draw the primitive models.
+            basicEffect.World = Matrix.Identity;
+            mesh.Draw(GraphicsDevice, basicEffect, texture);
+
+            var m = Matrix.Identity * Matrix.CreateScale(10); 
+            m.Translation = new Vector3(0, -300, 0);
+            basicEffect.World = m;
+            prism.DrawWithBasicEffect(GraphicsDevice, basicEffect, texture2);
+        }
+
+
         public void DrawOurGeometryWithEffect(GameTime gameTime)
         {
             ///  K Ok wtf did i do and were....
@@ -296,36 +323,8 @@ namespace ShaderExamples
             meshEffect.Parameters["World"].SetValue(Matrix.Identity);
             mesh.Draw(GraphicsDevice, meshEffect);
 
-            meshEffect.Parameters["World"].SetValue(Matrix.Identity);
-            prism.Draw(GraphicsDevice);
-        }
-
-        public void DrawOurGeometryWithBasicEffect(GameTime gameTime)
-        {
-            basicEffect.VertexColorEnabled = false;
-            basicEffect.TextureEnabled = true;
-            basicEffect.Texture = texture;
-            basicEffect.View = cinematicCamera.View;
-            basicEffect.Projection = cinematicCamera.Projection;
-
-            // draw the primitive grid first it has different requisites including state.
-            if (showVisualGrids)
-            {
-                GraphicsDevice.RasterizerState = rs_nocull_solid;
-                basicEffect.World = Matrix.Identity;
-                gridPlanes3d.DrawWithBasicEffect(GraphicsDevice, basicEffect, Matrix.Identity, 10000, DrawHelpers.Dot, true, true, false);
-            }
-
-            SetStates();
-
-            // draw the primitive models.
-            basicEffect.World = Matrix.Identity;
-            mesh.Draw(GraphicsDevice, basicEffect, texture);
-
-            basicEffect.World = Matrix.Identity;
-            prism.Draw(GraphicsDevice);
-
-            //_basicEffect.View = Matrix.Invert(Matrix.CreateWorld(new Vector3(0, 0, -1), new Vector3(0, 0, 1), Vector3.Down));
+            meshEffect.Parameters["World"].SetValue(Matrix.Identity * Matrix.CreateScale(10f) );
+            prism.DrawWithBasicEffect(GraphicsDevice, basicEffect, texture);
         }
 
         public void DrawRegularSpriteBatchStuff(GameTime gameTime)
@@ -481,244 +480,6 @@ namespace ShaderExamples
             return uv;
         }
     }
-
-
-    public class Prism
-    {
-        #region Variables
-        /// <summary>
-        /// Number of prism faces
-        /// </summary>
-        private int prismSides;
-
-        /// <summary>
-        /// Height of the prism
-        /// </summary>
-        private float prismHeight;
-
-        /// <summary>
-        /// Diameter of the prism
-        /// </summary>
-        private float prismRadius;
-
-        /// <summary>
-        /// Placeholder for the texture on the sides
-        /// </summary>
-        private Texture2D prismSideTexture;
-
-        /// <summary>
-        /// prism BasicEffect
-        /// </summary>
-        public BasicEffect effect;
-
-        /// <summary>
-        /// The World Matrix somewhat redundant being here.
-        /// Now if anything we should provide accessors to set the effect view and projection.
-        /// </summary>
-        private Matrix worldMatrix;
-        #endregion
-
-        // Requisite for draw user indexed primitives. 
-        private VertexPositionTexture[] nverts;
-        private short[] nIndexs;
-        // Requisite for draw primitives.
-        private VertexBuffer vertexBuffer;
-        private IndexBuffer indexBuffer;
-
-        /// <summary>
-        /// Creates and initializes a prism class object at load time. 
-        /// Returns it as desired by the users specifications.
-        /// this method is static so that you call it like so... Prism p = Prism.Load(..) .
-        /// </summary>
-        public static Prism Load(GraphicsDevice device, int nSides, float height, float radius, Texture2D sideTexture)
-        {
-            var t = new Prism();
-            t.prismSides = nSides;
-            t.prismHeight = height;
-            t.prismRadius = radius;
-            t.prismSideTexture = sideTexture;
-            if (nSides < 3)
-                t.prismSides = 3;
-            // you might want decimals and you can probably do this with a scaling matrix in your own vertex shader.
-            if (height < 1f)
-                t.prismHeight = 1f;
-            if (radius < 1f)
-                t.prismRadius = 1f;
-
-            // __________________________________
-            // moved this all to this load method
-            //
-            // All common stuff set up the effect initially.
-            //
-            t.effect = new BasicEffect(device);
-            t.effect.LightingEnabled = false;
-            t.effect.TextureEnabled = true;
-            t.effect.Texture = t.prismSideTexture;
-
-            // The game itself is really responsible for this not some arbitrary game object.
-            if (t.worldMatrix == null) { t.worldMatrix = Matrix.Identity; }
-            float aspectRatio = (float)device.Viewport.Width / device.Viewport.Height;
-            t.effect.View = Matrix.CreateLookAt(new Vector3(0f, 4f, 0f), Vector3.Zero, Vector3.Up);
-            t.effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f), aspectRatio, 1.0f, 10.0f);
-
-            //
-            // build the prism
-            //
-            t.BuildPrism(device, t.prismSides, t.prismHeight, (int)(t.prismRadius));
-
-            // i made this a static load to sort of be like blah forget the constructor.
-            // so now its time to return the new prism object.
-            return t;
-        }
-
-        /// <summary>
-        /// Build the prism
-        /// </summary>
-        private void BuildPrism(GraphicsDevice gd, int sides, float height, float radius)
-        {
-            //
-            // Get the vertices into a vertex array.
-            // Note drawuserindexed primitives can use this.
-            // However its not really using the vertex buffer this way.
-            //
-            nverts = GetPrismVertices(radius, height, sides);
-            //
-            // Send a vertex buffer to the device.
-            // create the buffer, set the vertice array to that buffer, send the buffer to the device. 
-            //
-            vertexBuffer = new VertexBuffer(gd, VertexPositionTexture.VertexDeclaration, nverts.Length, BufferUsage.None);
-            vertexBuffer.SetData(nverts);
-            gd.SetVertexBuffer(vertexBuffer);
-
-            //
-            // set up the index buffer
-            //
-            nIndexs = new short[sides * 3 * 2];
-
-            int offset = 0;
-            // first set
-            for (int i = 2; i < nverts.Length; i++)
-            {
-
-                int i0 = offset + 0;
-                int i1 = offset + 1;
-                int i2 = offset + 2;
-                offset += 3;
-
-                short v0 = (short)(0); // vertice [0] holds the up prism point.
-                short v1 = (short)(i); // each side has 2 points other then top or bottom.
-                short v2 = (short)(i + 1); // we know all our side points are from 2 to the end.
-                                           //
-                                           // now towards the end of this loop.
-                                           // well wrap that second side vertice around back to vertice [2]
-                                           //
-                if (v2 >= nverts.Length)
-                {
-                    v2 = 2;
-                }
-                // we can control our initial culling order.
-                // i.e. the way vertices use backface or frontface culling right here.
-                // So here ill set it to use counter clockwise winding (ccw)
-                nIndexs[i0] = v0;
-                nIndexs[i1] = v1;
-                nIndexs[i2] = v2;
-            }
-            // second set
-            for (int i = 2; i < nverts.Length; i++)
-            {
-                int i0 = offset + 0;
-                int i1 = offset + 1;
-                int i2 = offset + 2;
-                offset += 3;
-
-                short v0 = (short)(1); // vertice [1] holds the down prism point
-                short v1 = (short)(i);
-                short v2 = (short)(i + 1);
-                if (v2 >= nverts.Length)
-                {
-                    v2 = 2;
-                }
-                // reverse the input ordering to keep the winding counter clockwise
-                nIndexs[i0] = v1;
-                nIndexs[i1] = v2;
-                nIndexs[i2] = v0;
-            }
-
-            indexBuffer = new IndexBuffer(gd, IndexElementSize.SixteenBits, offset + 1, BufferUsage.None);
-            indexBuffer.SetData(nIndexs);
-            gd.Indices = indexBuffer;
-        }
-        /// <summary>
-        /// Returns all the vertices the first two indices are the top then bottom points.
-        /// Followed by all the other vertices points.
-        /// </summary>
-        public VertexPositionTexture[] GetPrismVertices(float radius, float height, float nPositions)
-        {
-            VertexPositionTexture[] result = new VertexPositionTexture[(int)(nPositions) + 2];
-
-            float degrees = 0;
-            float radians = 0f;
-            float x;
-            float z;
-            float textureU = .5f;
-            float textureV = 0f;
-            result[0] = new VertexPositionTexture(Vector3.Up * height, new Vector2(textureU, textureV));
-            textureV = 1f;
-            result[1] = new VertexPositionTexture(Vector3.Down * height, new Vector2(textureU, textureV));
-            textureV = .5f;
-            for (int i = 0; i < nPositions; i++)
-            {
-                degrees = i * (360 / nPositions);
-                radians = (degrees * ((float)Math.PI / 180));
-                float sin = (float)(Math.Sin(radians));
-                float cos = (float)(Math.Cos(radians));
-                x = radius * sin;
-                z = radius * cos;
-                textureU = (i) / (nPositions - 1);
-                result[i + 2] = new VertexPositionTexture(new Vector3(x, 0f, z), new Vector2(textureU, textureV));
-            }
-            return result;
-        }
-
-        public void Draw(GraphicsDevice device)
-        {
-            float aspectRatio = (float)device.Viewport.Width / device.Viewport.Height;
-            effect.World = worldMatrix;
-            effect.View = Matrix.CreateLookAt(new Vector3(0f, 0f, 1f), Vector3.Zero, Vector3.Up);
-            effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(65.0f), aspectRatio, .5f, 1000.0f);
-
-            Draw(device, effect.World, effect.View, effect.Projection, true);
-        }
-        public void Draw(GraphicsDevice device, Matrix world, Matrix view, Matrix projection, bool useingUserIndexedPrims)
-        {
-
-            int triangleCount = nIndexs.Length / 3;
-
-            //World Matrix
-            effect.World = world;
-            effect.View = view;
-            effect.Projection = projection;
-
-            effect.CurrentTechnique.Passes[0].Apply();
-
-            if (useingUserIndexedPrims)
-            {
-                // With DrawUserIndexedPrimitives we can work with the arrays themselves by passing them each frame.
-                device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, nverts, 0, nverts.Length, nIndexs, 0, triangleCount, VertexPositionTexture.VertexDeclaration);
-            }
-            else
-            {
-                // set buffers on device
-                device.Indices = indexBuffer;
-                device.SetVertexBuffer(vertexBuffer);
-
-                // this way actually uses these buffers that we already set onto the device.
-                device.DrawPrimitives(PrimitiveType.TriangleList, 0, triangleCount);
-            }
-        }
-
-    }
-
 
     public static class Ext
     {

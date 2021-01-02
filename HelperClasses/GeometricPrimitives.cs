@@ -4,6 +4,9 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+// Assortment hodge podge of primitives ive made over time. 
+// I really need to line these all up so they work the same way and use the same vertex structures.
+
 namespace ShaderExamples
 {
 
@@ -490,94 +493,6 @@ namespace ShaderExamples
         }
     }
 
-    public class Circle3d
-    {
-        bool centered = true;
-        public VertexPositionTexture[] vertices;
-        public int[] indices;
-
-        static int OrientationOptionRightUpForward
-        {
-            get;
-            set;
-        }
-
-        public Circle3d(int segments)
-        {
-            CreateCircle(segments, .01f, true, 2);
-        }
-        /// <summary>
-        /// Create a circle default orientation is 2 forward
-        /// </summary>
-        public Circle3d(int segments, float lineSize)
-        {
-            CreateCircle(segments, lineSize, true, 2);
-        }
-        /// <summary>
-        /// Create a circle default orientation is 2 forward
-        /// </summary>
-        public Circle3d(int segments, float lineSize0to1, bool centerIt, int orientation012)
-        {
-            CreateCircle(segments, lineSize0to1, centerIt, orientation012);
-        }
-        /// <summary>
-        /// Create a circle default orientation is 2 forward
-        /// </summary>
-        public void CreateCircle(int segments, float lineSize0to1, bool centerIt, int orientation012)
-        {
-            centered = centerIt;
-            float centering = .5f;
-            if (centered)
-                centering = 0.0f;
-            float offset = 1f - lineSize0to1;
-            vertices = new VertexPositionTexture[segments * 2];
-            indices = new int[segments * 6];
-            float pi2 = (float)(Math.PI * 2d);
-            float mult = 1f / (float)(segments);
-            int index = 0;
-            int v_index = 0;
-            int i_index = 0;
-            for (index = 0; index < segments; index++)
-            {
-                var u = (float)(index) * mult;
-                double radians = u * pi2;
-                float x = ((float)(Math.Sin(radians)) * .5f) + centering;
-                float y = ((float)(Math.Cos(radians)) * .5f) + centering;
-                vertices[v_index + 0] = new VertexPositionTexture(ReOrient(new Vector3(x, y, 0)), new Vector2(u, 0f));
-                vertices[v_index + 1] = new VertexPositionTexture(ReOrient(new Vector3(x * offset, y * offset, 0)), new Vector2(u, 1f));
-                if (index < segments - 1)
-                {
-                    indices[i_index + 0] = v_index + 0; indices[i_index + 1] = v_index + 1; indices[i_index + 2] = v_index + 2;
-                    indices[i_index + 3] = v_index + 2; indices[i_index + 4] = v_index + 1; indices[i_index + 5] = v_index + 3;
-                }
-                else
-                {
-                    // connect the last one directly to the front
-                    indices[i_index + 0] = v_index + 0; indices[i_index + 1] = v_index + 1; indices[i_index + 2] = 0;
-                    indices[i_index + 3] = 0; indices[i_index + 4] = v_index + 1; indices[i_index + 5] = 1;
-                }
-                v_index += 2;
-                i_index += 6;
-            }
-        }
-        Vector3 ReOrient(Vector3 v)
-        {
-            if (OrientationOptionRightUpForward == 1)
-                v = new Vector3(v.Z, v.X, v.Y);
-            if (OrientationOptionRightUpForward == 2)
-                v = new Vector3(v.X, v.Z, v.Y);
-            return v;
-        }
-        public void Draw(GraphicsDevice gd, Effect effect)
-        {
-            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-                gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, (indices.Length / 3), VertexPositionTexture.VertexDeclaration);
-            }
-        }
-    }
-
     public class CircleNav3d
     {
         bool centered = true;
@@ -892,4 +807,397 @@ namespace ShaderExamples
         }
     }
 
+    public class Circle3d
+    {
+        bool centered = true;
+        public VertexPositionTexture[] vertices;
+        public int[] indices;
+
+        static int OrientationOptionRightUpForward
+        {
+            get;
+            set;
+        }
+
+        public Circle3d(int segments)
+        {
+            CreateCircle(segments, .01f, true, 2);
+        }
+        /// <summary>
+        /// Create a circle default orientation is 2 forward
+        /// </summary>
+        public Circle3d(int segments, float lineSize)
+        {
+            CreateCircle(segments, lineSize, true, 2);
+        }
+        /// <summary>
+        /// Create a circle default orientation is 2 forward
+        /// </summary>
+        public Circle3d(int segments, float lineSize0to1, bool centerIt, int orientation012)
+        {
+            CreateCircle(segments, lineSize0to1, centerIt, orientation012);
+        }
+        /// <summary>
+        /// Create a circle default orientation is 2 forward
+        /// </summary>
+        public void CreateCircle(int segments, float lineSize0to1, bool centerIt, int orientation012)
+        {
+            centered = centerIt;
+            float centering = .5f;
+            if (centered)
+                centering = 0.0f;
+            float offset = 1f - lineSize0to1;
+            vertices = new VertexPositionTexture[segments * 2];
+            indices = new int[segments * 6];
+            float pi2 = (float)(Math.PI * 2d);
+            float mult = 1f / (float)(segments);
+            int index = 0;
+            int v_index = 0;
+            int i_index = 0;
+            for (index = 0; index < segments; index++)
+            {
+                var u = (float)(index) * mult;
+                double radians = u * pi2;
+                float x = ((float)(Math.Sin(radians)) * .5f) + centering;
+                float y = ((float)(Math.Cos(radians)) * .5f) + centering;
+                vertices[v_index + 0] = new VertexPositionTexture(ReOrient(new Vector3(x, y, 0)), new Vector2(u, 0f));
+                vertices[v_index + 1] = new VertexPositionTexture(ReOrient(new Vector3(x * offset, y * offset, 0)), new Vector2(u, 1f));
+                if (index < segments - 1)
+                {
+                    indices[i_index + 0] = v_index + 0; indices[i_index + 1] = v_index + 1; indices[i_index + 2] = v_index + 2;
+                    indices[i_index + 3] = v_index + 2; indices[i_index + 4] = v_index + 1; indices[i_index + 5] = v_index + 3;
+                }
+                else
+                {
+                    // connect the last one directly to the front
+                    indices[i_index + 0] = v_index + 0; indices[i_index + 1] = v_index + 1; indices[i_index + 2] = 0;
+                    indices[i_index + 3] = 0; indices[i_index + 4] = v_index + 1; indices[i_index + 5] = 1;
+                }
+                v_index += 2;
+                i_index += 6;
+            }
+        }
+        Vector3 ReOrient(Vector3 v)
+        {
+            if (OrientationOptionRightUpForward == 1)
+                v = new Vector3(v.Z, v.X, v.Y);
+            if (OrientationOptionRightUpForward == 2)
+                v = new Vector3(v.X, v.Z, v.Y);
+            return v;
+        }
+        public void Draw(GraphicsDevice gd, Effect effect)
+        {
+            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, (indices.Length / 3), VertexPositionTexture.VertexDeclaration);
+            }
+        }
+    }
+
+    public class Prism
+    {
+        #region Variables
+        /// <summary>
+        /// Number of prism faces
+        /// </summary>
+        private int prismSides;
+
+        /// <summary>
+        /// Height of the prism
+        /// </summary>
+        private float prismHeight;
+
+        /// <summary>
+        /// Diameter of the prism
+        /// </summary>
+        private float prismRadius;
+
+        /// <summary>
+        /// Placeholder for the texture on the sides
+        /// </summary>
+        private Texture2D prismSideTexture;
+
+        /// <summary>
+        /// prism BasicEffect
+        /// </summary>
+        public BasicEffect effect;
+
+        /// <summary>
+        /// The World Matrix somewhat redundant being here.
+        /// Now if anything we should provide accessors to set the effect view and projection.
+        /// </summary>
+        public Matrix worldMatrix = Matrix.Identity;
+        #endregion
+
+        // Requisite for draw user indexed primitives. 
+        private VertexPositionTexture[] nverts;
+        private short[] nIndexs;
+        // Requisite for draw primitives.
+        private VertexBuffer vertexBuffer;
+        private IndexBuffer indexBuffer;
+
+        /// <summary>
+        /// Creates and initializes a prism class object at load time. 
+        /// Returns it as desired by the users specifications.
+        /// this method is static so that you call it like so... Prism p = Prism.Load(..) .
+        /// </summary>
+        public static Prism Load(GraphicsDevice device, int nSides, float height, float radius, Texture2D sideTexture)
+        {
+            var t = new Prism();
+            t.prismSides = nSides;
+            t.prismHeight = height;
+            t.prismRadius = radius;
+            t.prismSideTexture = sideTexture;
+            if (nSides < 3)
+                t.prismSides = 3;
+            // you might want decimals and you can probably do this with a scaling matrix in your own vertex shader.
+            if (height < 1f)
+                t.prismHeight = 1f;
+            if (radius < 1f)
+                t.prismRadius = 1f;
+
+            // The game itself is really responsible for this not some arbitrary game object.
+            if (t.worldMatrix == null) 
+                t.worldMatrix = Matrix.Identity; 
+            float aspectRatio = (float)device.Viewport.Width / device.Viewport.Height;
+            //t.effect.View = Matrix.CreateLookAt(new Vector3(0f, 4f, 0f), Vector3.Zero, Vector3.Up);
+            //t.effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f), aspectRatio, 1.0f, 10.0f);
+
+            //
+            // build the prism
+            //
+            t.BuildPrism(device, t.prismSides, t.prismHeight, (int)(t.prismRadius));
+
+            // i made this a static load to sort of be like blah forget the constructor.
+            // so now its time to return the new prism object.
+            return t;
+        }
+
+        /// <summary>
+        /// Build the prism
+        /// </summary>
+        private void BuildPrism(GraphicsDevice gd, int sides, float height, float radius)
+        {
+            //
+            // Get the vertices into a vertex array.
+            // Note drawuserindexed primitives can use this.
+            // However its not really using the vertex buffer this way.
+            //
+            nverts = GetPrismVertices(radius, height, sides);
+            //
+            // Send a vertex buffer to the device.
+            // create the buffer, set the vertice array to that buffer, send the buffer to the device. 
+            //
+            vertexBuffer = new VertexBuffer(gd, VertexPositionTexture.VertexDeclaration, nverts.Length, BufferUsage.None);
+            vertexBuffer.SetData(nverts);
+            gd.SetVertexBuffer(vertexBuffer);
+
+            //
+            // set up the index buffer
+            //
+            nIndexs = new short[sides * 3 * 2];
+
+            int offset = 0;
+            // first set
+            for (int i = 2; i < nverts.Length; i++)
+            {
+
+                int i0 = offset + 0;
+                int i1 = offset + 1;
+                int i2 = offset + 2;
+                offset += 3;
+
+                short v0 = (short)(0); // vertice [0] holds the up prism point.
+                short v1 = (short)(i); // each side has 2 points other then top or bottom.
+                short v2 = (short)(i + 1); // we know all our side points are from 2 to the end.
+                                           //
+                                           // now towards the end of this loop.
+                                           // well wrap that second side vertice around back to vertice [2]
+                                           //
+                if (v2 >= nverts.Length)
+                {
+                    v2 = 2;
+                }
+                // we can control our initial culling order.
+                // i.e. the way vertices use backface or frontface culling right here.
+                // So here ill set it to use counter clockwise winding (ccw)
+                nIndexs[i0] = v0;
+                nIndexs[i1] = v1;
+                nIndexs[i2] = v2;
+            }
+            // second set
+            for (int i = 2; i < nverts.Length; i++)
+            {
+                int i0 = offset + 0;
+                int i1 = offset + 1;
+                int i2 = offset + 2;
+                offset += 3;
+
+                short v0 = (short)(1); // vertice [1] holds the down prism point
+                short v1 = (short)(i);
+                short v2 = (short)(i + 1);
+                if (v2 >= nverts.Length)
+                {
+                    v2 = 2;
+                }
+                // reverse the input ordering to keep the winding counter clockwise
+                nIndexs[i0] = v1;
+                nIndexs[i1] = v2;
+                nIndexs[i2] = v0;
+            }
+
+            indexBuffer = new IndexBuffer(gd, IndexElementSize.SixteenBits, offset + 1, BufferUsage.None);
+            indexBuffer.SetData(nIndexs);
+            gd.Indices = indexBuffer;
+        }
+        /// <summary>
+        /// Returns all the vertices the first two indices are the top then bottom points.
+        /// Followed by all the other vertices points.
+        /// </summary>
+        public VertexPositionTexture[] GetPrismVertices(float radius, float height, float nPositions)
+        {
+            VertexPositionTexture[] result = new VertexPositionTexture[(int)(nPositions) + 2];
+
+            float degrees = 0;
+            float radians = 0f;
+            float x;
+            float z;
+            float textureU = .5f;
+            float textureV = 0f;
+            result[0] = new VertexPositionTexture(Vector3.Up * height, new Vector2(textureU, textureV));
+            textureV = 1f;
+            result[1] = new VertexPositionTexture(Vector3.Down * height, new Vector2(textureU, textureV));
+            textureV = .5f;
+            for (int i = 0; i < nPositions; i++)
+            {
+                degrees = i * (360 / nPositions);
+                radians = (degrees * ((float)Math.PI / 180));
+                float sin = (float)(Math.Sin(radians));
+                float cos = (float)(Math.Cos(radians));
+                x = radius * sin;
+                z = radius * cos;
+                textureU = (i) / (nPositions - 1);
+                result[i + 2] = new VertexPositionTexture(new Vector3(x, 0f, z), new Vector2(textureU, textureV));
+            }
+            return result;
+        }
+
+        public void DrawWithBasicEffect(GraphicsDevice device, BasicEffect effect, Texture2D texture)
+        {
+            float aspectRatio = (float)device.Viewport.Width / device.Viewport.Height;
+            effect.LightingEnabled = false;
+            effect.VertexColorEnabled = false;
+            effect.TextureEnabled = true;
+            effect.Texture = texture;
+
+            effect.CurrentTechnique.Passes[0].Apply();
+            device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, nverts, 0, nverts.Length, nIndexs, 0, nIndexs.Length / 3, VertexPositionTexture.VertexDeclaration);
+
+            //Draw(device, effect.World, effect.View, effect.Projection, true);
+        }
+
+        //public void Draw(GraphicsDevice device, Matrix world, Matrix view, Matrix projection, bool useingUserIndexedPrims)
+        //{
+
+        //    int triangleCount = nIndexs.Length / 3;
+
+        //    //World Matrix
+        //    effect.World = world;
+        //    effect.View = view;
+        //    effect.Projection = projection;
+
+        //    effect.CurrentTechnique.Passes[0].Apply();
+
+        //    if (useingUserIndexedPrims)
+        //    {
+        //        // With DrawUserIndexedPrimitives we can work with the arrays themselves by passing them each frame.
+        //        device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, nverts, 0, nverts.Length, nIndexs, 0, triangleCount, VertexPositionTexture.VertexDeclaration);
+        //    }
+        //    else
+        //    {
+        //        // set buffers on device
+        //        device.Indices = indexBuffer;
+        //        device.SetVertexBuffer(vertexBuffer);
+
+        //        // this way actually uses these buffers that we already set onto the device.
+        //        device.DrawPrimitives(PrimitiveType.TriangleList, 0, triangleCount);
+        //    }
+        //}
+
+    }
+
+    /// <summary>
+    /// basically a wide spectrum vertice structure minus weights.
+    /// </summary>
+    public struct VertexPositionColorTextureNormalTangent : IVertexType
+    {
+        public Vector3 Position;
+        public Vector4 Color;
+        public Vector2 TextureCoordinate;
+        public Vector3 Normal;
+        public Vector3 Tangent;
+
+        public static VertexDeclaration VertexDeclaration = new VertexDeclaration
+        (
+              new VertexElement(VertexElementByteOffset.PositionStartOffset(), VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
+              new VertexElement(VertexElementByteOffset.OffsetColor(), VertexElementFormat.Color, VertexElementUsage.Color, 0),                           // which one is right.
+              //new VertexElement(VertexElementByteOffset.OffsetVector4(), VertexElementFormat.Vector4, VertexElementUsage.Color, 0),                  // which one
+              new VertexElement(VertexElementByteOffset.OffsetVector2(), VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0),
+              new VertexElement(VertexElementByteOffset.OffsetVector3(), VertexElementFormat.Vector3, VertexElementUsage.Normal, 0),
+              new VertexElement(VertexElementByteOffset.OffsetVector3(), VertexElementFormat.Vector3, VertexElementUsage.Normal, 1)
+        );
+        VertexDeclaration IVertexType.VertexDeclaration { get { return VertexDeclaration; } }
+    }
+
+    /// <summary>
+    /// basically a wide spectrum vertice structure.
+    /// </summary>
+    public struct VertexPositionColorTextureNormalTangentBiTangentWeights : IVertexType
+    {
+        public Vector3 Position;
+        public Vector4 Color;
+        public Vector2 TextureCoordinate;
+        public Vector3 Normal;
+        public Vector3 Tangent;
+        public Vector3 BiTangent;
+        public Vector4 BlendIndices;
+        public Vector4 BlendWeights;
+
+        public static VertexDeclaration VertexDeclaration = new VertexDeclaration
+        (
+              new VertexElement(VertexElementByteOffset.PositionStartOffset(), VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
+              //new VertexElement(VertexElementByteOffset.OffsetColor(), VertexElementFormat.Color, VertexElementUsage.Color, 0),
+              new VertexElement(VertexElementByteOffset.OffsetVector4(), VertexElementFormat.Vector4, VertexElementUsage.Color, 0),
+              new VertexElement(VertexElementByteOffset.OffsetVector2(), VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0),
+              new VertexElement(VertexElementByteOffset.OffsetVector3(), VertexElementFormat.Vector3, VertexElementUsage.Normal, 0),
+              new VertexElement(VertexElementByteOffset.OffsetVector3(), VertexElementFormat.Vector3, VertexElementUsage.Normal, 1),
+              new VertexElement(VertexElementByteOffset.OffsetVector3(), VertexElementFormat.Vector3, VertexElementUsage.Normal, 2),
+              new VertexElement(VertexElementByteOffset.OffsetVector4(), VertexElementFormat.Vector4, VertexElementUsage.BlendIndices, 0),
+              new VertexElement(VertexElementByteOffset.OffsetVector4(), VertexElementFormat.Vector4, VertexElementUsage.BlendWeight, 0)
+        );
+        VertexDeclaration IVertexType.VertexDeclaration { get { return VertexDeclaration; } }
+    }
+    /// <summary>
+    /// This is a helper struct for tallying byte offsets
+    /// </summary>
+    public struct VertexElementByteOffset
+    {
+        public static int currentByteSize = 0;
+        //[STAThread]
+        public static int PositionStartOffset() { currentByteSize = 0; var s = sizeof(float) * 3; currentByteSize += s; return currentByteSize - s; }
+        public static int Offset(int n) { var s = sizeof(int); currentByteSize += s; return currentByteSize - s; }
+        public static int Offset(float n) { var s = sizeof(float); currentByteSize += s; return currentByteSize - s; }
+        public static int Offset(Vector2 n) { var s = sizeof(float) * 2; currentByteSize += s; return currentByteSize - s; }
+        public static int Offset(Color n) { var s = sizeof(int); currentByteSize += s; return currentByteSize - s; }
+        public static int Offset(Vector3 n) { var s = sizeof(float) * 3; currentByteSize += s; return currentByteSize - s; }
+        public static int Offset(Vector4 n) { var s = sizeof(float) * 4; currentByteSize += s; return currentByteSize - s; }
+
+        public static int OffsetInt() { var s = sizeof(int); currentByteSize += s; return currentByteSize - s; }
+        public static int OffsetFloat() { var s = sizeof(float); currentByteSize += s; return currentByteSize - s; }
+        public static int OffsetColor() { var s = sizeof(int); currentByteSize += s; return currentByteSize - s; }
+        public static int OffsetVector2() { var s = sizeof(float) * 2; currentByteSize += s; return currentByteSize - s; }
+        public static int OffsetVector3() { var s = sizeof(float) * 3; currentByteSize += s; return currentByteSize - s; }
+        public static int OffsetVector4() { var s = sizeof(float) * 4; currentByteSize += s; return currentByteSize - s; }
+    }
 }
