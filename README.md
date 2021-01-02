@@ -1,6 +1,7 @@
-# ShaderExamples
+# ShaderExamples  
 
-For the MonoGame Framework ... https://www.monogame.net/
+These are shader examples for the MonoGame Framework ... https://www.monogame.net/ 
+These examples were tested against a DirectX project.
  Each game1 folder here is nearly stand alone, It has a shader that goes with it and some images.
 
 
