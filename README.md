@@ -14,3 +14,9 @@ _______
 
 <img src="ShaderFade.png"  height="400" width="400">
 
+_______
+
+Additionally you can look to this reference post on the monogame community site for reference to shader tutorials and such for monogame.
+
+https://community.monogame.net/t/shader-examples-code-links-reference/14527
+

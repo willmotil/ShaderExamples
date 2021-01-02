@@ -12,11 +12,9 @@ namespace Microsoft.Xna.Framework
 
     public class DemoCamera
     {
-        Vector3 nowPosition = Vector3.Zero;
-        Vector3 lastPosition = Vector3.Zero;
-        Vector3 targetPosition = Vector3.Zero;
-
         Vector3 _camPos = Vector3.Zero;
+        Vector3 _camLastPos = Vector3.Zero;
+        Vector3 _camLastLastPos = Vector3.Zero;
         Vector3 _targetLookAtPos = Vector3.One;
         Vector3 _forward = Vector3.Zero;
         Vector3 _lastForward = Vector3.Zero;
@@ -29,6 +27,7 @@ namespace Microsoft.Xna.Framework
         bool _spriteBatchStyle = false;
         float inv = 1f;
         Matrix _projection = Matrix.Identity;
+        float _elapsed = 0;
         float _durationElapsed = 0f;
         float _durationInSeconds = 1f;
 
@@ -45,6 +44,8 @@ namespace Microsoft.Xna.Framework
         public Vector3 Right { get { return _cameraWorld.Right; } }
         public float Near { get { return _near; } }
         public float Far { get { return _far; } }
+
+        public Vector3 TargetPosition { get { return _targetLookAtPos; } }
         public bool IsSpriteBatchStyled { get { return _spriteBatchStyle; } }
         public bool IsPerspectiveStyled { get { return _perspectiveStyle; } }
         public bool UseForwardPathLook { get; set; }
@@ -71,87 +72,117 @@ namespace Microsoft.Xna.Framework
         }
 
         /// <summary>
-        /// If waypoints are present then and automatedCameraMotion is set to true the cinematic camera will execute.
+        /// This defaults to useing the camera settings for UseForwardPathLook or UseWayPointMotion
+        /// </summary>
+        public void Update(GameTime gameTime)
+        {
+            if(UseForwardPathLook)
+                ProcessUpdate(false, _forward + _camPos, gameTime);
+            else
+                ProcessUpdate(false, _forward + _camPos, gameTime);
+        }
+
+        /// <summary>
+        /// Calling this overides the forward look to point at a position temporarily.
         /// </summary>
         public void Update(Vector3 targetPosition, GameTime gameTime)
         {
-            //if (automatedCameraMotion && wayPointReference != null)
-            //    CurveThruWayPoints(targetPosition, wayPointReference, gameTime);
-            //else
-                UpdateCameraUsingDefaultKeyboardCommands(gameTime);
+            if(targetPosition != _camPos)
+                ProcessUpdate(true, targetPosition, gameTime);
+            else
+                ProcessUpdate(false, _forward + _camPos, gameTime);
         }
 
-        public void UpdateCameraUsingDefaultKeyboardCommands(GameTime gameTime)
+        /// <summary>
+        /// If waypoints are present then and automatedCameraMotion is set to true the cinematic camera will execute.
+        /// </summary>
+        void ProcessUpdate(bool usePassedTarget, Vector3 targetPosition, GameTime gameTime)
         {
-            var elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            // look
-            if (Keyboard.GetState().IsKeyDown(Keys.A))
-                LookLeftLocally(LookAtSpeedPerSecond * elapsed);
-            if (Keyboard.GetState().IsKeyDown(Keys.D))
-                LookRightLocally(LookAtSpeedPerSecond * elapsed);
-
-            if (Keyboard.GetState().IsKeyDown(Keys.W))
-                LookUpLocally(LookAtSpeedPerSecond * elapsed);
-            if (Keyboard.GetState().IsKeyDown(Keys.S))
-                LookDownLocally(LookAtSpeedPerSecond * elapsed);
-
-            // move
-            if (Keyboard.GetState().IsKeyDown(Keys.E))
-                MoveForwardLocally(MovementSpeedPerSecond * elapsed);
-            if (Keyboard.GetState().IsKeyDown(Keys.Q))
-                MoveBackLocally(MovementSpeedPerSecond * elapsed);
-
-            if (Keyboard.GetState().IsKeyDown(Keys.Up))
-                MoveUpLocally(MovementSpeedPerSecond * elapsed);
-            if (Keyboard.GetState().IsKeyDown(Keys.Down))
-                MoveDownLocally(MovementSpeedPerSecond * elapsed);
-            if (Keyboard.GetState().IsKeyDown(Keys.Left))
-                MoveLeftLocally(MovementSpeedPerSecond * elapsed);
-            if (Keyboard.GetState().IsKeyDown(Keys.Right))
-                MoveRightLocally(MovementSpeedPerSecond * elapsed);
-
-            // roll
-            if (Keyboard.GetState().IsKeyDown(Keys.C))
-                RollClockwise(MovementSpeedPerSecond * elapsed);
-            if (Keyboard.GetState().IsKeyDown(Keys.Z))
-                RollCounterClockwise(MovementSpeedPerSecond * elapsed);
-
-            CurveThruWayPoints(gameTime);
-
-            //// transform
-            //TransformCamera(_cameraWorld.Translation, _cameraWorld.Forward + _cameraWorld.Translation, _cameraWorld.Up);
-        }
-
-        public void CurveThruWayPoints(GameTime gameTime)
-        {
-            _durationElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _durationElapsed += _elapsed;
             if (_durationElapsed >= WayPointCycleDurationInTotalSeconds)
                 _durationElapsed -= WayPointCycleDurationInTotalSeconds;
 
+            Vector3 nowPosition = _camPos;
+
             float timeOnCurve = _durationElapsed / WayPointCycleDurationInTotalSeconds;
 
-            lastPosition = nowPosition;
-
             if (UseWayPointMotion)
+            {
                 nowPosition = ToVector3(wayPointCurve.GetUniformSplinePoint(timeOnCurve));
-            else
+            }
+            else 
+            {
+                // manual movement with camera.
+                UpdateCameraMotionUsingDefaultKeyboardCommands(gameTime);
                 nowPosition = _cameraWorld.Translation;
+            }
 
-            if (UseForwardPathLook)
-                targetPosition = nowPosition - lastPosition + nowPosition;
-            else
-                targetPosition = _cameraWorld.Forward + nowPosition; //_cameraWorld.Translation;
+            if (usePassedTarget)
+            {
+                // here we just pass the given target position passed in by the user as this call is a overide command.
+                _targetLookAtPos = targetPosition;
+            }
+            else // usePassedTarget == false
+            {
+                if (UseForwardPathLook)
+                    _targetLookAtPos = (nowPosition - _camPos) + nowPosition;                // _camPos - _camLastPos + _camPos;
+                else
+                {
+                    // manual look at controls.
+                    UpdateCameraLookAtUsingDefaultKeyboardCommands(gameTime);
+                    _targetLookAtPos = _cameraWorld.Forward + nowPosition; //  _cameraWorld.Forward + _cameraWorld.Translation;
+                }
+            }
 
-            TransformCamera(nowPosition, targetPosition, _camUp);
+            TransformCamera(nowPosition, _targetLookAtPos, _camUp);
         }
 
-        public void TransformCamera(Vector3 pos, Vector3 target, Vector3 up)
+        void UpdateCameraLookAtUsingDefaultKeyboardCommands(GameTime gameTime)
+        {
+            // look
+            if (Keyboard.GetState().IsKeyDown(Keys.A))
+                LookLeftLocally(LookAtSpeedPerSecond * _elapsed);
+            if (Keyboard.GetState().IsKeyDown(Keys.D))
+                LookRightLocally(LookAtSpeedPerSecond * _elapsed);
+
+            if (Keyboard.GetState().IsKeyDown(Keys.W))
+                LookUpLocally(LookAtSpeedPerSecond * _elapsed);
+            if (Keyboard.GetState().IsKeyDown(Keys.S))
+                LookDownLocally(LookAtSpeedPerSecond * _elapsed);
+
+            // roll
+            if (Keyboard.GetState().IsKeyDown(Keys.C))
+                RollClockwise(MovementSpeedPerSecond * _elapsed);
+            if (Keyboard.GetState().IsKeyDown(Keys.Z))
+                RollCounterClockwise(MovementSpeedPerSecond * _elapsed);
+        }
+        void UpdateCameraMotionUsingDefaultKeyboardCommands(GameTime gameTime)
+        {
+            // move
+            if (Keyboard.GetState().IsKeyDown(Keys.E))
+                MoveForwardLocally(MovementSpeedPerSecond * _elapsed);
+            if (Keyboard.GetState().IsKeyDown(Keys.Q))
+                MoveBackLocally(MovementSpeedPerSecond * _elapsed);
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Up))
+                MoveUpLocally(MovementSpeedPerSecond * _elapsed);
+            if (Keyboard.GetState().IsKeyDown(Keys.Down))
+                MoveDownLocally(MovementSpeedPerSecond * _elapsed);
+            if (Keyboard.GetState().IsKeyDown(Keys.Left))
+                MoveLeftLocally(MovementSpeedPerSecond * _elapsed);
+            if (Keyboard.GetState().IsKeyDown(Keys.Right))
+                MoveRightLocally(MovementSpeedPerSecond * _elapsed);
+        }
+
+        public void TransformCamera(Vector3 currentPosition, Vector3 targetPosition, Vector3 upNormalDirection)
         {
             
-            _targetLookAtPos = target;
-            _camPos = pos;
-            _camUp = up;
+            _targetLookAtPos = targetPosition;
+            _camLastLastPos = _camLastPos;
+            _camLastPos = _camPos;
+            _camPos = currentPosition;
+            _camUp = upNormalDirection;
             _forward = _targetLookAtPos - _camPos;
 
             if (_forward.X == 0 && _forward.Y == 0 && _forward.Z == 0)
@@ -161,6 +192,11 @@ namespace Microsoft.Xna.Framework
 
             // TODO handle up down vector gimble lock astetic under fixed camera.
             // ...
+            
+            // you might ask why is ther a lastlastCamPos well that is all part of my evil plan to handle figuring out were a free cameras up vector should want to be placed or drift to in order to make everything really cool.
+            // basically we want a up drift in some cases like for a space or cinimatic camera if we are turning in a direction the 3 positions last2 last1 now0 ,  MAY or may not, form a triangle A,B,C were if B lies at a tangent to a point along the line of A-B
+            // its possible that A B C simply line up in that case its mute and no Up vector drift can be recommended.
+
 
             // ...
 
