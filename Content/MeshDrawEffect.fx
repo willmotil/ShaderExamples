@@ -17,7 +17,7 @@ Texture2D SpriteTexture;
 SamplerState SpriteTextureSampler = sampler_state
 {
     Texture = <SpriteTexture>;
-    AddressU = Wrap; AddressV = Wrap; //magfilter = linear;//minfilter = linear;
+    //AddressU = Wrap; AddressV = Wrap; //magfilter = linear;//minfilter = linear;
 };
 
 //_______________________________________________________________
@@ -32,7 +32,7 @@ struct VsInputQuad
 };
 struct VsOutputQuad
 {
-    float4 Position : SV_Position;
+    float4 Position : SV_POSITION;
     float3 Normal : NORMAL0;
     float2 TextureCoordinate : TEXCOORD0;
     float3 Position3D : TEXCOORD1;
@@ -60,11 +60,12 @@ PsOutputQuad PixelShaderQuadDraw(VsOutputQuad input)
 {
     PsOutputQuad output;
     output.Color = tex2D(SpriteTextureSampler, input.TextureCoordinate);
-    output.Color.ra = 1.0f;
+    output.Color.rg = 1.0f;
+    output.Color.a = 1.0f;
     return output;
 }
 
-technique QuadDraw
+technique TriangleDraw
 {
     pass
     {

@@ -12,58 +12,100 @@ using System.Text;
 
 namespace ShaderExamples
 {
-    public class Game1_Mesh : Game
+    public class Game1_Mesh_TestsAndStuff : Game
     {
+        const int STARTprefScrWidth = 1000;
+        const int STARTprefScrHeight = 750;
+        string msg = "";
+        string displayModesMsg = "";
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         SpriteFont font;
+        Texture2D dot;
         Texture2D texture;
-        BasicEffect _basicEffect;
+        BasicEffect basicEffect;
         Effect meshEffect;
 
-        private DemoCamera _cameraCinematic;
-        private bool _useDemoWaypoints = false;
-        private bool _useDesignatedTarget = false;
-        private Vector3 _targetLookAt = new Vector3(0, 0, 0);
-
-        private static float Range = 28.0f;
-        private static float weight = 1f;
-        private Vector4[] _cameraWayPoints = new Vector4[]
-        {
-            new Vector4(-Range, 0, 0, weight), new Vector4(0, 0, -Range, weight), new Vector4(Range, 0, 0, weight), new Vector4(0, 0, Range , weight)
-        };
-
-
-
         MeshSimple mesh = new MeshSimple();
+        Prism prism = new Prism();
+        GridPlanes3D gridPlanes3d;
+
         Matrix proj;
         Matrix view;
         Matrix world;
 
+        private CinematicCamera cinematicCamera;
 
-        string msg = "";
+        private bool useDesignatedTarget = true;
+        private Vector3 _targetLookAt = new Vector3(0, 0, 0);
+        private static float weight = 1f;
+        private static float camHeight = -30f;
+        private static float Range = CinematicCamera.GetRequisitePerspectiveSpriteBatchAlignmentZdistance(STARTprefScrWidth, STARTprefScrHeight, 1f);
+        private Vector4[] cameraWayPoints = new Vector4[]
+        {
+            new Vector4(-Range, camHeight, 0, weight), new Vector4(0, camHeight, -Range, weight), new Vector4(Range, camHeight, 0, weight), new Vector4(0, camHeight, Range , weight)
+        };
 
-        public Game1_Mesh()
+        bool showVisualGrids = true;
+
+        bool useNoCull = true;
+        bool useClockwiseWinding = false;
+        bool useWireFrame = false;
+
+        RasterizerState rs_nocull_wire = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
+        RasterizerState rs_nocull_solid = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.Solid };
+        RasterizerState rs_clockwise = new RasterizerState() { CullMode = CullMode.CullClockwiseFace};
+        RasterizerState rs_counter_clockwise = new RasterizerState() { CullMode = CullMode.CullCounterClockwiseFace };
+
+
+
+
+        public Game1_Mesh_TestsAndStuff()
         {
             graphics = new GraphicsDeviceManager(this);
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
             Content.RootDirectory = "Content";
             Window.Title = " ex Game1_Mesht.";
-            Window.AllowUserResizing = true;
-            Window.ClientSizeChanged += UserResizedWindow;
             Window.AllowAltF4 = true;
+            Window.AllowUserResizing = true;
+
+            //Register recievers with the notifying sender.
+            Window.ClientSizeChanged += CalledOnClientSizeChanged;
+
             IsMouseVisible = true;
-            graphics.PreferredBackBufferWidth = 1200;
-            graphics.PreferredBackBufferHeight = 800;
+            graphics.PreferredBackBufferWidth = STARTprefScrWidth;
+            graphics.PreferredBackBufferHeight = STARTprefScrHeight;
             graphics.ApplyChanges();
         }
-        public void UserResizedWindow(object sender, EventArgs e)
+        public void CalledOnClientSizeChanged(object sender, EventArgs e)
         {
             //Re Setup Cameras;
+            if(cinematicCamera != null)
+                cinematicCamera.VisualizationOffset = new Vector3(GraphicsDevice.Viewport.Bounds.Right - 100, 1, GraphicsDevice.Viewport.Bounds.Bottom - 100);
+        }
+
+        public void SetupMyCamera()
+        {
+            // a 90 degree field of view is needed for the projection matrix.
+            var f90 = 90.0f * (3.14159265358f / 180f);
+            cinematicCamera = new CinematicCamera(GraphicsDevice, spriteBatch, null, new Vector3(0, 0, 0), Vector3.Forward, Vector3.Up, 0.01f, 10000f, f90, true, true, false);
+            cinematicCamera.SetWayPoints(cameraWayPoints, 30, true, true);
+            cinematicCamera.WayPointCycleDurationInTotalSeconds = 30f;
+            cinematicCamera.MovementSpeedPerSecond = 30f;
+            cinematicCamera.LookAtSpeedPerSecond = 4;
+            cinematicCamera.UseForwardPathLook = false;
+            cinematicCamera.UseWayPointMotion = true;
+            cinematicCamera.VisualizationScale = .10f;
+            cinematicCamera.VisualizationOffset = new Vector3(GraphicsDevice.Viewport.Bounds.Right - 100, 1, GraphicsDevice.Viewport.Bounds.Bottom - 100);
+
+            //Register recievers with the notifying sender.  In this case well register our camera to recieve callbacks as well.
+            Window.ClientSizeChanged += cinematicCamera.CalledOnClientSizeChanged;
         }
 
         protected override void Initialize()
         {
+            displayModesMsg = GraphicsDevice.GetListingOfSupportedDisplayModesToString();
             base.Initialize();
         }
 
@@ -80,40 +122,35 @@ namespace ShaderExamples
             Content.RootDirectory = @"Content/Fonts";
             font = Content.Load<SpriteFont>("MgFont");
 
-            mesh = new MeshSimple();
-            mesh.GetMesh(new Rectangle( -100, -100, 200,200) , 50, 50, true);
+            gridPlanes3d = new GridPlanes3D(100, 100, .0002f, Color.Red, Color.Blue, Color.Green);
+            prism = Prism.Load(GraphicsDevice, 6, 5, 20, texture);
+            mesh.GetMesh(new Rectangle(-100, -100, 200, 200), 8, 8, true, true, false);
 
             SetupMyCamera();
             SetUpOrthographicBasicEffect(GraphicsDevice);
-            SetUpDirectCameraMatrices();
+            SetUpDirectWorldViewPerspectiveProjectionMatrices();
         }
 
-        public void SetupMyCamera()
-        {
-            // a 90 degree field of view is needed for the projection matrix.
-            var f90 = 90.0f * (3.14159265358f / 180f);
-            _cameraCinematic = new DemoCamera(GraphicsDevice, spriteBatch, null, new Vector3(0, 0, 0), Vector3.Forward, Vector3.Up, 0.01f, 10000f, f90, true, false, false);
-            _cameraCinematic.WayPointCycleDurationInTotalSeconds = 30f;
-            _cameraCinematic.MovementSpeedPerSecond = 8f;
-            _cameraCinematic.SetWayPoints(_cameraWayPoints, true, true, 30);
-            _cameraCinematic.UseForwardPathLook = false;
-            _cameraCinematic.UseWayPointMotion = true;
-        }
         public void SetUpOrthographicBasicEffect(GraphicsDevice device)
         {
-            float forwardDepthDirection = 1f;
-            _basicEffect = new BasicEffect(GraphicsDevice);
-            _basicEffect.VertexColorEnabled = true;
-            _basicEffect.TextureEnabled = true;
-            _basicEffect.World = Matrix.Identity;
-            _basicEffect.View = Matrix.Invert(Matrix.CreateWorld(new Vector3(0, 0, 0), new Vector3(0, 0, 1), Vector3.Down));
-            _basicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, device.Viewport.Width, -device.Viewport.Height, 0, forwardDepthDirection * 0, forwardDepthDirection * 1f);
+            basicEffect = new BasicEffect(GraphicsDevice);
+            basicEffect.VertexColorEnabled = true;
+            basicEffect.TextureEnabled = true;
+            basicEffect.Texture = texture;
+            // use ours camera matrices instead.
+            basicEffect.World = Matrix.Identity;
+            basicEffect.View = cinematicCamera.View;
+            basicEffect.Projection = cinematicCamera.Projection;
+
+            //float forwardDepthDirection = 1f;
+            //_basicEffect.View = Matrix.Invert(Matrix.CreateWorld(new Vector3(0, 0, 0), new Vector3(0, 0, 1), Vector3.Down));
+            //_basicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, device.Viewport.Width, -device.Viewport.Height, 0, forwardDepthDirection * 0, forwardDepthDirection * 1f);
         }
-        public void SetUpDirectCameraMatrices()
+        public void SetUpDirectWorldViewPerspectiveProjectionMatrices()
         {
-            proj = Matrix.CreatePerspectiveFieldOfView(1f, GraphicsDevice.Viewport.AspectRatio, .01f, 1000f);
-            view = Matrix.CreateLookAt(new Vector3(0, 0, +1), new Vector3(0, 0, .01f), new Vector3(0, 0, -1f));
-            world = Matrix.CreateWorld(new Vector3(0, 0, 0), Vector3.Forward, new Vector3(0, 0, -1f));
+            proj = Matrix.CreatePerspectiveFieldOfView(1f, GraphicsDevice.Viewport.AspectRatio, .01f, 1000f); // once orthographic or perspective.
+            view = Matrix.CreateLookAt(new Vector3(0, 0, +1), new Vector3(0, 0, .01f), new Vector3(0, 0, -1f)); // cameras place and lookat direction in world
+            world = Matrix.CreateWorld(new Vector3(0, 0, 0), Vector3.Forward, new Vector3(0, 0, -1f)); // per object orientation place lookat and scale.
         }
 
         protected override void UnloadContent(){  }
@@ -123,20 +160,29 @@ namespace ShaderExamples
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-
+            // camera settings.
             if (Keys.F1.IsKeyPressedWithDelay(gameTime))
-                _cameraCinematic.UseForwardPathLook = !_cameraCinematic.UseForwardPathLook;
-
+                cinematicCamera.UseForwardPathLook = !cinematicCamera.UseForwardPathLook;
             if (Keys.F2.IsKeyPressedWithDelay(gameTime))
-                _cameraCinematic.UseWayPointMotion = !_cameraCinematic.UseWayPointMotion;
-
+                cinematicCamera.UseWayPointMotion = !cinematicCamera.UseWayPointMotion;
             if (Keys.F3.IsKeyPressedWithDelay(gameTime))
-                _useDesignatedTarget = !_useDesignatedTarget;
+                useDesignatedTarget = !useDesignatedTarget;
 
-            if(_useDesignatedTarget)
-                _cameraCinematic.Update(_targetLookAt, gameTime);
+            // graphic states.
+            if (Keys.F5.IsKeyPressedWithDelay(gameTime))
+                useWireFrame = !useWireFrame;
+            if (Keys.F6.IsKeyPressedWithDelay(gameTime))
+                useNoCull = !useNoCull;
+            if (Keys.F7.IsKeyPressedWithDelay(gameTime))
+                useClockwiseWinding = !useClockwiseWinding;
+
+            if (Keys.F8.IsKeyPressedWithDelay(gameTime))
+                showVisualGrids = !showVisualGrids;
+
+            if (useDesignatedTarget)
+                cinematicCamera.Update(_targetLookAt, gameTime);
             else
-                _cameraCinematic.Update(gameTime);
+                cinematicCamera.Update(gameTime);
 
             ComposeMessege();
 
@@ -146,54 +192,153 @@ namespace ShaderExamples
         public void ComposeMessege()
         {
             string msg2 = "";
-            if (_useDesignatedTarget)
-                msg2 += $"\n Camera  _cameraCinematic.TargetPosition: {_cameraCinematic.TargetPosition}";
+            if (useDesignatedTarget)
+                msg2 += $"\n Camera TargetPosition: {cinematicCamera.TargetPosition}";
 
+            string msg3 = "";
+            if (useDesignatedTarget == false && cinematicCamera.UseForwardPathLook == false)
+                msg3 += $"\n Use Keyboard keys w a s d to look z and q to spin. ";
+            if (cinematicCamera.UseWayPointMotion == false)
+                msg3 += $"\n Use arrow keys and or q and e to move.";
+
+            string msg4 = $"F5 useWireFrame: {useWireFrame} ";
+            if (useWireFrame == true)
+            {
+                msg4 += $"\n No Cull is on for wire, and neither winding is backface culled.";
+            }
+            else
+            {
+                if (useNoCull == false)
+                {
+                    if (useClockwiseWinding == true)
+                        msg4 += $"\n F6 useNoCull {useNoCull} \n F7 winding: Clockwise";
+                    if (useClockwiseWinding == false)
+                        msg4 += $"\n F6 useNoCull {useNoCull} \n F7 winding: CounterClockwise";
+                }
+                else
+                {
+                    msg4 += $"\n F6 useNoCull {useNoCull}";
+                }
+            }
 
             msg =
-           $"\n Camera.World.Translation: \n  { _cameraCinematic.World.Translation.X.ToString("N3") } { _cameraCinematic.World.Translation.Y.ToString("N3") } { _cameraCinematic.World.Translation.Z.ToString("N3") }" +
-           $"\n Camera.Forward: \n  { _cameraCinematic.Forward.X.ToString("N3") } { _cameraCinematic.Forward.Y.ToString("N3") } { _cameraCinematic.Forward.Z.ToString("N3") }" +
-           $"\n Up: \n { _cameraCinematic.Up.X.ToString("N3") } { _cameraCinematic.Up.Y.ToString("N3") } { _cameraCinematic.Up.Z.ToString("N3") } " +
-           $"\n Camera IsSpriteBatchStyled: {_cameraCinematic.IsSpriteBatchStyled}" +
-           $"\n Camera F1 UseForwardPathLook: {_cameraCinematic.UseForwardPathLook}" +
-           $"\n Camera F2 UseWayPointMotion: {_cameraCinematic.UseWayPointMotion}" +
-           $"\n Camera F3 UseDesignatedTarget: {_useDesignatedTarget + msg2}"
+           $"\n Camera.World.Translation: \n  { cinematicCamera.World.Translation.X.ToString("N3") } { cinematicCamera.World.Translation.Y.ToString("N3") } { cinematicCamera.World.Translation.Z.ToString("N3") }" +
+           $"\n Camera.Forward: \n  { cinematicCamera.Forward.X.ToString("N3") } { cinematicCamera.Forward.Y.ToString("N3") } { cinematicCamera.Forward.Z.ToString("N3") }" +
+           $"\n Up: \n { cinematicCamera.Up.X.ToString("N3") } { cinematicCamera.Up.Y.ToString("N3") } { cinematicCamera.Up.Z.ToString("N3") } " +
+           $"\n Camera IsSpriteBatchStyled: {cinematicCamera.IsSpriteBatchStyled}" +
+           $"\n Camera F1 UseForwardPathLook: {cinematicCamera.UseForwardPathLook}" +
+           $"\n Camera F2 UseWayPointMotion: {cinematicCamera.UseWayPointMotion}" +
+           $"\n Camera F3 UseDesignatedTarget: {useDesignatedTarget + msg2}" +
+           $"\n Ui Control : {msg3}" +
+           $"\n RasterizerState controls: F5 F6 F7" +
+           $"\n " + msg4 +
+           $"\n F8 showVisualGrids: {showVisualGrids}"
            ;
+
+            if (Keys.OemQuestion.IsKeyDown())
+                msg = displayModesMsg;
+        }
+
+        public void SetStates()
+        {
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            // wireframe needs to overide all of these.
+            if (useWireFrame)
+            {
+                GraphicsDevice.RasterizerState = rs_nocull_wire;
+            }
+            else
+            {
+                if (useNoCull)
+                {
+                    GraphicsDevice.RasterizerState = rs_nocull_solid;
+                }
+                else
+                {
+                    if (useClockwiseWinding)
+                        GraphicsDevice.RasterizerState = rs_clockwise;
+                    else
+                        GraphicsDevice.RasterizerState = rs_counter_clockwise;
+                }
+            }
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-            DrawMesh(gameTime);
-            DrawSpriteBatches(gameTime);
+            GraphicsDevice.Clear(Color.SlateGray);
+
+            DrawOurGeometryWithBasicEffect(gameTime);
+            //DrawOurGeometryWithEffect(gameTime);
+            DrawRegularSpriteBatchStuff(gameTime);
             base.Draw(gameTime);
         }
 
-        public void DrawMesh(GameTime gameTime)
+        public void DrawOurGeometryWithEffect(GameTime gameTime)
         {
-            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-            meshEffect.CurrentTechnique = meshEffect.Techniques["QuadDraw"];
+            ///  K Ok wtf did i do and were....
+
+            meshEffect.CurrentTechnique = meshEffect.Techniques["TriangleDraw"];
             meshEffect.Parameters["SpriteTexture"].SetValue(texture);
-            meshEffect.Parameters["World"].SetValue(_cameraCinematic.World);
-            meshEffect.Parameters["View"].SetValue(_cameraCinematic.View);
-            meshEffect.Parameters["Projection"].SetValue(_cameraCinematic.Projection);
-            //meshEffect.Parameters["World"].SetValue(world);
-            //meshEffect.Parameters["View"].SetValue(view);
-            //meshEffect.Parameters["Projection"].SetValue(proj);
+            meshEffect.Parameters["View"].SetValue(cinematicCamera.View);
+            meshEffect.Parameters["Projection"].SetValue(cinematicCamera.Projection);
+
+            // draw the primitive grid first it has different requisites including state.
+            if (showVisualGrids)
+            {
+                GraphicsDevice.RasterizerState = rs_nocull_solid;
+                meshEffect.Parameters["World"].SetValue(Matrix.CreateScale(1000));
+                gridPlanes3d.Draw(GraphicsDevice, meshEffect, DrawHelpers.Dot, DrawHelpers.Dot, DrawHelpers.Dot);
+            }
+
+            SetStates();
+
+            // draw the primitive models.
+            meshEffect.Parameters["World"].SetValue(Matrix.Identity);
             mesh.Draw(GraphicsDevice, meshEffect);
+
+            meshEffect.Parameters["World"].SetValue(Matrix.Identity);
+            prism.Draw(GraphicsDevice);
         }
 
-        public void DrawSpriteBatches(GameTime gameTime)
+        public void DrawOurGeometryWithBasicEffect(GameTime gameTime)
+        {
+            basicEffect.VertexColorEnabled = false;
+            basicEffect.TextureEnabled = true;
+            basicEffect.Texture = texture;
+            basicEffect.View = cinematicCamera.View;
+            basicEffect.Projection = cinematicCamera.Projection;
+
+            // draw the primitive grid first it has different requisites including state.
+            if (showVisualGrids)
+            {
+                GraphicsDevice.RasterizerState = rs_nocull_solid;
+                basicEffect.World = Matrix.Identity;
+                gridPlanes3d.DrawWithBasicEffect(GraphicsDevice, basicEffect, Matrix.Identity, 10000, DrawHelpers.Dot, true, true, false);
+            }
+
+            SetStates();
+
+            // draw the primitive models.
+            basicEffect.World = Matrix.Identity;
+            mesh.Draw(GraphicsDevice, basicEffect, texture);
+
+            basicEffect.World = Matrix.Identity;
+            prism.Draw(GraphicsDevice);
+
+            //_basicEffect.View = Matrix.Invert(Matrix.CreateWorld(new Vector3(0, 0, -1), new Vector3(0, 0, 1), Vector3.Down));
+        }
+
+        public void DrawRegularSpriteBatchStuff(GameTime gameTime)
         {
             //spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
             //spriteBatch.Draw(texture, new Rectangle(0, 0, 300, 300), Color.White);
             //spriteBatch.End();
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
-            _cameraCinematic.DrawCurveThruWayPointsWithSpriteBatch(1.5f, new Vector3(GraphicsDevice.Viewport.Bounds.Right - 100, 1, GraphicsDevice.Viewport.Bounds.Bottom - 100), 1, gameTime);
+            cinematicCamera.DrawCurveThruWayPointsWithSpriteBatch( 1, gameTime);
             spriteBatch.End();
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, _basicEffect, null);
+            spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null); //basicEffect
             spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Moccasin);
             spriteBatch.End();
         }
@@ -204,28 +349,35 @@ namespace ShaderExamples
         VertexPositionNormalTexture[] vertices;
         int w;
         int h;
-        public VertexPositionNormalTexture[] GetMesh(Rectangle modelRectangle, int verticesWidth, int verticesHeight, bool flipNormalDirection)
+        public bool invertU = false;
+        public bool invertV = false;
+        public VertexPositionNormalTexture[] GetMesh(Rectangle modelRectangle, int verticesWidth, int verticesHeight, bool flipNormalDirection, bool reverseU, bool reverseV)
         {
+            invertU = reverseU;
+            invertV = reverseV;
             w = verticesWidth;
             h = verticesHeight;
             List<VertexPositionNormalTexture> vertlist = new List<VertexPositionNormalTexture>();
+            
             var tl = new Vector2(0, 0);
             var tr = new Vector2(1, 0);
             var bl = new Vector2(0, 1);
             var br = new Vector2(1, 1);
+
             // initial calculation
             for (int y = 0; y < w - 1; y++)
             {
                 for (int x = 0; x < h - 1; x++)
                 {
+                    var uvXy = new Vector2(x, y);
                     // t0
-                    vertlist.Add(new VertexPositionNormalTexture(new Vector3(x, y, 0) + tl.ToVector3(), new Vector3(0, 0, -1), uv(x, y) + tl));
-                    vertlist.Add(new VertexPositionNormalTexture(new Vector3(x, y, 0) + bl.ToVector3(), new Vector3(0, 0, -1), uv(x, y) + bl));
-                    vertlist.Add(new VertexPositionNormalTexture(new Vector3(x, y, 0) + tr.ToVector3(), new Vector3(0, 0, -1), uv(x, y) + tr));
+                    vertlist.Add(new VertexPositionNormalTexture(new Vector3(x, y, 0) + tl.ToVector3(), new Vector3(0, 0, 1), uvFromXy(uvXy + tl, invertU, invertV)));
+                    vertlist.Add(new VertexPositionNormalTexture(new Vector3(x, y, 0) + bl.ToVector3(), new Vector3(0, 0, 1), uvFromXy(uvXy + bl, invertU, invertV)));
+                    vertlist.Add(new VertexPositionNormalTexture(new Vector3(x, y, 0) + tr.ToVector3(), new Vector3(0, 0, 1), uvFromXy(uvXy + tr, invertU, invertV)));
                     // t1
-                    vertlist.Add(new VertexPositionNormalTexture(new Vector3(x, y, 0) + tr.ToVector3(), new Vector3(0, 0, -1), uv(x, y) + tr));
-                    vertlist.Add(new VertexPositionNormalTexture(new Vector3(x, y, 0) + bl.ToVector3(), new Vector3(0, 0, -1), uv(x, y) + bl));
-                    vertlist.Add(new VertexPositionNormalTexture(new Vector3(x, y, 0) + br.ToVector3(), new Vector3(0, 0, -1), uv(x, y) + br));
+                    vertlist.Add(new VertexPositionNormalTexture(new Vector3(x, y, 0) + tr.ToVector3(), new Vector3(0, 0, 1), uvFromXy(uvXy + tr, invertU, invertV)));
+                    vertlist.Add(new VertexPositionNormalTexture(new Vector3(x, y, 0) + bl.ToVector3(), new Vector3(0, 0, 1), uvFromXy(uvXy + bl, invertU, invertV)));
+                    vertlist.Add(new VertexPositionNormalTexture(new Vector3(x, y, 0) + br.ToVector3(), new Vector3(0, 0, 1), uvFromXy(uvXy + br, invertU, invertV)));
                 }
             }
             RePositionVerticesInModelSpace(ref vertlist, modelRectangle);
@@ -240,14 +392,16 @@ namespace ShaderExamples
             // so the rectangle might want to be like -100,100  and have a size of 200,200 to center it in local object space.
             var loc = modelSpaceRectangle.Location.ToVector2();
             var size = modelSpaceRectangle.Size.ToVector2();
-            for (int i = 0; i < vertlist.Count; i += 6)
+            for (int i = 0; i < vertlist.Count; i += 1)
             {
                 var v = vertlist[i];
-                v.Position = (v.Position / new Vector3(w, h, 1)) * size.ToVector3() + loc.ToVector3();
+                var ratio = (v.Position / new Vector3(w-1, h-1, 1));
+                v.Position = ratio * size.ToVector3(1f) + loc.ToVector3(0);
                 vertlist[i] = v;
             }
         }
 
+        // flat normals.
         public void DetermineQuadNormals(ref List<VertexPositionNormalTexture> vertlist, bool flipDirection)
         {
             // generate the normals
@@ -281,6 +435,18 @@ namespace ShaderExamples
                 );
         }
 
+        public void Draw(GraphicsDevice gd, BasicEffect effect, Texture2D texture)
+        {
+            effect.VertexColorEnabled = false;
+            effect.TextureEnabled = true;
+            effect.Texture = texture;
+            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                gd.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length / 3, VertexPositionNormalTexture.VertexDeclaration);
+            }
+        }
+
         public void Draw(GraphicsDevice gd, Effect effect)
         {
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
@@ -296,13 +462,23 @@ namespace ShaderExamples
             return x + y * w;
         }
 
-        Vector2 uv(Vector2 v)
+        Vector2 uvFromXy(Vector2 v, bool reverseU, bool reverseV)
         {
-            return new Vector2((float)v.X / (float)w, (float)v.Y / (float)h);
+            var uv = new Vector2((float)v.X / (float)(w -1), (float)v.Y / (float)(h -1));
+            if (reverseU)
+                uv.X = 1f- uv.X;
+            if (reverseV)
+                uv.Y = 1f - uv.Y;
+            return uv;
         }
-        Vector2 uv(int x, int y)
+        Vector2 uvFromXy(int x, int y, bool reverseU, bool reverseV)
         {
-            return new Vector2((float)x / (float)w, (float)y / (float)h);
+            var uv = new Vector2((float)x / (float)(w -1), (float)y / (float)(h - 1));
+            if (reverseU)
+                uv.X = 1f - uv.X;
+            if (reverseV)
+                uv.Y = 1f - uv.Y;
+            return uv;
         }
     }
 

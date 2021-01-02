@@ -10,7 +10,7 @@ namespace Microsoft.Xna.Framework
     // I should later fix this up later to just take a set of waypoints and allow for the camera to generate a new uniformed set from them. 
     // To allow for the motion to be proportioned smoothly, that may not always be desired though.
 
-    public class DemoCamera
+    public class CinematicCamera
     {
         Vector3 _camPos = Vector3.Zero;
         Vector3 _camLastPos = Vector3.Zero;
@@ -53,22 +53,29 @@ namespace Microsoft.Xna.Framework
         public float WayPointCycleDurationInTotalSeconds { get { return _durationInSeconds; } set { _durationInSeconds = value; } }
         public float LookAtSpeedPerSecond { get; set; } = 1f;
         public float MovementSpeedPerSecond { get; set; } = 1f;
+        public float VisualizationScale { get; set; } = .25f;
+        public Vector3 VisualizationOffset{ get; set; } = new Vector3(0,0,0);
 
-        public void SetWayPoints(Vector4[] waypoints,  bool connectEnds, bool isUniformed, int numberOfSegments)
+        public void SetWayPoints(Vector4[] waypoints, int numberOfSegments, bool closePathEnds, bool makePathUniform)
         {
             wayPointReference = waypoints;
-            wayPointCurve = new Curve_WeightedBezier(waypoints, numberOfSegments, connectEnds, isUniformed);
+            wayPointCurve = new Curve_WeightedBezier(waypoints, numberOfSegments, closePathEnds, makePathUniform);
         }
 
         /// <summary>
         /// This is a cinematic styled fixed camera it uses way points to traverse thru the world.
         /// </summary>
-        public DemoCamera(GraphicsDevice device, SpriteBatch spriteBatch, Texture2D dot, Vector3 pos, Vector3 target, Vector3 up, float nearClipPlane, float farClipPlane, float fieldOfView, bool perspective, bool spriteBatchStyled, bool inverseOthographicProjection)
+        public CinematicCamera(GraphicsDevice device, SpriteBatch spriteBatch, Texture2D dot, Vector3 pos, Vector3 target, Vector3 up, float nearClipPlane, float farClipPlane, float fieldOfView, bool perspective, bool spriteBatchStyled, bool inverseOthographicProjection)
         {
             DrawHelpers.Initialize(device, spriteBatch, dot);
             //wayPointCurvature = new MyImbalancedSpline();
             TransformCamera(pos, target, up);
             SetProjection(device, nearClipPlane, farClipPlane, fieldOfView, perspective, spriteBatchStyled, inverseOthographicProjection);
+        }
+
+        public void CalledOnClientSizeChanged(object sender, EventArgs e)
+        {
+
         }
 
         /// <summary>
@@ -268,7 +275,16 @@ namespace Microsoft.Xna.Framework
         public float GetRequisitePerspectiveSpriteBatchAlignmentZdistance(GraphicsDevice device, float fieldOfView)
         {
             var dist = -((1f / (float)Math.Tan(fieldOfView / 2)) * (device.Viewport.Height / 2));
-            //var pos = new Vector3(device.Viewport.Width / 2, device.Viewport.Height / 2, dist);
+            return dist;
+        }
+
+        /// <summary>
+        /// Pre loaded class callable best guess to initialize a z camera perspective to be close to spritebatch at start.
+        /// You should know all these values at the beginning.
+        /// </summary>
+        public static float GetRequisitePerspectiveSpriteBatchAlignmentZdistance( int preferedWidth, int preferedHeight, float fieldOfView)
+        {
+            var dist = -((1f / (float)Math.Tan(fieldOfView / 2)) * (preferedHeight / 2));
             return dist;
         }
 
@@ -332,28 +348,35 @@ namespace Microsoft.Xna.Framework
                 TransformCamera(Vector3.Lerp(waypoints[index], waypoints[index2], adjustedInterpolator), targetPosition, _camUp);
         }
 
+
+        public void DrawCurveThruWayPointsWithSpriteBatch( int PlaneOption, GameTime gameTime)
+        {
+            DrawCurveThruWayPointsWithSpriteBatch(VisualizationScale, VisualizationOffset, PlaneOption,gameTime);
+
+        }
+
         /// <summary>
         /// Tells the camera to execute a visualization of the waypoint camera path.
         /// </summary>
-        /// <param name="scale">Scale of visualization</param>
-        /// <param name="offset">positional offset on screen</param>
+        /// <param name="visualizationScale">Scale of visualization</param>
+        /// <param name="visualizationOffset">positional offset on screen</param>
         /// <param name="PlaneOption">change of the signifigant input offsets to , xyz  0 = xy0, 1 =x0y, 2 = 0yz</param>
         /// <param name="gameTime"></param>
-        public void DrawCurveThruWayPointsWithSpriteBatch(float scale, Vector3 offset, int PlaneOption, GameTime gameTime)
+        public void DrawCurveThruWayPointsWithSpriteBatch(float visualizationScale, Vector3 visualizationOffset, int PlaneOption, GameTime gameTime)
         {
             if (wayPointCurve != null)
             {
-                Vector2 offset2d = Get2dVectorAxisElements(offset, PlaneOption);
+                Vector2 offset2d = Get2dVectorAxisElements(visualizationOffset, PlaneOption);
                 // current 2d camera position and forward on the orthographic xy plane.
                 var camTargetPos = Get2dVectorAxisElements(_targetLookAtPos, PlaneOption);
                 var camPosition = Get3dTwistedVectorAxisElements(_cameraWorld.Translation, PlaneOption);
                 var camForward = Get3dTwistedVectorAxisElements(_cameraWorld.Forward, PlaneOption);
                 //
-                var drawnCam2dHeightAdjustment = new Vector2(0, camPosition.Z *-.5f) * scale;
-                var drawnCamTargetPos = camTargetPos * scale + offset2d;
+                var drawnCam2dHeightAdjustment = new Vector2(0, camPosition.Z *-.5f) * visualizationScale;
+                var drawnCamTargetPos = camTargetPos * visualizationScale + offset2d;
                 var drawnCamForwardRay = new Vector2(camForward.X, camForward.Y) * 15;
-                var drawnCamIteratedPos = new Vector2(camPosition.X, camPosition.Y) * scale + offset2d;
-                var drawnCamIteratedOffsetPos = drawnCamIteratedPos + drawnCam2dHeightAdjustment * scale;
+                var drawnCamIteratedPos = new Vector2(camPosition.X, camPosition.Y) * visualizationScale + offset2d;
+                var drawnCamIteratedOffsetPos = drawnCamIteratedPos + drawnCam2dHeightAdjustment * visualizationScale;
                 var drawCamForwardRayEndPoint = drawnCamIteratedPos + drawnCamForwardRay;
                 Vector2 drawCrossHairLeft, drawCrossHairRight, drawCrossHairUp, drawCrossHairDown;
                 GetIndividualCrossHairVectors(drawnCamIteratedOffsetPos, 7, out drawCrossHairLeft, out drawCrossHairRight, out drawCrossHairUp, out drawCrossHairDown);
@@ -385,8 +408,8 @@ namespace Microsoft.Xna.Framework
                         i2 = i2 - curveLineSegments.Length;
                     var segment = ToVector3( curveLineSegments[i] );
                     var segment2 = ToVector3( curveLineSegments[i2] );
-                    var start = Get2dVectorAxisElements(segment, PlaneOption) * scale + offset2d;
-                    var end = Get2dVectorAxisElements(segment2, PlaneOption) * scale + offset2d;
+                    var start = Get2dVectorAxisElements(segment, PlaneOption) * visualizationScale + offset2d;
+                    var end = Get2dVectorAxisElements(segment2, PlaneOption) * visualizationScale + offset2d;
 
                     if (i % 2 == 0)
                         DrawHelpers.DrawBasicLine(start, end, 1, Color.Black);
@@ -397,7 +420,7 @@ namespace Microsoft.Xna.Framework
                 // Draw current 2d waypoint positions on the orthographic xy plane.
                 foreach (var p in wayPointReference)
                 {
-                    var waypointPos = Get2dVectorAxisElements(ToVector3( p ), PlaneOption) * scale + offset2d;
+                    var waypointPos = Get2dVectorAxisElements(ToVector3( p ), PlaneOption) * visualizationScale + offset2d;
                     GetIndividualCrossHairVectors(waypointPos, 4, out drawCrossHairLeft, out drawCrossHairRight, out drawCrossHairUp, out drawCrossHairDown);
                     DrawHelpers.DrawBasicLine(drawCrossHairLeft, drawCrossHairRight, 1, Color.DarkGray);
                     DrawHelpers.DrawBasicLine(drawCrossHairUp, drawCrossHairDown, 1, Color.DarkGray);
@@ -551,13 +574,20 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         public static bool SpriteBatchAtan2 = true;
 
+        public static Texture2D Dot { get { return dot; } }
+
         public static void Initialize(GraphicsDevice device, SpriteBatch spriteBatch, Texture2D dot)
         {
             DrawHelpers.spriteBatch = spriteBatch;
-            if (DrawHelpers.dot == null)
-                DrawHelpers.dot = dot;
-            if (DrawHelpers.dot == null)
-                DrawHelpers.dot = CreateDotTexture(device, Color.White);
+            if (DrawHelpers.dot != null)
+            { }
+            else
+            {
+                if (dot != null)
+                    DrawHelpers.dot = dot;
+                else
+                    DrawHelpers.dot = CreateDotTexture(device, Color.White);
+            }
         }
 
         //public static Vector2 ToVector2(this Vector3 v)

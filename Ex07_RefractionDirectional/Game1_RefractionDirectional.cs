@@ -41,9 +41,9 @@ namespace ShaderExamples
 
         #region  timing stuff
 
-        float _elapsed = 0;
-        float _elapsedCycle = 0;
-        float _cycleRate = .1f;
+        float elapsed = 0;
+        float elapsedPercentageOfSecondsPerCycle = 0;
+        float secondsPerCycle = .1f;
         ColorCycler colorCycle;
 
         #endregion
@@ -93,17 +93,17 @@ namespace ShaderExamples
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             mouseState = Mouse.GetState();
-            _elapsed = (float)(gameTime.ElapsedGameTime.TotalSeconds);
-            _elapsedCycle += _elapsed * _cycleRate;
-            if (_elapsedCycle > 1.0f)
-                _elapsedCycle -= 1.0f;
+            elapsed = (float)(gameTime.ElapsedGameTime.TotalSeconds);
+            elapsedPercentageOfSecondsPerCycle += elapsed * secondsPerCycle;
+            if (elapsedPercentageOfSecondsPerCycle > 1.0f)
+                elapsedPercentageOfSecondsPerCycle -= 1.0f;
         }
 
         protected override void Update(GameTime gameTime)
         {
             UpdateStandardStuff(gameTime);
 
-            displacementTime = displacementTime +  _elapsed * _cycleRate;
+            displacementTime = displacementTime +  elapsed * secondsPerCycle;
                 
             displacementDirection = - (mouseState.Position.ToVector2().VirtualScreenCoords(GraphicsDevice) - new Vector2(.5f,.5f) );  // we use our own extension method here then by center offset it.
 

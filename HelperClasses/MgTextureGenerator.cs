@@ -7,6 +7,7 @@ namespace Microsoft.Xna.Framework
     public class MgTextureGenerator
     {
 
+
         public static Texture2D CreateDotTexture(GraphicsDevice device, Color color)
         {
             Color[] data = new Color[1] { color };

@@ -85,6 +85,14 @@ namespace Microsoft.Xna.Framework
                 return false;
         }
 
+        public static bool IsKeyDown(this Keys key)
+        {
+            if (Keyboard.GetState().IsKeyDown(key))
+                return true;
+            else
+                return false;
+        }
+
         public static float DelayTime { get; set; } = 0.25f;
         static float delay = 0f;
         public static bool IsUnDelayed(this GameTime gametime, float newDelayAmount)
@@ -143,6 +151,29 @@ namespace Microsoft.Xna.Framework
             Vector3 worldRaysNormal = Vector3.Normalize(farWorldPoint - nearWorldPoint);
 
             return new Ray(nearWorldPoint, worldRaysNormal);
+        }
+
+        public static string GetListingOfSupportedDisplayModesToString(this GraphicsDevice gd)
+        {
+            string msg = "";
+            msg += ("\n" + " list supported Display modes");
+            msg += ("  Current Mode " + gd.Adapter.CurrentDisplayMode + "\n");
+            int counter = 0;
+            counter = 0;
+            foreach (DisplayMode dm in gd.Adapter.SupportedDisplayModes) // we can alternately loop GraphicsAdapter.DefaultAdapter.SupportedDisplayModes. this is typically the current adapter.
+            {
+                msg += (
+                    "\n" +
+                    "   DisplayMode[" + counter.ToString() + "] " + 
+                    "   Width:"+ dm.Width.ToString() + " Height:" + dm.Height.ToString() +
+                    "   AspectRatio " + dm.AspectRatio.ToString() +
+                    "   SurfaceFormat " + dm.Format.ToString() +
+                    "\n"
+                    );
+                //+" RefreshRate " + dm.RefreshRate.ToString()  //in monogame but not in xna 4.0 that's required for arm i think
+                counter++;
+            }
+            return msg;
         }
 
         /// <summary>
