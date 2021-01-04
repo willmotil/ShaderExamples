@@ -7,7 +7,7 @@ namespace Microsoft.Xna.Framework
     /// <summary>
     /// Assorted functions for support.
     /// </summary>
-    public static class MgHelpers
+    public static class MgMathExtras
     {
         public static Matrix ViewMatrixForPerspectiveSpriteBatch(float width, float height, float _fov, Vector3 forward, Vector3 up)
         {
@@ -217,6 +217,18 @@ namespace Microsoft.Xna.Framework
                 return (float)System.Math.Atan2(difx, dify);
         }
 
+        public static Vector2 GetOuterSquareVector(float sin, float cos)
+        {
+            var ss = (sin < 0) ? -1f : 1f;
+            var sc = (cos < 0) ? -1f : 1f;
+            var asin = sin * sin;
+            var acos = cos * cos;
+            if (asin > acos) //  x is higher
+                return new Vector2(ss, acos * sc * 2f); // re-signed acosine
+            else // x is lower
+                return new Vector2(asin * ss * 2f, sc); // re-signed asin
+        }
+
         public static float Power(int baseVal, int exponentVal)
         {
             float result = 0;
@@ -236,38 +248,6 @@ namespace Microsoft.Xna.Framework
             return (a + b + c) / 3;
         }
 
-        public static float EnsureWrapInRange(float n, float min, float max)
-        {
-            if (n > max)
-                n = min;
-            if (n < min)
-                n = max;
-            return n;
-        }
-        public static int EnsureWrapInRange(int n, int min, int max)
-        {
-            if (n > max)
-                n = min;
-            if (n < min)
-                n = max;
-            return n;
-        }
-        public static float EnsureClampInRange(float n, float min, float max)
-        {
-            if (n > max)
-                n = max;
-            if (n < min)
-                n = min;
-            return n;
-        }
-        public static int EnsureClampInRange(int n, int min, int max)
-        {
-            if (n > max)
-                n = max;
-            if (n < min)
-                n = min;
-            return n;
-        }
     }
 }
 

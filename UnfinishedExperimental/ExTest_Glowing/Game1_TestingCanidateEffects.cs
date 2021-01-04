@@ -124,7 +124,7 @@ namespace ShaderExamples
             // Change Directory back.
             Content.RootDirectory = @"Content";
 
-            MgExt.DelayTime = 0.09f;
+            MgExtensions.DelayTime = 0.09f;
         }
 
         protected override void UnloadContent()
@@ -148,7 +148,7 @@ namespace ShaderExamples
             }
             if (shockwaveClicks)
             {
-                time = MgHelpers.EnsureClampInRange(time, 0, maxTime);
+                time = time.EnsureClampInRange( 0, maxTime);
                 if (time >= maxTime)
                     shockwaveClicks = false;
             }

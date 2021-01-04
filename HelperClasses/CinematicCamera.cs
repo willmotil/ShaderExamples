@@ -67,8 +67,7 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         public CinematicCamera(GraphicsDevice device, SpriteBatch spriteBatch, Texture2D dot, Vector3 pos, Vector3 target, Vector3 up, float nearClipPlane, float farClipPlane, float fieldOfView, bool perspective, bool spriteBatchStyled, bool inverseOthographicProjection)
         {
-            DrawHelpers.Initialize(device, spriteBatch, dot);
-            MgDrawHelperExtensions.Initialize(device, dot);
+            MgDrawExtras.Initialize(device, spriteBatch);
             //wayPointCurvature = new MyImbalancedSpline();
             TransformCamera(pos, target, up);
             SetProjection(device, nearClipPlane, farClipPlane, fieldOfView, perspective, spriteBatchStyled, inverseOthographicProjection);
@@ -80,7 +79,7 @@ namespace Microsoft.Xna.Framework
         }
 
         /// <summary>
-        /// This defaults to useing the camera settings for UseForwardPathLook or UseWayPointMotion
+        /// This defaults to using the camera settings for UseForwardPathLook or UseWayPointMotion
         /// </summary>
         public void Update(GameTime gameTime)
         {
@@ -102,7 +101,7 @@ namespace Microsoft.Xna.Framework
         }
 
         /// <summary>
-        /// If waypoints are present then and automatedCameraMotion is set to true the cinematic camera will execute.
+        /// Process update determines how the camera will behave via user input or under a automated motion.
         /// </summary>
         void ProcessUpdate(bool usePassedTarget, Vector3 targetPosition, GameTime gameTime)
         {
@@ -116,9 +115,7 @@ namespace Microsoft.Xna.Framework
             float timeOnCurve = _durationElapsed / WayPointCycleDurationInTotalSeconds;
 
             if (UseWayPointMotion)
-            {
                 nowPosition = ToVector3(wayPointCurve.GetUniformSplinePoint(timeOnCurve));
-            }
             else 
             {
                 // manual movement with camera.
@@ -126,20 +123,17 @@ namespace Microsoft.Xna.Framework
                 nowPosition = _cameraWorld.Translation;
             }
 
-            if (usePassedTarget)
-            {
-                // here we just pass the given target position passed in by the user as this call is a overide command.
-                _targetLookAtPos = targetPosition;
-            }
-            else // usePassedTarget == false
+            if (usePassedTarget) 
+                _targetLookAtPos = targetPosition; // here we just pass the given target position passed in by the user as this call is a overide command.
+            else
             {
                 if (UseForwardPathLook)
-                    _targetLookAtPos = (nowPosition - _camPos) + nowPosition;                // _camPos - _camLastPos + _camPos;
+                    _targetLookAtPos = (nowPosition - _camPos) + nowPosition;  // view locked to forward direction on waypoint path.
                 else
                 {
                     // manual look at controls.
                     UpdateCameraLookAtUsingDefaultKeyboardCommands(gameTime);
-                    _targetLookAtPos = _cameraWorld.Forward + nowPosition; //  _cameraWorld.Forward + _cameraWorld.Translation;
+                    _targetLookAtPos = _cameraWorld.Forward + nowPosition; 
                 }
             }
 
@@ -383,19 +377,19 @@ namespace Microsoft.Xna.Framework
                 GetIndividualCrossHairVectors(drawnCamIteratedOffsetPos, 7, out drawCrossHairLeft, out drawCrossHairRight, out drawCrossHairUp, out drawCrossHairDown);
 
                 // Draw cross hair for camera position
-                DrawHelpers.DrawBasicLine(drawCrossHairLeft, drawCrossHairRight, 1, Color.White);
-                DrawHelpers.DrawBasicLine(drawCrossHairUp, drawCrossHairDown, 1, Color.White);
+                MgDrawExtras.DrawBasicLine(drawCrossHairLeft, drawCrossHairRight, 1, Color.White);
+                MgDrawExtras.DrawBasicLine(drawCrossHairUp, drawCrossHairDown, 1, Color.White);
 
                 // Draw a line from camera from current position on way point curve to offset position.
                 if (drawnCam2dHeightAdjustment.Y < 0)
-                    DrawHelpers.DrawBasicLine(drawnCamIteratedPos, drawnCamIteratedOffsetPos, 1, Color.LightGreen);
+                    MgDrawExtras.DrawBasicLine(drawnCamIteratedPos, drawnCamIteratedOffsetPos, 1, Color.LightGreen);
                 else
-                    DrawHelpers.DrawBasicLine(drawnCamIteratedPos, drawnCamIteratedOffsetPos, 1, Color.Red);
-                
+                    MgDrawExtras.DrawBasicLine(drawnCamIteratedPos, drawnCamIteratedOffsetPos, 1, Color.Red);
+
                 // Draw forward camera direction
-                DrawHelpers.DrawBasicLine(drawnCamIteratedPos, drawCamForwardRayEndPoint , 1, Color.Beige);
+                MgDrawExtras.DrawBasicLine(drawnCamIteratedPos, drawCamForwardRayEndPoint , 1, Color.Beige);
                 // Draw camera crosshairs forward to target.
-                DrawHelpers.DrawBasicLine(drawnCamIteratedOffsetPos, drawCamForwardRayEndPoint, 1, Color.Yellow);
+                MgDrawExtras.DrawBasicLine(drawnCamIteratedOffsetPos, drawCamForwardRayEndPoint, 1, Color.Yellow);
 
                 // draw curved segmented output.
                 var loopAdjustment = 1;
@@ -413,9 +407,9 @@ namespace Microsoft.Xna.Framework
                     var end = Get2dVectorAxisElements(segment2, PlaneOption) * visualizationScale + offset2d;
 
                     if (i % 2 == 0)
-                        DrawHelpers.DrawBasicLine(start, end, 1, Color.Black);
+                        MgDrawExtras.DrawBasicLine(start, end, 1, Color.Black);
                     else
-                        DrawHelpers.DrawBasicLine(start, end, 1, Color.Blue);
+                        MgDrawExtras.DrawBasicLine(start, end, 1, Color.Blue);
                 }
 
                 // Draw current 2d waypoint positions on the orthographic xy plane.
@@ -423,8 +417,8 @@ namespace Microsoft.Xna.Framework
                 {
                     var waypointPos = Get2dVectorAxisElements(ToVector3( p ), PlaneOption) * visualizationScale + offset2d;
                     GetIndividualCrossHairVectors(waypointPos, 4, out drawCrossHairLeft, out drawCrossHairRight, out drawCrossHairUp, out drawCrossHairDown);
-                    DrawHelpers.DrawBasicLine(drawCrossHairLeft, drawCrossHairRight, 1, Color.DarkGray);
-                    DrawHelpers.DrawBasicLine(drawCrossHairUp, drawCrossHairDown, 1, Color.DarkGray);
+                    MgDrawExtras.DrawBasicLine(drawCrossHairLeft, drawCrossHairRight, 1, Color.DarkGray);
+                    MgDrawExtras.DrawBasicLine(drawCrossHairUp, drawCrossHairDown, 1, Color.DarkGray);
                 }
             }
         }
@@ -564,94 +558,6 @@ namespace Microsoft.Xna.Framework
             _cameraWorld.Translation = t;
         }
     }
-
-    public static class DrawHelpers
-    {
-        static SpriteBatch spriteBatch;
-        static Texture2D dot;
-
-        /// <summary>
-        /// Flips atan direction to xna spritebatch rotational alignment defaults to true.
-        /// </summary>
-        public static bool SpriteBatchAtan2 = true;
-
-        public static Texture2D Dot { get { return dot; } }
-
-        public static void Initialize(GraphicsDevice device, SpriteBatch spriteBatch, Texture2D dot)
-        {
-            DrawHelpers.spriteBatch = spriteBatch;
-            if (DrawHelpers.dot != null)
-            { }
-            else
-            {
-                if (dot != null)
-                    DrawHelpers.dot = dot;
-                else
-                    DrawHelpers.dot = CreateDotTexture(device, Color.White);
-            }
-        }
-
-        //public static Vector2 ToVector2(this Vector3 v)
-        //{
-        //    return new Vector2(v.X, v.Y);
-        //}
-
-        public static Texture2D CreateDotTexture(GraphicsDevice device, Color color)
-        {
-            Color[] data = new Color[1] { color };
-            Texture2D tex = new Texture2D(device, 1, 1);
-            tex.SetData<Color>(data);
-            return tex;
-        }
-
-        public static void DrawRectangleOutline(Rectangle r, int lineThickness, Color c)
-        {
-            DrawSquareBorder(r, lineThickness, c);
-        }
-
-        public static void DrawSquareBorder(Rectangle r, int lineThickness, Color c)
-        {
-            Rectangle TLtoR = new Rectangle(r.Left, r.Top, r.Width, lineThickness);
-            Rectangle BLtoR = new Rectangle(r.Left, r.Bottom - lineThickness, r.Width, lineThickness);
-            Rectangle LTtoB = new Rectangle(r.Left, r.Top, lineThickness, r.Height);
-            Rectangle RTtoB = new Rectangle(r.Right - lineThickness, r.Top, lineThickness, r.Height);
-            spriteBatch.Draw(dot, TLtoR, c);
-            spriteBatch.Draw(dot, BLtoR, c);
-            spriteBatch.Draw(dot, LTtoB, c);
-            spriteBatch.Draw(dot, RTtoB, c);
-        }
-
-        public static void DrawCrossHair(Vector2 position, float radius, Color color)
-        {
-            DrawHelpers.DrawBasicLine(new Vector2(-radius, 0) + position, new Vector2(0 + radius, 0) + position, 1, color);
-            DrawHelpers.DrawBasicLine(new Vector2(0, 0 - radius) + position, new Vector2(0, radius) + position, 1, color);
-        }
-
-        public static void DrawBasicLine(Vector2 s, Vector2 e, int thickness, Color linecolor)
-        {
-            spriteBatch.Draw(dot, new Rectangle((int)s.X, (int)s.Y, thickness, (int)Vector2.Distance(e, s)), new Rectangle(0, 0, 1, 1), linecolor, (float)Atan2Xna(e.X - s.X, e.Y - s.Y), Vector2.Zero, SpriteEffects.None, 0);
-        }
-
-        public static void DrawBasicPoint(Vector2 p, int size, Color c)
-        {
-            spriteBatch.Draw(dot, new Rectangle((int)p.X - size/2, (int)p.Y - size / 2, 1+ size, 1+ size), new Rectangle(0, 0, 1, 1), c, 0.0f, Vector2.Zero, SpriteEffects.None, 0);
-        }
-
-        public static void DrawBasicPoint(Vector2 p, Color c)
-        {
-            spriteBatch.Draw(dot, new Rectangle((int)p.X, (int)p.Y, 2, 2), new Rectangle(0, 0, 1, 1), c, 0.0f, Vector2.Zero, SpriteEffects.None, 0);
-        }
-
-        public static float Atan2Xna(float difx, float dify)
-        {
-            if (SpriteBatchAtan2)
-                return (float)System.Math.Atan2(difx, dify) * -1f;
-            else
-                return (float)System.Math.Atan2(difx, dify);
-        }
-    }
-
-
 
     //+++++++++++++++++++++++++++++++++++++++++++++++
     //+++++++++++++++++++++++++++++++++++++++++++++++
@@ -1012,33 +918,18 @@ namespace Microsoft.Xna.Framework
             bool flip = false;
             int lineThickness = 2;
 
-            //if (_showTangents)
-            //{
-            //    for (int i = 0; i < artificialCpLine.Count - 1; i += 2)
-            //    {
-            //        DrawHelpers.DrawBasicLine(new Vector2(artificialCpLine[i].X, artificialCpLine[i].Y), new Vector2(artificialCpLine[i + 1].X, artificialCpLine[i + 1].Y), 1, Color.Purple);
-            //    }
-
-            //    for (int i = 0; i < artificialCpLine.Count - 1; i += 2)
-            //    {
-            //        DrawHelpers.DrawBasicLine(new Vector2(artificialTangentLine[i].X, artificialTangentLine[i].Y), new Vector2(artificialTangentLine[i + 1].X, artificialTangentLine[i + 1].Y), 1, Color.Pink);
-            //    }
-            //}
-
             for (int i = 0; i < cps.Length; i++)
-            {
-                DrawHelpers.DrawBasicPoint(new Vector2(cps[i].position.X, cps[i].position.Y), 4, Color.Red);
-            }
+                MgDrawExtras.DrawBasicPoint(new Vector2(cps[i].position.X, cps[i].position.Y), Color.Red , 4);
 
             for (int i = 0; i < curveLinePoints.Length - 1; i++)
             {
                 if (flip)
-                    DrawHelpers.DrawBasicLine(ToVector2(curveLinePoints[i]), ToVector2(curveLinePoints[i + 1]), lineThickness, Color.Green);
+                    MgDrawExtras.DrawBasicLine(ToVector2(curveLinePoints[i]), ToVector2(curveLinePoints[i + 1]), lineThickness, Color.Green);
                 else
-                    DrawHelpers.DrawBasicLine(ToVector2(curveLinePoints[i]), ToVector2(curveLinePoints[i + 1]), lineThickness, Color.Black);
+                    MgDrawExtras.DrawBasicLine(ToVector2(curveLinePoints[i]), ToVector2(curveLinePoints[i + 1]), lineThickness, Color.Black);
 
                 if (i < 1)
-                    DrawHelpers.DrawBasicLine(ToVector2(curveLinePoints[i]), ToVector2(curveLinePoints[i + 1]), lineThickness, Color.Yellow);
+                    MgDrawExtras.DrawBasicLine(ToVector2(curveLinePoints[i]), ToVector2(curveLinePoints[i + 1]), lineThickness, Color.Yellow);
 
                 flip = !flip;
             }
@@ -1093,6 +984,7 @@ namespace Microsoft.Xna.Framework
 
     }
 }
+
 
 
 

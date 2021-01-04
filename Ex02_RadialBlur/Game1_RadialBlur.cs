@@ -71,13 +71,13 @@ namespace ShaderExamples
             // We start using extension methods here to make stuff easier these functions are defined in MgExt class.
             // While overdoing them isn't recommended there are times and especally per project were they are helpful.
             //
-            if (gameTime.IsKeyPressedWithDelay(Keys.Right))
+            if (Keys.Right.IsKeyPressedWithDelay(gameTime))
                 numberOfSamples++;
-            if (gameTime.IsKeyPressedWithDelay(Keys.Left))
+            if (Keys.Left.IsKeyPressedWithDelay(gameTime))
                 numberOfSamples--;
 
-            radialScalar = MgHelpers.EnsureClampInRange(radialScalar, -4f, 4f);
-            numberOfSamples = MgHelpers.EnsureClampInRange(numberOfSamples, 0, MAXSAMPLES);
+            radialScalar = radialScalar.EnsureClampInRange( -4f, 4f);
+            numberOfSamples = numberOfSamples.EnsureClampInRange( 0, MAXSAMPLES);
 
             ms = Mouse.GetState();
             textureBlurUvOrigin = (ms.Position.ToVector2() / GraphicsDevice.Viewport.Bounds.Size.ToVector2()); // - new Vector2(.5f,.5f) ;

@@ -7,8 +7,260 @@ using Microsoft.Xna.Framework.Graphics;
 // Assortment hodge podge of primitives ive made over time. 
 // I really need to line these all up so they work the same way and use the same vertex structures.
 
-namespace ShaderExamples
+namespace Microsoft.Xna.Framework
 {
+
+    /// <summary>
+    /// This mesh will allow 2 types of constructors one that will take a point array from the user.
+    /// The other will allow the user to simply define the size of a mesh x y and it will be created not particularly useful.
+    /// However it could be used as a basic tilemapping example typically model meshes use indexing. 
+    /// This makes shared vertice normals possibel so you don't end up with flat shading.
+    /// </summary>
+    public class MeshNonIndexed
+    {
+        VertexPositionTextureNormalTangent[] vertices;
+        int w;
+        int h;
+        public bool invertU = false;
+        public bool invertV = false;
+
+
+        public VertexPositionTextureNormalTangent[] CreateMesh(Vector3[] positionArray, int verticesWidth, int verticesHeight, bool flipNormalDirection, bool reverseU, bool reverseV)
+        {
+            invertU = reverseU;
+            invertV = reverseV;
+            w = verticesWidth;
+            h = verticesHeight;
+            List<VertexPositionTextureNormalTangent> vertlist = new List<VertexPositionTextureNormalTangent>();
+
+            // initial calculation and fill in the struct with dummy variables.
+            // the normals and tangents must be calculated to be proper well do that later.
+            for (int y = 0; y < w - 1; y++)
+            {
+                for (int x = 0; x < h - 1; x++)
+                {
+                    var uvXy = new Vector2(x, y);
+                    // we do a index calculation.
+                    var index2d = new Vector2(x, y);
+                    var tl = index2d + new Vector2(0, 0);   var p0 = positionArray[GetIndex(tl)];
+                    var tr = index2d + new Vector2(1, 0);   var p1 = positionArray[GetIndex(tr)];
+                    var bl = index2d + new Vector2(0, 1);   var p2 = positionArray[GetIndex(bl)];
+                    var br = index2d + new Vector2(1, 1);   var p3 = positionArray[GetIndex(br)];
+                    // t0
+                    vertlist.Add(new VertexPositionTextureNormalTangent(p0, uvFromXy(uvXy + tl, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(p0, uvFromXy(uvXy + bl, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(p0, uvFromXy(uvXy + tr, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    // t1
+                    vertlist.Add(new VertexPositionTextureNormalTangent(p0, uvFromXy(uvXy + tr, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(p0, uvFromXy(uvXy + bl, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(p0, uvFromXy(uvXy + br, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                }
+            }
+            DetermineQuadNormals(ref vertlist, flipNormalDirection);
+            DetermineQuadTangents(ref vertlist, flipNormalDirection);
+            vertices = vertlist.ToArray();
+            return vertices;
+        }
+
+        public VertexPositionTextureNormalTangent[] CreateMesh(Rectangle modelRectangle, int verticesWidth, int verticesHeight, bool flipNormalDirection, bool reverseU, bool reverseV)
+        {
+            invertU = reverseU;
+            invertV = reverseV;
+            w = verticesWidth;
+            h = verticesHeight;
+            List<VertexPositionTextureNormalTangent> vertlist = new List<VertexPositionTextureNormalTangent>();
+
+            var tl = new Vector2(0, 0);
+            var tr = new Vector2(1, 0);
+            var bl = new Vector2(0, 1);
+            var br = new Vector2(1, 1);
+
+            // initial calculation and fill in the struct with dummy variables , we will have to calculate the normals and tangents later.
+            for (int y = 0; y < w - 1; y++)
+            {
+                for (int x = 0; x < h - 1; x++)
+                {
+                    var uvXy = new Vector2(x, y);
+                    // t0
+                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, 0) + tl.ToVector3(), uvFromXy(uvXy + tl, invertU, invertV), new Vector3(0, 0, 1),  new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, 0) + bl.ToVector3(), uvFromXy(uvXy + bl, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, 0) + tr.ToVector3(), uvFromXy(uvXy + tr, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    // t1
+                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, 0) + tr.ToVector3(), uvFromXy(uvXy + tr, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, 0) + bl.ToVector3(), uvFromXy(uvXy + bl, invertU, invertV), new Vector3(0, 0, 1),  new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, 0) + br.ToVector3(), uvFromXy(uvXy + br, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                }
+            }
+            RePositionVerticesInModelSpace(ref vertlist, modelRectangle);
+            DetermineQuadNormals(ref vertlist, flipNormalDirection);
+            DetermineQuadTangents(ref vertlist, flipNormalDirection);
+            vertices = vertlist.ToArray();
+            return vertices;
+        }
+
+        private void RePositionVerticesInModelSpace(ref List<VertexPositionTextureNormalTangent> vertlist, Rectangle modelSpaceRectangle)
+        {
+            // resize to the world rectangle this is still in object space. 
+            // so the rectangle might want to be like -100,100  and have a size of 200,200 to center it in local object space.
+            var loc = modelSpaceRectangle.Location.ToVector2();
+            var size = modelSpaceRectangle.Size.ToVector2();
+            for (int i = 0; i < vertlist.Count; i += 1)
+            {
+                var v = vertlist[i];
+                var ratio = (v.Position / new Vector3(w - 1, h - 1, 1));
+                v.Position = ratio * size.ToVector3(1f) + loc.ToVector3(0);
+                vertlist[i] = v;
+            }
+        }
+
+        // flat normals.
+        public void DetermineQuadNormals(ref List<VertexPositionTextureNormalTangent> vertlist, bool flipDirection)
+        {
+            // generate the normals
+            for (int i = 0; i < vertlist.Count; i += 6)
+            {
+                var n0 = Vector3.Normalize(CrossProduct3d(vertlist[i + 0].Position, vertlist[i + 1].Position, vertlist[i + 2].Position));
+                if (flipDirection)
+                {
+                    n0 = -n0;
+                    //n1 = -n1;
+                }
+                //t0
+                vertlist[i + 0] = SetNormal(vertlist[i + 0], n0);
+                vertlist[i + 1] = SetNormal(vertlist[i + 1], n0);
+                vertlist[i + 2] = SetNormal(vertlist[i + 2], n0);
+                // t1
+                vertlist[i + 3] = SetNormal(vertlist[i + 3], n0);
+                vertlist[i + 4] = SetNormal(vertlist[i + 4], n0);
+                vertlist[i + 5] = SetNormal(vertlist[i + 5], n0);
+            }
+        }
+
+        public void DetermineQuadTangents(ref List<VertexPositionTextureNormalTangent> vertlist, bool flipDirection)
+        {
+            // generate the tangents
+            for (int i = 0; i < vertlist.Count; i += 6)
+            {
+                var tn0 = Vector3.Normalize(vertlist[i + 0].Position - vertlist[i + 1].Position);
+                //var tn1 = Vector3.Normalize(vertlist[i + 3].Position - vertlist[i + 5].Position);
+                if (flipDirection)
+                {
+                    tn0 = -tn0;
+                    //tn1 = -tn1;
+                }
+                //t0
+                vertlist[i + 0] = SetTangent(vertlist[i + 0], tn0);
+                vertlist[i + 1] = SetTangent(vertlist[i + 1], tn0);
+                vertlist[i + 2] = SetTangent(vertlist[i + 2], tn0);
+                // t1
+                vertlist[i + 3] = SetTangent(vertlist[i + 3], tn0);
+                vertlist[i + 4] = SetTangent(vertlist[i + 4], tn0);
+                vertlist[i + 5] = SetTangent(vertlist[i + 5], tn0);
+            }
+        }
+
+        public VertexPositionTextureNormalTangent SetPosition(VertexPositionTextureNormalTangent v, Vector3 n)
+        {
+            v.Position = n;
+            return v;
+        }
+        public VertexPositionTextureNormalTangent SetUvCoordinates(VertexPositionTextureNormalTangent v, Vector2 n)
+        {
+            v.TextureCoordinate = n;
+            return v;
+        }
+        public VertexPositionTextureNormalTangent SetNormal(VertexPositionTextureNormalTangent v, Vector3 n)
+        {
+            v.Normal = n;
+            return v;
+        }
+        public VertexPositionTextureNormalTangent SetTangent(VertexPositionTextureNormalTangent v, Vector3 n)
+        {
+            v.Tangent = n;
+            return v;
+        }
+
+        public static Vector3 Cross(Vector3 a, Vector3 b, Vector3 c)
+        {
+            Vector3 A = new Vector3(
+                (b.X - a.X),
+                (b.Y - a.Y),
+                (b.Z - a.Z)
+                );
+            Vector3 B = new Vector3(
+                (c.X - a.X),
+                (c.Y - a.Y),
+                (c.Z - a.Z)
+                );
+            return new Vector3(
+                A.Y * B.Z - B.Y * A.Z,
+                -(A.X * B.Z - B.X * A.Z),
+                A.X * B.Y - B.X * A.Y
+                );
+        }
+
+        // hum this version of mine has a error too many of them all over.
+        public Vector3 CrossProduct3d(Vector3 a, Vector3 b, Vector3 c)
+        {
+            return new Vector3
+                (
+                ((b.Y - a.Y) * (c.Z - b.Z)) - ((c.Y - b.Y) * (b.Z - a.Z)),
+                ((b.Z - a.Z) * (c.X - b.X)) - ((c.Z - b.Z) * (b.X - a.X)),
+                ((b.X - a.X) * (c.Y - b.Y)) - ((c.X - b.X) * (b.Y - a.Y))
+                );
+        }
+        Vector2 uvFromXy(Vector2 v, bool reverseU, bool reverseV)
+        {
+            return uvFromXy(v.X, v.Y, reverseU, reverseV);
+        }
+        Vector2 uvFromXy(float x, float y, bool reverseU, bool reverseV)
+        {
+            var uv = new Vector2(x / (float)(w - 1), y / (float)(h - 1));
+            if (reverseU)
+                uv.X = 1f - uv.X;
+            if (reverseV)
+                uv.Y = 1f - uv.Y;
+            return uv;
+        }
+        int GetIndex(Vector2 p)
+        {
+            return (int)p.X + (int)p.Y * w;
+        }
+        int GetIndex(int x, int y)
+        {
+            return x + y * w;
+        }
+
+        public BasicEffect BasicEffectSettingsForThisPrimitive(GraphicsDevice gd, BasicEffect effect, Texture2D texture)
+        {
+            effect.VertexColorEnabled = false;
+            effect.TextureEnabled = true;
+            effect.EnableDefaultLighting();
+            effect.LightingEnabled = true;
+            effect.PreferPerPixelLighting = true;
+            effect.Texture = texture;
+            return effect;
+        }
+
+        public void Draw(GraphicsDevice gd, BasicEffect effect, Texture2D texture)
+        {
+            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                gd.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length / 3, VertexPositionTextureNormalTangent.VertexDeclaration);
+            }
+        }
+
+        public void Draw(GraphicsDevice gd, Effect effect)
+        {
+            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                gd.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length / 3, VertexPositionNormalTexture.VertexDeclaration);
+            }
+        }
+
+    }
 
     public class Quad
     {
@@ -226,6 +478,7 @@ namespace ShaderExamples
             indices = new int[(width * 6 + height * 6) * 2];
             int vIndex = 0;
             int iIndex = 0;
+
             for (int x = 0; x < width; x++)
             {
                 int svIndex = vIndex;
@@ -264,6 +517,7 @@ namespace ShaderExamples
                 indices[iIndex + 3] = svIndex + 3; indices[iIndex + 4] = svIndex + 2; indices[iIndex + 5] = svIndex + 1;
                 iIndex += 6 * 2;
             }
+
             for (int y = 0; y < height; y++)
             {
                 int svIndex = vIndex;
@@ -366,7 +620,7 @@ namespace ShaderExamples
             CreateOrientationLines(linewidth, lineDistance);
         }
 
-        private void CreateOrientationLines(float linewidth, float lineDistance)
+        public void CreateOrientationLines(float linewidth, float lineDistance)
         {
             var center = new Vector3(0, 0, 0);
             var scaledup = Vector3.Up * linewidth;
@@ -471,6 +725,7 @@ namespace ShaderExamples
             navCircle3dC.Draw(gd, beffect);
             beffect.LightingEnabled = isLighting;
         }
+
         public void DrawNavOrientation3DToTargetWithBasicEffect(GraphicsDevice gd, BasicEffect beffect, Vector3 position, float scale, Matrix lookAtTargetsMatrix, Texture2D ta, Texture2D tb, Texture2D tc)
         {
             var totarget = lookAtTargetsMatrix.Translation - position;
@@ -913,6 +1168,9 @@ namespace ShaderExamples
         /// </summary>
         private float prismRadius;
 
+
+        private bool invertNormals = false;
+
         ///// <summary>
         ///// Placeholder for the texture on the sides
         ///// </summary>
@@ -931,55 +1189,19 @@ namespace ShaderExamples
         #endregion
 
         // Requisite for draw user indexed primitives. 
-        private VertexPositionTexture[] nverts;
-        private short[] nIndexs;
+        private VertexPositionNormalTexture[] vertices;
+        private int[] indices;
 
         // Requisite for draw primitives.
         private VertexBuffer vertexBuffer;
         private IndexBuffer indexBuffer;
 
-        ///// <summary>
-        ///// Creates and initializes a prism class object at load time. 
-        ///// Returns it as desired by the users specifications.
-        ///// this method is static so that you call it like so... Prism p = Prism.Load(..) .
-        ///// </summary>
-        //public static Prism Load(GraphicsDevice device, int nSides, float height, float radius, Texture2D sideTexture)
-        //{
-        //    //var t = new Prism();
-        //    //t.prismSides = nSides;
-        //    //t.prismHeight = height;
-        //    //t.prismRadius = radius;
-        //    //t.prismSideTexture = sideTexture;
-        //    //if (nSides < 3)
-        //    //    t.prismSides = 3;
-        //    //// you might want decimals and you can probably do this with a scaling matrix in your own vertex shader.
-        //    //if (height < 1f)
-        //    //    t.prismHeight = 1f;
-        //    //if (radius < 1f)
-        //    //    t.prismRadius = 1f;
-
-        //    // The game itself is really responsible for this not some arbitrary game object.
-        //    if (t.worldMatrix == null) 
-        //        t.worldMatrix = Matrix.Identity; 
-        //    float aspectRatio = (float)device.Viewport.Width / device.Viewport.Height;
-        //    //t.effect.View = Matrix.CreateLookAt(new Vector3(0f, 4f, 0f), Vector3.Zero, Vector3.Up);
-        //    //t.effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f), aspectRatio, 1.0f, 10.0f);
-
-        //    //
-        //    // build the prism
-        //    //
-        //    t.BuildPrism(device, t.prismSides, t.prismHeight, (int)(t.prismRadius));
-
-        //    // i made this a static load to sort of be like blah forget the constructor.
-        //    // so now its time to return the new prism object.
-        //    return t;
-        //}
-
         /// <summary>
         /// Build the prism
         /// </summary>
-        public void CreatePrism(GraphicsDevice gd, int sides, float height, float radius)
+        public void CreatePrism(GraphicsDevice gd, int sides, float height, float radius, bool invertTheNormals)
         {
+            invertNormals = invertTheNormals;
             prismSides = sides;
             prismHeight = height;
             prismRadius = radius;
@@ -990,18 +1212,18 @@ namespace ShaderExamples
                 prismHeight = 1f;
             if (radius < 1f)
                 prismRadius = 1f;
-            nverts = GetPrismVertices(radius, height, sides);
+            vertices = GetPrismVertices(radius, height, sides);
 
-            vertexBuffer = new VertexBuffer(gd, VertexPositionTexture.VertexDeclaration, nverts.Length, BufferUsage.None);
-            vertexBuffer.SetData(nverts);
-            gd.SetVertexBuffer(vertexBuffer);
+            //vertexBuffer = new VertexBuffer(gd, VertexPositionNormalTexture.VertexDeclaration, nverts.Length, BufferUsage.None);
+            //vertexBuffer.SetData(nverts);
+            //gd.SetVertexBuffer(vertexBuffer);
 
             // set up the index buffer
-            nIndexs = new short[sides * 3 * 2];
+            indices = new int[sides * 3 * 2];
 
             int offset = 0;
             // first set
-            for (int i = 2; i < nverts.Length; i++)
+            for (int i = 2; i < vertices.Length; i++)
             {
 
                 int i0 = offset + 0;
@@ -1009,56 +1231,62 @@ namespace ShaderExamples
                 int i2 = offset + 2;
                 offset += 3;
 
-                short v0 = (short)(0); // vertice [0] holds the up prism point.
-                short v1 = (short)(i); // each side has 2 points other then top or bottom.
-                short v2 = (short)(i + 1); // we know all our side points are from 2 to the end.
+                int v0 = (int)(0); // vertice [0] holds the up prism point.
+                int v1 = (int)(i); // each side has 2 points other then top or bottom.
+                int v2 = (int)(i + 1); // we know all our side points are from 2 to the end.
                                            //
                                            // now towards the end of this loop.
                                            // well wrap that second side vertice around back to vertice [2]
                                            //
-                if (v2 >= nverts.Length)
+                if (v2 >= vertices.Length)
                 {
                     v2 = 2;
                 }
                 // we can control our initial culling order.
                 // i.e. the way vertices use backface or frontface culling right here.
                 // So here ill set it to use counter clockwise winding (ccw)
-                nIndexs[i0] = v0;
-                nIndexs[i1] = v1;
-                nIndexs[i2] = v2;
+                indices[i0] = v0;
+                indices[i1] = v1;
+                indices[i2] = v2;
             }
             // second set
-            for (int i = 2; i < nverts.Length; i++)
+            for (int i = 2; i < vertices.Length; i++)
             {
                 int i0 = offset + 0;
                 int i1 = offset + 1;
                 int i2 = offset + 2;
                 offset += 3;
 
-                short v0 = (short)(1); // vertice [1] holds the down prism point
-                short v1 = (short)(i);
-                short v2 = (short)(i + 1);
-                if (v2 >= nverts.Length)
+                int v0 = (int)(1); // vertice [1] holds the down prism point
+                int v1 = (int)(i);
+                int v2 = (int)(i + 1);
+                if (v2 >= vertices.Length)
                 {
                     v2 = 2;
                 }
                 // reverse the input ordering to keep the winding counter clockwise
-                nIndexs[i0] = v1;
-                nIndexs[i1] = v2;
-                nIndexs[i2] = v0;
+                indices[i0] = v1;
+                indices[i1] = v0;
+                indices[i2] = v2;
             }
 
+            vertices = CreateSmoothNormals(vertices, indices, invertNormals);
+
+            vertexBuffer = new VertexBuffer(gd, VertexPositionNormalTexture.VertexDeclaration, vertices.Length, BufferUsage.None);
+            vertexBuffer.SetData(vertices);
+            gd.SetVertexBuffer(vertexBuffer);
+
             indexBuffer = new IndexBuffer(gd, IndexElementSize.SixteenBits, offset + 1, BufferUsage.None);
-            indexBuffer.SetData(nIndexs);
+            indexBuffer.SetData(indices);
             gd.Indices = indexBuffer;
         }
         /// <summary>
         /// Returns all the vertices the first two indices are the top then bottom points.
         /// Followed by all the other vertices points.
         /// </summary>
-        public VertexPositionTexture[] GetPrismVertices(float radius, float height, float nPositions)
+        private VertexPositionNormalTexture[] GetPrismVertices(float radius, float height, float nPositions)
         {
-            VertexPositionTexture[] result = new VertexPositionTexture[(int)(nPositions) + 2];
+            VertexPositionNormalTexture[] result = new VertexPositionNormalTexture[(int)(nPositions) + 2];
 
             float degrees = 0;
             float radians = 0f;
@@ -1066,8 +1294,9 @@ namespace ShaderExamples
             float z;
             float textureU = .5f;
             float textureV = .5f;
-            result[0] = new VertexPositionTexture(Vector3.Up * height, new Vector2(textureU, textureV));
-            result[1] = new VertexPositionTexture(Vector3.Down * height, new Vector2(textureU, textureV));
+            var n = Vector3.Zero;
+            result[0] = new VertexPositionNormalTexture(Vector3.Up * height, n ,new Vector2(textureU, textureV));
+            result[1] = new VertexPositionNormalTexture(Vector3.Down * height,n ,  new Vector2(textureU, textureV));
             for (int i = 0; i < nPositions; i++)
             {
                 radians = ((i / (float)nPositions) * 6.28318530717f);
@@ -1075,55 +1304,66 @@ namespace ShaderExamples
                 float cos = (float)(Math.Cos(radians));
                 x = radius * sin;
                 z = radius * cos;
-                //textureU = sin / 2 + .5f;
-                //textureV = cos / 2 + .5f;
-                
                 
                 var ss = Sign(sin);
                 var sc = Sign(cos);
+                 
+                Vector2 uv = GetOuterSquareVector(sin, cos) * .5f + new Vector2(.5f, .5f);
 
-                if (sin < .001f)
-                    textureU = 0;
-                else
-                    textureU = ((sin / (sin * sin)) * ss * sin) * .5f + .5f;
-                if (cos < .001f)
-                    textureV = 0;
-                else
-                    textureV = ((cos / (cos * cos)) * sc * cos) * .5f + .5f;
-
-
-
-
-                // .707 / .5 = 1.414 
-                // 1      / .5 = 2
-
-                // (.707 / (.707 *.707)) = 1.414   * .707  = 1;
-                // (1      / (1 * 1)) = 1 * 1 = 1;
-                // (0      / (0*  0)) = 0 * 0 = 0;
-
-                // ( sin / (sin * sin) ) * sin  =  x
-                // ( cos / (cos * cos) ) * cos  =  y
-
-
-                //var a = sin * sin;
-                //var b = sin / a;
-                //var c = b * ss;
-                //var d = c * sin;
-                //var e = d * .5 ;
-                //var f = e + .5;
-
-                //Console.WriteLine($"\n\n((sin / (sin * sin)) * ss * sin) *.5f + .5f   " +
-                //                          $"\n((s/(s*s={a.ToString("0.00")})={b.ToString("0.00")}) *ss={c.ToString("0.00")} * s= {d.ToString("0.00")}  (*.5)={e.ToString("0.00")}  +.5={f.ToString("0.00")}");
-                //Console.WriteLine(
-                //    $"\n" +
-                //    $"calculation .. sin cos -------   {sin.ToString("0.000")}, {cos.ToString("0.000")}    " +
-                //    $"\n" +
-                //    $"calculation .. uv result -----   {textureU.ToString("0.000")}, {textureV.ToString("0.000")}");
-
-
-                result[i + 2] = new VertexPositionTexture(new Vector3(x, 0f, z), new Vector2(textureU, textureV));
+                result[i + 2] = new VertexPositionNormalTexture(new Vector3(x, 0f, z), n, uv);
             }
             return result;
+        }
+
+        VertexPositionNormalTexture[] CreateSmoothNormals(VertexPositionNormalTexture[] vertices, int[] indexs, bool invertNormalsOnCreation)
+        {
+            // For each vertice we must calculate the surrounding triangles normals, average them and set the normal.
+            int tvertmultiplier = 3;
+            int triangles = (int)(indexs.Length / tvertmultiplier);
+            for (int currentTestedVerticeIndex = 0; currentTestedVerticeIndex < vertices.Length; currentTestedVerticeIndex++)
+            {
+                Vector3 sum = Vector3.Zero;
+                float total = 0;
+                for (int t = 0; t < triangles; t++)
+                {
+                    int tvstart = t * tvertmultiplier;
+                    int tindex0 = tvstart + 0;
+                    int tindex1 = tvstart + 1;
+                    int tindex2 = tvstart + 2;
+                    var vindex0 = indexs[tindex0];
+                    var vindex1 = indexs[tindex1];
+                    var vindex2 = indexs[tindex2];
+                    if (vindex0 == currentTestedVerticeIndex || vindex1 == currentTestedVerticeIndex || vindex2 == currentTestedVerticeIndex)
+                    {
+                        var n0 = (vertices[vindex1].Position - vertices[vindex0].Position) * 10f; // * 10 math artifact avoidance.
+                        var n1 = (vertices[vindex2].Position - vertices[vindex1].Position) * 10f;
+                        var cnorm = Vector3.Cross(n0, n1);
+                        sum += cnorm;
+                        total += 1;
+                    }
+                }
+                if (total > 0)
+                {
+                    var averagednormal = sum / total;
+                    averagednormal.Normalize();
+                    if (invertNormalsOnCreation)
+                        averagednormal = -averagednormal;
+                    vertices[currentTestedVerticeIndex].Normal = averagednormal;
+                }
+            }
+            return vertices;
+        }
+
+        public Vector2 GetOuterSquareVector(float sin, float cos)
+        {
+            var ss = (sin < 0) ? -1f : 1f;
+            var sc = (cos < 0) ? -1f : 1f;
+            var asin = sin * sin;
+            var acos = cos * cos;
+            if (asin > acos) //  x is higher
+                return new Vector2(ss, acos * sc * 2f); // re-signed acosine
+            else // x is lower
+                return new Vector2(asin * ss * 2f, sc); // re-signed asin
         }
 
         public float Sign(float n)
@@ -1140,46 +1380,28 @@ namespace ShaderExamples
             return n;
         }
 
-        //public VertexPositionTexture[] GetPrismVertices(float radius, float height, float nPositions)
-        //{
-        //    VertexPositionTexture[] result = new VertexPositionTexture[(int)(nPositions) + 2];
-
-        //    float degrees = 0;
-        //    float radians = 0f;
-        //    float x;
-        //    float z;
-        //    float textureU = .5f;
-        //    float textureV = 0f;
-        //    result[0] = new VertexPositionTexture(Vector3.Up * height, new Vector2(textureU, textureV));
-        //    textureV = 1f;
-        //    result[1] = new VertexPositionTexture(Vector3.Down * height, new Vector2(textureU, textureV));
-        //    textureV = .5f;
-        //    for (int i = 0; i < nPositions; i++)
-        //    {
-        //        degrees = i * (360 / nPositions);
-        //        radians = (degrees * ((float)Math.PI / 180));
-        //        float sin = (float)(Math.Sin(radians));
-        //        float cos = (float)(Math.Cos(radians));
-        //        x = radius * sin;
-        //        z = radius * cos;
-        //        textureU = (i) / (nPositions - 1);
-        //        result[i + 2] = new VertexPositionTexture(new Vector3(x, 0f, z), new Vector2(textureU, textureV));
-        //    }
-        //    return result;
-        //}
+        public BasicEffect BasicEffectSettingsForThisPrimitive(GraphicsDevice gd, BasicEffect effect, Texture2D texture)
+        {
+            effect.VertexColorEnabled = false;
+            effect.TextureEnabled = true;
+            effect.EnableDefaultLighting();
+            effect.LightingEnabled = true;
+            effect.PreferPerPixelLighting = true;
+            effect.Texture = texture;
+            return effect;
+        }
 
         public void DrawWithBasicEffect(GraphicsDevice device, BasicEffect effect, Texture2D texture)
         {
-            float aspectRatio = (float)device.Viewport.Width / device.Viewport.Height;
-            effect.LightingEnabled = false;
-            effect.VertexColorEnabled = false;
-            effect.TextureEnabled = true;
-            effect.Texture = texture;
+            //float aspectRatio = (float)device.Viewport.Width / device.Viewport.Height;
+            //effect
+            //effect.LightingEnabled = false;
+            //effect.VertexColorEnabled = false;
+            //effect.TextureEnabled = true;
+            //effect.Texture = texture;
 
             effect.CurrentTechnique.Passes[0].Apply();
-            device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, nverts, 0, nverts.Length, nIndexs, 0, nIndexs.Length / 3, VertexPositionTexture.VertexDeclaration);
-
-            //Draw(device, effect.World, effect.View, effect.Projection, true);
+            device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, indices.Length / 3, VertexPositionNormalTexture.VertexDeclaration);
         }
 
         //public void Draw(GraphicsDevice device, Matrix world, Matrix view, Matrix projection, bool useingUserIndexedPrims)
@@ -1212,8 +1434,39 @@ namespace ShaderExamples
 
     }
 
+
     /// <summary>
-    /// basically a wide spectrum vertice structure minus weights.
+    /// This is what id like to be using in general for our primitives.
+    /// </summary>
+    public struct VertexPositionTextureNormalTangent : IVertexType
+    {
+        public Vector3 Position;
+        public Vector2 TextureCoordinate;
+        public Vector3 Normal;
+        public Vector3 Tangent;
+
+        public VertexPositionTextureNormalTangent(Vector3 position, Vector2 uvcoordinates, Vector3 normal, Vector3 tangent)
+        {
+            Position = position;
+            TextureCoordinate = uvcoordinates;
+            Normal = normal;
+            Tangent = tangent;
+        }
+
+        public static VertexDeclaration VertexDeclaration = new VertexDeclaration
+        (
+              new VertexElement(VertexElementByteOffset.PositionStartOffset(), VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
+              new VertexElement(VertexElementByteOffset.OffsetVector2(), VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0),
+              new VertexElement(VertexElementByteOffset.OffsetVector3(), VertexElementFormat.Vector3, VertexElementUsage.Normal, 0),
+              new VertexElement(VertexElementByteOffset.OffsetVector3(), VertexElementFormat.Vector3, VertexElementUsage.Normal, 1)
+        );
+        VertexDeclaration IVertexType.VertexDeclaration { get { return VertexDeclaration; } }
+    }
+
+    /// <summary>
+    /// basically a semi wide spectrum vertice structure minus weights.
+    /// It's faily dumb to pass color into the data structure when you can just pass a single shading color if you wanted or litterally texture everything.
+    /// However this does let us use spritebatch shaders that want color in them better.
     /// </summary>
     public struct VertexPositionColorTextureNormalTangent : IVertexType
     {
@@ -1226,8 +1479,7 @@ namespace ShaderExamples
         public static VertexDeclaration VertexDeclaration = new VertexDeclaration
         (
               new VertexElement(VertexElementByteOffset.PositionStartOffset(), VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
-              new VertexElement(VertexElementByteOffset.OffsetColor(), VertexElementFormat.Color, VertexElementUsage.Color, 0),                           // which one is right.
-              //new VertexElement(VertexElementByteOffset.OffsetVector4(), VertexElementFormat.Vector4, VertexElementUsage.Color, 0),                  // which one
+              new VertexElement(VertexElementByteOffset.OffsetVector4(), VertexElementFormat.Vector4, VertexElementUsage.Color, 0),
               new VertexElement(VertexElementByteOffset.OffsetVector2(), VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0),
               new VertexElement(VertexElementByteOffset.OffsetVector3(), VertexElementFormat.Vector3, VertexElementUsage.Normal, 0),
               new VertexElement(VertexElementByteOffset.OffsetVector3(), VertexElementFormat.Vector3, VertexElementUsage.Normal, 1)
@@ -1263,6 +1515,7 @@ namespace ShaderExamples
         );
         VertexDeclaration IVertexType.VertexDeclaration { get { return VertexDeclaration; } }
     }
+
     /// <summary>
     /// This is a helper struct for tallying byte offsets
     /// </summary>

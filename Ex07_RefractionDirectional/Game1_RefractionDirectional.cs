@@ -129,9 +129,9 @@ namespace ShaderExamples
 
             // use a extension method in MgExt to slow these presses down we dont want them to fire fast.
 
-            if (gameTime.IsKeyPressedWithDelay(Keys.O))
+            if (Keys.O.IsKeyPressedWithDelay(gameTime))
                 numberOfSamples += 1f;
-            if (gameTime.IsKeyPressedWithDelay(Keys.P))
+            if (Keys.P.IsKeyPressedWithDelay(gameTime))
                 numberOfSamples -= 1f;
 
             // these are also extensions that wrap around or clamp values to the limits.

@@ -28,9 +28,10 @@ namespace ShaderExamples
         BasicEffect basicEffect;
         Effect meshEffect;
 
-        MeshSimple mesh = new MeshSimple();
+        MeshNonIndexed mesh = new MeshNonIndexed();
         Prism prism = new Prism();
         GridPlanes3D gridPlanes3d;
+        NavOrientation3d navGuide;
 
         Matrix proj;
         Matrix view;
@@ -98,7 +99,7 @@ namespace ShaderExamples
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            MgDrawHelperExtensions.Initialize(GraphicsDevice, null);
+            MgDrawExtras.Initialize(GraphicsDevice, spriteBatch);
 
             Content.RootDirectory = @"Content";
             meshEffect = Content.Load<Effect>("MeshDrawEffect");
@@ -112,7 +113,8 @@ namespace ShaderExamples
 
             gridPlanes3d = new GridPlanes3D(100, 100, .0002f, Color.Red, Color.Blue, Color.Green);
             mesh.CreateMesh(new Rectangle(-100, -100, 200, 200), 8, 8, true, true, false);
-            prism.CreatePrism(GraphicsDevice, 8, 10, 10);
+            prism.CreatePrism(GraphicsDevice, 8, 10, 10, false);
+            navGuide = new NavOrientation3d(20, 20, 4, .05f);
 
             SetupMyCamera();
             SetUpOrthographicBasicEffect(GraphicsDevice);
@@ -295,19 +297,26 @@ namespace ShaderExamples
             {
                 GraphicsDevice.RasterizerState = rs_nocull_solid;
                 basicEffect.World = Matrix.Identity;
-                gridPlanes3d.DrawWithBasicEffect(GraphicsDevice, basicEffect, Matrix.Identity, 10000, DrawHelpers.Dot, true, true, false);
+                gridPlanes3d.DrawWithBasicEffect(GraphicsDevice, basicEffect, Matrix.Identity, 10000, MgDrawExtras.dot, true, true, false);
             }
 
             SetStates();
 
             // draw the primitive models.
-            basicEffect.World = Matrix.Identity;
-            mesh.Draw(GraphicsDevice, basicEffect, texture);
+            mesh.BasicEffectSettingsForThisPrimitive(GraphicsDevice, basicEffect, texture);
 
+            basicEffect.World = Matrix.Identity;
+            mesh.Draw(GraphicsDevice, basicEffect, texture2);
+
+            prism.BasicEffectSettingsForThisPrimitive(GraphicsDevice, basicEffect, texture2);
             var m = Matrix.Identity * Matrix.CreateScale(10);
             m.Translation = new Vector3(0, -300, 0);
             basicEffect.World = m;
             prism.DrawWithBasicEffect(GraphicsDevice, basicEffect, texture2);
+
+            var targetMatrix = Matrix.Identity; // the target is the world matrix of some other thing we have drawn.
+            var poffset = cinematicCamera.World.Forward * 250 + cinematicCamera.World.Right * 250 + cinematicCamera.World.Down * 50 + cinematicCamera.World.Translation; // we offset from the camera forward right then down
+            navGuide.DrawNavOrientation3DToTargetWithBasicEffect(GraphicsDevice, basicEffect, poffset, 100f, targetMatrix, MgDrawExtras.dotBlue, MgDrawExtras.dot, MgDrawExtras.dotRed);
         }
 
 
@@ -325,7 +334,7 @@ namespace ShaderExamples
             {
                 GraphicsDevice.RasterizerState = rs_nocull_solid;
                 meshEffect.Parameters["World"].SetValue(Matrix.CreateScale(1000));
-                gridPlanes3d.Draw(GraphicsDevice, meshEffect, DrawHelpers.Dot, DrawHelpers.Dot, DrawHelpers.Dot);
+                gridPlanes3d.Draw(GraphicsDevice, meshEffect, MgDrawExtras.dot, MgDrawExtras.dot, MgDrawExtras.dot);
             }
 
             SetStates();
@@ -350,11 +359,19 @@ namespace ShaderExamples
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null); //basicEffect
             spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Moccasin);
-            Test2(amount);
+            //Test2(amount);
             spriteBatch.End();
         }
 
-        bool justonce = true;
+    }
+}
+
+
+
+/*
+ 
+ 
+         bool justonce = true;
         public void Test2(float amountMultiplier)
         {
             var iterations = (int)(amountMultiplier * 50f);
@@ -508,156 +525,7 @@ namespace ShaderExamples
             return $"{msg} { a.ToString("0.000") } { sa  } {b.ToString("0.000")  } { sb  } { c.ToString("0.000")  } ";
         }
 
-
-    }
-
-    public class MeshSimple
-    {
-        VertexPositionNormalTexture[] vertices;
-        int w;
-        int h;
-        public bool invertU = false;
-        public bool invertV = false;
-        public VertexPositionNormalTexture[] CreateMesh(Rectangle modelRectangle, int verticesWidth, int verticesHeight, bool flipNormalDirection, bool reverseU, bool reverseV)
-        {
-            invertU = reverseU;
-            invertV = reverseV;
-            w = verticesWidth;
-            h = verticesHeight;
-            List<VertexPositionNormalTexture> vertlist = new List<VertexPositionNormalTexture>();
-            
-            var tl = new Vector2(0, 0);
-            var tr = new Vector2(1, 0);
-            var bl = new Vector2(0, 1);
-            var br = new Vector2(1, 1);
-
-            // initial calculation
-            for (int y = 0; y < w - 1; y++)
-            {
-                for (int x = 0; x < h - 1; x++)
-                {
-                    var uvXy = new Vector2(x, y);
-                    // t0
-                    vertlist.Add(new VertexPositionNormalTexture(new Vector3(x, y, 0) + tl.ToVector3(), new Vector3(0, 0, 1), uvFromXy(uvXy + tl, invertU, invertV)));
-                    vertlist.Add(new VertexPositionNormalTexture(new Vector3(x, y, 0) + bl.ToVector3(), new Vector3(0, 0, 1), uvFromXy(uvXy + bl, invertU, invertV)));
-                    vertlist.Add(new VertexPositionNormalTexture(new Vector3(x, y, 0) + tr.ToVector3(), new Vector3(0, 0, 1), uvFromXy(uvXy + tr, invertU, invertV)));
-                    // t1
-                    vertlist.Add(new VertexPositionNormalTexture(new Vector3(x, y, 0) + tr.ToVector3(), new Vector3(0, 0, 1), uvFromXy(uvXy + tr, invertU, invertV)));
-                    vertlist.Add(new VertexPositionNormalTexture(new Vector3(x, y, 0) + bl.ToVector3(), new Vector3(0, 0, 1), uvFromXy(uvXy + bl, invertU, invertV)));
-                    vertlist.Add(new VertexPositionNormalTexture(new Vector3(x, y, 0) + br.ToVector3(), new Vector3(0, 0, 1), uvFromXy(uvXy + br, invertU, invertV)));
-                }
-            }
-            RePositionVerticesInModelSpace(ref vertlist, modelRectangle);
-            DetermineQuadNormals(ref vertlist, flipNormalDirection);
-            vertices = vertlist.ToArray();
-            return vertices;
-        }
-
-        private void RePositionVerticesInModelSpace(ref List<VertexPositionNormalTexture> vertlist, Rectangle modelSpaceRectangle)
-        {
-            // resize to the world rectangle this is still in object space. 
-            // so the rectangle might want to be like -100,100  and have a size of 200,200 to center it in local object space.
-            var loc = modelSpaceRectangle.Location.ToVector2();
-            var size = modelSpaceRectangle.Size.ToVector2();
-            for (int i = 0; i < vertlist.Count; i += 1)
-            {
-                var v = vertlist[i];
-                var ratio = (v.Position / new Vector3(w-1, h-1, 1));
-                v.Position = ratio * size.ToVector3(1f) + loc.ToVector3(0);
-                vertlist[i] = v;
-            }
-        }
-
-        // flat normals.
-        public void DetermineQuadNormals(ref List<VertexPositionNormalTexture> vertlist, bool flipDirection)
-        {
-            // generate the normals
-            for (int i = 0; i < vertlist.Count; i += 6)
-            {
-                var tn0 = Vector3.Normalize( CrossProduct3d(Vector3.Normalize(vertlist[i + 0].Position), Vector3.Normalize(vertlist[i + 1].Position), Vector3.Normalize(vertlist[i + 2].Position)) );
-                var tn1 = Vector3.Normalize(CrossProduct3d(Vector3.Normalize(vertlist[i + 3].Position), Vector3.Normalize(vertlist[i + 4].Position), Vector3.Normalize(vertlist[i + 5].Position)) );
-                if (flipDirection)
-                {
-                    tn0 = -tn0;
-                    tn0 = -tn0;
-                }
-                // t0
-                vertlist[i + 0] = new VertexPositionNormalTexture(vertlist[i + 0].Position, tn0, vertlist[i + 0].TextureCoordinate);
-                vertlist[i + 1] = new VertexPositionNormalTexture(vertlist[i + 1].Position, tn0, vertlist[i + 1].TextureCoordinate);
-                vertlist[i + 2] = new VertexPositionNormalTexture(vertlist[i + 2].Position, tn0, vertlist[i + 2].TextureCoordinate);
-                // t1
-                vertlist[i + 3] = new VertexPositionNormalTexture(vertlist[i + 3].Position, tn1, vertlist[i + 3].TextureCoordinate);
-                vertlist[i + 4] = new VertexPositionNormalTexture(vertlist[i + 4].Position, tn1, vertlist[i + 4].TextureCoordinate);
-                vertlist[i + 5] = new VertexPositionNormalTexture(vertlist[i + 5].Position, tn1, vertlist[i + 5].TextureCoordinate);
-            }
-        }
-
-        public static Vector3 CrossProduct3d(Vector3 a, Vector3 b, Vector3 c)
-        {
-            return new Vector3
-                (
-                ((b.Y - a.Y) * (c.Z - b.Z)) - ((c.Y - b.Y) * (b.Z - a.Z)),
-                ((b.Z - a.Z) * (c.X - b.X)) - ((c.Z - b.Z) * (b.X - a.X)),
-                ((b.X - a.X) * (c.Y - b.Y)) - ((c.X - b.X) * (b.Y - a.Y))
-                );
-        }
-
-        public void Draw(GraphicsDevice gd, BasicEffect effect, Texture2D texture)
-        {
-            effect.VertexColorEnabled = false;
-            effect.TextureEnabled = true;
-            effect.Texture = texture;
-            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-                gd.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length / 3, VertexPositionNormalTexture.VertexDeclaration);
-            }
-        }
-
-        public void Draw(GraphicsDevice gd, Effect effect)
-        {
-            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-                gd.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length /3, VertexPositionNormalTexture.VertexDeclaration);
-            }
-        }
-
-
-        int GetIndex(int x, int y)
-        {
-            return x + y * w;
-        }
-
-        Vector2 uvFromXy(Vector2 v, bool reverseU, bool reverseV)
-        {
-            var uv = new Vector2((float)v.X / (float)(w -1), (float)v.Y / (float)(h -1));
-            if (reverseU)
-                uv.X = 1f- uv.X;
-            if (reverseV)
-                uv.Y = 1f - uv.Y;
-            return uv;
-        }
-        Vector2 uvFromXy(int x, int y, bool reverseU, bool reverseV)
-        {
-            var uv = new Vector2((float)x / (float)(w -1), (float)y / (float)(h - 1));
-            if (reverseU)
-                uv.X = 1f - uv.X;
-            if (reverseV)
-                uv.Y = 1f - uv.Y;
-            return uv;
-        }
-    }
-
-    public static class Ext
-    {
-        public static Vector3 ToVector3(this Vector2 v, float z)
-        {
-            return new Vector3(v.X, v.Y, z);
-        }
-        public static Vector3 ToVector3(this Vector2 v)
-        {
-            return new Vector3(v.X, v.Y, 0);
-        }
-    }
-}
+ 
+ 
+ 
+ */

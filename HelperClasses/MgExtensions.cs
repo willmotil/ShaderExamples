@@ -3,13 +3,32 @@
 //using System.Collections.Generic;
 //using System.Text;
 //using Microsoft.Xna.Framework;
+
+using System;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace Microsoft.Xna.Framework
 {
-    public static class MgExt
+    public static class MgExtensions
     {
+        public static Texture2D Dot(this Texture2D t)
+        {
+            return MgDrawExtras.dotRed;
+        }
+        public static Texture2D DotRed(this Texture2D t)
+        {
+            return MgDrawExtras.dotRed;
+        }
+        public static Texture2D DotGreen(this Texture2D t)
+        {
+            return MgDrawExtras.dotGreen;
+        }
+        public static Texture2D DotBlue(this Texture2D t)
+        {
+            return MgDrawExtras.dotBlue;
+        }
+
         public static Vector2 ToVector2(this Vector3 v)
         {
             return new Vector2(v.X, v.Y);
@@ -17,6 +36,10 @@ namespace Microsoft.Xna.Framework
         public static Vector3 ToVector3(this Vector2 v)
         {
             return new Vector3(v.X, v.Y, 0f);
+        }
+        public static Vector3 ToVector3(this Vector2 v, float z)
+        {
+            return new Vector3(v.X, v.Y, z);
         }
         public static Vector3 ToVector3(this Vector4 v)
         {
@@ -30,6 +53,7 @@ namespace Microsoft.Xna.Framework
         {
             return new Vector4(v.X, v.Y, v.Z, w);
         }
+
 
         public static float EnsureWrapInRange(this float n, float min, float max)
         {
@@ -69,25 +93,17 @@ namespace Microsoft.Xna.Framework
             return v / gd.Viewport.Bounds.Size.ToVector2();
         }
 
+        public static bool IsKeyDown(this Keys key)
+        {
+            if (Keyboard.GetState().IsKeyDown(key))
+                return true;
+            else
+                return false;
+        }
 
         public static bool IsKeyPressedWithDelay(this Keys key, GameTime gameTime)
         {
             if (Keyboard.GetState().IsKeyDown(key) && IsUnDelayed(gameTime))
-                return true;
-            else
-                return false;
-        }
-        public static bool IsKeyPressedWithDelay(this GameTime gameTime, Keys key)
-        {
-            if (Keyboard.GetState().IsKeyDown(key) && IsUnDelayed(gameTime))
-                return true;
-            else
-                return false;
-        }
-
-        public static bool IsKeyDown(this Keys key)
-        {
-            if (Keyboard.GetState().IsKeyDown(key))
                 return true;
             else
                 return false;
@@ -153,35 +169,18 @@ namespace Microsoft.Xna.Framework
             return new Ray(nearWorldPoint, worldRaysNormal);
         }
 
-        public static string GetListingOfSupportedDisplayModesToString(this GraphicsDevice gd)
-        {
-            string msg = "";
-            msg += ("\n" + " list supported Display modes");
-            msg += ("  Current Mode " + gd.Adapter.CurrentDisplayMode + "\n");
-            int counter = 0;
-            counter = 0;
-            foreach (DisplayMode dm in gd.Adapter.SupportedDisplayModes) // we can alternately loop GraphicsAdapter.DefaultAdapter.SupportedDisplayModes. this is typically the current adapter.
-            {
-                msg += (
-                    "\n" +
-                    "   DisplayMode[" + counter.ToString() + "] " + 
-                    "   Width:"+ dm.Width.ToString() + " Height:" + dm.Height.ToString() +
-                    "   AspectRatio " + dm.AspectRatio.ToString() +
-                    "   SurfaceFormat " + dm.Format.ToString() +
-                    "\n"
-                    );
-                //+" RefreshRate " + dm.RefreshRate.ToString()  //in monogame but not in xna 4.0 that's required for arm i think
-                counter++;
-            }
-            return msg;
-        }
-
         /// <summary>
         /// Creates a world with a target.
         /// </summary>
         public static Matrix CreateWorldToTarget(this Matrix m, Vector3 position, Vector3 targetPosition, Vector3 up)
         {
             return Matrix.CreateWorld(position, targetPosition - position, up);
+        }
+
+        public static Vector3 RotatePointAboutZaxis(Vector3 p, double q)
+        {
+            //x' = x*cos s - y*sin s;   y' = x*sin s + y*cos s;   z' = z;
+            return new Vector3((float)(p.X * Math.Cos(q) - p.Y * Math.Sin(q)), (float)(p.X * Math.Sin(q) + p.Y * Math.Cos(q)), p.Z);
         }
 
         /// <summary>
@@ -251,6 +250,29 @@ namespace Microsoft.Xna.Framework
             return result;
         }
 
+        public static string GetListingOfSupportedDisplayModesToString(this GraphicsDevice gd)
+        {
+            string msg = "";
+            msg += ("\n" + " list supported Display modes");
+            msg += ("  Current Mode " + gd.Adapter.CurrentDisplayMode + "\n");
+            int counter = 0;
+            counter = 0;
+            foreach (DisplayMode dm in gd.Adapter.SupportedDisplayModes) // we can alternately loop GraphicsAdapter.DefaultAdapter.SupportedDisplayModes. this is typically the current adapter.
+            {
+                msg += (
+                    "\n" +
+                    "   DisplayMode[" + counter.ToString() + "] " +
+                    "   Width:" + dm.Width.ToString() + " Height:" + dm.Height.ToString() +
+                    "   AspectRatio " + dm.AspectRatio.ToString() +
+                    "   SurfaceFormat " + dm.Format.ToString() +
+                    "\n"
+                    );
+                //+" RefreshRate " + dm.RefreshRate.ToString()  //in monogame but not in xna 4.0 that's required for arm i think
+                counter++;
+            }
+            return msg;
+        }
+
         public static string VectorToString(this Vector4 v, string message)
         {
             string f = "+###0.0;-###0.0";
@@ -263,22 +285,22 @@ namespace Microsoft.Xna.Framework
         }
         public static string VectorToString(this Vector2 v, string message)
         {
-            string f = "+###0.0;-###0.0";
+            string f = "+####0.0;-###0.0";
             return "\n " + message + "  " + v.X.ToString(f) + "  " + v.Y.ToString(f);
         }
         public static string VectorToString(this Vector4 v)
         {
-            string f = "+###0.0;-###0.0";
+            string f = "+####0.0;-###0.0";
             return " " + "  " + v.X.ToString(f) + "  " + v.Y.ToString(f) + "  " + v.Z.ToString(f) + "  " + v.W.ToString(f);
         }
         public static string VectorToString(this Vector3 v)
         {
-            string f = "+###0.0;-###0.0";
+            string f = "+####0.0;-###0.0";
             return " " + "  " + v.X.ToString(f) + "  " + v.Y.ToString(f) + "  " + v.Z.ToString(f);
         }
         public static string VectorToString(this Vector2 v)
         {
-            string f = "+###0.0;-###0.0";
+            string f = "+####0.0;-###0.0";
             return " " + "  " + v.X.ToString(f) + "  " + v.Y.ToString(f);
         }
 
@@ -287,7 +309,7 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         public static string DisplayMatrix(this Matrix m, string name)
         {
-            string f = "##0.###"; //"+000.000;-000.000";
+            string f = "####0.###"; //"+000.000;-000.000";
             return name +=
                 "\n { " + m.M11.ToString(f) + ", " + m.M12.ToString(f) + ", " + m.M13.ToString(f) + ", " + m.M14.ToString(f) + " }" +
                 "\n { " + m.M21.ToString(f) + ", " + m.M22.ToString(f) + ", " + m.M23.ToString(f) + ", " + m.M24.ToString(f) + " }" +

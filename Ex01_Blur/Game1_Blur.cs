@@ -71,7 +71,7 @@ namespace ShaderExamples
             if (IsPressedWithDelay(Keys.Left, gameTime))
                 _numberOfSamples--;
 
-            _numberOfSamples = MgHelpers.EnsureClampInRange(_numberOfSamples, 0, MAXSAMPLES);
+            _numberOfSamples = _numberOfSamples.EnsureClampInRange( 0, MAXSAMPLES);
 
             base.Update(gameTime);
         }
