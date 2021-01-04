@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace ShaderExamples
 {
@@ -36,7 +37,70 @@ namespace ShaderExamples
             Window.AllowUserResizing = true;
             Window.Title = " ex Testing Effect.";
             IsMouseVisible = true;
+
+            Test();
         }
+
+        string msgMisc = "";
+        public void Test()
+        {
+            int a = 12;
+            int b = 4;
+            int tOR = a | b;
+            int tAnd = a & b;
+            int tXor = a ^ b;
+            int tOnesCompliment = ~a;
+            int tleft = a << b;
+            int tright = a >> b;
+
+            msgMisc =
+                     $" a = \n  {ToBinaryString(a)}  \n  b = \n  {ToBinaryString(b)}    \n  : " +
+                    $"\n  a {a} |  b {b} = OR \n  { ToBinaryString(tOR) }    if either bit is on then we get a 1" +
+                    $"\n  a {a} &  b {b} = And \n  {ToBinaryString(tAnd)}    if both bits are on we get a 1" +
+                    $"\n  a {a} ^  b {b} = Xor \n  {ToBinaryString(tXor)}    if either bit is on we get a 1" +
+                    $"\n  ~ a {a} = OnesCompliment \n  {ToBinaryString(tOnesCompliment)}    if a bit is on we get a 0 if off we get a 1  ~ reverses the bits" +
+                    $"\n  a {a} <<  b {b} = tleft \n  {ToBinaryString(tleft)}    Increasing values" +
+                    $"\n  a {a} >>  b {b} = tright \n  {ToBinaryString(tright)}    Decreasing values" +
+                    $"\n  "
+                    ;
+
+            msgMisc += $"\n"+ tOR.ToSpacedBinaryString();
+
+            msgMisc += $"\n" + tOR.ToWellFormatedBinaryString();
+
+            Console.WriteLine(msgMisc);
+        }
+
+        public static string ToBinaryString(int value)
+        {
+            string result = "";
+            int j = 0;
+            for(int bitIndexToTest = 0; bitIndexToTest < 32; bitIndexToTest ++)
+            {
+                if (IsIntBitOn(value, bitIndexToTest))
+                    result += "1";
+                else
+                    result += "0";
+                j++;
+                if (j > 7)
+                {
+                    result += " ";
+                    j = 0;
+                }
+            }
+            return result;
+        }
+
+        public static bool IsIntBitOn(int inValue, int bitIndexToTest)
+        {
+            if ( (inValue & (1 << (bitIndexToTest))) > 0)
+                return true;
+            else
+                return false;
+        }
+
+
+
         protected override void Initialize()
         {
             base.Initialize();
@@ -118,6 +182,7 @@ namespace ShaderExamples
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
             spriteBatch.DrawString(font, $"Controls: left click, arrow keys \n radialScalar: {time.ToString("##0.000")} \n numberOfSamples: {shockParams} \n textureBlurUvOrigin: {center.ToString()} ", new Vector2(10, 10), Color.White);
+            spriteBatch.DrawString(font, $"\n " + msgMisc, new Vector2(210, 110), Color.White);
             spriteBatch.End();
 
             base.Draw(gameTime);

@@ -184,6 +184,73 @@ namespace Microsoft.Xna.Framework
             return Matrix.CreateWorld(position, targetPosition - position, up);
         }
 
+        /// <summary>
+        /// Bitmath bit check.
+        /// </summary>
+        public static bool IsIntBitOn(this int inValue, int bitIndexToTest)
+        {
+            return ((inValue & (1 << (bitIndexToTest))) > 0) ? true : false;
+        }
+
+        /// <summary>
+        /// Bitmath Valid bit indexs are 0 to 31 and setBitOn is true or false for off.
+        /// </summary>
+        public static int SetBitPosition(this int value, int bitIndexToSet, bool setBitOn)
+        {
+            int bitvalue = (1 << (bitIndexToSet));
+            bool isCurrentlyOn = (value & bitvalue) > 0; // is it on already.
+            if (setBitOn == false && isCurrentlyOn == true)
+                value = value ^ bitvalue; // turn it off.
+            if (setBitOn == true && isCurrentlyOn == false)
+                value = value | bitvalue; // turn it on.
+            return value;
+        }
+
+        public static string ToWellFormatedBinaryString(this int inValue)
+        {
+            string result = "{ ";
+            int spaceEvery = 8;
+            for (int bitIndex = 0; bitIndex < 32; bitIndex++)
+            {
+                result += ((inValue & (1 << (bitIndex))) > 0) ? '1' : '0';
+
+                if (bitIndex < 31)
+                {
+                    // format spaces and stuff.
+                    if (((bitIndex + 1) % spaceEvery) == 0)
+                        result += "  ";
+                    if (((bitIndex + 5) % spaceEvery) == 0)
+                        result += '-';
+                }
+            }
+            result += " }";
+            return result;
+        }
+
+        public static string ToSpacedBinaryString(this int inValue)
+        {
+            string result = "{ ";
+            for (int bitIndex = 0; bitIndex < 32; bitIndex++)
+            {
+                result += ((inValue & (1 << (bitIndex))) > 0) ? '1' : '0';
+                if (bitIndex < 31)
+                {
+                    if (((bitIndex + 1) % 8) == 0) // add a space
+                        result += "  ";
+                }
+            }
+            result += " }";
+            return result;
+        }
+
+        public static string ToBinaryString(this int inValue)
+        {
+            string result = "";
+            for (int bitIndex = 0; bitIndex < 32; bitIndex++)
+                result += ((inValue & (1 << (bitIndex))) > 0) ? '1' : '0';
+            return result;
+        }
+
         public static string VectorToString(this Vector4 v, string message)
         {
             string f = "+###0.0;-###0.0";
@@ -227,5 +294,6 @@ namespace Microsoft.Xna.Framework
                 "\n { " + m.M31.ToString(f) + ", " + m.M32.ToString(f) + ", " + m.M33.ToString(f) + ", " + m.M34.ToString(f) + " }" +
                 "\n { " + m.M41.ToString(f) + ", " + m.M42.ToString(f) + ", " + m.M43.ToString(f) + ", " + m.M44.ToString(f) + " }";
         }
+
     }
 }

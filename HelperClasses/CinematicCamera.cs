@@ -68,6 +68,7 @@ namespace Microsoft.Xna.Framework
         public CinematicCamera(GraphicsDevice device, SpriteBatch spriteBatch, Texture2D dot, Vector3 pos, Vector3 target, Vector3 up, float nearClipPlane, float farClipPlane, float fieldOfView, bool perspective, bool spriteBatchStyled, bool inverseOthographicProjection)
         {
             DrawHelpers.Initialize(device, spriteBatch, dot);
+            MgDrawHelperExtensions.Initialize(device, dot);
             //wayPointCurvature = new MyImbalancedSpline();
             TransformCamera(pos, target, up);
             SetProjection(device, nearClipPlane, farClipPlane, fieldOfView, perspective, spriteBatchStyled, inverseOthographicProjection);

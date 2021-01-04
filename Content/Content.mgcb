@@ -171,6 +171,18 @@
 /processorParam:TextureFormat=Color
 /build:Images/Terran02.png
 
+#begin Images/TextureAlignmentTestImage2.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/TextureAlignmentTestImage2.jpg
+
 #begin Images/wallnormmap.png
 /importer:TextureImporter
 /processor:TextureProcessor

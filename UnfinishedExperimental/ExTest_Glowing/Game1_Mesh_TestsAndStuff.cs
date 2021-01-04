@@ -17,6 +17,7 @@ namespace ShaderExamples
         const int STARTprefScrWidth = 1000;
         const int STARTprefScrHeight = 750;
         string msg = "";
+        string msgMisc = "";
         string displayModesMsg = "";
 
         GraphicsDeviceManager graphics;
@@ -55,11 +56,11 @@ namespace ShaderExamples
 
         RasterizerState rs_nocull_wire = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
         RasterizerState rs_nocull_solid = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.Solid };
-        RasterizerState rs_clockwise = new RasterizerState() { CullMode = CullMode.CullClockwiseFace};
+        RasterizerState rs_clockwise = new RasterizerState() { CullMode = CullMode.CullClockwiseFace };
         RasterizerState rs_counter_clockwise = new RasterizerState() { CullMode = CullMode.CullCounterClockwiseFace };
 
 
-
+        float amount = .2f;
 
         public Game1_Mesh_TestsAndStuff()
         {
@@ -77,11 +78,14 @@ namespace ShaderExamples
             graphics.PreferredBackBufferWidth = STARTprefScrWidth;
             graphics.PreferredBackBufferHeight = STARTprefScrHeight;
             graphics.ApplyChanges();
+
         }
+
+
         public void CalledOnClientSizeChanged(object sender, EventArgs e)
         {
             //Re Setup Cameras;
-            if(cinematicCamera != null)
+            if (cinematicCamera != null)
                 cinematicCamera.VisualizationOffset = new Vector3(GraphicsDevice.Viewport.Bounds.Right - 100, 1, GraphicsDevice.Viewport.Bounds.Bottom - 100);
         }
 
@@ -94,20 +98,21 @@ namespace ShaderExamples
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            MgDrawHelperExtensions.Initialize(GraphicsDevice, null);
 
             Content.RootDirectory = @"Content";
             meshEffect = Content.Load<Effect>("MeshDrawEffect");
 
             Content.RootDirectory = @"Content/Images";
             texture = Content.Load<Texture2D>("MG_Logo_Med_exCanvs");
-            texture2 = Content.Load<Texture2D>("wallToMap");
+            texture2 = Content.Load<Texture2D>("TextureAlignmentTestImage2");
 
             Content.RootDirectory = @"Content/Fonts";
             font = Content.Load<SpriteFont>("MgFont");
 
             gridPlanes3d = new GridPlanes3D(100, 100, .0002f, Color.Red, Color.Blue, Color.Green);
-            mesh.GetMesh(new Rectangle(-100, -100, 200, 200), 8, 8, true, true, false);
-            prism = Prism.Load(GraphicsDevice, 5, 8, 20, texture);
+            mesh.CreateMesh(new Rectangle(-100, -100, 200, 200), 8, 8, true, true, false);
+            prism.CreatePrism(GraphicsDevice, 8, 10, 10);
 
             SetupMyCamera();
             SetUpOrthographicBasicEffect(GraphicsDevice);
@@ -151,12 +156,17 @@ namespace ShaderExamples
             world = Matrix.CreateWorld(new Vector3(0, 0, 0), Vector3.Forward, new Vector3(0, 0, -1f)); // per object orientation place lookat and scale.
         }
 
-        protected override void UnloadContent(){  }
+        protected override void UnloadContent() { }
 
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+
+            if (Keys.Up.IsKeyDown())
+                amount += .01f;
+            if (Keys.Down.IsKeyDown())
+                amount -= .01f;
 
             // camera settings.
             if (Keys.F1.IsKeyPressedWithDelay(gameTime))
@@ -230,7 +240,8 @@ namespace ShaderExamples
            $"\n Ui Control : {msg3}" +
            $"\n RasterizerState controls: F5 F6 F7" +
            $"\n " + msg4 +
-           $"\n F8 showVisualGrids: {showVisualGrids}"
+           $"\n F8 showVisualGrids: {showVisualGrids}" +
+           $"\n " + msgMisc
            ;
 
             if (Keys.OemQuestion.IsKeyDown())
@@ -266,7 +277,7 @@ namespace ShaderExamples
             GraphicsDevice.Clear(Color.SlateGray);
 
             DrawOurGeometryWithBasicEffect(gameTime);
-            //DrawOurGeometryWithEffect(gameTime);
+            ////DrawOurGeometryWithEffect(gameTime);
             DrawRegularSpriteBatchStuff(gameTime);
             base.Draw(gameTime);
         }
@@ -293,7 +304,7 @@ namespace ShaderExamples
             basicEffect.World = Matrix.Identity;
             mesh.Draw(GraphicsDevice, basicEffect, texture);
 
-            var m = Matrix.Identity * Matrix.CreateScale(10); 
+            var m = Matrix.Identity * Matrix.CreateScale(10);
             m.Translation = new Vector3(0, -300, 0);
             basicEffect.World = m;
             prism.DrawWithBasicEffect(GraphicsDevice, basicEffect, texture2);
@@ -323,7 +334,7 @@ namespace ShaderExamples
             meshEffect.Parameters["World"].SetValue(Matrix.Identity);
             mesh.Draw(GraphicsDevice, meshEffect);
 
-            meshEffect.Parameters["World"].SetValue(Matrix.Identity * Matrix.CreateScale(10f) );
+            meshEffect.Parameters["World"].SetValue(Matrix.Identity * Matrix.CreateScale(10f));
             prism.DrawWithBasicEffect(GraphicsDevice, basicEffect, texture);
         }
 
@@ -334,13 +345,170 @@ namespace ShaderExamples
             //spriteBatch.End();
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
-            cinematicCamera.DrawCurveThruWayPointsWithSpriteBatch( 1, gameTime);
+            cinematicCamera.DrawCurveThruWayPointsWithSpriteBatch(1, gameTime);
             spriteBatch.End();
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null); //basicEffect
             spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Moccasin);
+            Test2(amount);
             spriteBatch.End();
         }
+
+        bool justonce = true;
+        public void Test2(float amountMultiplier)
+        {
+            var iterations = (int)(amountMultiplier * 50f);
+            var start = new Vector2(350, 100);
+            var radius = 650f;
+            var textureU = 0f;
+            var textureV = 0f;
+            for (int i = 0; i < iterations; i++)
+            {
+                var radians = ((i / (float)iterations) * 6.28318530717f);
+                float sin = (float)(Math.Sin(radians));
+                float cos = (float)(Math.Cos(radians));
+                var x = radius * sin;
+                var z = radius * cos;
+
+                var ss = Sign(sin);
+                var sc = Sign(cos);
+
+                var asin = sin * sin;
+                var acos = cos * cos;
+
+                var signedAsin = asin * ss;
+                var signedAcos = acos * sc;
+
+                bool higherIsX = true;
+                var lowest = signedAsin;
+                var highest = signedAsin;
+                if (acos < asin) 
+                { 
+                    lowest = signedAcos; 
+                    higherIsX = true; 
+                }
+                if (acos > asin) 
+                { 
+                    highest = signedAcos; 
+                    higherIsX = false; 
+                }
+
+               // var squarePosition = GetOuterSquareVector(asin, acos, signedAsin, signedAcos);
+                var squarePosition = GetOuterSquareVector(sin, cos);
+               // var squarePosition = GetOuterSquareVectorSinCos(sin, cos);
+
+                textureU = signedAsin *.5f + .5f;
+                textureV = signedAcos * .5f + .5f;
+
+                var half = Vector2.One * radius / 2;
+
+                var top = new Vector2(-radius / 2, 0) + start + half;
+                var right = new Vector2(0, radius / 2) + start + half;
+                var bottom = new Vector2(radius / 2, 0) + start + half;
+                var left = new Vector2(0, -radius / 2) + start + half;
+                spriteBatch.DrawBasicLine(top, right, 1, Color.Black);
+                spriteBatch.DrawBasicLine( right, bottom, 1, Color.Black);
+                spriteBatch.DrawBasicLine(bottom, left, 1, Color.Black);
+                spriteBatch.DrawBasicLine(left, top, 1, Color.Black);
+                spriteBatch.DrawRectangleOutline(new Rectangle( (start).ToPoint() , new Point((int)radius, (int)radius) ), 1, Color.Blue);
+
+                var squaruvend = (squarePosition * .5f + new Vector2(.5f, .5f)) * radius + start;
+                spriteBatch.DrawLineWithStringAtEnd(font, $" [{i}] {squarePosition.X.ToString("0.00")} {squarePosition.Y.ToString("0.00")}  ", start + half, squaruvend, 1, Color.Blue);
+                
+                var end = (new Vector2(sin, cos) * .5f + new Vector2(.5f , .5f) )* radius + start;
+                spriteBatch.DrawLineWithStringAtEnd(font, $" [{i}] {sin.ToString("0.00")} {cos.ToString("0.00")}", start + half, end, 1, Color.Red);
+
+                var uvend = new Vector2(textureU, textureV) * radius + start;
+                spriteBatch.DrawLineWithStringAtEnd(font, $" [{i}] {signedAsin.ToString("0.00")} {signedAcos.ToString("0.00")} ", start + half, uvend, 1, Color.Black);
+
+
+                if (justonce)
+                {
+                    Console.WriteLine($" calculation .. sin {sin.ToString("0.000")} signedAsin {signedAsin.ToString("0.000")} asin {asin.ToString("0.000")}    low {lowest.ToString("0.000")} high {highest.ToString("0.000")}  ");
+                    Console.WriteLine($" calculation .. cos {cos.ToString("0.000")} signedAcos {signedAcos.ToString("0.000")} acos {acos.ToString("0.000")}  ");
+                    Console.WriteLine($" calculation .. uv result -----  squarePosition.X {squarePosition.X.ToString("0.000")}, squarePosition.Y {squarePosition.Y.ToString("0.000")}  \n" );
+                }
+            }
+            justonce = false;
+        }
+
+        public Vector2 GetOuterSquareVectorSinCos(float sin, float cos)
+        {
+            var ss = (sin < 0) ? -1f : 1f;
+            var sc = (cos < 0) ? -1f : 1f;
+            var asin = sin * sin;
+            var acos = cos * cos;
+            if (asin > acos) //  x is higher
+                return new Vector2(ss, cos * sc * 2f); // re-signed acosine
+            else // x is lower
+                return new Vector2(sin * ss * 2f, sc); // re-signed asin
+        }
+
+        public Vector2 GetOuterSquareVector(float sin, float cos)
+        {
+            var ss = (sin < 0) ? -1f : 1f;
+            var sc = (cos < 0) ? -1f : 1f;
+            var asin = sin * sin;
+            var acos = cos * cos;
+            if (asin > acos) //  x is higher
+                return new Vector2(ss , acos * sc * 2f); // re-signed acosine
+            else // x is lower
+                return new Vector2(asin * ss * 2f , sc); // re-signed asin
+        }
+
+        public float Sign(float n)
+        {
+            return n < 0 ? -1f : 1f;
+        }
+
+        public Vector2 GetOuterSquareVector(float asin, float acos, float signedAsin, float signedAcos)
+        {
+            bool pic = IsXhigher(asin, acos, signedAsin, signedAcos);
+            if (pic) // y is lower
+            {
+                return new Vector2( Sign(signedAsin), signedAcos * 2f);
+            }
+            else // x is lower
+            {
+                return new Vector2(signedAsin * 2f, Sign(signedAcos));
+            }
+        }
+
+        public bool IsXhigher(float asin, float acos, float signedAsin, float signedAcos)
+        {
+            bool higherIsX = true;
+            //var lowest = signedAsin;
+            //var highest = signedAsin;
+            if (acos < asin)
+            {
+                //lowest = signedAcos;
+                return true;
+            }
+            else//if (acos > asin)
+            {
+                //highest = signedAcos;
+                return false;
+            }
+            //return higherIsX;
+        }
+
+
+        //if (sin < .01f)
+        //    textureU = 0;
+        //else
+        //    textureU = ((sin / (sin * sin * ss))  * sin) * .5f + .5f;
+        //if (cos < .01f)
+        //    textureV = 0;
+        //else
+        //    textureV = ((cos / (cos * cos * sc))  * cos) * .5f + .5f;
+
+
+        public string OutThis( string msg, float a, string sa, float b, string sb, float c)
+        {
+            return $"{msg} { a.ToString("0.000") } { sa  } {b.ToString("0.000")  } { sb  } { c.ToString("0.000")  } ";
+        }
+
+
     }
 
     public class MeshSimple
@@ -350,7 +518,7 @@ namespace ShaderExamples
         int h;
         public bool invertU = false;
         public bool invertV = false;
-        public VertexPositionNormalTexture[] GetMesh(Rectangle modelRectangle, int verticesWidth, int verticesHeight, bool flipNormalDirection, bool reverseU, bool reverseV)
+        public VertexPositionNormalTexture[] CreateMesh(Rectangle modelRectangle, int verticesWidth, int verticesHeight, bool flipNormalDirection, bool reverseU, bool reverseV)
         {
             invertU = reverseU;
             invertV = reverseV;

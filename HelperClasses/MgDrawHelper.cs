@@ -89,4 +89,114 @@ namespace Microsoft.Xna.Framework
             return new Vector2(plotX, plotY);
         }
     }
+
+
+
+
+    public static class MgDrawHelperExtensions
+    {
+        static Texture2D dot;
+
+        /// <summary>
+        /// Flips atan direction to xna spritebatch rotational alignment defaults to true.
+        /// </summary>
+        public static bool SpriteBatchAtan2 = true;
+
+        public static void Initialize(GraphicsDevice device, Texture2D dot)
+        {
+            if (MgDrawHelperExtensions.dot == null)
+                MgDrawHelperExtensions.dot = dot;
+            if (MgDrawHelperExtensions.dot == null)
+                MgDrawHelperExtensions.dot = CreateDotTexture(device, Color.White);
+        }
+
+        public static Texture2D CreateDotTexture(GraphicsDevice device, Color color)
+        {
+            Color[] data = new Color[1] { color };
+            Texture2D tex = new Texture2D(device, 1, 1);
+            tex.SetData<Color>(data);
+            return tex;
+        }
+
+
+        public static void DrawRectangleOutline(this SpriteBatch spriteBatch, Rectangle r, int lineThickness, Color c)
+        {
+            Rectangle TLtoR = new Rectangle(r.Left, r.Top, r.Width, lineThickness);
+            Rectangle BLtoR = new Rectangle(r.Left, r.Bottom - lineThickness, r.Width, lineThickness);
+            Rectangle LTtoB = new Rectangle(r.Left, r.Top, lineThickness, r.Height);
+            Rectangle RTtoB = new Rectangle(r.Right - lineThickness, r.Top, lineThickness, r.Height);
+            spriteBatch.Draw(dot, TLtoR, c);
+            spriteBatch.Draw(dot, BLtoR, c);
+            spriteBatch.Draw(dot, LTtoB, c);
+            spriteBatch.Draw(dot, RTtoB, c);
+        }
+
+        public static void DrawRectangleOutline(this SpriteBatch spriteBatch, Rectangle r, int lineThickness, Color c, float rotation)
+        {
+            Rectangle TLtoR = new Rectangle(r.Left, r.Top, r.Width, lineThickness);
+            Rectangle BLtoR = new Rectangle(r.Left, r.Bottom - lineThickness, r.Width, lineThickness);
+            Rectangle LTtoB = new Rectangle(r.Left, r.Top, lineThickness, r.Height);
+            Rectangle RTtoB = new Rectangle(r.Right - lineThickness, r.Top, lineThickness, r.Height);
+            spriteBatch.Draw(dot, TLtoR, c);
+            spriteBatch.Draw(dot, BLtoR, c);
+            spriteBatch.Draw(dot, LTtoB, c);
+            spriteBatch.Draw(dot, RTtoB, c);
+        }
+
+        public static Vector3 RotatePointAboutZaxis(Vector3 p, double q)
+        {
+            //x' = x*cos s - y*sin s
+            //y' = x*sin s + y*cos s 
+            //z' = z
+            return new Vector3
+                ( 
+                (float)(p.X * Math.Cos(q) - p.Y * Math.Sin(q)),
+                (float)(p.X * Math.Sin(q) + p.Y * Math.Cos(q)),
+                p.Z
+                ) ;
+        }
+
+        public static void DrawCrossHair(this SpriteBatch spriteBatch, Vector2 position, float radius, Color color)
+        {
+            MgDrawHelper.DrawBasicLine(new Vector2(-radius, 0) + position, new Vector2(0 + radius, 0) + position, 1, color);
+            MgDrawHelper.DrawBasicLine(new Vector2(0, 0 - radius) + position, new Vector2(0, radius) + position, 1, color);
+        }
+
+        public static void DrawBasicLine(this SpriteBatch spriteBatch, Vector2 s, Vector2 e, int thickness, Color linecolor)
+        {
+            spriteBatch.Draw(dot, new Rectangle((int)s.X, (int)s.Y, thickness, (int)Vector2.Distance(e, s)), new Rectangle(0, 0, 1, 1), linecolor, (float)Atan2Xna(e.X - s.X, e.Y - s.Y), Vector2.Zero, SpriteEffects.None, 0);
+        }
+
+        public static void DrawBasicPoint(this SpriteBatch spriteBatch, Vector2 p, Color c)
+        {
+            spriteBatch.Draw(dot, new Rectangle((int)p.X, (int)p.Y, 2, 2), new Rectangle(0, 0, 1, 1), c, 0.0f, Vector2.One, SpriteEffects.None, 0);
+        }
+
+        public static void DrawBasicPoint(this SpriteBatch spriteBatch, Vector2 p, Color c, int size)
+        {
+            int half = (int)(size / 2);
+            spriteBatch.Draw(dot, new Rectangle((int)p.X, (int)p.Y, 1 + size, 1 + size), new Rectangle(0, 0, 1, 1), c, 0.0f, new Vector2(.5f, .5f), SpriteEffects.None, 0);
+        }
+
+        public static void DrawLineWithStringAtEnd(this SpriteBatch spriteBatch, SpriteFont font, string msg, Vector2 s, Vector2 e, int thickness, Color linecolor)
+        {
+            spriteBatch.Draw(dot, new Rectangle((int)s.X, (int)s.Y, thickness, (int)Vector2.Distance(e, s)), new Rectangle(0, 0, 1, 1), linecolor, (float)Atan2Xna(e.X - s.X, e.Y - s.Y), Vector2.Zero, SpriteEffects.None, 0);
+            spriteBatch.DrawString(font, msg , e, linecolor);
+        }
+
+        public static void DrawLineWithPositionMsgAtEnd(this SpriteBatch spriteBatch, SpriteFont font, Vector2 s, Vector2 e, int thickness, Color linecolor)
+        {
+            spriteBatch.Draw(dot, new Rectangle((int)s.X, (int)s.Y, thickness, (int)Vector2.Distance(e, s)), new Rectangle(0, 0, 1, 1), linecolor, (float)Atan2Xna(e.X - s.X, e.Y - s.Y), Vector2.Zero, SpriteEffects.None, 0);
+            spriteBatch.DrawString(font, $"{e.X.ToString("######0.000")} {e.Y.ToString("######0.000")}", e, linecolor);
+        }
+
+        public static float Atan2Xna(float difx, float dify)
+        {
+            if (SpriteBatchAtan2)
+                return (float)System.Math.Atan2(difx, dify) * -1f;
+            else
+                return (float)System.Math.Atan2(difx, dify);
+        }
+
+    }
 }

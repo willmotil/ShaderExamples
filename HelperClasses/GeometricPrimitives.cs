@@ -913,89 +913,90 @@ namespace ShaderExamples
         /// </summary>
         private float prismRadius;
 
-        /// <summary>
-        /// Placeholder for the texture on the sides
-        /// </summary>
-        private Texture2D prismSideTexture;
+        ///// <summary>
+        ///// Placeholder for the texture on the sides
+        ///// </summary>
+        //private Texture2D prismSideTexture;
 
-        /// <summary>
-        /// prism BasicEffect
-        /// </summary>
-        public BasicEffect effect;
+        ///// <summary>
+        ///// prism BasicEffect
+        ///// </summary>
+        //public BasicEffect effect;
 
-        /// <summary>
-        /// The World Matrix somewhat redundant being here.
-        /// Now if anything we should provide accessors to set the effect view and projection.
-        /// </summary>
-        public Matrix worldMatrix = Matrix.Identity;
+        ///// <summary>
+        ///// The World Matrix somewhat redundant being here.
+        ///// Now if anything we should provide accessors to set the effect view and projection.
+        ///// </summary>
+        //public Matrix worldMatrix = Matrix.Identity;
         #endregion
 
         // Requisite for draw user indexed primitives. 
         private VertexPositionTexture[] nverts;
         private short[] nIndexs;
+
         // Requisite for draw primitives.
         private VertexBuffer vertexBuffer;
         private IndexBuffer indexBuffer;
 
-        /// <summary>
-        /// Creates and initializes a prism class object at load time. 
-        /// Returns it as desired by the users specifications.
-        /// this method is static so that you call it like so... Prism p = Prism.Load(..) .
-        /// </summary>
-        public static Prism Load(GraphicsDevice device, int nSides, float height, float radius, Texture2D sideTexture)
-        {
-            var t = new Prism();
-            t.prismSides = nSides;
-            t.prismHeight = height;
-            t.prismRadius = radius;
-            t.prismSideTexture = sideTexture;
-            if (nSides < 3)
-                t.prismSides = 3;
-            // you might want decimals and you can probably do this with a scaling matrix in your own vertex shader.
-            if (height < 1f)
-                t.prismHeight = 1f;
-            if (radius < 1f)
-                t.prismRadius = 1f;
+        ///// <summary>
+        ///// Creates and initializes a prism class object at load time. 
+        ///// Returns it as desired by the users specifications.
+        ///// this method is static so that you call it like so... Prism p = Prism.Load(..) .
+        ///// </summary>
+        //public static Prism Load(GraphicsDevice device, int nSides, float height, float radius, Texture2D sideTexture)
+        //{
+        //    //var t = new Prism();
+        //    //t.prismSides = nSides;
+        //    //t.prismHeight = height;
+        //    //t.prismRadius = radius;
+        //    //t.prismSideTexture = sideTexture;
+        //    //if (nSides < 3)
+        //    //    t.prismSides = 3;
+        //    //// you might want decimals and you can probably do this with a scaling matrix in your own vertex shader.
+        //    //if (height < 1f)
+        //    //    t.prismHeight = 1f;
+        //    //if (radius < 1f)
+        //    //    t.prismRadius = 1f;
 
-            // The game itself is really responsible for this not some arbitrary game object.
-            if (t.worldMatrix == null) 
-                t.worldMatrix = Matrix.Identity; 
-            float aspectRatio = (float)device.Viewport.Width / device.Viewport.Height;
-            //t.effect.View = Matrix.CreateLookAt(new Vector3(0f, 4f, 0f), Vector3.Zero, Vector3.Up);
-            //t.effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f), aspectRatio, 1.0f, 10.0f);
+        //    // The game itself is really responsible for this not some arbitrary game object.
+        //    if (t.worldMatrix == null) 
+        //        t.worldMatrix = Matrix.Identity; 
+        //    float aspectRatio = (float)device.Viewport.Width / device.Viewport.Height;
+        //    //t.effect.View = Matrix.CreateLookAt(new Vector3(0f, 4f, 0f), Vector3.Zero, Vector3.Up);
+        //    //t.effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f), aspectRatio, 1.0f, 10.0f);
 
-            //
-            // build the prism
-            //
-            t.BuildPrism(device, t.prismSides, t.prismHeight, (int)(t.prismRadius));
+        //    //
+        //    // build the prism
+        //    //
+        //    t.BuildPrism(device, t.prismSides, t.prismHeight, (int)(t.prismRadius));
 
-            // i made this a static load to sort of be like blah forget the constructor.
-            // so now its time to return the new prism object.
-            return t;
-        }
+        //    // i made this a static load to sort of be like blah forget the constructor.
+        //    // so now its time to return the new prism object.
+        //    return t;
+        //}
 
         /// <summary>
         /// Build the prism
         /// </summary>
-        private void BuildPrism(GraphicsDevice gd, int sides, float height, float radius)
+        public void CreatePrism(GraphicsDevice gd, int sides, float height, float radius)
         {
-            //
-            // Get the vertices into a vertex array.
-            // Note drawuserindexed primitives can use this.
-            // However its not really using the vertex buffer this way.
-            //
+            prismSides = sides;
+            prismHeight = height;
+            prismRadius = radius;
+            if (sides < 3)
+                prismSides = 3;
+            // you might want decimals and you can probably do this with a scaling matrix in your own vertex shader.
+            if (height < 1f)
+                prismHeight = 1f;
+            if (radius < 1f)
+                prismRadius = 1f;
             nverts = GetPrismVertices(radius, height, sides);
-            //
-            // Send a vertex buffer to the device.
-            // create the buffer, set the vertice array to that buffer, send the buffer to the device. 
-            //
+
             vertexBuffer = new VertexBuffer(gd, VertexPositionTexture.VertexDeclaration, nverts.Length, BufferUsage.None);
             vertexBuffer.SetData(nverts);
             gd.SetVertexBuffer(vertexBuffer);
 
-            //
             // set up the index buffer
-            //
             nIndexs = new short[sides * 3 * 2];
 
             int offset = 0;
@@ -1064,24 +1065,108 @@ namespace ShaderExamples
             float x;
             float z;
             float textureU = .5f;
-            float textureV = 0f;
+            float textureV = .5f;
             result[0] = new VertexPositionTexture(Vector3.Up * height, new Vector2(textureU, textureV));
-            textureV = 1f;
             result[1] = new VertexPositionTexture(Vector3.Down * height, new Vector2(textureU, textureV));
-            textureV = .5f;
             for (int i = 0; i < nPositions; i++)
             {
-                degrees = i * (360 / nPositions);
-                radians = (degrees * ((float)Math.PI / 180));
+                radians = ((i / (float)nPositions) * 6.28318530717f);
                 float sin = (float)(Math.Sin(radians));
                 float cos = (float)(Math.Cos(radians));
                 x = radius * sin;
                 z = radius * cos;
-                textureU = (i) / (nPositions - 1);
+                //textureU = sin / 2 + .5f;
+                //textureV = cos / 2 + .5f;
+                
+                
+                var ss = Sign(sin);
+                var sc = Sign(cos);
+
+                if (sin < .001f)
+                    textureU = 0;
+                else
+                    textureU = ((sin / (sin * sin)) * ss * sin) * .5f + .5f;
+                if (cos < .001f)
+                    textureV = 0;
+                else
+                    textureV = ((cos / (cos * cos)) * sc * cos) * .5f + .5f;
+
+
+
+
+                // .707 / .5 = 1.414 
+                // 1      / .5 = 2
+
+                // (.707 / (.707 *.707)) = 1.414   * .707  = 1;
+                // (1      / (1 * 1)) = 1 * 1 = 1;
+                // (0      / (0*  0)) = 0 * 0 = 0;
+
+                // ( sin / (sin * sin) ) * sin  =  x
+                // ( cos / (cos * cos) ) * cos  =  y
+
+
+                //var a = sin * sin;
+                //var b = sin / a;
+                //var c = b * ss;
+                //var d = c * sin;
+                //var e = d * .5 ;
+                //var f = e + .5;
+
+                //Console.WriteLine($"\n\n((sin / (sin * sin)) * ss * sin) *.5f + .5f   " +
+                //                          $"\n((s/(s*s={a.ToString("0.00")})={b.ToString("0.00")}) *ss={c.ToString("0.00")} * s= {d.ToString("0.00")}  (*.5)={e.ToString("0.00")}  +.5={f.ToString("0.00")}");
+                //Console.WriteLine(
+                //    $"\n" +
+                //    $"calculation .. sin cos -------   {sin.ToString("0.000")}, {cos.ToString("0.000")}    " +
+                //    $"\n" +
+                //    $"calculation .. uv result -----   {textureU.ToString("0.000")}, {textureV.ToString("0.000")}");
+
+
                 result[i + 2] = new VertexPositionTexture(new Vector3(x, 0f, z), new Vector2(textureU, textureV));
             }
             return result;
         }
+
+        public float Sign(float n)
+        {
+            if (n < 0)
+               return -1f;
+            else
+                return 1f;
+        }
+        public float Abs(float n)
+        {
+            if (n < 0)
+                n = -n;
+            return n;
+        }
+
+        //public VertexPositionTexture[] GetPrismVertices(float radius, float height, float nPositions)
+        //{
+        //    VertexPositionTexture[] result = new VertexPositionTexture[(int)(nPositions) + 2];
+
+        //    float degrees = 0;
+        //    float radians = 0f;
+        //    float x;
+        //    float z;
+        //    float textureU = .5f;
+        //    float textureV = 0f;
+        //    result[0] = new VertexPositionTexture(Vector3.Up * height, new Vector2(textureU, textureV));
+        //    textureV = 1f;
+        //    result[1] = new VertexPositionTexture(Vector3.Down * height, new Vector2(textureU, textureV));
+        //    textureV = .5f;
+        //    for (int i = 0; i < nPositions; i++)
+        //    {
+        //        degrees = i * (360 / nPositions);
+        //        radians = (degrees * ((float)Math.PI / 180));
+        //        float sin = (float)(Math.Sin(radians));
+        //        float cos = (float)(Math.Cos(radians));
+        //        x = radius * sin;
+        //        z = radius * cos;
+        //        textureU = (i) / (nPositions - 1);
+        //        result[i + 2] = new VertexPositionTexture(new Vector3(x, 0f, z), new Vector2(textureU, textureV));
+        //    }
+        //    return result;
+        //}
 
         public void DrawWithBasicEffect(GraphicsDevice device, BasicEffect effect, Texture2D texture)
         {
