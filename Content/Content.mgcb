@@ -135,6 +135,30 @@
 /processorParam:TextureFormat=Color
 /build:Images/MG_Logo_Med_exCanvs.png
 
+#begin Images/Nasa_DEM_Earth.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Nasa_DEM_Earth.jpg
+
+#begin Images/Nasa_DEM_Mars.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Nasa_DEM_Mars.jpg
+
 #begin Images/planet_stencil.png
 /importer:TextureImporter
 /processor:TextureProcessor

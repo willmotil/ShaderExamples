@@ -10,8 +10,14 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Microsoft.Xna.Framework
 {
+
     public static class MgExtensions
     {
+        //public static Vector2 operator +(Vector2 v, Vector2 w)
+        //{
+        //    return new Vector2(v.X + w.X, v.Y + w.V);
+        //}
+
         public static Texture2D Dot(this Texture2D t)
         {
             return MgDrawExtras.dotRed;
@@ -202,6 +208,25 @@ namespace Microsoft.Xna.Framework
                 value = value ^ bitvalue; // turn it off.
             if (setBitOn == true && isCurrentlyOn == false)
                 value = value | bitvalue; // turn it on.
+            return value;
+        }
+
+        public static bool IsIntBitOn(this byte inValue, int bitIndexToTest)
+        {
+            return ((inValue & (1 << (bitIndexToTest))) > 0) ? true : false;
+        }
+
+        /// <summary>
+        /// Bitmath Valid bit indexs are 0 to 31 and setBitOn is true or false for off.
+        /// </summary>
+        public static byte SetBitPosition(this byte value, int bitIndexToSet, bool setBitOn)
+        {
+            int bitvalue = (1 << (bitIndexToSet));
+            bool isCurrentlyOn = (value & bitvalue) > 0; // is it on already.
+            if (setBitOn == false && isCurrentlyOn == true)
+                value = (byte)(value ^ bitvalue); // turn it off.
+            if (setBitOn == true && isCurrentlyOn == false)
+                value = (byte)(value | bitvalue); // turn it on.
             return value;
         }
 

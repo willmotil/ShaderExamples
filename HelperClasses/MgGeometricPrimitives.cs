@@ -21,39 +21,98 @@ namespace Microsoft.Xna.Framework
         VertexPositionTextureNormalTangent[] vertices;
         int w;
         int h;
-        public bool invertU = false;
-        public bool invertV = false;
+        public bool invertTexAddressU = false;
+        public bool invertTexAddressV = false;
 
+        /// <summary>
+        /// This method takes the R value for height data mapping it to the range of 0 to 1 for the z value.
+        /// The G B A elements are unused as of yet.
+        /// </summary>
+        public VertexPositionTextureNormalTangent[] CreateMesh(Texture2D textureHeightMapData, Rectangle modelRectangle,float depthScalar, bool flipNormalDirection, bool reverseMapAddressU, bool reverseMapAddressV, bool reverseTexAddressU, bool reverseTexAddressV)
+        {
+            invertTexAddressU = reverseTexAddressU;
+            invertTexAddressV = reverseTexAddressV;
+            w = textureHeightMapData.Width;
+            h = textureHeightMapData.Height;
+            //well use the height data via get data.
+            Color[] data = new Color[w * h];
+            textureHeightMapData.GetData<Color>(data);
+
+            List<VertexPositionTextureNormalTangent> vertlist = new List<VertexPositionTextureNormalTangent>();
+
+            var tl = new Vector2(0, 0);
+            var tr = new Vector2(1, 0);
+            var bl = new Vector2(0, 1);
+            var br = new Vector2(1, 1);
+
+            // initial calculation and fill in the struct with dummy variables , we will have to calculate the normals and tangents later.
+            for (int y = 0; y < h - 1; y++)
+            {
+                for (int x = 0; x < w - 1; x++)
+                {
+                    int mx = reverseMapAddressU ? (w - 1) - x :  x;
+                    int my = reverseMapAddressV ? (h - 1) - y :  y;
+                    Vector2 transMapAddr = Vector2.One;
+                    if (reverseMapAddressU)
+                        transMapAddr.X = -1;
+                    if (reverseMapAddressV)
+                        transMapAddr.Y = -1;
+                    var tlz = data[GetIndex(new Vector2(mx, my) + tl * transMapAddr)].R / 255f * depthScalar;
+                    var trz = data[GetIndex(new Vector2(mx, my) + tr * transMapAddr)].R / 255f * depthScalar;
+                    var blz = data[GetIndex(new Vector2(mx, my) + bl * transMapAddr)].R / 255f * depthScalar;
+                    var brz = data[GetIndex(new Vector2(mx, my) + br * transMapAddr)].R / 255f * depthScalar;
+                    //int mx = reverseMapAddressU ? (w - 2) - x :  x;
+                    //int my = reverseMapAddressV ? (h - 2) - y :  y;
+
+                    var uvXy = new Vector2(x, y);
+                    // t0
+                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, tlz) + tl.ToVector3(), uvFromXy(uvXy + tl, invertTexAddressU, invertTexAddressV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, blz) + bl.ToVector3(), uvFromXy(uvXy + bl, invertTexAddressU, invertTexAddressV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, trz) + tr.ToVector3(), uvFromXy(uvXy + tr, invertTexAddressU, invertTexAddressV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    // t1
+                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, trz) + tr.ToVector3(), uvFromXy(uvXy + tr, invertTexAddressU, invertTexAddressV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, blz) + bl.ToVector3(), uvFromXy(uvXy + bl, invertTexAddressU, invertTexAddressV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, brz) + br.ToVector3(), uvFromXy(uvXy + br, invertTexAddressU, invertTexAddressV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                }
+            }
+            RePositionVerticesInModelSpace(ref vertlist, modelRectangle);
+            DetermineQuadNormals(ref vertlist, flipNormalDirection);
+            DetermineQuadTangents(ref vertlist, flipNormalDirection);
+            vertices = vertlist.ToArray();
+            return vertices;
+        }
+
+        
 
         public VertexPositionTextureNormalTangent[] CreateMesh(Vector3[] positionArray, int verticesWidth, int verticesHeight, bool flipNormalDirection, bool reverseU, bool reverseV)
         {
-            invertU = reverseU;
-            invertV = reverseV;
+            invertTexAddressU = reverseU;
+            invertTexAddressV = reverseV;
             w = verticesWidth;
             h = verticesHeight;
             List<VertexPositionTextureNormalTangent> vertlist = new List<VertexPositionTextureNormalTangent>();
 
             // initial calculation and fill in the struct with dummy variables.
             // the normals and tangents must be calculated to be proper well do that later.
-            for (int y = 0; y < w - 1; y++)
+            for (int y = 0; y < h - 1; y++)
             {
-                for (int x = 0; x < h - 1; x++)
+                for (int x = 0; x < w - 1; x++)
                 {
                     var uvXy = new Vector2(x, y);
-                    // we do a index calculation.
+                    // we do a index calculation and get the position.
                     var index2d = new Vector2(x, y);
                     var tl = index2d + new Vector2(0, 0);   var p0 = positionArray[GetIndex(tl)];
                     var tr = index2d + new Vector2(1, 0);   var p1 = positionArray[GetIndex(tr)];
                     var bl = index2d + new Vector2(0, 1);   var p2 = positionArray[GetIndex(bl)];
                     var br = index2d + new Vector2(1, 1);   var p3 = positionArray[GetIndex(br)];
                     // t0
-                    vertlist.Add(new VertexPositionTextureNormalTangent(p0, uvFromXy(uvXy + tl, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
-                    vertlist.Add(new VertexPositionTextureNormalTangent(p0, uvFromXy(uvXy + bl, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
-                    vertlist.Add(new VertexPositionTextureNormalTangent(p0, uvFromXy(uvXy + tr, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(p0, uvFromXy(uvXy + tl, invertTexAddressU, invertTexAddressV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(p0, uvFromXy(uvXy + bl, invertTexAddressU, invertTexAddressV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(p0, uvFromXy(uvXy + tr, invertTexAddressU, invertTexAddressV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
                     // t1
-                    vertlist.Add(new VertexPositionTextureNormalTangent(p0, uvFromXy(uvXy + tr, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
-                    vertlist.Add(new VertexPositionTextureNormalTangent(p0, uvFromXy(uvXy + bl, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
-                    vertlist.Add(new VertexPositionTextureNormalTangent(p0, uvFromXy(uvXy + br, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(p0, uvFromXy(uvXy + tr, invertTexAddressU, invertTexAddressV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(p0, uvFromXy(uvXy + bl, invertTexAddressU, invertTexAddressV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(p0, uvFromXy(uvXy + br, invertTexAddressU, invertTexAddressV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
                 }
             }
             DetermineQuadNormals(ref vertlist, flipNormalDirection);
@@ -64,8 +123,8 @@ namespace Microsoft.Xna.Framework
 
         public VertexPositionTextureNormalTangent[] CreateMesh(Rectangle modelRectangle, int verticesWidth, int verticesHeight, bool flipNormalDirection, bool reverseU, bool reverseV)
         {
-            invertU = reverseU;
-            invertV = reverseV;
+            invertTexAddressU = reverseU;
+            invertTexAddressV = reverseV;
             w = verticesWidth;
             h = verticesHeight;
             List<VertexPositionTextureNormalTangent> vertlist = new List<VertexPositionTextureNormalTangent>();
@@ -76,19 +135,19 @@ namespace Microsoft.Xna.Framework
             var br = new Vector2(1, 1);
 
             // initial calculation and fill in the struct with dummy variables , we will have to calculate the normals and tangents later.
-            for (int y = 0; y < w - 1; y++)
+            for (int y = 0; y < h - 1; y++)
             {
-                for (int x = 0; x < h - 1; x++)
+                for (int x = 0; x < w - 1; x++)
                 {
                     var uvXy = new Vector2(x, y);
                     // t0
-                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, 0) + tl.ToVector3(), uvFromXy(uvXy + tl, invertU, invertV), new Vector3(0, 0, 1),  new Vector3(0, -1, 0)));
-                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, 0) + bl.ToVector3(), uvFromXy(uvXy + bl, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
-                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, 0) + tr.ToVector3(), uvFromXy(uvXy + tr, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, 0) + tl.ToVector3(), uvFromXy(uvXy + tl, invertTexAddressU, invertTexAddressV), new Vector3(0, 0, 1),  new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, 0) + bl.ToVector3(), uvFromXy(uvXy + bl, invertTexAddressU, invertTexAddressV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, 0) + tr.ToVector3(), uvFromXy(uvXy + tr, invertTexAddressU, invertTexAddressV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
                     // t1
-                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, 0) + tr.ToVector3(), uvFromXy(uvXy + tr, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
-                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, 0) + bl.ToVector3(), uvFromXy(uvXy + bl, invertU, invertV), new Vector3(0, 0, 1),  new Vector3(0, -1, 0)));
-                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, 0) + br.ToVector3(), uvFromXy(uvXy + br, invertU, invertV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, 0) + tr.ToVector3(), uvFromXy(uvXy + tr, invertTexAddressU, invertTexAddressV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, 0) + bl.ToVector3(), uvFromXy(uvXy + bl, invertTexAddressU, invertTexAddressV), new Vector3(0, 0, 1),  new Vector3(0, -1, 0)));
+                    vertlist.Add(new VertexPositionTextureNormalTangent(new Vector3(x, y, 0) + br.ToVector3(), uvFromXy(uvXy + br, invertTexAddressU, invertTexAddressV), new Vector3(0, 0, 1), new Vector3(0, -1, 0)));
                 }
             }
             RePositionVerticesInModelSpace(ref vertlist, modelRectangle);
@@ -107,8 +166,10 @@ namespace Microsoft.Xna.Framework
             for (int i = 0; i < vertlist.Count; i += 1)
             {
                 var v = vertlist[i];
+                var z = v.Position.Z;
                 var ratio = (v.Position / new Vector3(w - 1, h - 1, 1));
                 v.Position = ratio * size.ToVector3(1f) + loc.ToVector3(0);
+                v.Position.Z = z;
                 vertlist[i] = v;
             }
         }

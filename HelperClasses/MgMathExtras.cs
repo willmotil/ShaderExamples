@@ -9,6 +9,18 @@ namespace Microsoft.Xna.Framework
     /// </summary>
     public static class MgMathExtras
     {
+        public const float PI2 = 6.28318530717f;
+        public const float PI = 3.141592653589f;
+        public const float PIover2 = 1.570796326794f;
+        public const float PIover4 = 0.785398163f;
+        public const float Ee = 2.718281828459f;
+        public const float SQROOTOf2 = 1.41421356237f;
+        public const float SQROOTofPoint5 = 0.7071067811f;
+        public const float ONEhalf = 0.5f;
+        public const float TORADIANS = 0.0174532925199f;
+        public const float TODEGREES = 57.29577951316f;
+        public const double Epsilon = 1e-10;
+
         public static Matrix ViewMatrixForPerspectiveSpriteBatch(float width, float height, float _fov, Vector3 forward, Vector3 up)
         {
             var pos = new Vector3(width / 2, height / 2, -((1f / (float)Math.Tan(_fov / 2)) * (height / 2)));
@@ -229,14 +241,9 @@ namespace Microsoft.Xna.Framework
                 return new Vector2(asin * ss * 2f, sc); // re-signed asin
         }
 
-        public static float Power(int baseVal, int exponentVal)
+        public static bool IsEven(int c)
         {
-            float result = 0;
-            for (float exponent = exponentVal; exponent > 0; exponent--)
-            {
-                result = result * baseVal;
-            }
-            return result;
+            return ((c % 2) == 0);
         }
 
         public static Vector3 MidPoint(Vector3 a, Vector3 b)
@@ -248,10 +255,380 @@ namespace Microsoft.Xna.Framework
             return (a + b + c) / 3;
         }
 
+        public static int Absolute(int n)
+        {
+            if (n < 0) { return -n; }
+            return n;
+        }
+        public static float Absolute(float n)
+        {
+            if (n < 0) { return -n; }
+            return n;
+        }
+        public static Vector2 Absolute(Vector2 v)
+        {
+            if (v.X < 0f) { v.X = -v.X; }
+            if (v.Y < 0f) { v.Y = -v.Y; }
+            return v;
+        }
+        public static Vector3 Absolute(Vector3 v)
+        {
+            if (v.X < 0f) { v.X = -v.X; }
+            if (v.Y < 0f) { v.Y = -v.Y; }
+            if (v.Z < 0f) { v.Z = -v.Z; }
+            return v;
+        }
+        public static float AcosineOfTwoVectors(Vector2 A, Vector2 B)
+        {
+            var n = ((A.X * B.X) + (A.Y * B.Y));
+            return n * n;
+        }
+
+        public static float AcosineOfTwoVectors(Vector3 A, Vector3 B)
+        {
+            var n = ((A.X * B.X) + (A.Y * B.Y) + (A.Z * B.Z));
+            return n * n;
+        }
+
+        public static Vector2 SquareRootElements(Vector2 A)
+        {
+            return new Vector2((float)Math.Sqrt(A.X), (float)Math.Sqrt(A.Y));
+        }
+        public static Vector3 SquareRootElements(Vector3 A)
+        {
+            return new Vector3((float)Math.Sqrt(A.X), (float)Math.Sqrt(A.Y), (float)Math.Sqrt(A.Z));
+        }
+
+        public static float DotProduct2d(Vector2 A, Vector2 B)
+        {
+            return A.X * B.X + A.Y * B.Y;
+        }
+        public static float DotProduct3d(Vector3 A, Vector3 B)
+        {
+            return (A.X * B.X) + (A.Y * B.Y) + (A.Z * B.Z);
+        }
+
+        public static Vector3 Cross3D(Vector3 A, Vector3 B)
+        {
+            return new Vector3(A.Y * B.Z - B.Y * A.Z, A.Z * B.X - B.Z * A.X, A.X * B.Y - B.X * A.Y);
+        }
+
+        public static Vector2 Cross2D(Vector2 B, bool getCcw)
+        {
+            return getCcw ? new Vector2(-B.Y, +B.X) : new Vector2(+B.Y, -B.X);
+        }
+        public static Vector2 Cross2D(Vector2 A, Vector2 B) // left
+        {
+            // return new Vector2(+B.Y + A.X, -B.X + A.Y); // Cw version.
+            return new Vector2(-B.Y + A.X, +B.X + A.Y);
+        }
+
+        public static Vector2 Reflection2d(Vector2 n, Vector2 i)
+        {
+            return new Vector2
+               (
+                 2 * n.X * (n.X * i.X + n.Y * i.Y) - i.X,
+                 2 * n.Y * (n.X * i.X + n.Y * i.Y) - i.Y
+                );
+        }
+
+        public static Vector3 Reflection3d(Vector3 n, Vector3 i)
+        {
+            return new Vector3
+               (
+                 2 * n.X * (n.X * i.X + n.Y * i.Y + n.Z * i.Z) - i.X,
+                 2 * n.Y * (n.X * i.X + n.Y * i.Y + n.Z * i.Z) - i.Y,
+                 2 * n.Z * (n.X * i.X + n.Y * i.Y + n.Z * i.Z) - i.Z
+                );
+        }
+
+        //_________________________some old functions not 100% on there reliabiltiy i maybe broke the line line one_______________
+
+        public static float RatioOfN(float n, float b)
+        {
+            return n / (n + b);
+        }
+
+        public static float SlopeOfN(float n, float b)
+        {
+            return n / b;
+        }
+
+        public static float Sagitta(float chordlength, float radius)
+        {
+            float halfchord = chordlength * .5f;
+            return (float)(radius - (float)Math.Sqrt(radius * radius - halfchord * halfchord));
+        }
+
+        public static float AngularVelocity(float radius, float radians, float time)
+        {
+            return radius * (radians / time);
+        }
+
+        public static float Power(int baseVal, int exponentVal)
+        {
+            float result = 0;
+            for (float exponent = exponentVal; exponent > 0; exponent--)
+            {
+                result = result * baseVal;
+            }
+            return result;
+        }
+
+        public static Vector2 QuadricIntercept(Vector2 obj_position, float obj_speed, Vector2 target_position, float target_speed, Vector2 target_normal)
+        {
+            float tvx = target_normal.X * target_speed;
+            float tvy = target_normal.Y * target_speed;
+            float pdx = target_position.X - obj_position.X;
+            float pdy = target_position.Y - obj_position.Y;
+
+            float pdlength = Vector2.Normalize(target_position - obj_position).Length();
+            float d = pdx * pdx + pdy * pdy;
+            float s = (tvx * tvx + tvy * tvy) - obj_speed * obj_speed;
+            float q = (tvx * pdx + tvy * pdy);
+            //float sd = ((tvx * tvx + tvy * tvy) - obj_speed * obj_speed) * (tvx * pdx + tvy * pdy);
+            float disc = (q * q) - s * d; // get rid of the fluff
+            float disclen = (float)Math.Sqrt(disc);
+
+            float t1 = (-q + disclen) / s;
+            float t2 = (-q - disclen) / s;
+
+            float t = t1;
+            if (t1 < 0.0f) { t = t2; }
+
+            Vector2 aimpoint = Vector2.Zero;
+            if (t > 0.0f)
+            {
+                aimpoint.X = t * tvx + target_position.X;
+                aimpoint.Y = t * tvy + target_position.Y;
+            }
+            return aimpoint; // returns Vector2.Zero if no positive time to fire exists
+        }
+
+        public static Vector2 QuadricIntercept(Vector2 obj_position, float obj_speed, Vector2 target_position, Vector2 target_velocity)
+        {
+            float tvx = target_velocity.X;
+            float tvy = target_velocity.Y;
+            float pdx = target_position.X - obj_position.X;
+            float pdy = target_position.Y - obj_position.Y;
+
+            float pdlength = Vector2.Normalize(target_position - obj_position).Length();
+            float d = pdx * pdx + pdy * pdy;
+            float s = (tvx * tvx + tvy * tvy) - obj_speed * obj_speed;
+            float q = (tvx * pdx + tvy * pdy);
+            //float sd = ((tvx * tvx + tvy * tvy) - obj_speed * obj_speed) * (tvx * pdx + tvy * pdy);
+            float disc = (q * q) - s * d; // get rid of the fluff
+            float disclen = (float)Math.Sqrt(disc);
+
+            float t1 = (-q + disclen) / s;
+            float t2 = (-q - disclen) / s;
+
+            float t = t1;
+            if (t1 < 0.0f) { t = t2; }
+
+            Vector2 aimpoint = Vector2.Zero;
+            if (t > 0.0f)
+            {
+                aimpoint.X = t * tvx + target_position.X;
+                aimpoint.Y = t * tvy + target_position.Y;
+            }
+            return aimpoint; // returns Vector2.Zero if no positive time to fire exists
+        }
+
+        /// <summary>
+        /// Very nice and works got it from this dudes site
+        /// http://www.codeproject.com/Tips/862988/Find-the-Intersection-Point-of-Two-Line-Segments
+        /// </summary>
+        public static bool LineSegementsIntersect(Vector2 p1, Vector2 p2, Vector2 q1, Vector2 q2, out Vector2 intersection)
+        {
+            intersection = new Vector2();
+
+            var r_pdif = p2 - p1;
+            var s_qdiff = q2 - q1;
+            var rxs = Cross2D(r_pdif, s_qdiff);
+            var qpxr = Cross2D((q1 - p1), r_pdif); // hopefully i didn't use the wrong handed cross product here.
+
+            // If r x s = 0 and (q - p) x r = 0, then the two lines are collinear.
+            if (rxs == Vector2.Zero && qpxr == Vector2.Zero)
+            {
+                return false;
+            }
+
+            // 3. If r x s = 0 and (q - p) x r != 0, then the two lines are parallel and non-intersecting.
+            if (rxs == Vector2.Zero && !(qpxr == Vector2.Zero))
+                return false;
+
+            // t = (q - p) x s / (r x s)
+            var t = Cross2D((q1 - p1), s_qdiff) / rxs;
+            // u = (q - p) x r / (r x s)
+            var u = Cross2D((q1 - p1), r_pdif) / rxs;
+
+            // 4. If r x s != 0 and 0 <= t <= 1 and 0 <= u <= 1
+            // the two line segments meet at the point p + t r = q + u s.
+            if (!(rxs == Vector2.Zero) && (TestAlessThanEqualB(Vector2.Zero, t) && TestAlessThanEqualB(t, Vector2.One)) && (TestAlessThanEqualB(Vector2.Zero , u) && TestAlessThanEqualB(u , Vector2.One) )  )
+            {
+                // We can calculate the intersection point using either t or u.
+                intersection = p1 + t * r_pdif;
+                return true;
+            }
+            // 5. Otherwise, the two line segments are not parallel but do not intersect.
+            return false;
+        }
+
+        public static bool TestAlessThanEqualB(Vector2 a, Vector2 b)
+        {
+            return (a.X <= b.X && a.Y <= b.Y) ? true : false;
+        }
+
+        public static int ShortestTurnToTargetLeftOrRight(Vector2 pDirection, Vector2 position, Vector2 targetPosition)
+        {
+            Vector2 target_dir = Vector2.Normalize( targetPosition - position);
+            float r = -pDirection.Y * target_dir.X + pDirection.X * target_dir.Y; // cross and dot simultaneously
+            float f = pDirection.X * target_dir.X + pDirection.Y * target_dir.Y; // dot
+            if (f > .999f) return 0;
+            if (r < 0f) return -1;
+            if (r > 0) return 1;
+            return 0;
+        }
+
+        public static float AngularDiffernceInRadians(Vector3 A, Vector3 B)
+        {
+            var n = ((A.X * B.X) + (A.Y * B.Y) + (A.Z * B.Z));
+            float result = n * n;
+            if (result < 0)
+                return (-result * 3.141592653589f + 3.141592653589f);
+            else
+                return (1f - result) * 6.28318530f;
+        }
+
+        // euler rotations.
+        public static Vector3 RotatePointAboutZaxis(Vector3 p, double q)
+        {
+            //x' = x*cos s - y*sin s //y' = x*sin s + y*cos s   //z' = z
+            return new Vector3
+                (
+                (float)(p.X * Math.Cos(q) - p.Y * Math.Sin(q)),
+                (float)(p.X * Math.Sin(q) + p.Y * Math.Cos(q)),
+                p.Z
+                );
+        }
+        public static Vector3 RotatePointAboutXaxis(Vector3 p, double q)
+        {
+            //y' = y*cos s - z*sin s //z' = y*sin s + z*cos s //x' = x
+            return new Vector3
+                (
+                (float)(p.Y * Math.Cos(q) - p.Z * Math.Sin(q)),
+                (float)(p.Y * Math.Sin(q) + p.Z * Math.Cos(q)),
+                p.X
+                );
+        }
+
+        public static Vector3 RotatePointAboutYaxis(Vector3 p, double q)
+        {
+            //z' = z*cos s - x*sin s //x' = z*sin s + x*cos s //y' = y
+            return new Vector3
+                (
+                (float)(p.Z * Math.Cos(q) - p.X * Math.Sin(q)),
+                (float)(p.Z * Math.Sin(q) + p.X * Math.Cos(q)),
+                p.Y
+                );
+        }
+
+        public static Vector2 CalculateNormalAndOutDistance(Vector2 v, out float dist)
+        {
+            dist = (float)(Math.Sqrt(v.X * v.X + v.Y * v.Y));
+            return new Vector2(v.X / dist, v.Y / dist);
+        }
+        public static Vector3 CalculateNormalAndOutDistance(Vector3 v, out float dist)
+        {
+            dist = (float)(Math.Sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z));
+            return new Vector3(v.X / dist, v.Y / dist, v.Z / dist);
+        }
+
+        // this is sort of a guesstimation on the future positions.
+        public static float DotRange(Vector2 position, Vector2 targetPosition, float targetSpeed, Vector2 targetNormal)
+        {
+            Vector2 t_pos2 = targetPosition + targetNormal * targetSpeed;
+            return Vector2.Dot(Vector2.Normalize(targetPosition - position), Vector2.Normalize(t_pos2 - position));
+        }
+
+        public static float DistanceFromConstantAccelerationOverTime(float s, float t, float a)
+        {
+            // humm this is what i came up with im not sure this is the same as the book, seems to come out right, though that -1.
+            return a * (t - 1) + a * t + s;
+        }
+
+        public static int Fibonacci(int n)
+        {
+            int a = 0;
+            int b = 1;
+            // In N steps compute Fibonacci sequence iteratively.
+            for (int i = 0; i < n; i++)
+            {
+                int temp = a;
+                a = b;
+                b = temp + b;
+            }
+            return a;
+        }
+
+        public static float SatisfysWhenZero_SquareSubtractionEquivilence(float a, float b)
+        {
+            float f1 = (a + b) * (a - b);
+            float f2 = (a * a) - (b * b);
+            return f1 - f2; // should return zero as they are equivilent
+        }
+
+        public static float CubicBeringToTargetAsMagnitude(Vector2 position, Vector2 direction, Vector2 targetPosition)
+        {
+            targetPosition = targetPosition - position;
+            float forward_theta = direction.X * targetPosition.X + direction.Y * targetPosition.Y; // dot = 1 or -1 when north and postion align
+            float right_theta = -direction.Y * targetPosition.X + direction.X * targetPosition.Y; // simultaneous cross right and dot = 0 when north and position align
+            Vector2 cubic = CubicNormalize(new Vector2(forward_theta, right_theta));
+            //
+            if (cubic.Y >= 0f) // quads 1 and 2
+            {
+                if (cubic.X >= 0f) { return (cubic.Y) * .5f; } // Q1
+                else { return -cubic.X * .5f + .5f; } //Q2
+            }
+            else // quads 3 and 4
+            {
+                if (cubic.X < 0f) { return cubic.X * .5f - .5f; } // Q3
+                else { return cubic.Y * .5f; } //Q4
+            }
+        }
+
+        public static Vector2 CubicNormalize(Vector2 v)
+        {
+            float n = v.X;
+            if (n < 0)
+                n = -n;
+            if (v.Y < 0)
+                n += -v.Y;
+            else
+                n += v.Y;
+            n = 1.0f / n;
+            v.X = v.X * n;
+            v.Y = v.Y * n;
+            return v;
+        }
+
+        public static void Swap<T>(ref T a, ref T b)
+        {
+            T temp = a;
+            a = b;
+            b = temp;
+        }
     }
 }
 
+/*
+ 
+  .5,.5  a^2+b^  = .25. , .25  sum = .5  squaroot(.5) = .707    the sin   take the (sin * sin)   .707 * .707  to get the acos .5, .5  back were we started or the inner cube at 45 degrees. 
+  45 degree is as also the cosine of two dot products at 45 degrees 
 
+
+ */
 /*
  
          /// <summary>
