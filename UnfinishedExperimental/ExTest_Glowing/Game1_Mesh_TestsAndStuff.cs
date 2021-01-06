@@ -40,6 +40,7 @@ namespace ShaderExamples
         Matrix world;
 
         private CinematicCamera cinematicCamera;
+        private SimpleFps fps = new SimpleFps();
 
         private bool useDesignatedTarget = true;
         private Vector3 _targetLookAt = new Vector3(0, 0, 0);
@@ -116,10 +117,10 @@ namespace ShaderExamples
             font = Content.Load<SpriteFont>("MgFont");
 
             //mesh.CreateMesh(new Rectangle(-100, -100, 200, 200), 8, 8, true, true, false);
-            mesh.CreateMesh(texture4, new Rectangle(-300, -300, 600, 600), 20f, false, true, false, true, false);
+            mesh.CreateMesh(GraphicsDevice, texture4, new Rectangle(-300, -300, 600, 600), 20f, false, true, false, true, false);
             gridPlanes3d = new GridPlanes3D(100, 100, .0002f, Color.Red, Color.Blue, Color.Green);
             prism.CreatePrism(GraphicsDevice, 8, 14, 10, false);
-            navGuide = new NavOrientation3d(20, 20, 4, .05f);
+            navGuide = new NavOrientation3d(20, 20, 20, .06f, Color.White, Color.White, Color.White);
 
             SetupMyCamera();
             SetUpOrthographicBasicEffect(GraphicsDevice);
@@ -199,6 +200,8 @@ namespace ShaderExamples
             else
                 cinematicCamera.Update(gameTime);
 
+            fps.Update(gameTime);
+
             ComposeMsgs();
 
             base.Update(gameTime);
@@ -235,6 +238,8 @@ namespace ShaderExamples
                     msg4 += $"\n F6 useNoCull {useNoCull}";
                 }
             }
+
+            float g = 0f;
 
             msg =
            $"\n Camera.World.Translation: \n  { cinematicCamera.World.Translation.X.ToString("N3") } { cinematicCamera.World.Translation.Y.ToString("N3") } { cinematicCamera.World.Translation.Z.ToString("N3") }" +
@@ -282,11 +287,53 @@ namespace ShaderExamples
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.SlateGray);
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
-            DrawOurGeometryWithBasicEffect(gameTime);
-            ////DrawOurGeometryWithEffect(gameTime);
+            //DrawOurGeometryWithBasicEffect(gameTime);
+            DrawOurGeometryWithEffect(gameTime);
             DrawRegularSpriteBatchStuff(gameTime);
             base.Draw(gameTime);
+        }
+
+        public void DrawOurGeometryWithEffect(GameTime gameTime)
+        {
+            meshEffect.Parameters["SpriteTexture"].SetValue(texture);
+            meshEffect.Parameters["View"].SetValue(cinematicCamera.View);
+            meshEffect.Parameters["Projection"].SetValue(cinematicCamera.Projection);
+
+            //draw the primitive grid first it has different requisites including state.
+            if (showVisualGrids)
+            {
+                GraphicsDevice.RasterizerState = rs_nocull_solid;
+                meshEffect.CurrentTechnique = meshEffect.Techniques["TriangleDrawPCT"];
+                meshEffect.Parameters["SpriteTexture"].SetValue(MgDrawExtras.dot);
+                meshEffect.Parameters["World"].SetValue(Matrix.CreateScale(10000));
+                gridPlanes3d.Draw(GraphicsDevice, meshEffect, true, true, false);
+            }
+
+            SetStates();
+
+            // draw the primitive models.  NonIndexedMeshDraw
+            meshEffect.CurrentTechnique = meshEffect.Techniques["NonIndexedMeshDraw"];
+            meshEffect.Parameters["World"].SetValue(Matrix.Identity);
+            meshEffect.Parameters["SpriteTexture"].SetValue(texture4);
+            mesh.Draw(GraphicsDevice, meshEffect);
+
+            var m = Matrix.Identity * Matrix.CreateScale(10);
+            m.Translation = new Vector3(0, -500, 0);
+            meshEffect.CurrentTechnique = meshEffect.Techniques["TriangleDrawPNT"];
+            meshEffect.Parameters["World"].SetValue(m);
+            meshEffect.Parameters["SpriteTexture"].SetValue(texture);
+            prism.Draw(GraphicsDevice, meshEffect);
+
+
+            var targetMatrix = Matrix.Identity; // the target is the world matrix of some other thing we have drawn.
+            var poffset = cinematicCamera.World.Forward * 250 + cinematicCamera.World.Right * 250 + cinematicCamera.World.Down * 50 + cinematicCamera.World.Translation; // we offset from the camera forward right then down
+            meshEffect.CurrentTechnique = meshEffect.Techniques["TriangleDrawPCT"];
+            meshEffect.Parameters["World"].SetValue(m);
+            meshEffect.Parameters["SpriteTexture"].SetValue(texture);
+            navGuide.DrawNavOrientation(GraphicsDevice, meshEffect, poffset, 100f, targetMatrix, MgDrawExtras.dotBlue, MgDrawExtras.dot, MgDrawExtras.dotRed);
+            //navGuide.Draw(GraphicsDevice, meshEffect);
         }
 
         public void DrawOurGeometryWithBasicEffect(GameTime gameTime)
@@ -309,9 +356,8 @@ namespace ShaderExamples
 
             // draw the primitive models.
             mesh.BasicEffectSettingsForThisPrimitive(GraphicsDevice, basicEffect, texture4);
-
             basicEffect.World = Matrix.Identity;
-            mesh.Draw(GraphicsDevice, basicEffect, texture4);
+            mesh.DrawWithBasicEffect(GraphicsDevice, basicEffect, texture4);
 
             prism.BasicEffectSettingsForThisPrimitive(GraphicsDevice, basicEffect, texture);
             var m = Matrix.Identity * Matrix.CreateScale(10);
@@ -324,47 +370,14 @@ namespace ShaderExamples
             navGuide.DrawNavOrientation3DToTargetWithBasicEffect(GraphicsDevice, basicEffect, poffset, 100f, targetMatrix, MgDrawExtras.dotBlue, MgDrawExtras.dot, MgDrawExtras.dotRed);
         }
 
-
-        public void DrawOurGeometryWithEffect(GameTime gameTime)
-        {
-            ///  K Ok wtf did i do and were....
-
-            meshEffect.CurrentTechnique = meshEffect.Techniques["TriangleDraw"];
-            meshEffect.Parameters["SpriteTexture"].SetValue(texture);
-            meshEffect.Parameters["View"].SetValue(cinematicCamera.View);
-            meshEffect.Parameters["Projection"].SetValue(cinematicCamera.Projection);
-
-            // draw the primitive grid first it has different requisites including state.
-            if (showVisualGrids)
-            {
-                GraphicsDevice.RasterizerState = rs_nocull_solid;
-                meshEffect.Parameters["World"].SetValue(Matrix.CreateScale(1000));
-                gridPlanes3d.Draw(GraphicsDevice, meshEffect, MgDrawExtras.dot, MgDrawExtras.dot, MgDrawExtras.dot);
-            }
-
-            SetStates();
-
-            // draw the primitive models.
-            meshEffect.Parameters["World"].SetValue(Matrix.Identity);
-            mesh.Draw(GraphicsDevice, meshEffect);
-
-            meshEffect.Parameters["World"].SetValue(Matrix.Identity * Matrix.CreateScale(10f));
-            prism.DrawWithBasicEffect(GraphicsDevice, basicEffect, texture);
-        }
-
         public void DrawRegularSpriteBatchStuff(GameTime gameTime)
         {
-            //spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
-            //spriteBatch.Draw(texture, new Rectangle(0, 0, 300, 300), Color.White);
-            //spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, null);
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
             cinematicCamera.DrawCurveThruWayPointsWithSpriteBatch(1, gameTime);
-            spriteBatch.End();
+            fps.DrawFps(spriteBatch, font, new Vector2(10, 10), Color.White);
+            spriteBatch.DrawString(font, msg, new Vector2(10, 210), Color.Moccasin);
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null); //basicEffect
-            spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Moccasin);
-            //Test2(amount);
             spriteBatch.End();
         }
 

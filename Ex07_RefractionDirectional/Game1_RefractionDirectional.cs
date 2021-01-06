@@ -136,11 +136,11 @@ namespace ShaderExamples
 
             // these are also extensions that wrap around or clamp values to the limits.
 
-            fadePercent = fadePercent.EnsureClampInRange(0f, 1f);
-            fadeStrength = fadeStrength.EnsureClampInRange(0f, 30f);
-            distortionRange = distortionRange.EnsureClampInRange(0f, 5f);
-            distortionRadius = distortionRadius.EnsureClampInRange(0f, 1f);
-            numberOfSamples = numberOfSamples.EnsureWrapInRange(1, 20);
+            fadePercent = fadePercent.Clamp(0f, 1f);
+            fadeStrength = fadeStrength.Clamp(0f, 30f);
+            distortionRange = distortionRange.Clamp(0f, 5f);
+            distortionRadius = distortionRadius.Clamp(0f, 1f);
+            numberOfSamples = numberOfSamples.Wrap(1, 20);
 
             msgInfo = $"Controls mouse, plus or minus keys brackets + - {"{ }" } and arrow keys \n distortionRange: {distortionRange.ToString("##0.000")} \n distortionRadius: {distortionRadius.ToString("##0.000")} \n numberOfSamples: {numberOfSamples.ToString("##0.000")} \n Fade Percent: {fadePercent.ToString("##0.000")} \n Fade Strength: {fadeStrength.ToString("##0.000")}  \n displacementDirection: {displacementDirection} \n displacementTime: {displacementTime.ToString("##0.000")}";
 

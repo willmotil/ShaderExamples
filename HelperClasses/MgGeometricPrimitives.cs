@@ -24,12 +24,19 @@ namespace Microsoft.Xna.Framework
         public bool invertTexAddressU = false;
         public bool invertTexAddressV = false;
 
+        private VertexBuffer vertexBuffer;
+        private IndexBuffer indexBuffer;
+
+        private int triangleCount = 0;
+        private int indiceCount = 0;
+
         /// <summary>
         /// This method takes the R value for height data mapping it to the range of 0 to 1 for the z value.
         /// The G B A elements are unused as of yet.
         /// </summary>
-        public VertexPositionTextureNormalTangent[] CreateMesh(Texture2D textureHeightMapData, Rectangle modelRectangle,float depthScalar, bool flipNormalDirection, bool reverseMapAddressU, bool reverseMapAddressV, bool reverseTexAddressU, bool reverseTexAddressV)
+        public void CreateMesh(GraphicsDevice gd, Texture2D textureHeightMapData, Rectangle modelRectangle,float depthScalar, bool flipNormalDirection, bool reverseMapAddressU, bool reverseMapAddressV, bool reverseTexAddressU, bool reverseTexAddressV)
         {
+
             invertTexAddressU = reverseTexAddressU;
             invertTexAddressV = reverseTexAddressV;
             w = textureHeightMapData.Width;
@@ -78,13 +85,15 @@ namespace Microsoft.Xna.Framework
             RePositionVerticesInModelSpace(ref vertlist, modelRectangle);
             DetermineQuadNormals(ref vertlist, flipNormalDirection);
             DetermineQuadTangents(ref vertlist, flipNormalDirection);
+            //VertexPositionTextureNormalTangent[] vertices = vertlist.ToArray();
             vertices = vertlist.ToArray();
-            return vertices;
+            triangleCount = vertices.Length / 3;
+            //SetBufferData(gd, vertices);
         }
 
         
 
-        public VertexPositionTextureNormalTangent[] CreateMesh(Vector3[] positionArray, int verticesWidth, int verticesHeight, bool flipNormalDirection, bool reverseU, bool reverseV)
+        public void CreateMesh(GraphicsDevice gd, Vector3[] positionArray, int verticesWidth, int verticesHeight, bool flipNormalDirection, bool reverseU, bool reverseV)
         {
             invertTexAddressU = reverseU;
             invertTexAddressV = reverseV;
@@ -117,11 +126,13 @@ namespace Microsoft.Xna.Framework
             }
             DetermineQuadNormals(ref vertlist, flipNormalDirection);
             DetermineQuadTangents(ref vertlist, flipNormalDirection);
+            //VertexPositionTextureNormalTangent[] vertices = vertlist.ToArray();
             vertices = vertlist.ToArray();
-            return vertices;
+            triangleCount = vertices.Length / 3;
+            //SetBufferData(gd, vertices);
         }
 
-        public VertexPositionTextureNormalTangent[] CreateMesh(Rectangle modelRectangle, int verticesWidth, int verticesHeight, bool flipNormalDirection, bool reverseU, bool reverseV)
+        public void CreateMesh(GraphicsDevice gd, Rectangle modelRectangle, int verticesWidth, int verticesHeight, bool flipNormalDirection, bool reverseU, bool reverseV)
         {
             invertTexAddressU = reverseU;
             invertTexAddressV = reverseV;
@@ -153,8 +164,26 @@ namespace Microsoft.Xna.Framework
             RePositionVerticesInModelSpace(ref vertlist, modelRectangle);
             DetermineQuadNormals(ref vertlist, flipNormalDirection);
             DetermineQuadTangents(ref vertlist, flipNormalDirection);
+            //VertexPositionTextureNormalTangent[] vertices = vertlist.ToArray();
             vertices = vertlist.ToArray();
-            return vertices;
+            triangleCount = vertices.Length / 3;
+            //SetBufferData(gd, vertices);
+        }
+
+        public void SetBufferData(GraphicsDevice gd, VertexPositionTextureNormalTangent[] vertices)
+        {
+            gd.Indices = null;
+            vertexBuffer = new VertexBuffer(gd, typeof(VertexPositionTextureNormalTangent), vertices.Length, BufferUsage.WriteOnly);
+            vertexBuffer.SetData(vertices);
+            gd.SetVertexBuffer(vertexBuffer);
+
+            //vertexBuffer = new VertexBuffer(gd, VertexPositionTextureNormalTangent.VertexDeclaration, vertices.Length, BufferUsage.None);
+            //vertexBuffer.SetData(vertices);
+            //gd.SetVertexBuffer(vertexBuffer);
+
+            //indexBuffer = new IndexBuffer(gd, IndexElementSize.SixteenBits, indices.Length /3, BufferUsage.None);
+            //indexBuffer.SetData(indices);
+            //gd.Indices = indexBuffer;
         }
 
         private void RePositionVerticesInModelSpace(ref List<VertexPositionTextureNormalTangent> vertlist, Rectangle modelSpaceRectangle)
@@ -303,22 +332,36 @@ namespace Microsoft.Xna.Framework
             return effect;
         }
 
-        public void Draw(GraphicsDevice gd, BasicEffect effect, Texture2D texture)
+        public void DrawWithBasicEffect(GraphicsDevice gd, BasicEffect effect, Texture2D texture)
         {
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
                 gd.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length / 3, VertexPositionTextureNormalTangent.VertexDeclaration);
             }
+            //gd.SetVertexBuffer(vertexBuffer);
+            //foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            //{
+            //    //gd.Indices = indexBuffer;
+            //    gd.SetVertexBuffer(vertexBuffer);
+            //    gd.DrawPrimitives(PrimitiveType.TriangleList, 0, triangleCount);
+            //}
         }
 
-        public void Draw(GraphicsDevice gd, Effect effect)
+        public void Draw(GraphicsDevice device, Effect effect)
         {
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
-                gd.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length / 3, VertexPositionNormalTexture.VertexDeclaration);
+                device.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length / 3, VertexPositionTextureNormalTangent.VertexDeclaration);
             }
+
+            //device.SetVertexBuffer(vertexBuffer);
+            ////device.Indices = indexBuffer;
+            //foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            //{
+            //    //device.DrawPrimitives(PrimitiveType.TriangleList, 0, triangleCount);
+            //}
         }
 
     }
@@ -488,14 +531,11 @@ namespace Microsoft.Xna.Framework
         /// <summary>
         /// The method expects that the shader can accept a parameter named TextureA.
         /// </summary>
-        public void Draw(GraphicsDevice gd, Effect effect, Texture2D forwardTexture, Texture2D upTexture, Texture2D rightTexture)
+        public void Draw(GraphicsDevice gd, Effect effect)
         {
             // Draw a 3d full orientation grid
-            effect.Parameters["TextureA"].SetValue(upTexture);
             gridForward.Draw(gd, effect);
-            effect.Parameters["TextureA"].SetValue(forwardTexture);
             gridRight.Draw(gd, effect);
-            effect.Parameters["TextureA"].SetValue(rightTexture);
             gridUp.Draw(gd, effect);
         }
 
@@ -739,28 +779,32 @@ namespace Microsoft.Xna.Framework
 
         public NavOrientation3d()
         {
-            navCircle3dA = new CircleNav3d(30, .05f, 24, 6, 0);
-            navCircle3dB = new CircleNav3d(30, .05f, 24, 24, 1);
-            navCircle3dC = new CircleNav3d(30, .05f, 24, 24, 2);
+            navCircle3dA = new CircleNav3d(30, .05f, 24, 6, 0 , Color.Green);
+            navCircle3dB = new CircleNav3d(30, .05f, 24, 30, 1, Color.Red);
+            navCircle3dC = new CircleNav3d(30, .05f, 24, 30, 2, Color.Blue);
         }
-        public NavOrientation3d(int segments, int navSegments, int largeSegmentModulator, float lineThickness0to1)
+        public NavOrientation3d(int segments, int navSegments, int largeSegmentModulator, float lineThickness0to1, Color color0, Color color1, Color color2)
         {
-            navCircle3dA = new CircleNav3d(segments, lineThickness0to1, navSegments, largeSegmentModulator, 0);
-            navCircle3dB = new CircleNav3d(segments, lineThickness0to1, navSegments, largeSegmentModulator, 1);
-            navCircle3dC = new CircleNav3d(segments, lineThickness0to1, navSegments, largeSegmentModulator, 2);
+            navCircle3dA = new CircleNav3d(segments, lineThickness0to1, navSegments, largeSegmentModulator, 0, color0);
+            navCircle3dB = new CircleNav3d(segments, lineThickness0to1, navSegments, largeSegmentModulator, 1, color1);
+            navCircle3dC = new CircleNav3d(segments, lineThickness0to1, navSegments, largeSegmentModulator, 2, color2);
         }
-        public NavOrientation3d(int segments, int navSegments, int largeSegmentModulator, float lineThickness0to1, float navSize0to1)
+        public NavOrientation3d(int segments, int navSegments, int largeSegmentModulator, float lineThickness0to1, float navSize0to1, Color color0, Color color1, Color color2)
         {
-            navCircle3dA = new CircleNav3d(segments, navSegments, largeSegmentModulator, lineThickness0to1, navSize0to1, true, 0);
-            navCircle3dB = new CircleNav3d(segments, navSegments, largeSegmentModulator, lineThickness0to1, navSize0to1, true, 1);
-            navCircle3dC = new CircleNav3d(segments, navSegments, largeSegmentModulator, lineThickness0to1, navSize0to1, true, 2);
+            navCircle3dA = new CircleNav3d(segments, navSegments, largeSegmentModulator, lineThickness0to1, navSize0to1, true, 0, color0);
+            navCircle3dB = new CircleNav3d(segments, navSegments, largeSegmentModulator, lineThickness0to1, navSize0to1, true, 1, color1);
+            navCircle3dC = new CircleNav3d(segments, navSegments, largeSegmentModulator, lineThickness0to1, navSize0to1, true, 2, color2);
+        }
+
+        public void SetStatesForBasicEffect(GraphicsDevice gd)
+        {
+            gd.RasterizerState = new RasterizerState() { FillMode = FillMode.Solid, CullMode = CullMode.None };
         }
 
         public void DrawNavOrientation3DWithBasicEffect(GraphicsDevice gd, BasicEffect beffect, Matrix world, Texture2D ta, Texture2D tb, Texture2D tc)
         {
             bool isLighting = beffect.LightingEnabled;
             beffect.LightingEnabled = false;
-            gd.RasterizerState = new RasterizerState() { FillMode = FillMode.Solid, CullMode = CullMode.None };
             beffect.World = world;
             beffect.Texture = ta;
             navCircle3dA.Draw(gd, beffect);
@@ -776,7 +820,6 @@ namespace Microsoft.Xna.Framework
             world.Translation = position;
             bool isLighting = beffect.LightingEnabled;
             beffect.LightingEnabled = false;
-            gd.RasterizerState = new RasterizerState() { FillMode = FillMode.Solid, CullMode = CullMode.None };
             beffect.World = world;
             beffect.Texture = ta;
             navCircle3dA.Draw(gd, beffect);
@@ -795,7 +838,6 @@ namespace Microsoft.Xna.Framework
             world.Translation = position;
             bool isLighting = beffect.LightingEnabled;
             beffect.LightingEnabled = false;
-            gd.RasterizerState = new RasterizerState() { FillMode = FillMode.Solid, CullMode = CullMode.None };
             beffect.World = world;
             beffect.Texture = ta;
             navCircle3dA.Draw(gd, beffect);
@@ -807,6 +849,54 @@ namespace Microsoft.Xna.Framework
             navCircle3dC.Draw(gd, beffect);
             beffect.LightingEnabled = isLighting;
         }
+
+        public Matrix GetAlteredRingMatrixs(Vector3 position, float scale, Matrix targetsMatrix, int select0to3Rings)
+        {
+            var totarget = targetsMatrix.Translation - position;
+            Matrix target = Matrix.CreateScale(scale * .6f) * Matrix.CreateWorld(position, -totarget, targetsMatrix.Up);
+            Matrix world = Matrix.CreateScale(scale) * Matrix.Identity;
+            world.Translation = position;
+            switch (select0to3Rings)
+            {
+                case 0:
+                    return world;
+                case 1:
+                    return target;
+                default:
+                    return world;
+            }
+        }
+        /// <summary>
+        /// position color texture draw effect.
+        /// </summary>
+        public void Draw(GraphicsDevice gd, Effect effect)
+        {
+            navCircle3dA.Draw(gd, effect);
+            navCircle3dB.Draw(gd, effect);
+            navCircle3dB.Draw(gd, effect);
+        }
+
+        /// <summary>
+        /// Technically its bad to set up the effect inside here but until we build a dedicated byte code gl and dx effect its the way were going to do it.
+        /// since the requirements for this primitives draw is so detailed.
+        /// </summary>
+        public void DrawNavOrientation(GraphicsDevice gd, Effect effect, Vector3 position, float scale, Matrix lookAtTargetsMatrix, Texture2D ta, Texture2D tb, Texture2D tc)
+        {
+            var totarget = lookAtTargetsMatrix.Translation - position;
+            Matrix target = Matrix.CreateScale(scale * .6f) * Matrix.CreateWorld(position, -totarget, lookAtTargetsMatrix.Up);
+            Matrix world = Matrix.CreateScale(scale) * Matrix.Identity;
+            world.Translation = position;
+
+            effect.Parameters["World"].SetValue(world);
+            effect.Parameters["SpriteTexture"].SetValue(ta);
+            navCircle3dA.Draw(gd, effect);
+            effect.Parameters["World"].SetValue(target);
+            effect.Parameters["SpriteTexture"].SetValue(tb);
+            navCircle3dB.Draw(gd, effect);
+            effect.Parameters["World"].SetValue(world);
+            effect.Parameters["SpriteTexture"].SetValue(tc);
+            navCircle3dC.Draw(gd, effect);
+        }
     }
 
     public class CircleNav3d
@@ -815,7 +905,7 @@ namespace Microsoft.Xna.Framework
         float navSmallLargeRatio = .40f;
         float zerodegreelinethickener = 4.0f;
 
-        public VertexPositionTexture[] vertices;
+        public VertexPositionColorTexture[] vertices;
         public int[] indices;
         static int OrientationOptionRightUpForward
         {
@@ -823,44 +913,44 @@ namespace Microsoft.Xna.Framework
             set;
         }
 
-        public CircleNav3d(int segments)
+        public CircleNav3d(int segments, Color color)
         {
-            CreateCircleNav3d(segments, 4, 2, .01f, .35f, true, 2);
+            CreateCircleNav3d(segments, 4, 2, .01f, .35f, true, 2, color);
         }
         /// <summary>
         /// Create a circle default orientation is 2 forward
         /// </summary>
-        public CircleNav3d(int segments, float lineSize)
+        public CircleNav3d(int segments, float lineSize, Color color)
         {
-            CreateCircleNav3d(segments, 4, 2, lineSize, .35f, true, 2);
+            CreateCircleNav3d(segments, 4, 2, lineSize, .35f, true, 2, color) ;
         }
-        public CircleNav3d(int segments, float lineSize, int navsegments, int largeSegmentModulator)
+        public CircleNav3d(int segments, float lineSize, int navsegments, int largeSegmentModulator, Color color)
         {
-            CreateCircleNav3d(segments, navsegments, largeSegmentModulator, lineSize, .35f, true, 2);
+            CreateCircleNav3d(segments, navsegments, largeSegmentModulator, lineSize, .35f, true, 2, color);
         }
-        public CircleNav3d(int segments, float lineSize, int navsegments, int largeSegmentModulator, int orientation012)
+        public CircleNav3d(int segments, float lineSize, int navsegments, int largeSegmentModulator, int orientation012, Color color)
         {
-            CreateCircleNav3d(segments, navsegments, largeSegmentModulator, lineSize, .35f, true, orientation012);
+            CreateCircleNav3d(segments, navsegments, largeSegmentModulator, lineSize, .35f, true, orientation012, color);
         }
         /// <summary>
         /// Create a circle default orientation is 2 forward
         /// </summary>
-        public CircleNav3d(int segments, int navsegments, int largeSegmentModulator, float lineSize0to1, float navSize0to1, bool centerIt, int orientation012)
+        public CircleNav3d(int segments, int navsegments, int largeSegmentModulator, float lineSize0to1, float navSize0to1, bool centerIt, int orientation012, Color color)
         {
-            CreateCircleNav3d(segments, navsegments, largeSegmentModulator, lineSize0to1, navSize0to1, centerIt, orientation012);
+            CreateCircleNav3d(segments, navsegments, largeSegmentModulator, lineSize0to1, navSize0to1, centerIt, orientation012, color);
         }
 
         /// <summary>
         /// Create a circle default orientation is 2 forward
         /// </summary>
-        public void CreateCircleNav3d(int segments, int navSegments, int largeSegmentModulator, float lineSize0to1, float navSize0to1, bool centerIt, int orientation012)
+        public void CreateCircleNav3d(int segments, int navSegments, int largeSegmentModulator, float lineSize0to1, float navSize0to1, bool centerIt, int orientation012, Color color)
         {
             OrientationOptionRightUpForward = orientation012;
             int circlesegmentVertexs = segments * 2;
             int circlesegmentIndices = segments * 6;
             int navsegmentVertexs = navSegments * 4;
             int navsegmentIndices = navSegments * 6;
-            vertices = new VertexPositionTexture[circlesegmentVertexs + navsegmentVertexs];
+            vertices = new VertexPositionColorTexture[circlesegmentVertexs + navsegmentVertexs];
             indices = new int[circlesegmentIndices + navsegmentIndices];
 
             centered = centerIt;
@@ -878,8 +968,8 @@ namespace Microsoft.Xna.Framework
                 radians = u * pi2;
                 x = ((float)(Math.Sin(radians)) * .5f) + centering;
                 y = ((float)(Math.Cos(radians)) * .5f) + centering;
-                vertices[v_index + 0] = new VertexPositionTexture(ReOrient(new Vector3(x, y, 0)), new Vector2(u, 0f));
-                vertices[v_index + 1] = new VertexPositionTexture(ReOrient(new Vector3(x * offset, y * offset, 0)), new Vector2(u, 1f));
+                vertices[v_index + 0] = new VertexPositionColorTexture(ReOrient(new Vector3(x, y, 0)), color, new Vector2(u, 0f));
+                vertices[v_index + 1] = new VertexPositionColorTexture(ReOrient(new Vector3(x * offset, y * offset, 0)), color, new Vector2(u, 1f));
                 if (index < segments - 1)
                 {
                     indices[i_index + 0] = v_index + 0; indices[i_index + 1] = v_index + 1; indices[i_index + 2] = v_index + 2;
@@ -909,8 +999,8 @@ namespace Microsoft.Xna.Framework
                 radians = u * pi2;
                 x = ((float)(Math.Sin(radians)) * .5f) + centering;
                 y = ((float)(Math.Cos(radians)) * .5f) + centering;
-                vertices[v_index + 0] = new VertexPositionTexture(ReOrient(new Vector3(x * offsetOuter, y * offsetOuter, 0)), new Vector2(u, 0f));
-                vertices[v_index + 1] = new VertexPositionTexture(ReOrient(new Vector3(x * offsetInner, y * offsetInner, 0)), new Vector2(u, 1f));
+                vertices[v_index + 0] = new VertexPositionColorTexture(ReOrient(new Vector3(x * offsetOuter, y * offsetOuter, 0)), color, new Vector2(u, 0f));
+                vertices[v_index + 1] = new VertexPositionColorTexture(ReOrient(new Vector3(x * offsetInner, y * offsetInner, 0)), color, new Vector2(u, 1f));
                 // second set of vertices
                 u = (float)(index + lineSize0to1) * steppercentage;
                 // just make the 0 line slightly larger as its special.
@@ -919,8 +1009,8 @@ namespace Microsoft.Xna.Framework
                 radians = u * pi2;
                 x = ((float)(Math.Sin(radians)) * .5f) + centering;
                 y = ((float)(Math.Cos(radians)) * .5f) + centering;
-                vertices[v_index + 2] = new VertexPositionTexture(ReOrient(new Vector3(x * offsetOuter, y * offsetOuter, 0)), new Vector2(u, 0f));
-                vertices[v_index + 3] = new VertexPositionTexture(ReOrient(new Vector3(x * offsetInner, y * offsetInner, 0)), new Vector2(u, 1f));
+                vertices[v_index + 2] = new VertexPositionColorTexture(ReOrient(new Vector3(x * offsetOuter, y * offsetOuter, 0)), color, new Vector2(u, 0f));
+                vertices[v_index + 3] = new VertexPositionColorTexture(ReOrient(new Vector3(x * offsetInner, y * offsetInner, 0)), color, new Vector2(u, 1f));
                 // indices
                 indices[i_index + 0] = v_index + 0; indices[i_index + 1] = v_index + 1; indices[i_index + 2] = v_index + 2;
                 indices[i_index + 3] = v_index + 2; indices[i_index + 4] = v_index + 1; indices[i_index + 5] = v_index + 3;
@@ -939,12 +1029,21 @@ namespace Microsoft.Xna.Framework
             return v;
         }
 
+        public void Draw(GraphicsDevice gd, BasicEffect effect)
+        {
+            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, (indices.Length / 3), VertexPositionColorTexture.VertexDeclaration);
+            }
+        }
+
         public void Draw(GraphicsDevice gd, Effect effect)
         {
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
-                gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, (indices.Length / 3), VertexPositionTexture.VertexDeclaration);
+                gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, (indices.Length / 3), VertexPositionColorTexture.VertexDeclaration);
             }
         }
     }
@@ -1461,8 +1560,33 @@ namespace Microsoft.Xna.Framework
             //effect.TextureEnabled = true;
             //effect.Texture = texture;
 
-            effect.CurrentTechnique.Passes[0].Apply();
-            device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, indices.Length / 3, VertexPositionNormalTexture.VertexDeclaration);
+            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, indices.Length / 3, VertexPositionNormalTexture.VertexDeclaration);
+            }
+        }
+
+        public void Draw(GraphicsDevice device, Effect effect)
+        {
+            device.SetVertexBuffer(vertexBuffer);
+            device.Indices = indexBuffer;
+            int triangleCount = indices.Length / 3;
+            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, triangleCount, VertexPositionNormalTexture.VertexDeclaration);
+
+                //if (false)
+                //{
+                //    // set buffers on device
+                //    device.Indices = indexBuffer;
+                //    device.SetVertexBuffer(vertexBuffer);
+
+                //    // this way actually uses these buffers that we already set onto the device.
+                //    device.DrawPrimitives(PrimitiveType.TriangleList, 0, triangleCount);
+                //}
+            }
         }
 
         //public void Draw(GraphicsDevice device, Matrix world, Matrix view, Matrix projection, bool useingUserIndexedPrims)

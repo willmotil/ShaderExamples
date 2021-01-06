@@ -87,7 +87,7 @@ namespace ShaderExamples
             }
             if(shockwaveClicks )
             {
-                time = time.EnsureClampInRange( 0, maxTime);
+                time = time.Clamp( 0, maxTime);
                 if(time >= maxTime)
                     shockwaveClicks = false;
             }

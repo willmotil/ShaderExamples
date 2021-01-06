@@ -76,8 +76,8 @@ namespace ShaderExamples
             if (Keys.Left.IsKeyPressedWithDelay(gameTime))
                 numberOfSamples--;
 
-            radialScalar = radialScalar.EnsureClampInRange( -4f, 4f);
-            numberOfSamples = numberOfSamples.EnsureClampInRange( 0, MAXSAMPLES);
+            radialScalar = radialScalar.Clamp( -4f, 4f);
+            numberOfSamples = numberOfSamples.Clamp( 0, MAXSAMPLES);
 
             ms = Mouse.GetState();
             textureBlurUvOrigin = (ms.Position.ToVector2() / GraphicsDevice.Viewport.Bounds.Size.ToVector2()); // - new Vector2(.5f,.5f) ;

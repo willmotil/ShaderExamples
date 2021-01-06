@@ -130,37 +130,6 @@ namespace Microsoft.Xna.Framework
             spriteBatch.Draw(dot, new Rectangle((int)p.X, (int)p.Y, 1 + size, 1 + size), new Rectangle(0, 0, 1, 1), c, 0.0f, new Vector2(.5f, .5f), SpriteEffects.None, 0);
         }
 
-        public static float Atan2Xna(float difx, float dify)
-        {
-            if (SpriteBatchAtan2)
-                return (float)System.Math.Atan2(difx, dify) * -1f;
-            else
-                return (float)System.Math.Atan2(difx, dify);
-        }
-
-        public static Vector2 GetPointAtTimeOn2ndDegreePolynominalCurve(Vector2 A, Vector2 B, Vector2 C, float t)
-        {
-            float i = 1.0f - t;
-            float plotX = 0;
-            float plotY = 0;
-            plotX = (float)(A.X * 1 * (i * i) + B.X * 2 * (i * t) + C.X * 1 * (t * t));
-            plotY = (float)(A.Y * 1 * (i * i) + B.Y * 2 * (i * t) + C.Y * 1 * (t * t));
-            return new Vector2(plotX, plotY);
-        }
-
-        public static Vector3 RotatePointAboutZaxis(this Vector3 p, double q)
-        {
-            //x' = x*cos s - y*sin s
-            //y' = x*sin s + y*cos s 
-            //z' = z
-            return new Vector3
-                (
-                (float)(p.X * Math.Cos(q) - p.Y * Math.Sin(q)),
-                (float)(p.X * Math.Sin(q) + p.Y * Math.Cos(q)),
-                p.Z
-                );
-        }
-
         #endregion
 
         #region TextureGenerationCalls
@@ -268,7 +237,7 @@ namespace Microsoft.Xna.Framework
                     var p = new Vector2(x, y);
                     var dist = Vector2.Distance(center, p);
                     var coeff = dist / radius;
-                    var curvepoint = MgMathExtras.GetPointAtTimeOn2ndDegreePolynominalCurve(a, b, c, coeff);
+                    var curvepoint = MgDrawExtras.GetPointAtTimeOn2ndDegreePolynominalCurve(a, b, c, coeff);
 
                     if (coeff < 0f)
                         coeff = 0.0f;
@@ -303,7 +272,7 @@ namespace Microsoft.Xna.Framework
                     var p = new Vector2(x, y);
                     var dist = Vector2.Distance(center, p);
                     var coeff = dist / radius;
-                    var curvepoint = MgMathExtras.BiCubicSubdivision(a, b, c, d, coeff).ToVector2();
+                    var curvepoint = MgDrawExtras.BiCubicSubdivision(a, b, c, d, coeff).ToVector2();
 
                     if (coeff < 0f)
                         coeff = 0.0f;
@@ -367,7 +336,7 @@ namespace Microsoft.Xna.Framework
                 {
                     var p = new Vector2(x, y);
                     var dist = Vector2.Distance(center, p);
-                    var curvepoint = MgMathExtras.GetPointAtTimeOn2ndDegreePolynominalCurve(a, b, c, dist);
+                    var curvepoint = MgDrawExtras.GetPointAtTimeOn2ndDegreePolynominalCurve(a, b, c, dist);
 
                     data[x + y * 100] = new Color((byte)(curvepoint.Y * 255), (byte)(curvepoint.Y * 255), (byte)(curvepoint.Y * 255), (byte)(curvepoint.Y * 255));
                 }
@@ -375,6 +344,43 @@ namespace Microsoft.Xna.Framework
             Texture2D tex = new Texture2D(device, 100, 100);
             tex.SetData<Color>(data);
             return tex;
+        }
+
+
+        public static float Atan2Xna(float difx, float dify)
+        {
+            if (SpriteBatchAtan2)
+                return (float)System.Math.Atan2(difx, dify) * -1f;
+            else
+                return (float)System.Math.Atan2(difx, dify);
+        }
+
+        public static Vector2 GetPointAtTimeOn2ndDegreePolynominalCurve(Vector2 A, Vector2 B, Vector2 C, float t)
+        {
+            float i = 1.0f - t;
+            float plotX = 0;
+            float plotY = 0;
+            plotX = (float)(A.X * 1 * (i * i) + B.X * 2 * (i * t) + C.X * 1 * (t * t));
+            plotY = (float)(A.Y * 1 * (i * i) + B.Y * 2 * (i * t) + C.Y * 1 * (t * t));
+            return new Vector2(plotX, plotY);
+        }
+
+        public static Vector3 BiCubicSubdivision(Vector3 a0, Vector3 a1, Vector3 a2, Vector3 a3, float time)
+        {
+            return (((((a3 - a2) * time + a2) - ((a2 - a1) * time + a1)) * time + ((a2 - a1) * time + a1)) - ((((a2 - a1) * time + a1) - ((a1 - a0) * time + a0)) * time + ((a1 - a0) * time + a0))) * time + ((((a2 - a1) * time + a1) - ((a1 - a0) * time + a0)) * time + ((a1 - a0) * time + a0));
+        }
+
+        public static Vector3 RotatePointAboutZaxis(this Vector3 p, double q)
+        {
+            //x' = x*cos s - y*sin s
+            //y' = x*sin s + y*cos s 
+            //z' = z
+            return new Vector3
+                (
+                (float)(p.X * Math.Cos(q) - p.Y * Math.Sin(q)),
+                (float)(p.X * Math.Sin(q) + p.Y * Math.Cos(q)),
+                p.Z
+                );
         }
 
         #endregion

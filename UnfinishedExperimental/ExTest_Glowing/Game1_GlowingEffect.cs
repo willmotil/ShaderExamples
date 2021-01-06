@@ -94,9 +94,9 @@ namespace ShaderExamples
             if (Keyboard.GetState().IsKeyDown(Keys.OemMinus))
                 refractionRange -= .002f;
 
-            percent = percent.EnsureClampInRange(0f, 1f);
-            strength = strength.EnsureWrapInRange(0f, 20f);
-            refractionRange = refractionRange.EnsureWrapInRange( 0f, 2f);
+            percent = percent.Clamp(0f, 1f);
+            strength = strength.Wrap(0f, 20f);
+            refractionRange = refractionRange.Wrap( 0f, 2f);
 
             base.Update(gameTime);
         }

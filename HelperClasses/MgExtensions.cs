@@ -5,19 +5,14 @@
 //using Microsoft.Xna.Framework;
 
 using System;
+using System.Collections;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace Microsoft.Xna.Framework
 {
-
     public static class MgExtensions
     {
-        //public static Vector2 operator +(Vector2 v, Vector2 w)
-        //{
-        //    return new Vector2(v.X + w.X, v.Y + w.V);
-        //}
-
         public static Texture2D Dot(this Texture2D t)
         {
             return MgDrawExtras.dotRed;
@@ -34,7 +29,6 @@ namespace Microsoft.Xna.Framework
         {
             return MgDrawExtras.dotBlue;
         }
-
         public static Vector2 ToVector2(this Vector3 v)
         {
             return new Vector2(v.X, v.Y);
@@ -61,7 +55,7 @@ namespace Microsoft.Xna.Framework
         }
 
 
-        public static float EnsureWrapInRange(this float n, float min, float max)
+        public static float Wrap(this float n, float min, float max)
         {
             if (n > max)
                 n = min;
@@ -69,7 +63,7 @@ namespace Microsoft.Xna.Framework
                 n = max;
             return n;
         }
-        public static int EnsureWrapInRange(this int n, int min, int max)
+        public static int Wrap(this int n, int min, int max)
         {
             if (n > max)
                 n = min;
@@ -77,7 +71,7 @@ namespace Microsoft.Xna.Framework
                 n = max;
             return n;
         }
-        public static float EnsureClampInRange(this float n, float min, float max)
+        public static float Clamp(this float n, float min, float max)
         {
             if (n > max)
                 n = max;
@@ -85,7 +79,7 @@ namespace Microsoft.Xna.Framework
                 n = min;
             return n;
         }
-        public static int EnsureClampInRange(this int n, int min, int max)
+        public static int Clamp(this int n, int min, int max)
         {
             if (n > max)
                 n = max;
@@ -93,6 +87,229 @@ namespace Microsoft.Xna.Framework
                 n = min;
             return n;
         }
+
+        public static float DirectionToRadians(this Vector2 v)
+        {
+            return (float)System.Math.Atan2(v.X, v.Y) * -1f;
+        }
+
+        public static float Atan2Xna(float difx, float dify, bool useSpriteBatchAtan2)
+        {
+            if (useSpriteBatchAtan2)
+                return (float)System.Math.Atan2(difx, dify) * -1f;
+            else
+                return (float)System.Math.Atan2(difx, dify);
+        }
+
+        public static bool IsEven(this int c)
+        {
+            return ((c % 2) == 0);
+        }
+
+        public static float Remainder(this float n)
+        {
+            return n - (float)(int)(n);
+        }
+
+        public static int Sign(this int n)
+        {
+            return n < 0 ? -1 : 1;
+        }
+
+        public static float Sign(this float n)
+        {
+            return n < 0 ? -1f : 1f;
+        }
+
+        public static float RatioTo(this float a, float n)
+        {
+            return a / (a + n);
+        }
+
+        public static float SlopeTo(this float a, float n)
+        {
+            return a / n;
+        }
+
+        public static float CoEfficient(this float x)
+        {
+            return 1f / (x);
+        }
+
+        public static Vector2 Coefficent(this Vector2 v)
+        {
+            return new Vector2(1f / (v.X), 1f / (v.Y));
+        }
+
+        public static Vector2 AbsoluteCoefficent(this Vector2 v)
+        {
+            return new Vector2(1f / (v.X).Absolute(), 1f / (v.Y).Absolute());
+        }
+
+        public static int Absolute(this int n)
+        {
+            if (n < 0) { return -n; }
+            return n;
+        }
+        public static float Absolute(this float n)
+        {
+            if (n < 0) { return -n; }
+            return n;
+        }
+        public static double Absolute(this double n)
+        {
+            if (n < 0) { return -n; }
+            return n;
+        }
+        public static Vector2 Absolute(this Vector2 v)
+        {
+            if (v.X < 0f) { v.X = -v.X; }
+            if (v.Y < 0f) { v.Y = -v.Y; }
+            return v;
+        }
+        public static Vector3 Absolute(this Vector3 v)
+        {
+            if (v.X < 0f) { v.X = -v.X; }
+            if (v.Y < 0f) { v.Y = -v.Y; }
+            if (v.Z < 0f) { v.Z = -v.Z; }
+            return v;
+        }
+        public static float AcosineOfTwoVectors(this Vector2 A, Vector2 B)
+        {
+            var n = ((A.X * B.X) + (A.Y * B.Y));
+            return n * n;
+        }
+
+        public static float AcosineOfTwoVectors(this Vector3 A, Vector3 B)
+        {
+            var n = ((A.X * B.X) + (A.Y * B.Y) + (A.Z * B.Z));
+            return n * n;
+        }
+
+        public static int Fibonacci(this int n)
+        {
+            int a = 0;
+            int b = 1;
+            // In N steps compute Fibonacci sequence iteratively.
+            for (int i = 0; i < n; i++)
+            {
+                int temp = a;
+                a = b;
+                b = temp + b;
+            }
+            return a;
+        }
+
+        public static float Square(this float n)
+        {
+            return n * n;
+        }
+
+        public static double Square(this double n)
+        {
+            return n*n;
+        }
+
+        public static float SquareRoot(this float n)
+        {
+            return (float)(Math.Sqrt(n));
+        }
+
+        public static double SquareRoot(this double n)
+        {
+            return Math.Sqrt(n);
+        }
+
+        public static Vector2 SquareRootElements(this Vector2 A)
+        {
+            return new Vector2((float)Math.Sqrt(A.X), (float)Math.Sqrt(A.Y));
+        }
+        public static Vector3 SquareRootElements(this Vector3 A)
+        {
+            return new Vector3((float)Math.Sqrt(A.X), (float)Math.Sqrt(A.Y), (float)Math.Sqrt(A.Z));
+        }
+
+        public static float Pow(this float x, float y)
+        {
+            return (float)Math.Pow(x, y);
+        }
+
+        /// <summary>
+        /// pow(x, y) == pow(x * x,  y/x)
+        //  pow(x, y) == 1 / pow(x, -y)
+        //  
+        //  pow(x, y) == pow(x * x,  y/x) == 1 / pow(x, -y)
+        /// </summary>
+        public static double PowManual(this double a, double b)
+        {
+            int accuracy = 1000000;
+
+            bool negExponent = b < 0;
+            b = Math.Abs(b);
+            double accuracy2 = 1.0 + 1.0 / accuracy;
+            bool ansMoreThanA = (a > 1 && b > 1) || (a < 1 && b < 1);   // Example 0.5^2=0.25 so answer is lower than A.
+
+            double total = Math.Log(a) * accuracy * b;
+
+            double t = a;
+            while (true)
+            {
+                double t2 = Math.Log(t) * accuracy;
+                if ((ansMoreThanA && t2 > total) || (!ansMoreThanA && t2 < total)) break;
+                if (ansMoreThanA) t *= accuracy2; else t /= accuracy2;
+            }
+            if (negExponent) t = 1 / t;
+            return t;
+        }
+
+        public static Vector2 SinCos(this Vector2 directionVector)
+        {
+            return Vector2.Normalize(directionVector);
+        }
+
+        /// <summary>
+        /// Given a distance from a point and a direction we obtain points on a circle there is a square that contains.
+        /// this functions returns the equivillent points on that square for a given vector.
+        /// </summary>
+        public static Vector2 OuterSquareSinCosVector(this Vector2 directionVector)
+        {
+            float d = directionVector.Length();
+            var n = directionVector / d;
+            var rate = new Vector2((n.X < 0) ? -(1 / (n.X)) : (1 / (n.X)), (n.Y < 0) ? -(1 / (n.Y)) : (1 / (n.Y)));
+            var s = new Vector2((n.X < 0) ? -1 : 1, (n.Y < 0) ? -1 : 1);
+            if (n.X * n.X > .5f)
+                return new Vector2(s.X * d, n.Y * rate.X * d);
+            else
+                return new Vector2(n.X * rate.Y * d, s.Y * d);
+        }
+
+        /// <summary>
+        /// the asin a cosine a given vector scaled by its distance.
+        /// </summary>
+        public static Vector2 InnerSquareAsinACosVector(this Vector2 directionVector)
+        {
+            float d = directionVector.Length();
+            var n = directionVector / d;
+            var s = new Vector2((n.X < 0) ? -1 : 1, (n.Y < 0) ? -1 : 1);
+            return n * n * s * d;
+        }
+
+        /// <summary>
+        /// Given a square that encompases a circle to find a point on it corresponding to a given vector.
+        /// </summary>
+        public static Vector2 OuterSquareAsinACosVector(this Vector2 directionVector)
+        {
+            float d = directionVector.Length();
+            var n = directionVector / d;
+            var a = n * n;
+            var rate = new Vector2((a.X < 0) ? -(1 / (a.X)) : (1 / (a.X)), (a.Y < 0) ? -(1 / (a.Y)) : (1 / (a.Y)));
+            var s = new Vector2((n.X < 0) ? -1 : 1, (n.Y < 0) ? -1 : 1);
+            if (a.X > a.Y)
+                return new Vector2(s.X * d, d * rate.X * a.Y * s.Y);
+            else
+                return new Vector2(a.X * s.X * rate.Y * d, d * s.Y);
+        }
+
 
         public static Vector2 VirtualScreenCoords(this Vector2 v, GraphicsDevice gd)
         {
@@ -208,25 +425,6 @@ namespace Microsoft.Xna.Framework
                 value = value ^ bitvalue; // turn it off.
             if (setBitOn == true && isCurrentlyOn == false)
                 value = value | bitvalue; // turn it on.
-            return value;
-        }
-
-        public static bool IsIntBitOn(this byte inValue, int bitIndexToTest)
-        {
-            return ((inValue & (1 << (bitIndexToTest))) > 0) ? true : false;
-        }
-
-        /// <summary>
-        /// Bitmath Valid bit indexs are 0 to 31 and setBitOn is true or false for off.
-        /// </summary>
-        public static byte SetBitPosition(this byte value, int bitIndexToSet, bool setBitOn)
-        {
-            int bitvalue = (1 << (bitIndexToSet));
-            bool isCurrentlyOn = (value & bitvalue) > 0; // is it on already.
-            if (setBitOn == false && isCurrentlyOn == true)
-                value = (byte)(value ^ bitvalue); // turn it off.
-            if (setBitOn == true && isCurrentlyOn == false)
-                value = (byte)(value | bitvalue); // turn it on.
             return value;
         }
 

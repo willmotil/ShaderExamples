@@ -229,23 +229,6 @@ namespace Microsoft.Xna.Framework
                 return (float)System.Math.Atan2(difx, dify);
         }
 
-        public static Vector2 GetOuterSquareVector(float sin, float cos)
-        {
-            var ss = (sin < 0) ? -1f : 1f;
-            var sc = (cos < 0) ? -1f : 1f;
-            var asin = sin * sin;
-            var acos = cos * cos;
-            if (asin > acos) //  x is higher
-                return new Vector2(ss, acos * sc * 2f); // re-signed acosine
-            else // x is lower
-                return new Vector2(asin * ss * 2f, sc); // re-signed asin
-        }
-
-        public static bool IsEven(int c)
-        {
-            return ((c % 2) == 0);
-        }
-
         public static Vector3 MidPoint(Vector3 a, Vector3 b)
         {
             return (a + b) / 2;
@@ -253,6 +236,11 @@ namespace Microsoft.Xna.Framework
         public static Vector3 MidPoint(Vector3 a, Vector3 b, Vector3 c)
         {
             return (a + b + c) / 3;
+        }
+
+        public static bool IsEven(int c)
+        {
+            return ((c % 2) == 0);
         }
 
         public static int Absolute(int n)
@@ -288,6 +276,16 @@ namespace Microsoft.Xna.Framework
         {
             var n = ((A.X * B.X) + (A.Y * B.Y) + (A.Z * B.Z));
             return n * n;
+        }
+
+        public static float SquareRoot(float n)
+        {
+            return (float)(Math.Sqrt(n));
+        }
+
+        public static double SquareRoot(double n)
+        {
+            return Math.Sqrt(n);
         }
 
         public static Vector2 SquareRootElements(Vector2 A)
@@ -342,6 +340,54 @@ namespace Microsoft.Xna.Framework
                 );
         }
 
+        public static Vector2 SinCos(Vector2 directionVector)
+        {
+            return Vector2.Normalize(directionVector);
+        }
+
+        /// <summary>
+        /// Given a distance from a point and a direction we obtain points on a circle there is a square that contains.
+        /// this functions returns the equivillent points on that square for a given vector.
+        /// </summary>
+        public static Vector2 OuterSquareSinCosVector(Vector2 directionVector)
+        {
+            float d = directionVector.Length();
+            var n = directionVector / d;
+            var rate = new Vector2((n.X < 0) ? -(1 / (n.X)) : (1 / (n.X)), (n.Y < 0) ? -(1 / (n.Y)) : (1 / (n.Y)));
+            var s = new Vector2((n.X < 0) ? -1 : 1, (n.Y < 0) ? -1 : 1);
+            if (n.X * n.X > .5f)
+                return new Vector2(s.X * d, n.Y * rate.X * d);
+            else
+                return new Vector2(n.X * rate.Y * d, s.Y * d);
+        }
+
+        /// <summary>
+        /// the asin a cosine a given vector scaled by its distance.
+        /// </summary>
+        public static Vector2 InnerSquareAsinACosVector(Vector2 directionVector)
+        {
+            float d = directionVector.Length();
+            var n = directionVector / d;
+            var s = new Vector2((n.X < 0) ? -1 : 1, (n.Y < 0) ? -1 : 1);
+            return n * n * s * d;
+        }
+
+        /// <summary>
+        /// Given a square that encompases a circle to find a point on it corresponding to a given vector.
+        /// </summary>
+        public static Vector2 OuterSquareAsinACosVector(Vector2 directionVector)
+        {
+            float d = directionVector.Length();
+            var n = directionVector / d;
+            var a = n * n;
+            var rate = new Vector2((a.X < 0) ? -(1 / (a.X)) : (1 / (a.X)), (a.Y < 0) ? -(1 / (a.Y)) : (1 / (a.Y)));
+            var s = new Vector2((n.X < 0) ? -1 : 1, (n.Y < 0) ? -1 : 1);
+            if (a.X > a.Y)
+                return new Vector2(s.X * d, d * rate.X * a.Y * s.Y);
+            else
+                return new Vector2(a.X * s.X * rate.Y * d, d * s.Y);
+        }
+
         //_________________________some old functions not 100% on there reliabiltiy i maybe broke the line line one_______________
 
         public static float RatioOfN(float n, float b)
@@ -363,16 +409,6 @@ namespace Microsoft.Xna.Framework
         public static float AngularVelocity(float radius, float radians, float time)
         {
             return radius * (radians / time);
-        }
-
-        public static float Power(int baseVal, int exponentVal)
-        {
-            float result = 0;
-            for (float exponent = exponentVal; exponent > 0; exponent--)
-            {
-                result = result * baseVal;
-            }
-            return result;
         }
 
         public static Vector2 QuadricIntercept(Vector2 obj_position, float obj_speed, Vector2 target_position, float target_speed, Vector2 target_normal)
@@ -436,7 +472,8 @@ namespace Microsoft.Xna.Framework
         }
 
         /// <summary>
-        /// Very nice and works got it from this dudes site
+        /// Very nice and works (provided i didn't break it with the wrong crosses and lessequal).
+        /// got it from this dudes site
         /// http://www.codeproject.com/Tips/862988/Find-the-Intersection-Point-of-Two-Line-Segments
         /// </summary>
         public static bool LineSegementsIntersect(Vector2 p1, Vector2 p2, Vector2 q1, Vector2 q2, out Vector2 intersection)
@@ -465,7 +502,8 @@ namespace Microsoft.Xna.Framework
 
             // 4. If r x s != 0 and 0 <= t <= 1 and 0 <= u <= 1
             // the two line segments meet at the point p + t r = q + u s.
-            if (!(rxs == Vector2.Zero) && (TestAlessThanEqualB(Vector2.Zero, t) && TestAlessThanEqualB(t, Vector2.One)) && (TestAlessThanEqualB(Vector2.Zero , u) && TestAlessThanEqualB(u , Vector2.One) )  )
+
+            if (!(rxs == Vector2.Zero) && (LessThanEqual(Vector2.Zero, t) && LessThanEqual(t, Vector2.One)) && (LessThanEqual(Vector2.Zero , u) && LessThanEqual(u , Vector2.One) )  )
             {
                 // We can calculate the intersection point using either t or u.
                 intersection = p1 + t * r_pdif;
@@ -475,9 +513,12 @@ namespace Microsoft.Xna.Framework
             return false;
         }
 
-        public static bool TestAlessThanEqualB(Vector2 a, Vector2 b)
+        public static bool LessThanEqual(Vector2 a, Vector2 b)
         {
-            return (a.X <= b.X && a.Y <= b.Y) ? true : false;
+            if (a.X <= b.X && a.Y <= b.Y)
+                return true;
+            else
+                return false;
         }
 
         public static int ShortestTurnToTargetLeftOrRight(Vector2 pDirection, Vector2 position, Vector2 targetPosition)
@@ -552,10 +593,10 @@ namespace Microsoft.Xna.Framework
             return Vector2.Dot(Vector2.Normalize(targetPosition - position), Vector2.Normalize(t_pos2 - position));
         }
 
-        public static float DistanceFromConstantAccelerationOverTime(float s, float t, float a)
+        public static float DistanceFromConstantAccelerationOverTime(float speed, float time, float acceleration)
         {
             // humm this is what i came up with im not sure this is the same as the book, seems to come out right, though that -1.
-            return a * (t - 1) + a * t + s;
+            return acceleration * (time - 1) + acceleration * time + speed;
         }
 
         public static int Fibonacci(int n)
@@ -613,7 +654,7 @@ namespace Microsoft.Xna.Framework
             return v;
         }
 
-        public static void Swap<T>(ref T a, ref T b)
+        public static void Swap<T>( ref T a, ref T b)
         {
             T temp = a;
             a = b;
