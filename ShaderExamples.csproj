@@ -25,4 +25,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ExS9_GenerallyRelatedConcepts\Ex_030_UsingTheMouseAndKeyboard\" />
+  </ItemGroup>
 </Project>

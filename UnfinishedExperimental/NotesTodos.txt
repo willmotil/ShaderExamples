@@ -44,6 +44,7 @@ Enviromental mapping reflections.
 3d Refraction.
 Water
 Basic depth shadow maping.
+PCF ... https://github.com/Mloren/MonoGame3D  mlorens github.
 ssao i need to learn that myself.
 Lens flare
 Instancing.

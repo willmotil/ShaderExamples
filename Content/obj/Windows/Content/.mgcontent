@@ -4,16 +4,14 @@
   <Platform>Windows</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/FadingEdgeEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Fonts/MgFont.spritefont</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Fonts/MgFont2.spritefont</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/GausianBlurEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/GlowingEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/GreyScaleEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Fonts/MgFont3.spritefont</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/blue_atmosphere.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/blue-square-button-editted-md.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/clouds-heavy.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/cutePuppy.jpeg</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/gamma_correction_brightness.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/GeneratedSphere.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/GeneratedSphereBlue.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/MG_Logo_Med_exCanvs.png</File>
@@ -21,22 +19,32 @@
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Nasa_DEM_Mars.jpg</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/planet_stencil.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/RefactionTexture.png</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Tanzania.jpg</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Terran02.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/TextureAlignmentTestImage2.jpg</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/wallnormmap.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/walltomap.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/water04.jpeg</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/MaskBlend.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/MaskBlendScroll.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/MeshDrawEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/RadialBlurEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/RefractionDirectionalEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/RefractionEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/ScrollEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/ShockwaveRippleEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/TestingCanidateEffects.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/FadingEdgeEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/GammaTestEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/GausianBlurEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/GlowingEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/GreyScaleEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/MaskBlend.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/MaskBlendScroll.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/MeshDrawEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/RadialBlurEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/RefractionDirectionalEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/RefractionEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/ScrollEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/ShockwaveRippleEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/TestingCanidateEffects.fx</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

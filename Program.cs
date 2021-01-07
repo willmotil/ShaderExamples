@@ -19,13 +19,18 @@ namespace ShaderExamples
             //using (var game = new Game1_Refraction()) game.Run();
             //using (var game = new Game1_RefractionDirectional()) game.Run();
             
-            using (var game = new Game1_Mesh_TestsAndStuff()) game.Run();
+            // conceptual examples.
+            //using (var game = new Game1_GammaCorrection()) game.Run();
+            using (var game = new Game1_DotAndCrossProduct()) game.Run();
+            
 
 
             // tests or imcomplete.
             //using (var game = new Game1_XXXXXXX()) game.Run();
             //using (var game = new Game1_GlowingEffect()) game.Run();
             //using (var game = new Game1_TestingCanidateEffects()) game.Run();
+
+            //using (var game = new Game1_Mesh_TestsAndStuff()) game.Run();
 
         }
     }

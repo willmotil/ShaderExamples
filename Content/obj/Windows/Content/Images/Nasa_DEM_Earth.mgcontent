@@ -3,7 +3,7 @@
   <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Nasa_DEM_Earth.jpg</SourceFile>
   <SourceTime>2020-12-17T17:18:00.0479977-05:00</SourceTime>
   <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Content/Images/Nasa_DEM_Earth.xnb</DestFile>
-  <DestTime>2021-01-05T02:14:53.9389815-05:00</DestTime>
+  <DestTime>2021-01-07T05:00:50.9782978-05:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2020-08-10T16:17:54-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

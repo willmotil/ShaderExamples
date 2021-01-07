@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file contains an xml description of a font, and will be read by the XNA
+Framework Content Pipeline. Follow the comments to customize the appearance
+of the font in your game, and to change the characters which are available to draw
+with.
+-->
+<XnaContent xmlns:Graphics="Microsoft.Xna.Framework.Content.Pipeline.Graphics">
+  <Asset Type="Graphics:FontDescription">
+
+    <!--
+    Modify this string to change the font that will be imported.
+    -->
+    <!--FontName>UnicodeBMPFallback51</FontName -->
+	<!--FontName>International</FontName --> <!-- vlad This is extremely readable and well laid out-->
+	<!--FontName>Abandoned-Bold</FontName --> <!-- vlad Ok this might be one of the best fonts but the I is messed up -->
+	<!--FontName>Ordinary</FontName --> <!-- vlad this is a pretty nice font and there is -Italic too-->
+	<!--FontName>Olga</FontName --> <!-- another nice font from vlad-->
+	<!--FontName>NamesakeNf</FontName --> <!-- Good Tall Readable Thin letters-->
+	<!--FontName>SnappyServiceNf</FontName --> <!-- Nice very readable nice looking-->
+	<!--FontName>TradingPostNF</FontName --> <!-- Good Readable spaced letters sci fi'ish look-->
+	<!--FontName>spacejunkXL</FontName --> <!-- Keeper crisp nice readable tall looks scifish Numbers are messed up great -->
+	<!--FontName>Neighbor</FontName --><!-- Very Nice sci fi ish well spaced Readable large crisp -->
+	<!--FontName>Bombardier</FontName --> <!-- This is a nice blocky well made font -->
+	<!--FontName>LaReynaCatalinaNF</FontName --> <!-- Good Tall letters-->
+	<!--FontName>ConquistadormanNF</FontName --> <!-- Good readability -->
+    <!--FontName>IronickNF</FontName --> <!-- A little small but it looks really nice and its readable -->
+	<!--FontName>01 DigiGraphics</FontName --> <!-- This is nice and well spaced -->
+	<!--FontName>AndromedaTV</FontName --> <!-- This has a cool look its a littles wide spaced its techish -->
+	<!--FontName>Neighbor-Italic</FontName --> <!-- -->
+
+	<!--FontName>Prototype</FontName --> <!-- this ones not too bad either-->
+	<!--FontName>pdark</FontName --> <!-- Its a font inspired by perfect dark kinda hard to read though-->
+	<!--FontName>Rational Integer</FontName --> <!-- this is a pretty nice font but it kinda needs a space -->
+	<!--FontName>Aldrich</FontName --> <!-- Not to shaby looks pretty good -->
+	<!--FontName>Script Regular</FontName --> <!-- -->
+	<!--FontName></FontName --> <!-- -->
+	<!--FontName></FontName --> <!-- -->
+	<!--FontName></FontName --> <!-- -->
+	<!--FontName></FontName --> <!-- -->
+	<!--FontName></FontName --> <!-- -->
+	<!--FontName></FontName --> <!-- -->
+	<!--FontName></FontName --> <!-- -->
+	<!--FontName></FontName --> <!-- -->
+	<!--FontName></FontName --> <!-- -->
+	<!--FontName></FontName --> <!-- -->
+	<!--FontName></FontName --> <!-- -->
+	<!--FontName>MinstrelPoster</FontName --> <!-- Not bad thick letters -->
+	<!--FontName>RadioRanch</FontName --> <!-- This is like Nice but small print it looks good but not sure were it fits -->
+	<!--FontName>SpondulixNF</FontName --> <!-- its ok cool big but kinda hard to read -->
+	<!--FontName>BulwarkNF</FontName --><!-- big out line letters -->
+	<!--FontName>ChromeYellowNF</FontName -->
+	<!--FontName>Iron Maiden</FontName --> <!-- -->
+
+	
+	
+	<!--FontName>NegativeSpace</FontName -->
+	<!--FontName>Beware</FontName -->
+	<!--FontName>dotty</FontName -->
+	<!--FontName>Beantown</FontName -->
+	<!--FontName>will3</FontName -->
+	<!--FontName>01 Digitall</FontName -->
+	<!--FontName>CoasterPoster</FontName -->
+	<!--FontName>FunkyRundkopfNF</FontName -->
+	  <!--FontName>FunkyRundkopfTwoNF</FontName -->
+	<!--FontName>JunebugStompNF</FontName -->
+	<!--FontName></FontName -->
+	<!--FontName></FontName -->
+	<!--FontName></FontName -->
+	<!--FontName></FontName -->
+	<!--FontName></FontName -->
+	<!--FontName></FontName -->
+	<!--FontName></FontName -->
+	<!--FontName></FontName -->
+	
+	<!--FontName>most of these are shit or not free</FontName -->
+	<!--FontName>comic_andy</FontName -->
+	<!--FontName>Divlite_Free</FontName -->
+	<!--FontName>underworld</FontName -->
+	<!--FontName>FatCow</FontName -->
+	<!--FontName>Lakmus</FontName -->
+    <!--FontName>Sematary</FontName -->
+	<!--FontName>BadMofo</FontName -->
+	<!--FontName>PointsWestNF</FontName --> <!-- tall but just too hard to read -->
+	<!--FontName>BulwarkNF</FontName -->
+	<!--FontName></FontName -->
+	<!--FontName></FontName -->
+	<!--FontName></FontName -->
+	
+	<!--FontName></FontName -->
+	<!--FontName></FontName -->
+	<!--FontName></FontName -->
+	<!--FontName></FontName -->
+	<!--FontName></FontName -->
+	<!--FontName></FontName -->
+	<!--FontName>Unifont</FontName -->
+	<!--FontName>Tahoma</FontName -->
+	<!--FontName>will3</FontName -->
+	<!--FontName>will4</FontName -->
+	<FontName>Tahoma</FontName >
+    
+    <!--
+    Size is a float value
+    -->
+    <Size>16</Size>
+
+    <!--
+    Spacing is a float value, measured in pixels. Modify this value to change
+    the amount of spacing in between characters.
+    -->
+    <Spacing>0.1</Spacing>
+
+    <!--
+    UseKerning controls the layout of the font. If this value is true, kerning information
+    will be used when placing characters.
+    -->
+    <UseKerning>true</UseKerning>
+
+    <!--
+    Style controls the style of the font. Valid entries are "Regular", "Bold", "Italic",
+    and "Bold, Italic", and are case sensitive.
+    -->
+    <Style>Bold</Style>
+
+    <!--
+    If you uncomment this line, the default character will be substituted if you draw
+    or measure text that contains characters which were not included in the font.
+    -->
+    <DefaultCharacter>?</DefaultCharacter>
+
+    <!--
+    CharacterRegions control what letters are available in the font. Every
+    character from Start to End will be built and made available for drawing. The
+    default range is from 32, (ASCII space), to 126, ('~'), covering the basic Latin
+    character set. The characters are ordered according to the Unicode standard.
+    See the documentation for more information.
+    -->
+    
+    <CharacterRegions>
+      <!-- regular letters -->
+      <CharacterRegion>
+       <Start>&#32;</Start>
+       <End>&#126;</End>
+        <!--<Start>&#29293;</Start> -->
+        <!--<End>&#29400;</End> -->
+        <!--<Start>&#32;</Start> -->
+        <!--<End>&#126;</End> -->
+        <!--<Start>&#32;</Start> -->
+        <!--<End>&#126;</End> -->
+		    <!-- <End>&#126;</End> -->
+		    <!-- <End>&#1024;</End> 129293   -->
+
+      
+      </CharacterRegion>
+      <!-- Greek letters -->
+      <CharacterRegion>
+        <Start>&#913;</Start>
+        <End>&#969;</End>
+      </CharacterRegion>
+      
+      <!-- Roman numerals Ⅰ Ⅱ Ⅲ Ⅳ Ⅹ -->
+      <CharacterRegion>
+        <Start>Ⅰ</Start>
+        <End>Ⅿ</End>
+      </CharacterRegion>
+      
+      <!-- Some Emoji's are in range i believe  \u2600 ☀ to ⟿  some emoji are familiar here such as -->
+      <!-- ☃  ☎ ☑ ☕ ☘ ☢ ☙ ☯ ☤   -->
+      <CharacterRegion>
+        <Start>☀</Start>
+        <End>⛿</End>
+      </CharacterRegion>
+    
+    </CharacterRegions>
+  </Asset>
+</XnaContent>

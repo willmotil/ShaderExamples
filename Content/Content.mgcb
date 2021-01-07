@@ -13,12 +13,6 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin FadingEdgeEffect.fx
-/importer:EffectImporter
-/processor:EffectProcessor
-/processorParam:DebugMode=Auto
-/build:FadingEdgeEffect.fx
-
 #begin Fonts/MgFont.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
@@ -33,23 +27,12 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/MgFont2.spritefont
 
-#begin GausianBlurEffect.fx
-/importer:EffectImporter
-/processor:EffectProcessor
-/processorParam:DebugMode=Auto
-/build:GausianBlurEffect.fx
-
-#begin GlowingEffect.fx
-/importer:EffectImporter
-/processor:EffectProcessor
-/processorParam:DebugMode=Auto
-/build:GlowingEffect.fx
-
-#begin GreyScaleEffect.fx
-/importer:EffectImporter
-/processor:EffectProcessor
-/processorParam:DebugMode=Auto
-/build:GreyScaleEffect.fx
+#begin Fonts/MgFont3.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/MgFont3.spritefont
 
 #begin Images/blue_atmosphere.png
 /importer:TextureImporter
@@ -98,6 +81,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Images/cutePuppy.jpeg
+
+#begin Images/gamma_correction_brightness.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/gamma_correction_brightness.png
 
 #begin Images/GeneratedSphere.png
 /importer:TextureImporter
@@ -183,6 +178,18 @@
 /processorParam:TextureFormat=Color
 /build:Images/RefactionTexture.png
 
+#begin Images/Tanzania.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Tanzania.jpg
+
 #begin Images/Terran02.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -243,57 +250,87 @@
 /processorParam:TextureFormat=Color
 /build:Images/water04.jpeg
 
-#begin MaskBlend.fx
+#begin Shaders/FadingEdgeEffect.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
-/build:MaskBlend.fx
+/build:Shaders/FadingEdgeEffect.fx
 
-#begin MaskBlendScroll.fx
+#begin Shaders/GammaTestEffect.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
-/build:MaskBlendScroll.fx
+/build:Shaders/GammaTestEffect.fx
 
-#begin MeshDrawEffect.fx
+#begin Shaders/GausianBlurEffect.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
-/build:MeshDrawEffect.fx
+/build:Shaders/GausianBlurEffect.fx
 
-#begin RadialBlurEffect.fx
+#begin Shaders/GlowingEffect.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
-/build:RadialBlurEffect.fx
+/build:Shaders/GlowingEffect.fx
 
-#begin RefractionDirectionalEffect.fx
+#begin Shaders/GreyScaleEffect.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
-/build:RefractionDirectionalEffect.fx
+/build:Shaders/GreyScaleEffect.fx
 
-#begin RefractionEffect.fx
+#begin Shaders/MaskBlend.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
-/build:RefractionEffect.fx
+/build:Shaders/MaskBlend.fx
 
-#begin ScrollEffect.fx
+#begin Shaders/MaskBlendScroll.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
-/build:ScrollEffect.fx
+/build:Shaders/MaskBlendScroll.fx
 
-#begin ShockwaveRippleEffect.fx
+#begin Shaders/MeshDrawEffect.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
-/build:ShockwaveRippleEffect.fx
+/build:Shaders/MeshDrawEffect.fx
 
-#begin TestingCanidateEffects.fx
+#begin Shaders/RadialBlurEffect.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
-/build:TestingCanidateEffects.fx
+/build:Shaders/RadialBlurEffect.fx
+
+#begin Shaders/RefractionDirectionalEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/RefractionDirectionalEffect.fx
+
+#begin Shaders/RefractionEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/RefractionEffect.fx
+
+#begin Shaders/ScrollEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/ScrollEffect.fx
+
+#begin Shaders/ShockwaveRippleEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/ShockwaveRippleEffect.fx
+
+#begin Shaders/TestingCanidateEffects.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/TestingCanidateEffects.fx
 
