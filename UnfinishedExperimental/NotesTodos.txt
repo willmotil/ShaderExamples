@@ -6,7 +6,7 @@ https://www.geeks3d.com/20110316/shader-library-simple-2d-effects-sphere-and-rip
 shockwave https://www.geeks3d.com/20091116/shader-library-2d-shockwave-post-processing-filter-glsl/
 radial blur ... prolly pretty easy to do that one straight up.
 normal map
-bloom shader .... 
+bloom shader ....  https://github.com/UnterrainerInformatik/BloomEffectRenderer/blob/master/BloomEffectRenderer/Effects/Resources/BloomCombine.fx
 figures this dudes got one too https://learnopengl.com/Advanced-Lighting/Bloom
 kinda gotta have that one in there the real one.  here is scribbles http://www.alienscribbleinteractive.com/Tutorials/bloom_tutorial.html
 and kosmo has one somewere.
@@ -30,6 +30,7 @@ Simple 2d quad geometry and lining up with spritebatch.
 VTF coming up that is technically 3d mostly but might be considered 2d as well in some cases.
 
 Then ill start a more serious 3d shader section.
+
 Triangle Geometry
 Meshs primitives.
 Texture mapping.
@@ -43,6 +44,8 @@ Normal mapping.
 Enviromental mapping reflections.
 3d Refraction.
 Water
+Weights and weight indices
+Morphing bone displacement
 Basic depth shadow maping.
 PCF ... https://github.com/Mloren/MonoGame3D  mlorens github.
 ssao i need to learn that myself.
@@ -52,6 +55,9 @@ Hdr loading.
 Basic pbr lighting concepts.
 
 
+// Reference this one includes a illumination shader which i very much need examples of...
+
+https://github.com/iftodebogdan/GITechDemo/tree/master/GITechDemo/Data/shaders
 
 
 

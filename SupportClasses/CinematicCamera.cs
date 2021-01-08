@@ -48,6 +48,8 @@ namespace Microsoft.Xna.Framework
         public Vector3 TargetPosition { get { return _targetLookAtPos; } }
         public bool IsSpriteBatchStyled { get { return _spriteBatchStyle; } }
         public bool IsPerspectiveStyled { get { return _perspectiveStyle; } }
+
+        public bool IsFree { get; set; }
         public bool UseForwardPathLook { get; set; }
         public bool UseWayPointMotion { get; set; }
         public float WayPointCycleDurationInTotalSeconds { get { return _durationInSeconds; } set { _durationInSeconds = value; } }
@@ -128,13 +130,16 @@ namespace Microsoft.Xna.Framework
             else
             {
                 if (UseForwardPathLook)
+                {
                     _targetLookAtPos = (nowPosition - _camPos) + nowPosition;  // view locked to forward direction on waypoint path.
+                }
                 else
                 {
                     // manual look at controls.
                     UpdateCameraLookAtUsingDefaultKeyboardCommands(gameTime);
-                    _targetLookAtPos = _cameraWorld.Forward + nowPosition; 
+                    _targetLookAtPos = _cameraWorld.Forward + nowPosition;
                 }
+                UpdateCameraRolltUsingDefaultKeyboardCommands(gameTime);
             }
 
             TransformCamera(nowPosition, _targetLookAtPos, _camUp);
@@ -152,12 +157,14 @@ namespace Microsoft.Xna.Framework
                 LookUpLocally(LookAtSpeedPerSecond * _elapsed);
             if (Keyboard.GetState().IsKeyDown(Keys.S))
                 LookDownLocally(LookAtSpeedPerSecond * _elapsed);
-
+        }
+        void UpdateCameraRolltUsingDefaultKeyboardCommands(GameTime gameTime)
+        {
             // roll
             if (Keyboard.GetState().IsKeyDown(Keys.C))
-                RollClockwise(MovementSpeedPerSecond * _elapsed);
+                RollClockwise(LookAtSpeedPerSecond * _elapsed);
             if (Keyboard.GetState().IsKeyDown(Keys.Z))
-                RollCounterClockwise(MovementSpeedPerSecond * _elapsed);
+                RollCounterClockwise(LookAtSpeedPerSecond * _elapsed);
         }
         void UpdateCameraMotionUsingDefaultKeyboardCommands(GameTime gameTime)
         {
@@ -194,11 +201,29 @@ namespace Microsoft.Xna.Framework
 
             // TODO handle up down vector gimble lock astetic under fixed camera.
             // ...
-            
-            // you might ask why is ther a lastlastCamPos well that is all part of my evil plan to handle figuring out were a free cameras up vector should want to be placed or drift to in order to make everything really cool.
-            // basically we want a up drift in some cases like for a space or cinimatic camera if we are turning in a direction the 3 positions last2 last1 now0 ,  MAY or may not, form a triangle A,B,C were if B lies at a tangent to a point along the line of A-B
-            // its possible that A B C simply line up in that case its mute and no Up vector drift can be recommended.
 
+           // well that idea sucked.
+
+            if (IsFree)
+            {
+                // bah the only thing i really need to do here is to figure out what to do with the up vector.
+
+
+                    //var tmpup = Vector3.Cross(Vector3.Normalize(driftright *.95f + tempright * .05f), _cameraWorld.Forward);
+
+
+                    _camUp = Vector3.Normalize(Vector3.Cross(_cameraWorld.Right, _cameraWorld.Forward));
+        
+
+                //// free camera
+                //camera *=
+                //                Matrix.CreateFromAxisAngle(camera.Forward, rotationalMoment.Z) *
+                //                Matrix.CreateFromAxisAngle(camera.Up, rotationalMoment.X) *
+                //                Matrix.CreateFromAxisAngle(camera.Right, rotationalMoment.Y)
+                //                ;
+                //forward = camera.Forward;
+                //camera.Translation = position;
+            }
 
             // ...
 

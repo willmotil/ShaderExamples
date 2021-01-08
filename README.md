@@ -21,3 +21,7 @@ Additionally you can look to this reference post on the monogame community site 
 
 https://community.monogame.net/t/shader-examples-code-links-reference/14527
 
+or check out prime31's examples many most of which are 2D
+
+https://github.com/prime31/Nez/tree/master/DefaultContentSource/effects
+

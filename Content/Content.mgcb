@@ -250,6 +250,12 @@
 /processorParam:TextureFormat=Color
 /build:Images/water04.jpeg
 
+#begin Shaders/BloomGlowEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/BloomGlowEffect.fx
+
 #begin Shaders/FadingEdgeEffect.fx
 /importer:EffectImporter
 /processor:EffectProcessor
