@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/TextureAlignmentTestImage2.jpg</SourceFile>
-  <SourceTime>2021-01-03T05:36:53.7460384-05:00</SourceTime>
-  <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Content/Images/TextureAlignmentTestImage2.xnb</DestFile>
-  <DestTime>2021-01-07T05:00:51.1673142-05:00</DestTime>
+  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/TextureAlignmentTestImage2.jpg</SourceFile>
+  <SourceTime>2021-01-08T03:27:38.1853493-05:00</SourceTime>
+  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Content/Images/TextureAlignmentTestImage2.xnb</DestFile>
+  <DestTime>2021-01-08T03:35:04.7621286-05:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2020-08-10T16:17:54-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

@@ -13,6 +13,7 @@
 //float radialScalar;
 
 //uniform sampler2D sceneTex; // 0
+float2 currentMouse;
 float2 center; // Mouse position
 float time; // effect elapsed time
 float3 shockParams; // 10.0, 0.8, 0.1
@@ -52,6 +53,12 @@ float4 MainPS(VertexShaderOutput input) : COLOR
 		}
 		float4 col = tex2D(SpriteTextureSampler, texCoord);
 		col.rgb = col.rgb + input.Color.rgb * 2.0f * perturbation;
+
+		float discur = distance(uv, currentMouse);
+		float mouserange = 0.01f;
+		float mousespot = saturate((1.0f - discur) - (1.0f - mouserange)) / mouserange;
+		col.rgb = lerp(col.rgb, 1 , mousespot); 
+
 		return col;
 }
 
@@ -62,6 +69,26 @@ technique Shockwave
 		PixelShader = compile PS_SHADERMODEL MainPS();
 	}
 };
+
+//float4 MainPS(VertexShaderOutput input) : COLOR
+//{
+//		float2 uv = input.TextureCoordinates.xy;
+//		float2 texCoord = uv;
+//		float dis = distance(uv, center);
+//		float perturbation = 0.0f;
+//		if ((dis <= (time + shockParams.z)) && (dis >= (time - shockParams.z)))
+//		{
+//			float diff = (dis - time);
+//			float powDiff = 1.0 - pow(abs(diff * shockParams.x), shockParams.y);
+//			float diffTime = diff * powDiff;
+//			float2 diffUV = normalize(uv - center);
+//			texCoord = uv + (diffUV * diffTime);
+//			perturbation = diffTime;
+//		}
+//		float4 col = tex2D(SpriteTextureSampler, texCoord);
+//		col.rgb = col.rgb + input.Color.rgb * 2.0f * perturbation;
+//		return col;
+//}
 
 //
 //float4 SphereMovePS(VertexShaderOutput input) : COLOR
