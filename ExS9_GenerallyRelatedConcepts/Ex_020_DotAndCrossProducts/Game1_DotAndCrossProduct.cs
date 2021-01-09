@@ -168,10 +168,10 @@ namespace ShaderExamples
             spriteBatch.DrawLineWithStringAtEnd(font2, $" normal direction { normalToCompare } " , originPoint, positionToCompare, 1, Color.Black);
 
             var dotResult1 = normal1.DotProduct2D(normalToCompare);
-            spriteBatch.DrawLineWithStringAtEnd(font2, $"#1 Dot theta { dotResult1 } ", originPoint, position1, 1, Color.DarkGreen);
+            spriteBatch.DrawLineWithStringAtEnd(font2, $"#1 Dot theta { dotResult1.ToString("##0.00") } ", originPoint, position1, 1, Color.DarkGreen);
 
             var dotResult2 = normal2.DotProduct2D(normalToCompare);
-            spriteBatch.DrawLineWithStringAtEnd(font2, $"#2 Dot theta { dotResult2 } ", originPoint, position2, 1, Color.Blue);
+            spriteBatch.DrawLineWithStringAtEnd(font2, $"#2 Dot theta { dotResult2.ToString("##0.00") } ", originPoint, position2, 1, Color.Blue);
 
 
             spriteBatch.End();

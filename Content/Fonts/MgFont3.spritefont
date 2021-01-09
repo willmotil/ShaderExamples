@@ -102,7 +102,7 @@ with.
     <!--
     Size is a float value
     -->
-    <Size>16</Size>
+    <Size>20</Size>
 
     <!--
     Spacing is a float value, measured in pixels. Modify this value to change

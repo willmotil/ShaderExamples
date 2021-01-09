@@ -124,6 +124,13 @@ namespace Microsoft.Xna.Framework
             spriteBatch.Draw(dot, new Rectangle((int)p.X, (int)p.Y, 2, 2), new Rectangle(0, 0, 1, 1), c, 0.0f, Vector2.One, SpriteEffects.None, 0);
         }
 
+        public static void DrawBasicPointWithMsg(this SpriteBatch spriteBatch, SpriteFont font, string msg, Vector2 p, Color c, int size)
+        {
+            int half = (int)(size / 2);
+            spriteBatch.Draw(dot, new Rectangle((int)p.X, (int)p.Y, 1 + size, 1 + size), new Rectangle(0, 0, 1, 1), c, 0.0f, new Vector2(.5f, .5f), SpriteEffects.None, 0);
+            spriteBatch.DrawString(font, msg, p, c);
+        }
+
         public static void DrawBasicPoint(this SpriteBatch spriteBatch, Vector2 p, Color c, int size)
         {
             int half = (int)(size / 2);
