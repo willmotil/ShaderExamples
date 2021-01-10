@@ -19,13 +19,13 @@ namespace ShaderExamples
             //using (var game = new Game1_MaskBlendScroll()) game.Run();
             //using (var game = new Game1_Refraction()) game.Run();
             //using (var game = new Game1_RefractionDirectional()) game.Run();
-            //using (var game = new Game1_BloomGlow()) game.Run();
+            using (var game = new Game1_BloomGlow()) game.Run();
 
 
             // conceptual examples.
             //using (var game = new Game1_GammaCorrection()) game.Run();
             //using (var game = new Game1_DotAndCrossProduct()) game.Run();
-            using (var game = new Game1_Matrices()) game.Run();
+            //using (var game = new Game1_Matrices()) game.Run();
             
 
 

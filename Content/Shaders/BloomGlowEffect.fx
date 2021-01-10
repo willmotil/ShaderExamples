@@ -23,8 +23,16 @@ struct VertexShaderOutput
 	float2 TextureCoordinates : TEXCOORD0;
 };
 
-float4 MainPS(VertexShaderOutput input) : COLOR
+struct PixelShaderOutput
 {
+	float4 Color : COLOR0;
+	float4 Color2 : COLOR1;
+};
+
+//float4 MainPS(VertexShaderOutput input) : COLOR0 : COLOR1
+PixelShaderOutput MainPS(VertexShaderOutput input)
+{
+	PixelShaderOutput output;
 	float4 color = tex2D(SpriteTextureSampler, input.TextureCoordinates);
 	float halfnumberOfSamplesPerDimension = numberOfSamplesPerDimension / 2.0f;
 	float2 texelCoef = 1.0f / float2(textureSize.x, textureSize.y);
@@ -38,8 +46,9 @@ float4 MainPS(VertexShaderOutput input) : COLOR
 		}
 	}
 	color /= numberOfSamplesPerDimension * numberOfSamplesPerDimension;
-	// Color here is the input color from spriteBatch.Draw(, ,, Color.White , , , );  white doesn't change anything.
-	return color * input.Color;
+	output.Color = color * input.Color;
+	output.Color2 = color * 0.5f;
+	return output;
 }
 
 technique BloomGlow

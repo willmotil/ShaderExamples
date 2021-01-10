@@ -18,10 +18,11 @@ namespace ShaderExamples
         MouseState mouseState;
         RenderTarget2D offscreenRenderTarget0;
         RenderTarget2D offscreenRenderTarget1;
+        RenderTargetBinding[] renderTargetBinding;
 
         bool _useBlur = true;
-        const int MAXSAMPLES = 40;
-        int _numberOfSamples = 20;
+        const int MAXSAMPLES = 20;
+        int _numberOfSamples = 5;
 
         #region  timing stuff
 
@@ -71,11 +72,10 @@ namespace ShaderExamples
             offscreenRenderTarget0 = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.None);
             offscreenRenderTarget1 = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.None);
 
-            RenderTargetBinding[] renderTargetBinding = new RenderTargetBinding[2];
+            renderTargetBinding = new RenderTargetBinding[2];
             renderTargetBinding[0] = offscreenRenderTarget0;
             renderTargetBinding[1] = offscreenRenderTarget1;
 
-            GraphicsDevice.SetRenderTargets(renderTargetBinding);
         }
 
         protected override void UnloadContent()
@@ -116,9 +116,10 @@ namespace ShaderExamples
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             effect.CurrentTechnique = effect.Techniques["BloomGlow"];
-
             effect.Parameters["textureSize"].SetValue(new Vector2(texture.Width, texture.Height));
             effect.Parameters["numberOfSamplesPerDimension"].SetValue(_numberOfSamples);
+
+            GraphicsDevice.SetRenderTargets(renderTargetBinding);
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, effect, null);
             spriteBatch.Draw(texture, new Rectangle(0, 0, 300, 300), Color.White);
@@ -126,6 +127,13 @@ namespace ShaderExamples
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
             spriteBatch.DrawString(font, $"Controls plus or minus keys and arrow keys  \n _numberOfSamples: {_numberOfSamples.ToString("##0.000")} ", new Vector2(10, 10), Color.White);
+            spriteBatch.End();
+
+            GraphicsDevice.SetRenderTargets(null);
+
+            spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, effect, null);
+            spriteBatch.Draw(offscreenRenderTarget0, new Rectangle(0, 0, 300, 300), Color.White);
+            spriteBatch.Draw(offscreenRenderTarget1, new Rectangle(300, 0, 300, 300), Color.White);
             spriteBatch.End();
 
             base.Draw(gameTime);
