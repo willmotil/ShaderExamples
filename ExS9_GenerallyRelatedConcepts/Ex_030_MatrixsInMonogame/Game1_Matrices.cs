@@ -51,7 +51,7 @@ namespace ShaderExamples
         //List<string> timedMsg = new List<string>();
         float elapsed = 0;
         float elapsedTotalMsgTime = 0;
-        float msgsTotalDuration = 320;
+        float msgsTotalDuration = 600;
         int index = 0;
         bool respectMsgTimer = true;
         float percent = 1.0f;
