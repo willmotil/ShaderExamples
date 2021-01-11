@@ -25,7 +25,7 @@ namespace ShaderExamples
 
         bool _useBlur = true;
         const int MAXSAMPLES = 100;
-        int _numberOfSamples = 20;
+        int _numberOfSamples = 10;
         float threshold = .5f;
 
         #region  timing stuff
@@ -77,12 +77,17 @@ namespace ShaderExamples
             effect.CurrentTechnique = effect.Techniques["BloomGlow"];
             effect.Parameters["numberOfSamplesPerDimension"].SetValue(_numberOfSamples);
 
-            offscreenRenderTarget0 = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.None);
-            offscreenRenderTarget1 = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.None);
+            Vector2 size = GraphicsDevice.Viewport.Bounds.Size.ToVector2();
+            Vector2 halfsize = size / 4;
+            //offscreenRenderTarget0 = new RenderTarget2D(GraphicsDevice, (int)size.X, (int)size.Y, false, SurfaceFormat.Color, DepthFormat.None);
+            offscreenRenderTarget0 = new RenderTarget2D(GraphicsDevice, (int)halfsize.X, (int)halfsize.Y, false, SurfaceFormat.Color, DepthFormat.None);
 
-            renderTargetBinding = new RenderTargetBinding[2];
-            renderTargetBinding[0] = offscreenRenderTarget0;
-            renderTargetBinding[1] = offscreenRenderTarget1;
+            offscreenRenderTarget1 = new RenderTarget2D(GraphicsDevice, (int)size.X, (int)size.Y, false, SurfaceFormat.Color, DepthFormat.None);
+            //offscreenRenderTarget1 = new RenderTarget2D(GraphicsDevice, (int)halfsize.X, (int)halfsize.Y, false, SurfaceFormat.Color, DepthFormat.None);
+
+            //renderTargetBinding = new RenderTargetBinding[2];
+            //renderTargetBinding[0] = offscreenRenderTarget0;
+            //renderTargetBinding[1] = offscreenRenderTarget1;
 
         }
 
@@ -119,35 +124,59 @@ namespace ShaderExamples
                 elapsedPercentageOfSecondsPerCycle -= 1.0f;
         }
 
+
+
+        //The Blur Algorithm  http://www.rastertek.com/dx11tut36.html
+        //
+        //1. Render the scene to rt.
+        //
+        //2. Down sample the rt to to half its size or less.   // maybe simpler to just call mipmaping.
+        //
+        //3. Perform a horizontal blur on the down sampled texture.
+        //
+        //4. Perform a vertical blur.
+        //
+        //5. Up sample the rt back to the original screen size.
+        //
+        //6. Render that texture to the screen.
+
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            effect.CurrentTechnique = effect.Techniques["BloomGlow"];
             effect.Parameters["textureSize"].SetValue(new Vector2(texture.Width, texture.Height));
             effect.Parameters["numberOfSamplesPerDimension"].SetValue(_numberOfSamples);
             effect.Parameters["threshold"].SetValue(threshold);
 
+            // 1.  and
+            // 2. in rt1
+            effect.CurrentTechnique = effect.Techniques["ExtractGlowColors"]; // ExtractGlowColors  BloomGlow
 
-            //GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
+            // render the textures to a scene.
 
-            GraphicsDevice.SetRenderTargets(renderTargetBinding);
+            //GraphicsDevice.SetRenderTargets(renderTargetBinding);
+
+            GraphicsDevice.SetRenderTarget(offscreenRenderTarget0);
             GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, effect, null);
-            spriteBatch.Draw(texture, new Rectangle(0, 0, 300, 300), Color.White);
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.LinearClamp, null, null, effect, null);
+            spriteBatch.Draw(texture, offscreenRenderTarget0.Bounds, Color.White);
+            //spriteBatch.Draw(texture2, new Rectangle(320, 0, 300, 300), Color.White);
             spriteBatch.End();
+
 
             GraphicsDevice.SetRenderTargets(null);
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, effect, null);
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, null, null);
+            //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, effect, null);
             //spriteBatch.Draw(texture, GraphicsDevice.Viewport.Bounds, Color.White);
-            spriteBatch.Draw(offscreenRenderTarget0, GraphicsDevice.Viewport.Bounds, Color.White);
-            spriteBatch.Draw(offscreenRenderTarget1, GraphicsDevice.Viewport.Bounds, Color.White);
 
-            spriteBatch.Draw(offscreenRenderTarget0, new Rectangle(0, 300, 300, 300), Color.White);
-            spriteBatch.Draw(offscreenRenderTarget1, new Rectangle(300, 300, 300, 300), Color.White);
+            spriteBatch.Draw(offscreenRenderTarget0, GraphicsDevice.Viewport.Bounds, Color.White);
+            //spriteBatch.Draw(offscreenRenderTarget1, GraphicsDevice.Viewport.Bounds, Color.White);
+
+            //spriteBatch.Draw(offscreenRenderTarget0, new Rectangle(0, 305, 300, 290), Color.White);
+            //spriteBatch.Draw(offscreenRenderTarget1, new Rectangle(300, 305, 300, 290), Color.White);
 
             spriteBatch.End();
 

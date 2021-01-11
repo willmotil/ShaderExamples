@@ -1,4 +1,22 @@
-﻿#if OPENGL
+﻿
+
+//The Blur Algorithm
+//
+//1. Render the scene to texture.
+//
+//2. Down sample the texture to to half its size or less.
+//
+//3. Perform a horizontal blur on the down sampled texture.
+//
+//4. Perform a vertical blur.
+//
+//5. Up sample the texture back to the original screen size.
+//
+//6. Render that texture to the screen.
+
+
+
+#if OPENGL
 #define SV_POSITION POSITION
 #define VS_SHADERMODEL vs_3_0
 #define PS_SHADERMODEL ps_3_0
@@ -7,10 +25,10 @@
 #define PS_SHADERMODEL ps_4_0 //_level_9_1
 #endif
 
+
 int numberOfSamplesPerDimension;
 float threshold;
 float2 textureSize;
-
 
 sampler2D SpriteTextureSampler : register(s0)
 {
@@ -26,11 +44,11 @@ struct VertexShaderOutput
 
 struct PixelShaderOutput
 {
-	float4 Color : COLOR0;
-	float4 Color2 : COLOR1;
+	float4 Color0 : COLOR0;
+	float4 Color1 : COLOR1;
 };
 
-PixelShaderOutput MainPS(VertexShaderOutput input)
+PixelShaderOutput BloomGlowPS(VertexShaderOutput input)
 {
 	PixelShaderOutput output;
 	float4 originalColor = tex2D(SpriteTextureSampler, input.TextureCoordinates);
@@ -49,17 +67,17 @@ PixelShaderOutput MainPS(VertexShaderOutput input)
 	}
 	color = color /  (numberOfSamplesPerDimension * numberOfSamplesPerDimension) * input.Color;
 	//output.Color = originalColor;
-	output.Color = color;
+	output.Color0 = color;
 
 	float flag = saturate(sign((color.x + color.y + color.z) / 3.0f - threshold));
 
 	//float a = color.a;
 	//float flag =  color * saturate( sign( color - threshold ) );  // (color.x + color.y + color. z) / 3.0f
-	//output.Color2.a = a;
+	//output.Color1.a = a;
     //float flag =  color * dot(color.rgb, float3(0.2126f, 0.7152f, 0.0722f));
 
 	color.a = flag;
-    output.Color2 = color * flag; 
+    output.Color1 = color * flag; 
 	return output;
 }
 
@@ -67,30 +85,33 @@ technique BloomGlow
 {
 	pass P0
 	{
-		PixelShader = compile PS_SHADERMODEL MainPS();
+		PixelShader = compile PS_SHADERMODEL 
+			BloomGlowPS();
 	}
 };
 
 
 
-float4 RegularPS(VertexShaderOutput input) : COLOR
+
+
+PixelShaderOutput ExtractBrightColorsPS(VertexShaderOutput input)
 {
-	float4 c = tex2D(SpriteTextureSampler, input.TextureCoordinates) * input.Color;
+	PixelShaderOutput output;
+	float4 originalColor = tex2D(SpriteTextureSampler, input.TextureCoordinates) *input.Color;
+	float4 color = originalColor;
 
-	//float R = saturate(c.r - threshold);
-	//float G = saturate(c.g - threshold);
-	//float B = saturate(c.b - threshold);
+	float flag = saturate( sign(  (color.x + color.y + color.z) / 3.0f - threshold ) );
 
-	//float flag = saturate(sign((c.x + c.y + c.z) / 3.0f - threshold));
-
-
-	return c;
+	output.Color0 = color * flag;
+	output.Color1 = color;
+	return output;
 }
 
 technique ExtractGlowColors
 {
 	pass P0
 	{
-		PixelShader = compile PS_SHADERMODEL RegularPS();
+		PixelShader = compile PS_SHADERMODEL
+			ExtractBrightColorsPS();
 	}
 };
