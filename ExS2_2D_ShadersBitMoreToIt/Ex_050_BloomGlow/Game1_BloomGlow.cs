@@ -13,6 +13,9 @@ namespace ShaderExamples
         SpriteFont font;
         SpriteFont font2;
         Texture2D texture;
+        Texture2D texture1;
+        Texture2D texture2;
+        Texture2D texture3;
         Texture2D textureDisplacementTexture;
         Effect effect;
         MouseState mouseState;
@@ -21,8 +24,9 @@ namespace ShaderExamples
         RenderTargetBinding[] renderTargetBinding;
 
         bool _useBlur = true;
-        const int MAXSAMPLES = 20;
-        int _numberOfSamples = 5;
+        const int MAXSAMPLES = 100;
+        int _numberOfSamples = 20;
+        float threshold = .5f;
 
         #region  timing stuff
 
@@ -57,7 +61,11 @@ namespace ShaderExamples
             // Change Directory.
             Content.RootDirectory = @"Content/Images";
 
-            texture = Content.Load<Texture2D>("cutePuppy");
+            texture1 = Content.Load<Texture2D>("cutePuppy");
+            texture2 = Content.Load<Texture2D>("BloomTestImage");
+            texture3 = Content.Load<Texture2D>("MG_Logo_Modifyed");
+
+            texture = texture2;
 
             // Change Directory.
             Content.RootDirectory = @"Content/Fonts";
@@ -118,59 +126,38 @@ namespace ShaderExamples
             effect.CurrentTechnique = effect.Techniques["BloomGlow"];
             effect.Parameters["textureSize"].SetValue(new Vector2(texture.Width, texture.Height));
             effect.Parameters["numberOfSamplesPerDimension"].SetValue(_numberOfSamples);
+            effect.Parameters["threshold"].SetValue(threshold);
+
+
+            //GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
 
             GraphicsDevice.SetRenderTargets(renderTargetBinding);
+            GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, effect, null);
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, effect, null);
             spriteBatch.Draw(texture, new Rectangle(0, 0, 300, 300), Color.White);
+            spriteBatch.End();
+
+            GraphicsDevice.SetRenderTargets(null);
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, effect, null);
+            //spriteBatch.Draw(texture, GraphicsDevice.Viewport.Bounds, Color.White);
+            spriteBatch.Draw(offscreenRenderTarget0, GraphicsDevice.Viewport.Bounds, Color.White);
+            spriteBatch.Draw(offscreenRenderTarget1, GraphicsDevice.Viewport.Bounds, Color.White);
+
+            spriteBatch.Draw(offscreenRenderTarget0, new Rectangle(0, 300, 300, 300), Color.White);
+            spriteBatch.Draw(offscreenRenderTarget1, new Rectangle(300, 300, 300, 300), Color.White);
+
             spriteBatch.End();
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
             spriteBatch.DrawString(font, $"Controls plus or minus keys and arrow keys  \n _numberOfSamples: {_numberOfSamples.ToString("##0.000")} ", new Vector2(10, 10), Color.White);
             spriteBatch.End();
 
-            GraphicsDevice.SetRenderTargets(null);
-
-            spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, effect, null);
-            spriteBatch.Draw(offscreenRenderTarget0, new Rectangle(0, 0, 300, 300), Color.White);
-            spriteBatch.Draw(offscreenRenderTarget1, new Rectangle(300, 0, 300, 300), Color.White);
-            spriteBatch.End();
-
             base.Draw(gameTime);
         }
 
-        //protected override void Draw(GameTime gameTime)
-        //{
-        //    SetShaderParameters();
-
-        //    var clearingColor = Color.CornflowerBlue;
-        //    GraphicsDevice.SetRenderTarget(offscreenRenderTarget);
-        //    GraphicsDevice.Clear(ClearOptions.Target, clearingColor, 1, 0);
-
-        //    spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
-        //    spriteBatch.Draw(texture, GraphicsDevice.Viewport.Bounds, Color.White);
-        //    spriteBatch.End();
-
-        //    spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
-        //    spriteBatch.DrawString(font, msgInfo, new Vector2(10, 10), Color.White);
-        //    spriteBatch.DrawString(font2, $"MonoGame RenderTargets and Shaders ", new Vector2(30, 430), colorCycle.GetColor(gameTime, 20f));
-        //    spriteBatch.DrawString(font2, $"It's AOS time", new Vector2(230, 230), colorCycle.GetColor(gameTime, 20f), 0, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0);
-        //    spriteBatch.End();
-
-        //    GraphicsDevice.SetRenderTarget(null);
-        //    GraphicsDevice.Clear(clearingColor);
-
-        //    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, effect, null);
-        //    spriteBatch.Draw(offscreenRenderTarget, GraphicsDevice.Viewport.Bounds, Color.White);
-        //    spriteBatch.End();
-
-        //    spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
-        //    spriteBatch.Draw(texture, new Rectangle(0, 300, 200, 200), Color.White);
-        //    spriteBatch.DrawString(font, msgInfo, new Vector2(10, 10), Color.White);
-        //    spriteBatch.End();
-
-        //    base.Draw(gameTime);
-        //}
 
         #region helper functions
 

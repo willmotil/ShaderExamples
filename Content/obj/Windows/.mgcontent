@@ -7,6 +7,7 @@
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Fonts/MgFont.spritefont</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Fonts/MgFont2.spritefont</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Fonts/MgFont3.spritefont</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/BloomTestImage.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/blue_atmosphere.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/blue-square-button-editted-md.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/clouds-heavy.png</File>
@@ -15,6 +16,7 @@
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/GeneratedSphere.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/GeneratedSphereBlue.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/MG_Logo_Med_exCanvs.png</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/MG_Logo_Modifyed.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Nasa_DEM_Earth.jpg</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Nasa_DEM_Mars.jpg</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/planet_stencil.png</File>
@@ -42,6 +44,8 @@
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/TestingCanidateEffects.fx</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/ShockwaveRippleEffect.fx</SourceFile>
-  <SourceTime>2020-12-31T11:24:25.5780217-05:00</SourceTime>
+  <SourceTime>2021-01-08T09:54:14.01831-05:00</SourceTime>
   <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Shaders/ShockwaveRippleEffect.xnb</DestFile>
-  <DestTime>2021-01-07T16:07:31.2451267-05:00</DestTime>
+  <DestTime>2021-01-11T00:51:51.4883599-05:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2020-05-27T15:15:40-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>

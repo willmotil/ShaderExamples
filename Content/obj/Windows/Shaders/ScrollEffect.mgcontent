@@ -3,7 +3,7 @@
   <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/ScrollEffect.fx</SourceFile>
   <SourceTime>2020-12-29T19:05:25.0757937-05:00</SourceTime>
   <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Shaders/ScrollEffect.xnb</DestFile>
-  <DestTime>2021-01-07T16:07:30.8120907-05:00</DestTime>
+  <DestTime>2021-01-11T00:51:51.0463254-05:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2020-05-27T15:15:40-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>
