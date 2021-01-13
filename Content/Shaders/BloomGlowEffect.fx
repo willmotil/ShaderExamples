@@ -1,5 +1,10 @@
 ﻿
 
+// TODO  wip   humm trying to follow this exactly like the classical way of doing it if there is such a thing, not my janky way.
+
+
+
+
 //The Blur Algorithm
 //
 //1. Render the scene to texture.
