@@ -1,5 +1,4 @@
 ﻿
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -26,7 +25,8 @@ namespace ShaderExamples
         bool _useBlur = true;
         const int MAXSAMPLES = 100;
         int _numberOfSamples = 10;
-        float threshold = .5f;
+        Vector3 threshold = new Vector3(.35f, .50f, .50f);
+        
 
         #region  timing stuff
 
@@ -78,7 +78,7 @@ namespace ShaderExamples
             effect.Parameters["numberOfSamplesPerDimension"].SetValue(_numberOfSamples);
 
             Vector2 size = GraphicsDevice.Viewport.Bounds.Size.ToVector2();
-            Vector2 halfsize = size / 4;
+            Vector2 halfsize = size /2; //  / 2;
             //offscreenRenderTarget0 = new RenderTarget2D(GraphicsDevice, (int)size.X, (int)size.Y, false, SurfaceFormat.Color, DepthFormat.None);
             offscreenRenderTarget0 = new RenderTarget2D(GraphicsDevice, (int)halfsize.X, (int)halfsize.Y, false, SurfaceFormat.Color, DepthFormat.None);
 
@@ -148,44 +148,84 @@ namespace ShaderExamples
             effect.Parameters["numberOfSamplesPerDimension"].SetValue(_numberOfSamples);
             effect.Parameters["threshold"].SetValue(threshold);
 
-            // 1.  and
-            // 2. in rt1
-            effect.CurrentTechnique = effect.Techniques["ExtractGlowColors"]; // ExtractGlowColors  BloomGlow
 
             // render the textures to a scene.
-
-            //GraphicsDevice.SetRenderTargets(renderTargetBinding);
 
             GraphicsDevice.SetRenderTarget(offscreenRenderTarget0);
             GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
 
+            // 1.  and
+            // 2. in rt1
+            effect.CurrentTechnique = effect.Techniques["ExtractGlowColors"]; // ExtractGlowColors  BloomGlow.
+
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.LinearClamp, null, null, effect, null);
             spriteBatch.Draw(texture, offscreenRenderTarget0.Bounds, Color.White);
-            //spriteBatch.Draw(texture2, new Rectangle(320, 0, 300, 300), Color.White);
             spriteBatch.End();
 
+            // render targets to backbuffer.
 
             GraphicsDevice.SetRenderTargets(null);
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, null, null);
-            //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, effect, null);
-            //spriteBatch.Draw(texture, GraphicsDevice.Viewport.Bounds, Color.White);
-
             spriteBatch.Draw(offscreenRenderTarget0, GraphicsDevice.Viewport.Bounds, Color.White);
-            //spriteBatch.Draw(offscreenRenderTarget1, GraphicsDevice.Viewport.Bounds, Color.White);
-
-            //spriteBatch.Draw(offscreenRenderTarget0, new Rectangle(0, 305, 300, 290), Color.White);
-            //spriteBatch.Draw(offscreenRenderTarget1, new Rectangle(300, 305, 300, 290), Color.White);
-
             spriteBatch.End();
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
+            spriteBatch.Draw(texture, new Rectangle(0, 0, 150, 150), Color.White);
             spriteBatch.DrawString(font, $"Controls plus or minus keys and arrow keys  \n _numberOfSamples: {_numberOfSamples.ToString("##0.000")} ", new Vector2(10, 10), Color.White);
             spriteBatch.End();
 
             base.Draw(gameTime);
         }
+
+        //protected override void Draw(GameTime gameTime)
+        //{
+        //    GraphicsDevice.Clear(Color.CornflowerBlue);
+
+        //    effect.Parameters["textureSize"].SetValue(new Vector2(texture.Width, texture.Height));
+        //    effect.Parameters["numberOfSamplesPerDimension"].SetValue(_numberOfSamples);
+        //    effect.Parameters["threshold"].SetValue(threshold);
+
+        //    // render the textures to a scene.
+
+        //    //GraphicsDevice.SetRenderTargets(renderTargetBinding);
+
+        //    GraphicsDevice.SetRenderTarget(offscreenRenderTarget0);
+        //    GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
+
+        //    // 1.  and
+        //    // 2. in rt1
+        //    effect.CurrentTechnique = effect.Techniques["ExtractGlowColors"]; // ExtractGlowColors  BloomGlow.
+
+        //    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.LinearClamp, null, null, effect, null);
+        //    spriteBatch.Draw(texture, offscreenRenderTarget0.Bounds, Color.White);
+        //    //spriteBatch.Draw(texture2, new Rectangle(320, 0, 300, 300), Color.White);
+        //    spriteBatch.End();
+
+
+        //    GraphicsDevice.SetRenderTargets(null);
+        //    GraphicsDevice.Clear(Color.CornflowerBlue);
+
+        //    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, null, null);
+        //    //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, effect, null);
+        //    //spriteBatch.Draw(texture, GraphicsDevice.Viewport.Bounds, Color.White);
+
+        //    spriteBatch.Draw(offscreenRenderTarget0, GraphicsDevice.Viewport.Bounds, Color.White);
+        //    //spriteBatch.Draw(offscreenRenderTarget1, GraphicsDevice.Viewport.Bounds, Color.White);
+
+        //    //spriteBatch.Draw(offscreenRenderTarget0, new Rectangle(0, 305, 300, 290), Color.White);
+        //    //spriteBatch.Draw(offscreenRenderTarget1, new Rectangle(300, 305, 300, 290), Color.White);
+
+        //    spriteBatch.End();
+
+        //    spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
+        //    spriteBatch.Draw(texture, new Rectangle(0, 0, 150, 150), Color.White);
+        //    spriteBatch.DrawString(font, $"Controls plus or minus keys and arrow keys  \n _numberOfSamples: {_numberOfSamples.ToString("##0.000")} ", new Vector2(10, 10), Color.White);
+        //    spriteBatch.End();
+
+        //    base.Draw(gameTime);
+        //}
 
 
         #region helper functions

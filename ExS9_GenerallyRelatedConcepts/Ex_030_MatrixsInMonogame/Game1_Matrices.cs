@@ -351,14 +351,14 @@ namespace ShaderExamples
 
         }
 
+        //bool showIdentitySpace = true;
+        //bool showWorldSpace = false;
+        //bool showViewSpace = false;
+        //bool showCameraWorldTranslation = false;
+        //bool showInverseCameraTranslation = false;
+
         public void CreateMsgs()
         {
-            //bool showIdentitySpace = true;
-            //bool showWorldSpace = false;
-            //bool showViewSpace = false;
-            //bool showCameraWorldTranslation = false;
-            //bool showInverseCameraTranslation = false;
-
             // new TimedMsgAndCommand("", new Vector3(), " ");
             new TimedMsgAndCommand("world.ForwardChange", new Vector3(0, 0, 1)," Overview ");
             new TimedMsgAndCommand(" Overview \n Transformation Spaces and the World View Projection.");
