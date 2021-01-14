@@ -22,14 +22,16 @@ namespace ShaderExamples
         Texture2D textureDisplacementTexture;
         Effect effect;
         MouseState mouseState;
-        RenderTarget2D offscreenRenderTarget0;
-        RenderTarget2D offscreenRenderTarget1;
+        RenderTarget2D rtHalf0;
+        RenderTarget2D rtHalf1;
+        RenderTarget2D rt0;
+        RenderTarget2D rt1;
         RenderTargetBinding[] renderTargetBinding;
 
         bool _useBlur = true;
         const int MAXSAMPLES = 100;
-        int _numberOfSamples = 10;
-        Vector3 threshold = new Vector3(.35f, .50f, .50f);
+        int _numberOfSamples = 5;
+        Vector3 threshold = new Vector3(.45f, .50f, .50f);
         
 
         #region  timing stuff
@@ -82,17 +84,17 @@ namespace ShaderExamples
             effect.Parameters["numberOfSamplesPerDimension"].SetValue(_numberOfSamples);
 
             Vector2 size = GraphicsDevice.Viewport.Bounds.Size.ToVector2();
-            Vector2 halfsize = size /2; //  / 2;
-            //offscreenRenderTarget0 = new RenderTarget2D(GraphicsDevice, (int)size.X, (int)size.Y, false, SurfaceFormat.Color, DepthFormat.None);
-            offscreenRenderTarget0 = new RenderTarget2D(GraphicsDevice, (int)halfsize.X, (int)halfsize.Y, false, SurfaceFormat.Color, DepthFormat.None);
+            Vector2 halfsize = size / 2;             //  / 2;
 
-            offscreenRenderTarget1 = new RenderTarget2D(GraphicsDevice, (int)size.X, (int)size.Y, false, SurfaceFormat.Color, DepthFormat.None);
-            //offscreenRenderTarget1 = new RenderTarget2D(GraphicsDevice, (int)halfsize.X, (int)halfsize.Y, false, SurfaceFormat.Color, DepthFormat.None);
+            rtHalf0 = new RenderTarget2D(GraphicsDevice, (int)halfsize.X, (int)halfsize.Y, false, SurfaceFormat.Color, DepthFormat.None);
+            rtHalf1 = new RenderTarget2D(GraphicsDevice, (int)halfsize.X, (int)halfsize.Y, false, SurfaceFormat.Color, DepthFormat.None);
+
+            rt0 = new RenderTarget2D(GraphicsDevice, (int)size.X, (int)size.Y, false, SurfaceFormat.Color, DepthFormat.None);
+            rt1 = new RenderTarget2D(GraphicsDevice, (int)size.X, (int)size.Y, false, SurfaceFormat.Color, DepthFormat.None);
 
             //renderTargetBinding = new RenderTargetBinding[2];
             //renderTargetBinding[0] = offscreenRenderTarget0;
             //renderTargetBinding[1] = offscreenRenderTarget1;
-
         }
 
         protected override void UnloadContent()
@@ -152,35 +154,72 @@ namespace ShaderExamples
             effect.Parameters["numberOfSamplesPerDimension"].SetValue(_numberOfSamples);
             effect.Parameters["threshold"].SetValue(threshold);
 
+            ExtractRt0(texture, rt0);
 
-            // render the textures to a scene.
+            //UpOrDownSample(rt0, rtHalf0);
+            //GlowRt1(rtHalf0, rtHalf1);
+            //UpOrDownSample(rtHalf1 , rt1);         
+            //ToBackBuffer(rt1);
 
-            GraphicsDevice.SetRenderTarget(offscreenRenderTarget0);
-            GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
+            GlowRt1(rt0, rt1);
+            UpOrDownSample(rt1, rtHalf0);
+            //GlowRt1(rtHalf0, rtHalf1);
+            //UpOrDownSample(rtHalf1, rt1);
+            ToBackBuffer(rtHalf0);
 
-            // 1.  and
-            // 2. in rt1
-            effect.CurrentTechnique = effect.Techniques["ExtractGlowColors"]; // ExtractGlowColors  BloomGlow.
-
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.LinearClamp, null, null, effect, null);
-            spriteBatch.Draw(texture, offscreenRenderTarget0.Bounds, Color.White);
+            spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
+            spriteBatch.Draw(texture, new Rectangle(0, 0, 150, 150), Color.White);
+            spriteBatch.DrawString(font, $"Controls plus or minus keys and arrow keys  \n _numberOfSamples: {_numberOfSamples.ToString("##0.000")} ", new Vector2(10, 10), Color.Moccasin);
             spriteBatch.End();
 
-            // render targets to backbuffer.
+            base.Draw(gameTime);
+        }
 
+        public void ExtractRt0(Texture2D a, RenderTarget2D b)
+        {
+            GraphicsDevice.SetRenderTarget(b);
+            GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
+
+            effect.CurrentTechnique = effect.Techniques["ExtractGlowColors"]; // ExtractGlowColors  BloomGlow.
+
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, effect, null);
+            spriteBatch.Draw(a, b.Bounds, Color.White);
+            spriteBatch.End();
+        }
+
+        public void UpOrDownSample(Texture2D a, RenderTarget2D b)
+        {
+            GraphicsDevice.SetRenderTarget(b);
+            GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
+
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, null, null);
+            spriteBatch.Draw(a, b.Bounds, Color.White);
+            spriteBatch.End();
+        }
+
+        public void GlowRt1(Texture2D a, RenderTarget2D b)
+        {
+            GraphicsDevice.SetRenderTarget(b);
+            GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
+
+            effect.CurrentTechnique = effect.Techniques["BloomGlow"]; // ExtractGlowColors  BloomGlow.
+
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, effect, null);
+            //spriteBatch.Draw(texture, b.Bounds, Color.White);
+            spriteBatch.Draw(a, b.Bounds, Color.White);
+            spriteBatch.End();
+        }
+
+        public void ToBackBuffer(Texture2D a)
+        {
             GraphicsDevice.SetRenderTargets(null);
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, null, null);
-            spriteBatch.Draw(offscreenRenderTarget0, GraphicsDevice.Viewport.Bounds, Color.White);
+            //spriteBatch.Draw(texture, GraphicsDevice.Viewport.Bounds, Color.Red);
+            spriteBatch.Draw(a, GraphicsDevice.Viewport.Bounds, Color.White);
+            spriteBatch.Draw(texture, GraphicsDevice.Viewport.Bounds, Color.White);
             spriteBatch.End();
-
-            spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
-            spriteBatch.Draw(texture, new Rectangle(0, 0, 150, 150), Color.White);
-            spriteBatch.DrawString(font, $"Controls plus or minus keys and arrow keys  \n _numberOfSamples: {_numberOfSamples.ToString("##0.000")} ", new Vector2(10, 10), Color.White);
-            spriteBatch.End();
-
-            base.Draw(gameTime);
         }
 
         //protected override void Draw(GameTime gameTime)
