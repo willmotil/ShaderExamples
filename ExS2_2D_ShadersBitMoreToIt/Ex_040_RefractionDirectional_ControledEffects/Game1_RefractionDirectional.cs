@@ -27,8 +27,8 @@ namespace ShaderExamples
 
         #region  controls the shader refraction.
 
-        float distortionRange = .03f;
-        float distortionRadius = .08f;
+        float distortionRange = .15f;
+        float distortionRadius = .17f;
         float numberOfSamples = 7;
         // edge fade and inner fade percentages.
         float fadePercent = 1.2f;
@@ -162,7 +162,7 @@ namespace ShaderExamples
             spriteBatch.Begin(SpriteSortMode.Immediate, null,null, null, null, null, null); 
             spriteBatch.DrawString(font, msgInfo, new Vector2(10, 10), Color.White);
             spriteBatch.DrawString(font2, $"MonoGame RenderTargets and Shaders ", new Vector2(30, 430), colorCycle.GetColor(gameTime, 20f));
-            spriteBatch.DrawString(font2, $"It's AOS time", new Vector2(230, 230), colorCycle.GetColor(gameTime, 20f), 0, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0);
+            spriteBatch.DrawString(font2, $"Hello Monogame", new Vector2(230, 230), colorCycle.GetColor(gameTime, 20f), 0, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0);
             spriteBatch.End();
 
             GraphicsDevice.SetRenderTarget(null);

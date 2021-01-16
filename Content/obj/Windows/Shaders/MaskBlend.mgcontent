@@ -3,7 +3,7 @@
   <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/MaskBlend.fx</SourceFile>
   <SourceTime>2020-11-29T03:25:32.5129048-05:00</SourceTime>
   <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Shaders/MaskBlend.xnb</DestFile>
-  <DestTime>2021-01-15T21:19:26.5504984-05:00</DestTime>
+  <DestTime>2021-01-16T08:41:17.8729562-05:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2020-05-27T15:15:40-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>

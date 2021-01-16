@@ -42,8 +42,10 @@
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/ScrollEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/ShockwaveRippleEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/TestingCanidateEffects.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/TextShadowEffect.fx</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

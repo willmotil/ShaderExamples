@@ -92,6 +92,7 @@ namespace ShaderExamples
 
             numberOfSamples = numberOfSamples.Clamp(0, MAXSAMPLES);
 
+
             base.Update(gameTime);
         }
 
@@ -118,18 +119,22 @@ namespace ShaderExamples
             spriteBatch.Draw(texture2, new Rectangle(0, 250, rtScene.Width, 250), Color.White);
             spriteBatch.End();
 
-            effect.Parameters["textureSize"].SetValue(new Vector2(rtScene.Width, rtScene.Height));
             effect.Parameters["numberOfSamplesPerDimension"].SetValue(numberOfSamples);
             effect.Parameters["threshold"].SetValue(threshold);
             effect.Parameters["thresholdTolerance"].SetValue(thresholdTolerance);
             effect.Parameters["horizontal"].SetValue(useHorizontal);
             effect.Parameters["weight"].SetValue(weights);
+            effect.Parameters["textureSize"].SetValue(new Vector2(rtScene.Width, rtScene.Height));
             effect.Parameters["SecondaryTexture"].SetValue(rtScene);
 
-            Extract(rtScene, rtExtracted);
+            ExtractColors(rtScene, rtExtracted);
 
             effect.Parameters["horizontal"].SetValue(false);
             Bloom(rtExtracted, rtBloom);
+            effect.Parameters["horizontal"].SetValue(true);
+            Bloom(rtBloom, rtResult);
+            effect.Parameters["horizontal"].SetValue(false);
+            Bloom(rtResult, rtBloom);
             effect.Parameters["horizontal"].SetValue(true);
             Bloom(rtBloom, rtResult);
             effect.Parameters["horizontal"].SetValue(false);
@@ -159,7 +164,7 @@ namespace ShaderExamples
             base.Draw(gameTime);
         }
 
-        public void Extract(Texture2D a, RenderTarget2D b)
+        public void ExtractColors(Texture2D a, RenderTarget2D b)
         {
             GraphicsDevice.SetRenderTarget(b);
             GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);

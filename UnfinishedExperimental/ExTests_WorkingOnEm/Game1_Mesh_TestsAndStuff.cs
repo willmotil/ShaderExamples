@@ -136,14 +136,15 @@ namespace ShaderExamples
         {
             // a 90 degree field of view is needed for the projection matrix.
             var f90 = 90.0f * (3.14159265358f / 180f);
-            cinematicCamera = new CinematicCamera(GraphicsDevice, spriteBatch, null, new Vector3(0, 0, 0), Vector3.Forward, Vector3.Up, 0.01f, 10000f, f90, true, true, false);
+            cinematicCamera = new CinematicCamera(GraphicsDevice, spriteBatch, null, new Vector3(0, 0, 0), Vector3.Forward, Vector3.Up, 0.01f, 10000f, f90, true, false, false);
             cinematicCamera.SetWayPoints(cameraWayPoints, 30, true, false);
             cinematicCamera.WayPointCycleDurationInTotalSeconds = 230f;
             cinematicCamera.MovementSpeedPerSecond = 25f;
             cinematicCamera.LookAtSpeedPerSecond = 2;
-            cinematicCamera.UseForwardPathLook = false;
+            cinematicCamera.UseForwardPathLook = true;
             cinematicCamera.UseWayPointMotion = true;
             cinematicCamera.IsFree = true;
+            //cinematicCamera.Up = Vector3.Backward;
             cinematicCamera.VisualizationScale = .10f;
             cinematicCamera.VisualizationOffset = new Vector3(GraphicsDevice.Viewport.Bounds.Right - 100, 1, GraphicsDevice.Viewport.Bounds.Bottom - 100);
 
@@ -176,6 +177,8 @@ namespace ShaderExamples
                 cinematicCamera.Update(_targetLookAt, gameTime);
             else
                 cinematicCamera.Update(gameTime);
+
+            //cinematicCamera.Up = Vector3.Backward;
 
             fps.Update(gameTime);
 
@@ -230,11 +233,11 @@ namespace ShaderExamples
             GraphicsDevice.DepthStencilState = DepthStencilState.None;
 
             var targetMatrix = Matrix.Identity; // the target is the world matrix of some other thing we have drawn.
-            var poffset = cinematicCamera.World.Forward * 250 + cinematicCamera.World.Right * 250 + cinematicCamera.World.Down * 50 + cinematicCamera.World.Translation; // we offset from the camera forward right then down
+            var poffset = cinematicCamera.World.Forward * 2f + cinematicCamera.World.Right * 2.2f + cinematicCamera.World.Down * .65f + cinematicCamera.World.Translation; // we offset from the camera forward right then down
             meshEffect.CurrentTechnique = meshEffect.Techniques["TriangleDrawPCT"];
             meshEffect.Parameters["World"].SetValue(m);
             meshEffect.Parameters["SpriteTexture"].SetValue(texture);
-            navGuide.DrawNavOrientation(GraphicsDevice, meshEffect, poffset, 100f, targetMatrix, MgDrawExtras.dotBlue, MgDrawExtras.dot, MgDrawExtras.dotRed);
+            navGuide.DrawNavOrientation(GraphicsDevice, meshEffect, poffset, 0.55f, targetMatrix, MgDrawExtras.dotBlue, MgDrawExtras.dot, MgDrawExtras.dotRed);
             //navGuide.Draw(GraphicsDevice, meshEffect);
         }
 

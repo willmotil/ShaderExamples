@@ -26,6 +26,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ExS9_GenerallyRelatedConcepts\Ex_040_TODO_UsingTheMouseAndKeyboard\" />
+    <Folder Include="ExS0_GeneralConcepts\Ex_040_TODO_UsingTheMouseAndKeyboard\" />
   </ItemGroup>
 </Project>

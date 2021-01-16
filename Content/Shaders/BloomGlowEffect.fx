@@ -4,6 +4,7 @@
 
 // https://learnopengl.com/Advanced-Lighting/Bloom
 // https://learnopengl.com/code_viewer_gh.php?code=src/5.advanced_lighting/7.bloom/7.blur.fs
+// https://rastergrid.com/blog/2010/09/efficient-gaussian-blur-with-linear-sampling/  // maybe well impove it with this later on.
 
 
 #if OPENGL
@@ -93,8 +94,8 @@ PixelShaderDuelOutput BloomPS(VertexShaderOutput input)
 	PixelShaderDuelOutput output;
 	float2 texCoords = input.TextureCoordinates;
 	float4 color = tex2D(SpriteTextureSampler, texCoords);
-	float sampledistance = 1.0f;
 	// ...
+	float sampledistance = 1.0f;
 	float2 texOffset = (1.0f / float2(textureSize.x, textureSize.y)) * sampledistance; // gets size of single texel
 	float3 result = color.rgb * weight[0]; // current fragment's contribution
 	if (horizontal)
@@ -113,7 +114,7 @@ PixelShaderDuelOutput BloomPS(VertexShaderOutput input)
 			result += tex2D(SpriteTextureSampler, texCoords - float2(0.0f, texOffset.y * i)).rgb * weight[i];
 		}
 	}
-		color = float4(result, 1.0f);
+    color = float4(result, 1.0f);
 	output.Color0 = color;
 	return output;
 }

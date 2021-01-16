@@ -70,7 +70,7 @@ namespace Microsoft.Xna.Framework
         public CinematicCamera(GraphicsDevice device, SpriteBatch spriteBatch, Texture2D dot, Vector3 pos, Vector3 target, Vector3 up, float nearClipPlane, float farClipPlane, float fieldOfView, bool perspective, bool spriteBatchStyled, bool inverseOthographicProjection)
         {
             MgDrawExtras.Initialize(device, spriteBatch);
-            //wayPointCurvature = new MyImbalancedSpline();
+            //_cameraWorld = Matrix.CreateWorld(pos, target + pos, up);
             TransformCamera(pos, target, up);
             SetProjection(device, nearClipPlane, farClipPlane, fieldOfView, perspective, spriteBatchStyled, inverseOthographicProjection);
         }
@@ -186,7 +186,6 @@ namespace Microsoft.Xna.Framework
 
         public void TransformCamera(Vector3 currentPosition, Vector3 targetPosition, Vector3 upNormalDirection)
         {
-            
             _targetLookAtPos = targetPosition;
             _camLastLastPos = _camLastPos;
             _camLastPos = _camPos;
@@ -202,18 +201,11 @@ namespace Microsoft.Xna.Framework
             // TODO handle up down vector gimble lock astetic under fixed camera.
             // ...
 
-           // well that idea sucked.
-
             if (IsFree)
             {
                 // bah the only thing i really need to do here is to figure out what to do with the up vector.
-
-
-                    //var tmpup = Vector3.Cross(Vector3.Normalize(driftright *.95f + tempright * .05f), _cameraWorld.Forward);
-
-
-                    _camUp = Vector3.Normalize(Vector3.Cross(_cameraWorld.Right, _cameraWorld.Forward));
-        
+                 //_camUp = Vector3.Normalize(Vector3.Cross(_cameraWorld.Right, _cameraWorld.Forward));
+                _camUp = Vector3.Normalize(Vector3.Cross(_cameraWorld.Forward, _cameraWorld.Left));
 
                 //// free camera
                 //camera *=
@@ -224,8 +216,6 @@ namespace Microsoft.Xna.Framework
                 //forward = camera.Forward;
                 //camera.Translation = position;
             }
-
-            // ...
 
             _cameraWorld = Matrix.CreateWorld(_camPos, _forward, _camUp);
         }
