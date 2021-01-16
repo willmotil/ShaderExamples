@@ -32,7 +32,6 @@
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/FadingEdgeEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/GammaTestEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/GausianBlurEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/GlowingEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/GreyScaleEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/MaskBlend.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/MaskBlendScroll.fx</File>
@@ -45,7 +44,6 @@
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/TestingCanidateEffects.fx</File>
   </SourceFiles>
   <DestFiles>
-    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

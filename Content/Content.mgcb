@@ -310,12 +310,6 @@
 /processorParam:DebugMode=Auto
 /build:Shaders/GausianBlurEffect.fx
 
-#begin Shaders/GlowingEffect.fx
-/importer:EffectImporter
-/processor:EffectProcessor
-/processorParam:DebugMode=Auto
-/build:Shaders/GlowingEffect.fx
-
 #begin Shaders/GreyScaleEffect.fx
 /importer:EffectImporter
 /processor:EffectProcessor
