@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/BloomGlowEffect.fx</SourceFile>
-  <SourceTime>2021-01-13T19:46:34.0984643-05:00</SourceTime>
+  <SourceTime>2021-01-15T21:08:19.0528051-05:00</SourceTime>
   <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Content/Shaders/BloomGlowEffect.xnb</DestFile>
-  <DestTime>2021-01-13T19:46:37.9313012-05:00</DestTime>
+  <DestTime>2021-01-15T21:08:23.0427854-05:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2020-08-10T16:17:54-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>

@@ -20,6 +20,7 @@
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Nasa_DEM_Earth.jpg</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Nasa_DEM_Mars.jpg</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/planet_stencil.png</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/puppy03.jpeg</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/RefactionTexture.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Tanzania.jpg</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Terran02.png</File>
@@ -44,6 +45,7 @@
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/TestingCanidateEffects.fx</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

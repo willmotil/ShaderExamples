@@ -2,23 +2,8 @@
 
 // TODO  wip   humm trying to follow this exactly like the classical way of doing it if there is such a thing, not my janky way.
 
-
-
-
-//The Blur Algorithm
-//
-//1. Render the scene to texture.
-//
-//2. Down sample the texture to to half its size or less.
-//
-//3. Perform a horizontal blur on the down sampled texture.
-//
-//4. Perform a vertical blur.
-//
-//5. Up sample the texture back to the original screen size.
-//
-//6. Render that texture to the screen.
-
+// https://learnopengl.com/Advanced-Lighting/Bloom
+// https://learnopengl.com/code_viewer_gh.php?code=src/5.advanced_lighting/7.bloom/7.blur.fs
 
 
 #if OPENGL
@@ -32,12 +17,24 @@
 
 
 int numberOfSamplesPerDimension;
-float3 threshold;
+float4 threshold;
+float thresholdTolerance;
 float2 textureSize;
+bool horizontal;
+float weight[] = { 0.227027f, 0.1945946f, 0.1216216f, 0.054054f, 0.016216f };
 
-sampler2D SpriteTextureSampler : register(s0)
+
+Texture2D SpriteTexture;
+Texture2D SecondaryTexture;
+SamplerState SpriteTextureSampler = sampler_state
 {
-	Texture = (Texture);
+	Texture = <SpriteTexture>;
+	//AddressU = Wrap; AddressV = Wrap; //magfilter = linear;//minfilter = linear;
+};
+SamplerState SecondaryTextureSampler = sampler_state
+{
+	Texture = <SecondaryTexture>;
+	//AddressU = Wrap; AddressV = Wrap; //magfilter = linear;//minfilter = linear;
 };
 
 struct VertexShaderOutput
@@ -56,52 +53,26 @@ struct PixelShaderDuelOutput
 
 
 
+float4 ExtractOverThreshold(float4 col) 
+{
+	float4 color = float4(col.rgb, 1.0f);
+	// check whether fragment output is higher than threshold, if so output as brightness color
+	float brightness = dot(color.rgb, threshold.rgb );  //float3(0.2126, 0.7152, 0.0722)
+	if (brightness > thresholdTolerance)  // 1.0f
+		color = float4(color.rgb, 1.0f);
+	else
+		color = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	return color;
+}
 
 
-//
-//PixelShaderDuelOutput ExtractBrightColorsPS(VertexShaderOutput input)
-//{
-//	PixelShaderDuelOutput output;
-//	float4 originalColor = tex2D(SpriteTextureSampler, input.TextureCoordinates) * input.Color;
-//	float4 color = originalColor;
-//
-//	float flag = saturate(sign((color.x + color.y + color.z) / 3.0f - threshold));
-//	//float flag = saturate(sign(( (color.x - threshold.x) + (color.y - threshold.y) + (color.z - threshold.z) ) /3 ));
-//
-//
-//
-//  //output.Color = originalColor;
-//
-//	//float flag = saturate(sign((color.x + color.y + color.z) / 3.0f - threshold));
-//
-//	//float flagR = saturate(sign(color.r - threshold.r));
-//	//float flagG = saturate(sign(color.g - threshold.g));
-//	//float flagB = saturate(sign(color.b - threshold.b));
-//	//float flag = saturate(sign(flagR + flagG + flagB));
-//
-//	//color.a = flag;
-//
-//
-//
-//	output.Color0 = color * flag;
-//
-//	//output.Color1 = color;
-//	return output;
-//}
 
 
 PixelShaderDuelOutput ExtractBrightColorsPS(VertexShaderOutput input)
 {
 	PixelShaderDuelOutput output;
-	float4 originalColor = tex2D(SpriteTextureSampler, input.TextureCoordinates) * input.Color;
-	float4 color = originalColor;
-
-
-
-	output.Color0 = float4(0.0f, 0.0f, 0.0f, 0.0f);
-	float brightness = dot(color.rgb, float3(0.7152f, 0.2126f, 0.0722f));
-	if (brightness > threshold.r)
-		output.Color0 = float4(color.rgb, 1.0f);
+	float4 col = tex2D(SpriteTextureSampler, input.TextureCoordinates) * input.Color;
+	output.Color0 = ExtractOverThreshold(col);
 	return output;
 }
 
@@ -116,54 +87,44 @@ technique ExtractGlowColors
 
 
 
-PixelShaderDuelOutput BloomGlowPS(VertexShaderOutput input)
+
+PixelShaderDuelOutput BloomPS(VertexShaderOutput input)
 {
 	PixelShaderDuelOutput output;
-	float4 originalColor = tex2D(SpriteTextureSampler, input.TextureCoordinates);
-	float4 color = originalColor;
-	float2 hnod = numberOfSamplesPerDimension / 2.0f;
+	float2 texCoords = input.TextureCoordinates;
+	float4 color = tex2D(SpriteTextureSampler, texCoords);
 	float sampledistance = 1.0f;
-	float2 texelCoef = (1.0f / float2(textureSize.x, textureSize.y)) * sampledistance;
-
-	float w = 1.0f;
-	float wa = color.a;
-	for (float u = -hnod.x; u < hnod.x; u += 1.0f)
+	// ...
+	float2 texOffset = (1.0f / float2(textureSize.x, textureSize.y)) * sampledistance; // gets size of single texel
+	float3 result = color.rgb * weight[0]; // current fragment's contribution
+	if (horizontal)
 	{
-		for (float v = -hnod.y; v < hnod.y; v += 1.0f)
+		for (int i = 1; i < 5; ++i)
 		{
-			float su = u * texelCoef.x;
-			float sv = v * texelCoef.y;
-			float4 tmpcol = tex2D(SpriteTextureSampler, input.TextureCoordinates + float2(su, sv));
-
-			float brightness = dot(tmpcol.rgb, float3(0.7152f, 0.2126f, 0.0722f));
-			if (brightness > threshold.r)
-			{
-				color += tmpcol;
-				w += 1.0f;
-				wa += 1.0f;
-				//color.a = 1.0f;
-			}
+			result += tex2D(SpriteTextureSampler, texCoords + float2(texOffset.x * i, 0.0f)).rgb * weight[i];
+			result += tex2D(SpriteTextureSampler, texCoords - float2(texOffset.x * i, 0.0f)).rgb * weight[i];
 		}
 	}
-
-	color.rgb = color.rgb / w;
-
-	color.a = color.a / w;
-
-
+	else
+	{
+		for (int i = 1; i < 5; ++i)
+		{
+			result += tex2D(SpriteTextureSampler, texCoords + float2(0.0f, texOffset.y * i)).rgb * weight[i];
+			result += tex2D(SpriteTextureSampler, texCoords - float2(0.0f, texOffset.y * i)).rgb * weight[i];
+		}
+	}
+		color = float4(result, 1.0f);
 	output.Color0 = color;
-	//output.Color1 = color * flag; 
 	return output;
 }
 
 
-
-technique BloomGlow
+technique Bloom
 {
 	pass P0
 	{
 		PixelShader = compile PS_SHADERMODEL 
-			BloomGlowPS();
+			BloomPS();
 	}
 };
 
@@ -172,15 +133,30 @@ technique BloomGlow
 
 
 
+PixelShaderDuelOutput CombineBloomPS(VertexShaderOutput input)
+{
+	PixelShaderDuelOutput output;
+	float4 col = tex2D(SpriteTextureSampler, input.TextureCoordinates);
+	float4 col2 = tex2D(SecondaryTextureSampler, input.TextureCoordinates);
+	//output.Color0 = max(col , col2);
+	output.Color0 = col + col2;
+	return output;
+}
+
+technique  CombineBloom
+{
+	pass P0
+	{
+		PixelShader = compile PS_SHADERMODEL
+			CombineBloomPS();
+	}
+};
+
+//_________________________________________________________________________________________________
+//_________________________________________________________________________________________________
 
 
-
-
-
-
-
-
-//PixelShaderDuelOutput BloomGlowPS(VertexShaderOutput input)
+//PixelShaderDuelOutput BloomPS(VertexShaderOutput input)
 //{
 //	PixelShaderDuelOutput output;
 //	float4 originalColor = tex2D(SpriteTextureSampler, input.TextureCoordinates);
@@ -188,36 +164,105 @@ technique BloomGlow
 //	float2 hnod = numberOfSamplesPerDimension / 2.0f;
 //	float sampledistance = 1.0f;
 //	float2 texelCoef = (1.0f / float2(textureSize.x, textureSize.y)) * sampledistance;
-//
-//	float w = 1;
+//	// ...
+//	float w = 1.0f;
 //	for (float u = -hnod.x; u < hnod.x; u += 1.0f)
 //	{
 //		for (float v = -hnod.y; v < hnod.y; v += 1.0f)
 //		{
 //			float su = u * texelCoef.x;
 //			float sv = v * texelCoef.y;
-//			color += tex2D(SpriteTextureSampler, input.TextureCoordinates + float2(su, sv));
+//			float4 tmpcol = tex2D(SpriteTextureSampler, input.TextureCoordinates + float2(su, sv));
+//			color = max(tmpcol, color);
+//			//
+//			w += 1.0f - ((abs(u) / hnod) * (abs(v) / hnod));
 //		}
 //	}
-//
-//	color = color /  (numberOfSamplesPerDimension * numberOfSamplesPerDimension) * input.Color;
-//	//output.Color = originalColor;
-//
-//	//float flag = saturate(sign((color.x + color.y + color.z) / 3.0f - threshold));
-//
-//	float flagR = saturate( sign( color.r - threshold.r ) );
-//	float flagG = saturate( sign( color.g - threshold.g ) );
-//	float flagB = saturate( sign( color.b - threshold.b ) );
-//	float flag = saturate( sign( flagR + flagG + flagB ) );
-//
-//	color.a = flag;
+//	//color.rgb = color.rgb / w;
+//	//color.a = 1.0f;
+//	color.a = w;
 //	output.Color0 = color;
-//    //output.Color1 = color * flag; 
 //	return output;
+//}
+//
+//
+//technique Bloom
+//{
+//	pass P0
+//	{
+//		PixelShader = compile PS_SHADERMODEL
+//			BloomPS();
+//	}
+//};
+//
+//
+//
+//
+//
+//
+//PixelShaderDuelOutput CombineBloomPS(VertexShaderOutput input)
+//{
+//	PixelShaderDuelOutput output;
+//	float4 col = tex2D(SpriteTextureSampler, input.TextureCoordinates);
+//	float4 col2 = tex2D(SecondaryTextureSampler, input.TextureCoordinates);
+//	output.Color0 = max(col, col2);
+//	return output;
+//}
+//
+//technique  CombineBloom
+//{
+//	pass P0
+//	{
+//		PixelShader = compile PS_SHADERMODEL
+//			CombineBloomPS();
+//	}
+//};
+
+//_________________________________________________________________________________________________
+//_________________________________________________________________________________________________
+
+
+//float IsOverThreshold(float4 col)
+//{
+//	float flagR = saturate(sign(col.r - threshold.r));
+//	float flagG = saturate(sign(col.g - threshold.g));
+//	float flagB = saturate(sign(col.b - threshold.b));
+//	float flagA = saturate(sign(col.a - threshold.a));
+//	float sum = (flagR + flagG + flagB) + flagA - 3.0f;  // this will make the requisites that all r g b be above the threshold value.
+//	float flag = saturate(sign(sum));
+//	return flag;
 //}
 
 //
-//PixelShaderDuelOutput BloomGlowPS(VertexShaderOutput input)
+//
+//
+//PixelShaderDuelOutput ExtractBrightColorsPS(VertexShaderOutput input)
+//{
+//	PixelShaderDuelOutput output;
+//	float4 col = tex2D(SpriteTextureSampler, input.TextureCoordinates) * input.Color;
+//
+//	float flag = IsOverThreshold(col);
+//
+//	if (flag > 0)
+//		output.Color0 = col;
+//	else
+//		output.Color0 = float4(0.0f, 0.0f, 0.0f, 0.0f);
+//	return output;
+//}
+//
+//technique ExtractGlowColors
+//{
+//	pass P0
+//	{
+//		PixelShader = compile PS_SHADERMODEL
+//			ExtractBrightColorsPS();
+//	}
+//};
+//
+//
+//
+//
+//PixelShaderDuelOutput BloomPS(VertexShaderOutput input)
 //{
 //	PixelShaderDuelOutput output;
 //	float4 originalColor = tex2D(SpriteTextureSampler, input.TextureCoordinates);
@@ -225,102 +270,143 @@ technique BloomGlow
 //	float2 hnod = numberOfSamplesPerDimension / 2.0f;
 //	float sampledistance = 1.0f;
 //	float2 texelCoef = (1.0f / float2(textureSize.x, textureSize.y)) * sampledistance;
-//	for (float v = -hnod.y; v < hnod.y; v += 1.0f)
-//	{
-//		//float su = u * texelCoef.x;
-//		float sv = v * texelCoef.y;
-//		color += tex2D(SpriteTextureSampler, input.TextureCoordinates + float2(0, sv));
-//	}
-//	for (float u = -hnod.x; u < hnod.x; u += 1.0f)
-//	{
-//		float su = u * texelCoef.x;
-//		//float sv = v * texelCoef.y;
-//		color += tex2D(SpriteTextureSampler, input.TextureCoordinates + float2(su, 0));
-//	}
-//	color = color / (numberOfSamplesPerDimension * numberOfSamplesPerDimension) * input.Color;
-//	//output.Color = originalColor;
-//	output.Color0 = color;
-//
-//	//float flag = saturate(sign((color.x + color.y + color.z) / 3.0f - threshold));
-//
-//	float flagR = saturate( sign( color.r - threshold.r ) );
-//	float flagG = saturate( sign( color.g - threshold.g ) );
-//	float flagB = saturate( sign( color.b - threshold.b ) );
-//	float flag = saturate( sign( flagR + flagG + flagB ) );
-//
-//	color.a = flag;
-//	output.Color1 = color * flag;
-//	return output;
-//}
-
-
-
-//PixelShaderDuelOutput BloomGlowPS(VertexShaderOutput input)
-//{
-//	PixelShaderDuelOutput output;
-//	float4 originalColor = tex2D(SpriteTextureSampler, input.TextureCoordinates);
-//	float4 color = originalColor;
-//	float2 hnod = numberOfSamplesPerDimension / 2.0f;
-//	float sampledistance = 1.0f;
-//	float2 texelCoef = (1.0f / float2(textureSize.x, textureSize.y)) * sampledistance;
-//	for (float u = -hnod.x; u < hnod.x; u += 1.0f)
-//	{
-//		for (float v = -hnod.y; v < hnod.y; v += 1.0f)
-//		{
-//			float su = u * texelCoef.x;
-//			float sv = v * texelCoef.y;
-//			color += tex2D(SpriteTextureSampler, input.TextureCoordinates + float2(su, sv));
-//		}
-//	}
-//	color = color /  (numberOfSamplesPerDimension * numberOfSamplesPerDimension) * input.Color;
-//	//output.Color = originalColor;
-//	output.Color0 = color;
-//
-//	float flag = saturate(sign((color.x + color.y + color.z) / 3.0f - threshold));
-//
-//	//float a = color.a;
-//	//float flag =  color * saturate( sign( color - threshold ) );  // (color.x + color.y + color. z) / 3.0f
-//	//output.Color1.a = a;
-//    //float flag =  color * dot(color.rgb, float3(0.2126f, 0.7152f, 0.0722f));
-//
-//	color.a = flag;
-//    output.Color1 = color * flag; 
-//	return output;
-//}
-
-
-
-
-
-//PixelShaderDuelOutput BloomGlowPS(VertexShaderOutput input)
-//{
-//	PixelShaderDuelOutput output;
-//	float4 originalColor = tex2D(SpriteTextureSampler, input.TextureCoordinates);
-//	float4 color = originalColor;
-//	float2 hnod = numberOfSamplesPerDimension / 2.0f;
-//	float sampledistance = 1.0f;
-//	float2 texelCoef = (1.0f / float2(textureSize.x, textureSize.y)) * sampledistance;
+//	// ...
+//	float w = 1.0f;
 //	for (float u = -hnod.x; u < hnod.x; u += 1.0f)
 //	{
 //		for (float v = -hnod.y; v < hnod.y; v += 1.0f)
 //		{
 //			float su = u * texelCoef.x;
 //			float sv = v * texelCoef.y;
-//			color += tex2D(SpriteTextureSampler, input.TextureCoordinates + float2(su, sv));
+//			float4 tmpcol = tex2D(SpriteTextureSampler, input.TextureCoordinates + float2(su, sv));
+//			color = max(tmpcol, color);
+//			//
+//			w += 1.0f - ((abs(u) / hnod) * (abs(v) / hnod));
 //		}
 //	}
-//	color = color / (numberOfSamplesPerDimension * numberOfSamplesPerDimension) * input.Color;
-//	//output.Color = originalColor;
+//	//color.rgb = color.rgb / w;
+//	//color.a = 1.0f;
+//	color.a = w;
 //	output.Color0 = color;
-//
-//	//float flag = saturate(sign((color.x + color.y + color.z) / 3.0f - threshold));
-//
-//	float flagR = saturate(sign(color.r - threshold.r));
-//	float flagG = saturate(sign(color.g - threshold.g));
-//	float flagB = saturate(sign(color.b - threshold.b));
-//	float flag = saturate(sign(flagR + flagG + flagB));
-//
-//	color.a = flag;
-//	output.Color1 = color * flag;
 //	return output;
 //}
+//
+//
+//technique Bloom
+//{
+//	pass P0
+//	{
+//		PixelShader = compile PS_SHADERMODEL
+//			BloomPS();
+//	}
+//};
+//
+//
+//
+//
+//
+//
+//PixelShaderDuelOutput CombineBloomPS(VertexShaderOutput input)
+//{
+//	PixelShaderDuelOutput output;
+//	float4 col = tex2D(SpriteTextureSampler, input.TextureCoordinates);
+//	float4 col2 = tex2D(SecondaryTextureSampler, input.TextureCoordinates);
+//	output.Color0 = saturate(col + col2);
+//	return output;
+//}
+//
+//technique  CombineBloom
+//{
+//	pass P0
+//	{
+//		PixelShader = compile PS_SHADERMODEL
+//			CombineBloomPS();
+//	}
+//};
+
+//_________________________________________________________________________________________________
+//_________________________________________________________________________________________________
+
+//PixelShaderDuelOutput BloomGlowPS(VertexShaderOutput input)
+//{
+//	PixelShaderDuelOutput output;
+//	float4 originalColor = tex2D(SpriteTextureSampler, input.TextureCoordinates);
+//	float4 color = originalColor;
+//	float2 hnod = numberOfSamplesPerDimension / 2.0f;
+//	float sampledistance = 1.0f;
+//	float2 texelCoef = (1.0f / float2(textureSize.x, textureSize.y)) * sampledistance;
+//	// ...
+//	float w = 1.0f;
+//	for (float u = -hnod.x; u < hnod.x; u += 1.0f)
+//	{
+//		for (float v = -hnod.y; v < hnod.y; v += 1.0f)
+//		{
+//			float su = u * texelCoef.x;
+//			float sv = v * texelCoef.y;
+//			float4 tmpcol = tex2D(SpriteTextureSampler, input.TextureCoordinates + float2(su, sv));
+//			color += tmpcol;
+//			w += 1.0f;
+//		}
+//	}
+//	color.rgb = color.rgb / w;
+//	color.a = 1.0f;
+//	output.Color0 = color;
+//	return output;
+//}
+
+
+
+//PixelShaderDuelOutput BloomPS(VertexShaderOutput input)
+//{
+//	PixelShaderDuelOutput output;
+//	float4 originalColor = tex2D(SpriteTextureSampler, input.TextureCoordinates);
+//	float4 color = originalColor;
+//	float2 hnod = numberOfSamplesPerDimension / 2.0f;
+//	float sampledistance = 1.0f;
+//	float2 texelCoef = (1.0f / float2(textureSize.x, textureSize.y)) * sampledistance;
+//	// ... 
+//	float w = 1.0f;
+//	float wa = 1.0f;
+//	if (horizontal > 0)
+//		for (float u = -hnod.x; u < hnod.x; u += 1.0f)
+//		{
+//			float su = u * texelCoef.x;
+//			//float sv = v * texelCoef.y;
+//			float4 col = tex2D(SpriteTextureSampler, input.TextureCoordinates + float2(su, 0));
+//			//float flag = IsOverThreshold(col);
+//			// ... 
+//			if (col.a > 0.01f)
+//			{
+//				color += col;
+//				w += 1.0f;
+//				wa += col.a;
+//			}
+//		}
+//	else
+//		for (float v = -hnod.y; v < hnod.y; v += 1.0f)
+//		{
+//			//float su = u * texelCoef.x;
+//			float sv = v * texelCoef.y;
+//			float4 col = tex2D(SpriteTextureSampler, input.TextureCoordinates + float2(0, sv));
+//			//float flag = IsOverThreshold(col);
+//			// ... 
+//			if (col.a > 0.01f)
+//			{
+//				color += col;
+//				w += 1.0f;
+//				wa += col.a;
+//			}
+//		}
+//	color.rgb = color.rgb / w;
+//	color.a = color.a / wa;
+//
+//	//color = color / w;
+//    //color.a = 1;
+//
+//	//color.rgb = color.rgb / w;
+//	//color.a = color.a / wa;
+//	output.Color0 = color;
+//	return output;
+//}
+
+
