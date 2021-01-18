@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.IO;
+using System.IO.Compression;
 
 namespace ShaderExamples
 {
@@ -39,6 +41,8 @@ namespace ShaderExamples
             IsMouseVisible = true;
 
             Test();
+
+            Test2();
         }
 
         string msgMisc = "";
@@ -189,11 +193,89 @@ namespace ShaderExamples
             base.Draw(gameTime);
         }
 
-        #region helper functions
+        public void Test2()
+        {
+            Console.WriteLine("\n\n");
+
+            byte[] data = new byte[]
+            {
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 1, 0, 0, 1, 0, 0,
+                0, 0, 1, 0, 0, 1, 0, 0,
+                0, 0, 1, 0, 0, 1, 0, 0,
+                0, 0, 1, 0, 0, 1, 0, 0,
+                0, 0, 1, 1, 1, 1, 0, 0,
+                0, 0, 1, 0, 0, 1, 0, 0,
+                0, 0, 1, 0, 0, 1, 0, 0,
+                0, 0, 1, 0, 0, 1, 0, 0,
+                0, 0, 1, 0, 0, 1, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0
+            };
 
 
-        #endregion
-    }
+            Console.WriteLine("data");
+            foreach (var b in data)
+                Console.Write(b);
+            Console.WriteLine("\n\n");
+
+
+
+            var compressedData = Compress(data);
+            Console.WriteLine("compressed data");
+            foreach (var b in compressedData)
+                Console.Write(b);
+            Console.WriteLine("\n\n");
+
+
+
+            var decompressedData = DeCompress(compressedData);
+            Console.WriteLine("decompressed Data");
+            foreach (var b in decompressedData)
+                Console.Write(b);
+            Console.WriteLine("\n\n");
+        }
+
+        public static byte[] Compress(byte[] rawByteData)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (GZipStream deflateStream = new GZipStream(ms, CompressionMode.Compress))
+                {
+                    deflateStream.Write(rawByteData, 0, rawByteData.Length);
+                }
+                return ms.ToArray();
+            }
+        }
+
+        static byte[] DeCompress(byte[] gzipCompressedByteData)
+        {
+            using (GZipStream stream = new GZipStream(new MemoryStream(gzipCompressedByteData), CompressionMode.Decompress))
+            {
+                const int maxNumOfBytesToRead = 4096;
+                byte[] buffer = new byte[maxNumOfBytesToRead];
+                using (MemoryStream memory = new MemoryStream())
+                {
+                    int countOfBytesRead = 0;
+                    do
+                    {
+                        countOfBytesRead = stream.Read(buffer, 0, maxNumOfBytesToRead);
+                        if (countOfBytesRead > 0)
+                        {
+                            memory.Write(buffer, 0, countOfBytesRead);
+                        }
+                    }
+                    while (countOfBytesRead > 0);
+                    return memory.ToArray();
+                }
+            }
+        }
+
+    #region helper functions
+
+
+    #endregion
+}
 }
 
 

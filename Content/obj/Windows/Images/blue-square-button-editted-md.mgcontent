@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/blue-square-button-editted-md.png</SourceFile>
-  <SourceTime>2018-12-12T17:38:06-05:00</SourceTime>
+  <SourceTime>2021-01-17T09:33:45.9977033-05:00</SourceTime>
   <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Images/blue-square-button-editted-md.xnb</DestFile>
-  <DestTime>2021-01-16T08:41:14.7136694-05:00</DestTime>
+  <DestTime>2021-01-17T18:48:53.163087-05:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2020-05-27T15:15:40-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

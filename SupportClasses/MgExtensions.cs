@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections;
+using System.IO;
+using System.IO.Compression;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -414,6 +416,41 @@ namespace Microsoft.Xna.Framework
         {
             //x' = x*cos s - y*sin s;   y' = x*sin s + y*cos s;   z' = z;
             return new Vector3((float)(p.X * Math.Cos(q) - p.Y * Math.Sin(q)), (float)(p.X * Math.Sin(q) + p.Y * Math.Cos(q)), p.Z);
+        }
+
+        public static byte[] Compress(this byte[] rawByteData)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (GZipStream deflateStream = new GZipStream(ms, CompressionMode.Compress))
+                {
+                    deflateStream.Write(rawByteData, 0, rawByteData.Length);
+                }
+                return ms.ToArray();
+            }
+        }
+
+        static byte[] DeCompress(this byte[] gzipCompressedByteData)
+        {
+            using (GZipStream stream = new GZipStream(new MemoryStream(gzipCompressedByteData), CompressionMode.Decompress))
+            {
+                const int maxNumOfBytesToRead = 4096;
+                byte[] buffer = new byte[maxNumOfBytesToRead];
+                using (MemoryStream memory = new MemoryStream())
+                {
+                    int countOfBytesRead = 0;
+                    do
+                    {
+                        countOfBytesRead = stream.Read(buffer, 0, maxNumOfBytesToRead);
+                        if (countOfBytesRead > 0)
+                        {
+                            memory.Write(buffer, 0, countOfBytesRead);
+                        }
+                    }
+                    while (countOfBytesRead > 0);
+                    return memory.ToArray();
+                }
+            }
         }
 
         /// <summary>

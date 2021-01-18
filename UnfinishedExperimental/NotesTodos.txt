@@ -10,6 +10,8 @@ bloom shader ....  https://github.com/UnterrainerInformatik/BloomEffectRenderer/
 figures this dudes got one too https://learnopengl.com/Advanced-Lighting/Bloom
 kinda gotta have that one in there the real one.  here is scribbles http://www.alienscribbleinteractive.com/Tutorials/bloom_tutorial.html
 and kosmo has one somewere.
+https://www.geeks3d.com/20110201/sobel-and-frei-chen-edge-detectors-demo-glsl/ sobel the other one thats better.
+https://www.geeks3d.com/20140523/glsl-shader-library-toonify-post-processing-filter/ thats a good looking toonify shader.
 
 i have a 2d toon shader i made already but heres another one to look at.  https://www.geeks3d.com/20140523/glsl-shader-library-toonify-post-processing-filter/
 tons of ideas here for simple shaders https://www.geeks3d.com/shader-library/
@@ -17,6 +19,8 @@ looks like a good idea http://www.stanleyhayes.com/2d-wibble-shader-hlsl.html
 meatball shader http://www.stanleyhayes.com/2d-metaball-shaderhlsl.html
 Make a grid with a blank texture that would be a pretty useful idea.
 Aura around a sprite also a good idea.
+
+
 
 
 http://ninslash.com/5-simple-fragment-shaders-for-2d-games-glsl/
@@ -54,10 +58,17 @@ Instancing.
 Hdr loading.
 Basic pbr lighting concepts.
 
-
 // Reference this one includes a illumination shader which i very much need examples of...
-
+https://www.geeks3d.com/shader-library/#misc
+https://www.geeks3d.com/category/programming/shader-library/
 https://github.com/iftodebogdan/GITechDemo/tree/master/GITechDemo/Data/shaders
+
+https://www.geeks3d.com/20130524/building-worlds-with-distance-functions-in-glsl-raymarching-glslhacker-tutorial-opengl/ // raymarching
+https://www.geeks3d.com/20130122/normal-mapping-without-precomputed-tangent-space-vectors/ //interesting.
+https://www.geeks3d.com/20101008/shader-library-chromatic-aberration-demo-glsl/ // this is nice if i get the time ima implement this and check it out.
+
+
+
 
 
 

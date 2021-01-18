@@ -34,6 +34,18 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/MgFont3.spritefont
 
+#begin Images/BarBlueInside.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/BarBlueInside.png
+
 #begin Images/BloomTestImage.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -286,6 +298,12 @@
 /processorParam:TextureFormat=Color
 /build:Images/water04.jpeg
 
+#begin Shaders/BarFillColorReplaceEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/BarFillColorReplaceEffect.fx
+
 #begin Shaders/BloomGlowEffect.fx
 /importer:EffectImporter
 /processor:EffectProcessor
@@ -375,4 +393,16 @@
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
 /build:Shaders/TextShadowEffect.fx
+
+#begin Shaders3D/SimpleDirectDrawEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders3D/SimpleDirectDrawEffect.fx
+
+#begin Shaders3D/SimpleDrawingWithMatriceEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders3D/SimpleDrawingWithMatriceEffect.fx
 

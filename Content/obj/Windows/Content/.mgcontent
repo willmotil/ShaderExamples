@@ -7,6 +7,7 @@
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Fonts/MgFont.spritefont</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Fonts/MgFont2.spritefont</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Fonts/MgFont3.spritefont</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/BarBlueInside.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/BloomTestImage.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/blue_atmosphere.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/blue-square-button-editted-md.png</File>
@@ -28,6 +29,7 @@
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/wallnormmap.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/walltomap.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/water04.jpeg</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/BarFillColorReplaceEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/BloomGlowEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/FadingEdgeEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/GammaTestEffect.fx</File>
@@ -43,8 +45,14 @@
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/ShockwaveRippleEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/TestingCanidateEffects.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/TextShadowEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/SimpleDirectDrawEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/SimpleDrawingWithMatriceEffect.fx</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
