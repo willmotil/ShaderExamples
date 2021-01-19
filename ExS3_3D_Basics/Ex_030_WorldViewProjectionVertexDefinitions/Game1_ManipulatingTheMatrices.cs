@@ -141,14 +141,14 @@ namespace ShaderExamples
             if (Keyboard.GetState().IsKeyDown(Keys.Z))
                 quadRotation += speed * .01f;
             if (Keyboard.GetState().IsKeyDown(Keys.C))
-                quadRotation -= speed *.01f;
+                quadRotation -= speed * .01f;
 
-            if (quadRotation > 6.28) 
+            if (quadRotation > 6.28)
                 quadRotation = 0;
-            if (quadRotation < 0) 
+            if (quadRotation < 0)
                 quadRotation = 6.28f;
 
-            
+
             quadUpVector = new Vector3(MathF.Sin(quadRotation), MathF.Cos(quadRotation), 0);
 
 
@@ -179,7 +179,7 @@ namespace ShaderExamples
 
 
 
-            DrawRectangleTriangles(new Vector3(100,100,0), Vector3.Forward, Vector3.Up);
+            DrawRectangleTriangles(new Vector3(100, 100, 0), Vector3.Forward, Vector3.Up);
 
             DrawRectangleTriangles(quadWorldPosition, Vector3.Forward, quadUpVector);
 
@@ -231,7 +231,7 @@ namespace ShaderExamples
                 $" \n Here the position is only used and the world matrix is re-made." +
                 $" \n " +
                 $" \n Now so far these transformations have been restricted to be illustrative." +
-                $" \n From here on well start encapsulating these primitives and their matrices and use them fully." 
+                $" \n From here on well start encapsulating these primitives and their matrices and use them fully."
                 ;
             spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Blue);
             spriteBatch.End();
@@ -273,183 +273,4 @@ namespace ShaderExamples
         }
 
     }
-
-
-    //public class Primitive2dQuadBuffer
-    //{
-    //    // ccw winding.
-
-    //    List<VertexPositionNormalTexture> verticeList = new List<VertexPositionNormalTexture>();
-    //    VertexPositionNormalTexture[] vertices;
-    //    public void AddVertexRectangleToBuffer(GraphicsDevice gd, Rectangle r, float depth)
-    //    {
-    //        var normal = Vector3.Normalize(new Vector3(0, 0, depth));
-    //        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Left, r.Top, depth) , normal, new Vector2(0f, 0f))); ;  // p1
-    //        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Left, r.Bottom, depth) , normal, new Vector2(0f, 1f))); // p0
-    //        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Right, r.Bottom, depth) , normal, new Vector2(1f, 1f)));// p3
-
-    //        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Right, r.Bottom, depth) , normal, new Vector2(1f, 1f)));// p3
-    //        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Right, r.Top, depth) , normal, new Vector2(1f, 0f)));// p2
-    //        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Left, r.Top, depth) , normal, new Vector2(0f, 0f))); // p1
-
-    //        vertices = verticeList.ToArray();
-    //    }
-
-    //    public void AlterVertexRectanglePositionInBuffer(GraphicsDevice gd, int index, Rectangle r, float depth)
-    //    {
-    //        // Triangle 1
-    //        vertices[index + 0].Position = new Vector3(r.Left, r.Top, depth);  // p1
-    //        vertices[index + 1].Position = new Vector3(r.Left, r.Bottom, depth); // p0
-    //        vertices[index + 2].Position = new Vector3(r.Right, r.Bottom, depth); // p3
-    //        // Triangle 2
-    //        vertices[index + 3].Position = new Vector3(r.Right, r.Bottom, depth);// p3
-    //        vertices[index + 4].Position = new Vector3(r.Right, r.Top, depth); // p2
-    //        vertices[index + 5].Position = new Vector3(r.Left, r.Top, depth); // p1
-    //    }
-
-    //    public void DrawQuadBuffer(GraphicsDevice device, Effect effect)
-    //    {
-    //        if (vertices != null)
-    //        {
-    //            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
-    //            {
-    //                pass.Apply();
-    //                int numberOfTriangles = vertices.Length / 3;
-    //                device.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, numberOfTriangles);
-    //            }
-    //        }
-    //    }
-    //    public void DrawQuadRangeInBuffer(GraphicsDevice device, Effect effect, int startQuad, int quadDrawLength)
-    //    {
-    //        int startVertice = startQuad * 2 * 3;
-    //        int numberOfTriangles = quadDrawLength * 2;
-    //        if (vertices != null)
-    //        {
-    //            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
-    //            {
-    //                pass.Apply();
-    //                device.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, startVertice, numberOfTriangles);
-    //            }
-    //        }
-    //    }
-    //}
-
-    //public class Primitive2dIndexedQuadBuffer
-    //{
-    //    // ccw winding.
-
-    //    List<VertexPositionNormalTexture> verticeList = new List<VertexPositionNormalTexture>();
-    //    List<int> indiceList = new List<int>();
-    //    VertexPositionNormalTexture[] vertices;
-    //    int[] indices;
-    //    public void AddVertexRectangleToBuffer(GraphicsDevice gd, Rectangle r, float depth)
-    //    {
-    //        int currentCount = verticeList.Count;
-    //        var normal = Vector3.Normalize(new Vector3(0, 0, depth));
-    //        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Left, r.Top, depth), normal, new Vector2(0f, 0f)));  // p1
-    //        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Left, r.Bottom, depth), normal, new Vector2(0f, 1f))); // p0
-    //        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Right, r.Bottom, depth), normal, new Vector2(1f, 1f)));// p3
-    //        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Right, r.Top, depth), normal, new Vector2(1f, 0f)));// p4
-    //        vertices = verticeList.ToArray();
-
-    //        // triangle 0 indices.
-    //        indiceList.Add(currentCount + 0);
-    //        indiceList.Add(currentCount + 1);
-    //        indiceList.Add(currentCount + 3);
-    //        // triangle 1 indices.
-    //        indiceList.Add(currentCount + 1);
-    //        indiceList.Add(currentCount + 2);
-    //        indiceList.Add(currentCount + 3);
-    //        indices = indiceList.ToArray();
-    //    }
-
-    //    public void AlterVertexRectanglePositionInBuffer(GraphicsDevice gd, int index, Rectangle r, float depth)
-    //    {
-    //        vertices[index + 0].Position = new Vector3(r.Left, r.Top, depth);  // p1
-    //        vertices[index + 1].Position = new Vector3(r.Left, r.Bottom, depth); // p0
-    //        vertices[index + 2].Position = new Vector3(r.Right, r.Bottom, depth); // p3
-    //        vertices[index + 4].Position = new Vector3(r.Right, r.Top, depth); // p2
-    //    }
-
-    //    public void DrawQuadBuffer(GraphicsDevice device, Effect effect)
-    //    {
-    //        if (vertices != null)
-    //        {
-    //            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
-    //            {
-    //                pass.Apply();
-    //                int numberOfTriangles = vertices.Length / 3;
-    //                device.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, numberOfTriangles);
-    //            }
-    //        }
-    //    }
-    //    public void DrawQuadRangeInBuffer(GraphicsDevice device, Effect effect, int startQuad, int quadDrawLength)
-    //    {
-    //        int startVertice = startQuad * 2 * 3;
-    //        int numberOfTriangles = quadDrawLength * 2;
-    //        if (vertices != null)
-    //        {
-    //            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
-    //            {
-    //                pass.Apply();
-    //                device.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, startVertice, numberOfTriangles);
-    //            }
-    //        }
-    //    }
-    //}
 }
-
-
-
-/*
-        public void DrawTriangleDirectlyToGpu(Effect currenteffect)
-        {
-            //GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;  // counter clockwise is the default.
-            GraphicsDevice.BlendState = BlendState.AlphaBlend;
-            GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
-
-            currenteffect.CurrentTechnique = currenteffect.Techniques["TriangleDrawWithTransforms"];
-            currenteffect.Parameters["SpriteTexture"].SetValue(texture);
-
-            var identity = new Matrix
-            (
-                1, 0, 0, 0,
-                0, 1, 0, 0,
-                0, 0, 1, 0,
-                0, 0, 0, 1
-            );
-
-            //var world = Matrix.CreateWorld(Vector3.Zero, Vector3.Forward, Vector3.Up);  // identity.
-            //var view = Matrix.CreateLookAt(new Vector3(0, 0, 0), Vector3.Forward, Vector3.Up);  // identity.
-
-            var world = identity;
-            var view = identity;
-            var projection = Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 0, 100f);
-
-            currenteffect.Parameters["World"].SetValue(world);
-            currenteffect.Parameters["View"].SetValue(view);
-            currenteffect.Parameters["Projection"].SetValue(projection);
-
-            foreach (EffectPass pass in currenteffect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-
-                int numberOfVertices = vertices.Length;
-                int numberOfVerticesInaTriangle = 3;
-                int numberOfTriangles = indices.Length / numberOfVerticesInaTriangle;
-                int startingVerticeInArray = 0; // the reason for this offset is incase you put more then one mesh or grouping of vertices into the same array.
-                int startingIndiceInArray = 0; // likewise for this they should line up together you have to keep track of that though.
-
-                GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, startingVerticeInArray, numberOfVertices, indices, startingIndiceInArray, numberOfTriangles, VertexPositionNormalTexture.VertexDeclaration);
-            }
-        }
-
-        public void DrawSpriteBatches(GameTime gameTime)
-        {
-            // Draw all the regular stuff
-            spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
-            spriteBatch.Draw(texture, new Rectangle(25, 50, 200, 200), Color.White);
-            spriteBatch.DrawString(font, $" Because we are in Dx matrix identity for world is a bit off so we change M22 to be negative typically. \n However this time i have directly lined up the vertex positions and texture coordinates so they can directly be sent to the shader..", new Vector2(10, 10), Color.Blue);
-            spriteBatch.End();
-        }
- */

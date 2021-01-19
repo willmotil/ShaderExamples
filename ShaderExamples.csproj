@@ -27,6 +27,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ExS0_GeneralConcepts\Ex_040_TODO_UsingTheMouseAndKeyboard\" />
-    <Folder Include="ExS3_3D_Basics\Ex_040_MimicSpriteBatch\" />
   </ItemGroup>
 </Project>
