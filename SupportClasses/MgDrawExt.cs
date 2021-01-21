@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.Xna.Framework
 {
-    public static class MgDrawExtras
+    public static class MgDrawExt
     {
         static SpriteBatch spriteBatch;
         public static Texture2D dot;
@@ -20,15 +20,15 @@ namespace Microsoft.Xna.Framework
 
         public static void Initialize(GraphicsDevice device, SpriteBatch spriteBatch)
         {
-            MgDrawExtras.spriteBatch = spriteBatch;
-            if (MgDrawExtras.dot == null)
-                MgDrawExtras.dot = CreateDotTexture(device, Color.White);
-            if (MgDrawExtras.dotRed == null)
-                MgDrawExtras.dotRed = CreateDotTexture(device, Color.Red);
-            if (MgDrawExtras.dotGreen == null)
-                MgDrawExtras.dotGreen = CreateDotTexture(device, Color.Green);
-            if (MgDrawExtras.dotBlue == null)
-                MgDrawExtras.dotBlue = CreateDotTexture(device, Color.Blue);
+            MgDrawExt.spriteBatch = spriteBatch;
+            if (MgDrawExt.dot == null)
+                MgDrawExt.dot = CreateDotTexture(device, Color.White);
+            if (MgDrawExt.dotRed == null)
+                MgDrawExt.dotRed = CreateDotTexture(device, Color.Red);
+            if (MgDrawExt.dotGreen == null)
+                MgDrawExt.dotGreen = CreateDotTexture(device, Color.Green);
+            if (MgDrawExt.dotBlue == null)
+                MgDrawExt.dotBlue = CreateDotTexture(device, Color.Blue);
         }
 
         public static void DrawRectangleOutline(Rectangle r, int lineThickness, Color c)
@@ -50,8 +50,8 @@ namespace Microsoft.Xna.Framework
 
         public static void DrawCrossHair(Vector2 position, float radius, Color color)
         {
-            MgDrawExtras.DrawBasicLine(new Vector2(-radius, 0) + position, new Vector2(0 + radius, 0) + position, 1, color);
-            MgDrawExtras.DrawBasicLine(new Vector2(0, 0 - radius) + position, new Vector2(0, radius) + position, 1, color);
+            MgDrawExt.DrawBasicLine(new Vector2(-radius, 0) + position, new Vector2(0 + radius, 0) + position, 1, color);
+            MgDrawExt.DrawBasicLine(new Vector2(0, 0 - radius) + position, new Vector2(0, radius) + position, 1, color);
         }
 
         public static void DrawBasicLine(Vector2 s, Vector2 e, int thickness, Color linecolor)
@@ -84,22 +84,23 @@ namespace Microsoft.Xna.Framework
             spriteBatch.Draw(dot, RTtoB, c);
         }
 
-        public static void DrawRectangleOutline(this SpriteBatch spriteBatch, Rectangle r, int lineThickness, Color c, float rotation)
+        public static void DrawRectangleOutlineWithString(this SpriteBatch spriteBatch, SpriteFont font, Rectangle r, int lineThickness, Color outlineColor, string msg, Color msgColor)
         {
             Rectangle TLtoR = new Rectangle(r.Left, r.Top, r.Width, lineThickness);
             Rectangle BLtoR = new Rectangle(r.Left, r.Bottom - lineThickness, r.Width, lineThickness);
             Rectangle LTtoB = new Rectangle(r.Left, r.Top, lineThickness, r.Height);
             Rectangle RTtoB = new Rectangle(r.Right - lineThickness, r.Top, lineThickness, r.Height);
-            spriteBatch.Draw(dot, TLtoR, c);
-            spriteBatch.Draw(dot, BLtoR, c);
-            spriteBatch.Draw(dot, LTtoB, c);
-            spriteBatch.Draw(dot, RTtoB, c);
+            spriteBatch.Draw(dot, TLtoR, outlineColor);
+            spriteBatch.Draw(dot, BLtoR, outlineColor);
+            spriteBatch.Draw(dot, LTtoB, outlineColor);
+            spriteBatch.Draw(dot, RTtoB, outlineColor);
+            spriteBatch.DrawString(font, msg, TLtoR.Location.ToVector2(), msgColor);
         }
 
         public static void DrawCrossHair(this SpriteBatch spriteBatch, Vector2 position, float radius, Color color)
         {
-            MgDrawExtras.DrawBasicLine(new Vector2(-radius, 0) + position, new Vector2(0 + radius, 0) + position, 1, color);
-            MgDrawExtras.DrawBasicLine(new Vector2(0, 0 - radius) + position, new Vector2(0, radius) + position, 1, color);
+            MgDrawExt.DrawBasicLine(new Vector2(-radius, 0) + position, new Vector2(0 + radius, 0) + position, 1, color);
+            MgDrawExt.DrawBasicLine(new Vector2(0, 0 - radius) + position, new Vector2(0, radius) + position, 1, color);
         }
 
         public static void DrawLineWithStringAtEnd(this SpriteBatch spriteBatch, SpriteFont font, string msg, Vector2 s, Vector2 e, int thickness, Color linecolor)
@@ -244,7 +245,7 @@ namespace Microsoft.Xna.Framework
                     var p = new Vector2(x, y);
                     var dist = Vector2.Distance(center, p);
                     var coeff = dist / radius;
-                    var curvepoint = MgDrawExtras.GetPointAtTimeOn2ndDegreePolynominalCurve(a, b, c, coeff);
+                    var curvepoint = MgDrawExt.GetPointAtTimeOn2ndDegreePolynominalCurve(a, b, c, coeff);
 
                     if (coeff < 0f)
                         coeff = 0.0f;
@@ -262,7 +263,7 @@ namespace Microsoft.Xna.Framework
 
         public static Texture2D GenerateSplinedAlphaStencilCircle(GraphicsDevice device, Color color)
         {
-            float sliderControl = 4.00f; // increase beyond 1.0f that gives a more opaque interior
+            //float sliderControl = 4.00f; // increase beyond 1.0f that gives a more opaque interior
             int size = 200;
             var radius = 99.0f;
             var center = new Vector2(radius, radius);
@@ -279,7 +280,7 @@ namespace Microsoft.Xna.Framework
                     var p = new Vector2(x, y);
                     var dist = Vector2.Distance(center, p);
                     var coeff = dist / radius;
-                    var curvepoint = MgDrawExtras.BiCubicSubdivision(a, b, c, d, coeff).ToVector2();
+                    var curvepoint = MgDrawExt.BiCubicSubdivision(a, b, c, d, coeff).ToVector2();
 
                     if (coeff < 0f)
                         coeff = 0.0f;
@@ -343,7 +344,7 @@ namespace Microsoft.Xna.Framework
                 {
                     var p = new Vector2(x, y);
                     var dist = Vector2.Distance(center, p);
-                    var curvepoint = MgDrawExtras.GetPointAtTimeOn2ndDegreePolynominalCurve(a, b, c, dist);
+                    var curvepoint = MgDrawExt.GetPointAtTimeOn2ndDegreePolynominalCurve(a, b, c, dist);
 
                     data[x + y * 100] = new Color((byte)(curvepoint.Y * 255), (byte)(curvepoint.Y * 255), (byte)(curvepoint.Y * 255), (byte)(curvepoint.Y * 255));
                 }

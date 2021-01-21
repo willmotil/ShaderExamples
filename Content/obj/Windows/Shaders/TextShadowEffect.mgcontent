@@ -3,7 +3,7 @@
   <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/TextShadowEffect.fx</SourceFile>
   <SourceTime>2021-01-16T10:00:58.0837536-05:00</SourceTime>
   <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Shaders/TextShadowEffect.xnb</DestFile>
-  <DestTime>2021-01-17T18:49:00.6346034-05:00</DestTime>
+  <DestTime>2021-01-20T15:36:10.2187513-05:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2020-05-27T15:15:40-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>

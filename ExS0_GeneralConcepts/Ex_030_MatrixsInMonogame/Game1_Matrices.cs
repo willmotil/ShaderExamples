@@ -88,7 +88,7 @@ namespace ShaderExamples
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            MgDrawExtras.Initialize(GraphicsDevice, spriteBatch);
+            MgDrawExt.Initialize(GraphicsDevice, spriteBatch);
 
             Content.RootDirectory = @"Content/Shaders";
             //effect = Content.Load<Effect>("GammaTestEffect");

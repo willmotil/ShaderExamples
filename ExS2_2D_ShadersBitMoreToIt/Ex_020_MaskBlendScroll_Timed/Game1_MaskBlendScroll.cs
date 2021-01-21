@@ -50,9 +50,9 @@ namespace ShaderExamples
             loadedBackgroundTexture01 = Content.Load<Texture2D>("Terran02");
             loadedForgroundTexture02 = Content.Load<Texture2D>("clouds-heavy");
             loadedStencilTexture03 = Content.Load<Texture2D>("planet_stencil");
-            generatedAlphaStencilTexture = MgDrawExtras.GenerateSplinedAlphaStencilCircle(GraphicsDevice, Color.White);
-            generatedAlphaStencilEdgeTexture = MgDrawExtras.GenerateAlphaStencilCircleEdge(GraphicsDevice, Color.White, .93f, .07f, .6f);
-            dotTexture = MgDrawExtras.CreateDotTexture(GraphicsDevice, Color.White);
+            generatedAlphaStencilTexture = MgDrawExt.GenerateSplinedAlphaStencilCircle(GraphicsDevice, Color.White);
+            generatedAlphaStencilEdgeTexture = MgDrawExt.GenerateAlphaStencilCircleEdge(GraphicsDevice, Color.White, .93f, .07f, .6f);
+            dotTexture = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.White);
 
             backGroundTexture = loadedBackgroundTexture01;
             foreGroundTexture = loadedForgroundTexture02;

@@ -113,6 +113,7 @@ namespace ShaderExamples
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            MgDrawExt.Initialize(GraphicsDevice, spriteBatch);
 
             Content.RootDirectory = @"Content/Shaders";
             effect = Content.Load<Effect>("TestingCanidateEffects");
@@ -138,6 +139,8 @@ namespace ShaderExamples
 
         protected override void Update(GameTime gameTime)
         {
+            MouseHelper.Update(GraphicsDevice.Viewport.Bounds.Size);
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
@@ -190,8 +193,84 @@ namespace ShaderExamples
             spriteBatch.DrawString(font, $"\n " + msgMisc, new Vector2(210, 110), Color.White);
             spriteBatch.End();
 
+
+            spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
+
+
+            var msPos = new Vector2(100, 500); float incy = 20f; Color col = Color.Blue;
+            spriteBatch.DrawString(font, $"\n IsLeftDown {MouseHelper.IsLeftDown}", msPos, col); msPos.Y += incy;
+            spriteBatch.DrawString(font, $"\n IsLeftClicked {MouseHelper.IsLeftClicked}", msPos, col); msPos.Y += incy;
+            spriteBatch.DrawString(font, $"\n IsLeftHeld {MouseHelper.IsLeftHeld}", msPos, col); msPos.Y += incy;
+            spriteBatch.DrawString(font, $"\n IsLeftJustReleased {MouseHelper.IsLeftJustReleased}", msPos, col); msPos.Y += incy;
+            spriteBatch.DrawString(font, $"\n IsLeftDragged {MouseHelper.IsLeftDragged}", msPos, col); msPos.Y += incy;
+            spriteBatch.DrawString(font, $"\n LeftDragRectangle {MouseHelper.LeftDragRectangle}", msPos, col); msPos.Y += incy;
+            spriteBatch.DrawString(font, $"\n LastLeftPressedAt {MouseHelper.LastLeftPressedAt}", msPos, col); msPos.Y += incy;
+            spriteBatch.DrawString(font, $"\n LastLeftDragReleased {MouseHelper.LastLeftDragReleased}", msPos, col); msPos.Y += incy;
+            spriteBatch.DrawString(font, $"\n GetLeftDragVector() {MouseHelper.GetLeftDragVector()}", msPos, col); msPos.Y += incy;
+            spriteBatch.DrawRectangleOutlineWithString(font, MouseHelper.LeftDragRectangle, 1, col, $" Left Dragged", col);
+
+
+            msPos = new Vector2(500, 500); incy = 20f; col = Color.Aqua;
+            spriteBatch.DrawString(font, $"\n IsRightDown {MouseHelper.IsRightDown}", msPos, col); msPos.Y += incy;
+            spriteBatch.DrawString(font, $"\n IsRightClicked {MouseHelper.IsRightClicked}", msPos, col); msPos.Y += incy;
+            spriteBatch.DrawString(font, $"\n IsRightHeld {MouseHelper.IsRightHeld}", msPos, col); msPos.Y += incy;
+            spriteBatch.DrawString(font, $"\n IsRightJustReleased {MouseHelper.IsRightJustReleased}", msPos, col); msPos.Y += incy;
+            spriteBatch.DrawString(font, $"\n IsRightDragged {MouseHelper.IsRightDragged}", msPos, col); msPos.Y += incy;
+            spriteBatch.DrawString(font, $"\n RightDragRectangle {MouseHelper.RightDragRectangle}", msPos, col); msPos.Y += incy;
+            spriteBatch.DrawString(font, $"\n LastRightPressedAt {MouseHelper.LastRightPressedAt}", msPos, col); msPos.Y += incy;
+            spriteBatch.DrawString(font, $"\n LastRightDragReleased {MouseHelper.LastRightDragReleased}", msPos, col); msPos.Y += incy;
+            spriteBatch.DrawString(font, $"\n GetRightDragVector() {MouseHelper.GetRightDragVector()}", msPos, col); msPos.Y += incy;
+            spriteBatch.DrawRectangleOutlineWithString(font, MouseHelper.RightDragRectangle, 1, col, $" right Dragged", col);
+
+            spriteBatch.DrawString(font, $"\n MouseInputHelper.Pos {MouseHelper.Pos}", MouseHelper.Pos.ToVector2(), col); msPos.Y += incy;
+
+            spriteBatch.End();
+
             base.Draw(gameTime);
         }
+
+        /*
+                 /// <summary>
+        /// is left being pressed now
+        /// </summary>
+        public static bool IsLeftDown = false;
+        /// <summary>
+        /// is left just clicked
+        /// </summary>
+        public static bool IsLeftClicked = false;
+        /// <summary>
+        /// is left being held down now
+        /// </summary>
+        public static bool IsLeftHeld = false;
+        /// <summary>
+        /// is true only in one single frame is the mouse just released
+        /// </summary>
+        public static bool IsLeftJustReleased = false;
+        /// <summary>
+        /// has the left mouse been dragged
+        /// </summary>
+        public static bool IsLeftDragged = false;
+        /// <summary>
+        /// dragged rectangle.
+        /// </summary>
+        public static Rectangle LeftDragRectangle = Rectangle.Empty;
+        /// <summary>
+        /// left last position pressed while useing left mouse button
+        /// </summary>
+        public static Vector2 LastLeftPressedAt;
+        /// <summary>
+        /// left last position draged from before release while useing left mouse button
+        /// </summary>
+        public static Vector2 LastLeftDragReleased;
+        /// <summary>
+        /// Gets the direction and magnitude of left drag press to drag released
+        /// </summary>
+        public static Vector2 GetLeftDragVector()
+        {
+            return LastLeftDragReleased - LastLeftPressedAt;
+        }
+         
+         */
 
         public void Test2()
         {

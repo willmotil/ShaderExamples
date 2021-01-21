@@ -69,7 +69,7 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         public CinematicCamera(GraphicsDevice device, SpriteBatch spriteBatch, Texture2D dot, Vector3 pos, Vector3 target, Vector3 up, float nearClipPlane, float farClipPlane, float fieldOfView, bool perspective, bool spriteBatchStyled, bool inverseOthographicProjection)
         {
-            MgDrawExtras.Initialize(device, spriteBatch);
+            MgDrawExt.Initialize(device, spriteBatch);
             //_cameraWorld = Matrix.CreateWorld(pos, target + pos, up);
             TransformCamera(pos, target, up);
             SetProjection(device, nearClipPlane, farClipPlane, fieldOfView, perspective, spriteBatchStyled, inverseOthographicProjection);
@@ -392,19 +392,19 @@ namespace Microsoft.Xna.Framework
                 GetIndividualCrossHairVectors(drawnCamIteratedOffsetPos, 7, out drawCrossHairLeft, out drawCrossHairRight, out drawCrossHairUp, out drawCrossHairDown);
 
                 // Draw cross hair for camera position
-                MgDrawExtras.DrawBasicLine(drawCrossHairLeft, drawCrossHairRight, 1, Color.White);
-                MgDrawExtras.DrawBasicLine(drawCrossHairUp, drawCrossHairDown, 1, Color.White);
+                MgDrawExt.DrawBasicLine(drawCrossHairLeft, drawCrossHairRight, 1, Color.White);
+                MgDrawExt.DrawBasicLine(drawCrossHairUp, drawCrossHairDown, 1, Color.White);
 
                 // Draw a line from camera from current position on way point curve to offset position.
                 if (drawnCam2dHeightAdjustment.Y < 0)
-                    MgDrawExtras.DrawBasicLine(drawnCamIteratedPos, drawnCamIteratedOffsetPos, 1, Color.LightGreen);
+                    MgDrawExt.DrawBasicLine(drawnCamIteratedPos, drawnCamIteratedOffsetPos, 1, Color.LightGreen);
                 else
-                    MgDrawExtras.DrawBasicLine(drawnCamIteratedPos, drawnCamIteratedOffsetPos, 1, Color.Red);
+                    MgDrawExt.DrawBasicLine(drawnCamIteratedPos, drawnCamIteratedOffsetPos, 1, Color.Red);
 
                 // Draw forward camera direction
-                MgDrawExtras.DrawBasicLine(drawnCamIteratedPos, drawCamForwardRayEndPoint , 1, Color.Beige);
+                MgDrawExt.DrawBasicLine(drawnCamIteratedPos, drawCamForwardRayEndPoint , 1, Color.Beige);
                 // Draw camera crosshairs forward to target.
-                MgDrawExtras.DrawBasicLine(drawnCamIteratedOffsetPos, drawCamForwardRayEndPoint, 1, Color.Yellow);
+                MgDrawExt.DrawBasicLine(drawnCamIteratedOffsetPos, drawCamForwardRayEndPoint, 1, Color.Yellow);
 
                 // draw curved segmented output.
                 var loopAdjustment = 1;
@@ -422,9 +422,9 @@ namespace Microsoft.Xna.Framework
                     var end = Get2dVectorAxisElements(segment2, PlaneOption) * visualizationScale + offset2d;
 
                     if (i % 2 == 0)
-                        MgDrawExtras.DrawBasicLine(start, end, 1, Color.Black);
+                        MgDrawExt.DrawBasicLine(start, end, 1, Color.Black);
                     else
-                        MgDrawExtras.DrawBasicLine(start, end, 1, Color.Blue);
+                        MgDrawExt.DrawBasicLine(start, end, 1, Color.Blue);
                 }
 
                 // Draw current 2d waypoint positions on the orthographic xy plane.
@@ -432,8 +432,8 @@ namespace Microsoft.Xna.Framework
                 {
                     var waypointPos = Get2dVectorAxisElements(ToVector3( p ), PlaneOption) * visualizationScale + offset2d;
                     GetIndividualCrossHairVectors(waypointPos, 4, out drawCrossHairLeft, out drawCrossHairRight, out drawCrossHairUp, out drawCrossHairDown);
-                    MgDrawExtras.DrawBasicLine(drawCrossHairLeft, drawCrossHairRight, 1, Color.DarkGray);
-                    MgDrawExtras.DrawBasicLine(drawCrossHairUp, drawCrossHairDown, 1, Color.DarkGray);
+                    MgDrawExt.DrawBasicLine(drawCrossHairLeft, drawCrossHairRight, 1, Color.DarkGray);
+                    MgDrawExt.DrawBasicLine(drawCrossHairUp, drawCrossHairDown, 1, Color.DarkGray);
                 }
             }
         }
@@ -934,17 +934,17 @@ namespace Microsoft.Xna.Framework
             int lineThickness = 2;
 
             for (int i = 0; i < cps.Length; i++)
-                MgDrawExtras.DrawBasicPoint(new Vector2(cps[i].position.X, cps[i].position.Y), Color.Red , 4);
+                MgDrawExt.DrawBasicPoint(new Vector2(cps[i].position.X, cps[i].position.Y), Color.Red , 4);
 
             for (int i = 0; i < curveLinePoints.Length - 1; i++)
             {
                 if (flip)
-                    MgDrawExtras.DrawBasicLine(ToVector2(curveLinePoints[i]), ToVector2(curveLinePoints[i + 1]), lineThickness, Color.Green);
+                    MgDrawExt.DrawBasicLine(ToVector2(curveLinePoints[i]), ToVector2(curveLinePoints[i + 1]), lineThickness, Color.Green);
                 else
-                    MgDrawExtras.DrawBasicLine(ToVector2(curveLinePoints[i]), ToVector2(curveLinePoints[i + 1]), lineThickness, Color.Black);
+                    MgDrawExt.DrawBasicLine(ToVector2(curveLinePoints[i]), ToVector2(curveLinePoints[i + 1]), lineThickness, Color.Black);
 
                 if (i < 1)
-                    MgDrawExtras.DrawBasicLine(ToVector2(curveLinePoints[i]), ToVector2(curveLinePoints[i + 1]), lineThickness, Color.Yellow);
+                    MgDrawExt.DrawBasicLine(ToVector2(curveLinePoints[i]), ToVector2(curveLinePoints[i + 1]), lineThickness, Color.Yellow);
 
                 flip = !flip;
             }

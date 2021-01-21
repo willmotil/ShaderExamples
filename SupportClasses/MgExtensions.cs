@@ -17,19 +17,19 @@ namespace Microsoft.Xna.Framework
     {
         public static Texture2D Dot(this Texture2D t)
         {
-            return MgDrawExtras.dotRed;
+            return MgDrawExt.dotRed;
         }
         public static Texture2D DotRed(this Texture2D t)
         {
-            return MgDrawExtras.dotRed;
+            return MgDrawExt.dotRed;
         }
         public static Texture2D DotGreen(this Texture2D t)
         {
-            return MgDrawExtras.dotGreen;
+            return MgDrawExt.dotGreen;
         }
         public static Texture2D DotBlue(this Texture2D t)
         {
-            return MgDrawExtras.dotBlue;
+            return MgDrawExt.dotBlue;
         }
         public static Vector2 ToVector2(this Vector3 v)
         {

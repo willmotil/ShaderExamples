@@ -108,7 +108,7 @@ namespace ShaderExamples
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            MgDrawExtras.Initialize(GraphicsDevice, spriteBatch);
+            MgDrawExt.Initialize(GraphicsDevice, spriteBatch);
 
             Content.RootDirectory = @"Content/Shaders";
             meshEffect = Content.Load<Effect>("MeshDrawEffect");
@@ -209,7 +209,7 @@ namespace ShaderExamples
             {
                 GraphicsDevice.RasterizerState = rs_nocull_solid;
                 meshEffect.CurrentTechnique = meshEffect.Techniques["TriangleDrawPCT"];
-                meshEffect.Parameters["SpriteTexture"].SetValue(MgDrawExtras.dot);
+                meshEffect.Parameters["SpriteTexture"].SetValue(MgDrawExt.dot);
                 meshEffect.Parameters["World"].SetValue(Matrix.CreateScale(10000));
                 gridPlanes3d.Draw(GraphicsDevice, meshEffect, true, true, false);
             }
@@ -237,7 +237,7 @@ namespace ShaderExamples
             meshEffect.CurrentTechnique = meshEffect.Techniques["TriangleDrawPCT"];
             meshEffect.Parameters["World"].SetValue(m);
             meshEffect.Parameters["SpriteTexture"].SetValue(texture);
-            navGuide.DrawNavOrientation(GraphicsDevice, meshEffect, poffset, 0.55f, targetMatrix, MgDrawExtras.dotBlue, MgDrawExtras.dot, MgDrawExtras.dotRed);
+            navGuide.DrawNavOrientation(GraphicsDevice, meshEffect, poffset, 0.55f, targetMatrix, MgDrawExt.dotBlue, MgDrawExt.dot, MgDrawExt.dotRed);
             //navGuide.Draw(GraphicsDevice, meshEffect);
         }
 
@@ -254,7 +254,7 @@ namespace ShaderExamples
             {
                 GraphicsDevice.RasterizerState = rs_nocull_solid;
                 basicEffect.World = Matrix.Identity;
-                gridPlanes3d.DrawWithBasicEffect(GraphicsDevice, basicEffect, Matrix.Identity, 10000, MgDrawExtras.dot, true, true, false);
+                gridPlanes3d.DrawWithBasicEffect(GraphicsDevice, basicEffect, Matrix.Identity, 10000, MgDrawExt.dot, true, true, false);
             }
 
             SetStates();
@@ -272,7 +272,7 @@ namespace ShaderExamples
 
             var targetMatrix = Matrix.Identity; // the target is the world matrix of some other thing we have drawn.
             var poffset = cinematicCamera.World.Forward * 250 + cinematicCamera.World.Right * 250 + cinematicCamera.World.Down * 50 + cinematicCamera.World.Translation; // we offset from the camera forward right then down
-            navGuide.DrawNavOrientation3DToTargetWithBasicEffect(GraphicsDevice, basicEffect, poffset, 100f, targetMatrix, MgDrawExtras.dotBlue, MgDrawExtras.dot, MgDrawExtras.dotRed);
+            navGuide.DrawNavOrientation3DToTargetWithBasicEffect(GraphicsDevice, basicEffect, poffset, 100f, targetMatrix, MgDrawExt.dotBlue, MgDrawExt.dot, MgDrawExt.dotRed);
         }
 
         public void DrawRegularSpriteBatchStuff(GameTime gameTime)
