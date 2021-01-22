@@ -19,11 +19,11 @@ namespace ShaderExamples
         RenderTarget2D rtScene;
         MouseState mouse;
 
-
         Matrix view;
         Matrix projection;
 
-        Vector3 cameraWorldPosition = new Vector3(0,0, -50f);
+        Matrix cameraWorld = Matrix.Identity;
+        Vector3 cameraWorldPosition = new Vector3(0,0, 50f);
         Vector3 cameraForwardVector = Vector3.Forward;
         Vector3 quadWorldPosition = Vector3.Zero;
         Vector3 quadUpVector = Vector3.Up;
@@ -32,6 +32,9 @@ namespace ShaderExamples
 
         QuadModel quad = new QuadModel();
         QuadModel quad2 = new QuadModel();
+
+
+        bool useOrtho = true;
 
         public Game1_Into3Dwvp()
         {
@@ -43,6 +46,7 @@ namespace ShaderExamples
             IsMouseVisible = true;
             Window.ClientSizeChanged += OnResize;
         }
+
         protected override void Initialize()
         {
             base.Initialize();
@@ -51,10 +55,7 @@ namespace ShaderExamples
         public void OnResize(object sender, EventArgs e)
         {
             rtScene = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.None);
-            //projection = Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 0, 100f);
-            //projection = Matrix.CreatePerspectiveOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1f, 100f);
-            projection = Matrix.CreatePerspectiveFieldOfView(1.2f, GraphicsDevice.Viewport.Width / GraphicsDevice.Viewport.Height, 1f, 100f);
-            SimpleDrawingWithMatrixClassEffect.Projection = projection;
+            SetProjection();
         }
 
         protected override void LoadContent()
@@ -75,14 +76,14 @@ namespace ShaderExamples
             font3 = Content.Load<SpriteFont>("MgFont3");
 
 
-            //projection = Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 0, 100f);
-            projection = Matrix.CreatePerspectiveFieldOfView(1, GraphicsDevice.Viewport.Width / GraphicsDevice.Viewport.Height, 1.2f, 100f);
+            SetProjection();
 
             SimpleDrawingWithMatrixClassEffect.Load(Content);
             SimpleDrawingWithMatrixClassEffect.Technique = "TriangleDrawWithTransforms";
             SimpleDrawingWithMatrixClassEffect.SpriteTexture = texture;
             SimpleDrawingWithMatrixClassEffect.View = view;
             SimpleDrawingWithMatrixClassEffect.Projection = projection;
+
 
             quad.CreateQuad(GraphicsDevice.Viewport.Bounds, false);
             quad2.CreateQuad(GraphicsDevice.Viewport.Bounds, false);
@@ -102,14 +103,15 @@ namespace ShaderExamples
             float speed = 1f;
 
             // use the wasd to alter the quads position.
-            if (Keyboard.GetState().IsKeyDown(Keys.D))
-                quadWorldPosition.X += speed;
-            if (Keyboard.GetState().IsKeyDown(Keys.A))
-                quadWorldPosition.X -= speed;
-            if (Keyboard.GetState().IsKeyDown(Keys.S))
-                quadWorldPosition.Y += speed;
-            if (Keyboard.GetState().IsKeyDown(Keys.W))
-                quadWorldPosition.Y -= speed;
+            //if (Keyboard.GetState().IsKeyDown(Keys.D))
+            //    quadWorldPosition.X += speed;
+            //if (Keyboard.GetState().IsKeyDown(Keys.A))
+            //    quadWorldPosition.X -= speed;
+            //if (Keyboard.GetState().IsKeyDown(Keys.S))
+            //    quadWorldPosition.Y += speed;
+            //if (Keyboard.GetState().IsKeyDown(Keys.W))
+            //    quadWorldPosition.Y -= speed;
+
 
             if (Keyboard.GetState().IsKeyDown(Keys.Z))
                 quadRotation += speed * .01f;
@@ -121,26 +123,62 @@ namespace ShaderExamples
             if (quadRotation < 0) 
                 quadRotation = 6.28f;
 
-            
             quadUpVector = new Vector3(MathF.Sin(quadRotation), MathF.Cos(quadRotation), 0);
 
+            //
+            if (Keyboard.GetState().IsKeyDown(Keys.D))
+                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Up, speed);
+            if (Keyboard.GetState().IsKeyDown(Keys.A))
+                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Up, -speed);
+            if (Keyboard.GetState().IsKeyDown(Keys.S))
+                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Right, speed);
+            if (Keyboard.GetState().IsKeyDown(Keys.W))
+                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Right, -speed);
 
-            // use the arrow keys to alter the camera lookat position
+            // use the arrow keys to alter the camera lookat position.
             if (Keyboard.GetState().IsKeyDown(Keys.Right))
-                cameraWorldPosition.X += speed;
+                cameraWorld.Translation += new Vector3(speed,0,0);
             if (Keyboard.GetState().IsKeyDown(Keys.Left))
-                cameraWorldPosition.X -= speed;
+                cameraWorld.Translation += new Vector3(-speed, 0, 0);
             if (Keyboard.GetState().IsKeyDown(Keys.Down))
-                cameraWorldPosition.Y += speed;
+                cameraWorld.Translation += new Vector3(0, speed, 0);
             if (Keyboard.GetState().IsKeyDown(Keys.Up))
-                cameraWorldPosition.Y -= speed;
+                cameraWorld.Translation += new Vector3(0, -speed, 0);
+
+
+            if (Keyboard.GetState().IsKeyDown(Keys.D1))
+            {
+                useOrtho = true;
+                SetProjection();
+            }
+
+            if (Keyboard.GetState().IsKeyDown(Keys.D2))
+            {
+                useOrtho = false;
+                SetProjection();
+            }
 
             // Set the view matrix.
 
-            //view = Matrix.CreateLookAt(cameraWorldPosition, cameraForwardVector + cameraWorldPosition, Vector3.Up); 
-            view = Matrix.CreateLookAt(cameraWorldPosition, Vector3.Zero, Vector3.Up);
+            //view = Matrix.CreateLookAt(cameraWorld.Translation, cameraWorld.Forward + cameraWorld.Translation, cameraWorld.Up);
+            view = Matrix.CreateLookAt(cameraWorldPosition, cameraForwardVector + cameraWorldPosition, Vector3.Up); 
 
             base.Update(gameTime);
+        }
+
+        public void SetProjection()
+        {
+            if (useOrtho)
+            {
+                projection = Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1, 100f);
+            }
+            else
+            {
+                //projection = Matrix.CreatePerspectiveOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1f, 100f);
+                projection = Matrix.CreatePerspectiveFieldOfView(1.2f, GraphicsDevice.Viewport.Width / GraphicsDevice.Viewport.Height, 1f, 100f);
+            }
+            if(SimpleDrawingWithMatrixClassEffect.effect != null)
+                 SimpleDrawingWithMatrixClassEffect.Projection = projection;
         }
 
         protected override void Draw(GameTime gameTime)
@@ -168,18 +206,17 @@ namespace ShaderExamples
             // Draw all the regular stuff
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
             string msg =
-                $" We use the WASD keys to move our quad this is different from spritebatch which creates a quad with a rectangle and places it." +
-                $" \n So we will draw another quad at a specific position that wont change." +
+                $" \n ortho {useOrtho}" +
+                $" \n { view.DisplayMatrix("view") }" +
+                $" \n { projection.DisplayMatrix("projection") }" +
                 $" \n" +
-                $" \n Further well use the ARROW keys to change the cameras position. {cameraWorldPosition}" +
-                $" \n The projection matrix is only set up once typically and may change if the user resizes the window." +
-                $" \n The view is typically updated one time per frame its based on the camera orientation in the world." +
-                $" \n The world matrix applies to (or belongs to) each quad or each model or game object at the time it is drawn. " +
-                $" \n Typically a game object or model keeps its own world matrix. " +
-                $" \n Here the position is only used and the world matrix is re-made." +
-                $" \n " +
-                $" \n Now so far these transformations have been restricted to be illustrative." +
-                $" \n From here on well start encapsulating these primitives and their matrices and use them fully." 
+                $" \n" +
+                $" \n" +
+                $" \n" +
+                $" \n" +
+                $" \n" +
+                $" \n" +
+                $" \n" 
                 ;
             spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Blue);
             spriteBatch.End();

@@ -545,46 +545,51 @@ namespace Microsoft.Xna.Framework
 
         public static string VectorToString(this Vector4 v, string message)
         {
-            string f = "+###0.0;-###0.0";
+            string f = "+####0.000;-####0.000";
             return "\n " + message + "  " + v.X.ToString(f) + "  " + v.Y.ToString(f) + "  " + v.Z.ToString(f) + "  " + v.W.ToString(f);
         }
         public static string VectorToString(this Vector3 v, string message)
         {
-            string f = "+###0.0;-###0.0";
+            string f = "+####0.000;-####0.000";
             return "\n " + message + "  " + v.X.ToString(f) + "  " + v.Y.ToString(f) + "  " + v.Z.ToString(f);
         }
         public static string VectorToString(this Vector2 v, string message)
         {
-            string f = "+####0.0;-###0.0";
+            string f = "+####0.000;-####0.000";
             return "\n " + message + "  " + v.X.ToString(f) + "  " + v.Y.ToString(f);
         }
         public static string VectorToString(this Vector4 v)
         {
-            string f = "+####0.0;-###0.0";
+            string f = "+####0.000;-####0.000";
             return " " + "  " + v.X.ToString(f) + "  " + v.Y.ToString(f) + "  " + v.Z.ToString(f) + "  " + v.W.ToString(f);
         }
         public static string VectorToString(this Vector3 v)
         {
-            string f = "+####0.0;-###0.0";
+            string f = "+####0.000;-####0.000";
             return " " + "  " + v.X.ToString(f) + "  " + v.Y.ToString(f) + "  " + v.Z.ToString(f);
         }
         public static string VectorToString(this Vector2 v)
         {
-            string f = "+####0.0;-###0.0";
+            string f = "+####0.000;-####0.000";
             return " " + "  " + v.X.ToString(f) + "  " + v.Y.ToString(f);
         }
 
-        /// <summary>
-        /// Display matrix
-        /// </summary>
+        ///// <summary>
+        ///// Display matrix.
+        ///// </summary>
         public static string DisplayMatrix(this Matrix m, string name)
         {
-            string f = "####0.###"; //"+000.000;-000.000";
+            string f0 = "{0,12:+####0.000;-####0.000;+####0.000}";
+            string f1 = "{1,12:+####0.000;-####0.000;+####0.000}";
+            string f2 = "{2,12:+####0.000;-####0.000;+####0.000}";
+            string f3 = "{3,12:+####0.000;-####0.000;+####0.000}";
             return name +=
-                "\n { " + m.M11.ToString(f) + ", " + m.M12.ToString(f) + ", " + m.M13.ToString(f) + ", " + m.M14.ToString(f) + " }" +
-                "\n { " + m.M21.ToString(f) + ", " + m.M22.ToString(f) + ", " + m.M23.ToString(f) + ", " + m.M24.ToString(f) + " }" +
-                "\n { " + m.M31.ToString(f) + ", " + m.M32.ToString(f) + ", " + m.M33.ToString(f) + ", " + m.M34.ToString(f) + " }" +
-                "\n { " + m.M41.ToString(f) + ", " + m.M42.ToString(f) + ", " + m.M43.ToString(f) + ", " + m.M44.ToString(f) + " }";
+                "\n " + String.Format(f0 + f1 + f2 + f3, m.M11, m.M12, m.M13, m.M14) + " " +
+                "\n " + String.Format(f0 + f1 + f2 + f3, m.M21, m.M22, m.M23, m.M24) + " " +
+                "\n " + String.Format(f0 + f1 + f2 + f3, m.M31, m.M32, m.M33, m.M34) + " " +
+                "\n " + String.Format(f0 + f1 + f2 + f3, m.M41, m.M42, m.M43, m.M44) + " " +
+                ""
+                ;
         }
 
     }
