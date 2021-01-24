@@ -21,17 +21,17 @@ namespace Microsoft.Xna.Framework
         public const float TODEGREES = 57.29577951316f;
         public const double Epsilon = 1e-10;
 
-        public static Matrix ViewMatrixForPerspectiveSpriteBatch(float width, float height, float _fov, Vector3 forward, Vector3 up)
+        public static Matrix CreateViewMatrixForPerspectiveSpriteBatch(float width, float height, float _fov, Vector3 forward, Vector3 up)
         {
             var pos = new Vector3(width / 2, height / 2, -((1f / (float)Math.Tan(_fov / 2)) * (height / 2)));
             return Matrix.Invert(Matrix.CreateWorld(pos, forward + pos, up));
         }
-        public static Matrix CameraMatrixForPerspectiveSpriteBatch(float width, float height, float _fov, Vector3 forward, Vector3 up)
+        public static Matrix CreateCameraMatrixForPerspectiveSpriteBatch(float width, float height, float _fov, Vector3 forward, Vector3 up)
         {
             var pos = new Vector3(width / 2, height / 2, -((1f / (float)Math.Tan(_fov / 2)) * (height / 2)));
             return Matrix.CreateWorld(pos, forward + pos, up);
         }
-        public static Vector3 CameraPositionVectorForPerspectiveSpriteBatch(float width, float height, float _fov)
+        public static Vector3 CameraVectorForPerspectiveSpriteBatch(float width, float height, float _fov)
         {
             var pos = new Vector3(width / 2, height / 2, -((1f / (float)Math.Tan(_fov / 2)) * (height / 2)));
             return pos;
