@@ -21,28 +21,36 @@ namespace Microsoft.Xna.Framework
         public const float TODEGREES = 57.29577951316f;
         public const double Epsilon = 1e-10;
 
-        public static Matrix CreateViewMatrixForPerspectiveSpriteBatch(float width, float height, float _fov, Vector3 forward, Vector3 up)
+
+        public static float GetRequisitePerspectiveSpriteBatchAlignmentZdistance(GraphicsDevice device, float fieldOfView)
         {
-            var pos = new Vector3(width / 2, height / 2, -((1f / (float)Math.Tan(_fov / 2)) * (height / 2)));
-            return Matrix.Invert(Matrix.CreateWorld(pos, forward + pos, up));
+            var dist = -((1f / (float)Math.Tan(fieldOfView / 2)) * (device.Viewport.Height / 2));
+            return dist;
         }
-        public static Matrix CreateCameraMatrixForPerspectiveSpriteBatch(float width, float height, float _fov, Vector3 forward, Vector3 up)
-        {
-            var pos = new Vector3(width / 2, height / 2, -((1f / (float)Math.Tan(_fov / 2)) * (height / 2)));
-            return Matrix.CreateWorld(pos, forward + pos, up);
-        }
+
         public static Vector3 CameraVectorForPerspectiveSpriteBatch(float width, float height, float _fov)
         {
             var pos = new Vector3(width / 2, height / 2, -((1f / (float)Math.Tan(_fov / 2)) * (height / 2)));
             return pos;
         }
 
+        public static Matrix CreateCameraMatrixForPerspectiveSpriteBatch(float width, float height, float _fov, Vector3 forward, Vector3 up)
+        {
+            var pos = new Vector3(width / 2,  height / 2, -((1f / (float)Math.Tan(_fov / 2)) * (height / 2)));
+            return Matrix.CreateWorld(pos, forward, up);
+        }
+
+        public static Matrix CreateViewMatrixForPerspectiveSpriteBatch(float width, float height, float _fov, Vector3 forward, Vector3 up)
+        {
+            var pos = new Vector3(width / 2, height / 2, -((1f / (float)Math.Tan(_fov / 2)) * (height / 2)));
+            return Matrix.Invert(Matrix.CreateWorld(pos, forward, up));
+        }
+
         public static void CreatePerspectiveViewSpriteBatchAligned(GraphicsDevice device, Vector3 scollPositionOffset, float fieldOfView, float near, float far, out Matrix cameraWorld, out Matrix projection)
         {
             var dist = -((1f / (float)Math.Tan(fieldOfView / 2)) * (device.Viewport.Height / 2));
             var pos = new Vector3(device.Viewport.Width / 2, device.Viewport.Height / 2, dist) + scollPositionOffset;
-            var target = new Vector3(0, 0, 1) + pos;
-            cameraWorld = Matrix.CreateWorld(pos, target - pos, Vector3.Down);
+            cameraWorld = Matrix.CreateWorld(pos, Vector3.Backward, Vector3.Down);
             projection = CreateInfinitePerspectiveFieldOfViewRHLH(fieldOfView, device.Viewport.AspectRatio, near, far, true);
         }
 
@@ -51,15 +59,8 @@ namespace Microsoft.Xna.Framework
             float forwardDepthDirection = 1f;
             if (inverseOrthoDirection)
                 forwardDepthDirection = -1f;
-            cameraWorld = Matrix.CreateWorld(scollPositionOffset, new Vector3(0, 0, 1), Vector3.Down);
+            cameraWorld = Matrix.CreateWorld(scollPositionOffset, Vector3.Backward, Vector3.Down);
             projection = Matrix.CreateOrthographicOffCenter(0, device.Viewport.Width, -device.Viewport.Height, 0, forwardDepthDirection * 0, forwardDepthDirection * 1f);
-        }
-
-        public static float GetRequisitePerspectiveSpriteBatchAlignmentZdistance(GraphicsDevice device, float fieldOfView)
-        {
-            var dist = -((1f / (float)Math.Tan(fieldOfView / 2)) * (device.Viewport.Height / 2));
-            //var pos = new Vector3(device.Viewport.Width / 2, device.Viewport.Height / 2, dist);
-            return dist;
         }
 
         /// <summary>
