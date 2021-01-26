@@ -29,13 +29,15 @@ namespace ShaderExamples
         Matrix cameraWorld = Matrix.Identity;
         Vector3 cameraWorldPosition = new Vector3(0,0, -500f);
         Vector3 cameraForwardVector = Vector3.Forward;
+        Vector3 cameraUpVector = Vector3.Down;
+
         Vector3 quadWorldPosition = Vector3.Zero;
         Vector3 quadUpVector = Vector3.Up;
         Vector3 quadForwardVector = Vector3.Forward;
         float quadRotation = 0;
 
         bool useOrtho = false;
-        bool useFov = false;
+        bool useFov = true;
 
         public Game1_Into3Dwvp()
         {
@@ -75,10 +77,19 @@ namespace ShaderExamples
             font3 = Content.Load<SpriteFont>("MgFont3");
 
 
-            cameraWorld = Matrix.CreateWorld(cameraWorldPosition, cameraForwardVector, Vector3.Up);
+            if (useOrtho)
+            {
+                //cameraWorld = Matrix.CreateWorld(cameraWorldPosition, cameraForwardVector, cameraUpVector);
+                cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Backward, Vector3.Down);
+                MgMathExtras.CreateOrthographicViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, false, out cameraWorld, out projection);
+            }
+            else
+            {
+                cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Backward, Vector3.Down);
+                MgMathExtras.CreatePerspectiveViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, fov, 1f, 10000f, out cameraWorld, out projection);
+            }
 
-            SetInitialVPmatrices();
-            //SetProjection();
+            SetProjection();
 
             SimpleDrawingWithMatrixClassEffect.Load(Content);
             SimpleDrawingWithMatrixClassEffect.Technique = "TriangleDrawWithTransforms";
@@ -94,6 +105,41 @@ namespace ShaderExamples
         {
         }
 
+        public void SetProjection()
+        {
+            if (useOrtho)
+            {
+                //projection = Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1, 10000f);
+
+                projection = Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, -GraphicsDevice.Viewport.Height, 0, 0, 10000f);
+                //MgMathExtras.CreateOrthographicViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, false, out cameraWorld, out projection);
+            }
+            else
+            {
+                if (useFov)
+                {
+                    //MgMathExtras.CreatePerspectiveViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, fov, 1f, 10000f, out cameraWorld, out projection);
+                    projection = MgMathExtras.CreateInfinitePerspectiveFieldOfViewRHLH(fov, GraphicsDevice.Viewport.AspectRatio, 1f, 10000f, true);
+
+                    //projection = Matrix.CreatePerspectiveFieldOfView(fov, GraphicsDevice.Viewport.Width / GraphicsDevice.Viewport.Height, 1f, 10000f);
+                }
+                //else
+                //{
+                //    cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Zero - cameraWorldPosition, Vector3.Up);
+                //    view = Matrix.Invert(cameraWorld);
+                //    projection = Matrix.CreatePerspectiveOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1f, 10000f);
+                //    //projection = Matrix.CreatePerspective(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 1f, 10000f);
+                //    //projection = Matrix.CreateScale(1, -1, 1) * Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 0, 10000);
+                //}
+            }
+
+            if (SimpleDrawingWithMatrixClassEffect.effect != null)
+            {
+                SimpleDrawingWithMatrixClassEffect.View = view;
+                SimpleDrawingWithMatrixClassEffect.Projection = projection;
+            }
+        }
+
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -102,28 +148,15 @@ namespace ShaderExamples
             float speed = .1f;
             float speed2 = speed * .1f;
 
-            // use the wasd to alter the quads position.
-            //if (Keyboard.GetState().IsKeyDown(Keys.D))
-            //    quadWorldPosition.X += speed;
-            //if (Keyboard.GetState().IsKeyDown(Keys.A))
-            //    quadWorldPosition.X -= speed;
-            //if (Keyboard.GetState().IsKeyDown(Keys.S))
-            //    quadWorldPosition.Y += speed;
-            //if (Keyboard.GetState().IsKeyDown(Keys.W))
-            //    quadWorldPosition.Y -= speed;
-
             if (Keyboard.GetState().IsKeyDown(Keys.Z))
                 quadRotation += speed * .01f;
             if (Keyboard.GetState().IsKeyDown(Keys.C))
                 quadRotation -= speed * .01f;
-
             if (quadRotation > 6.28) 
                 quadRotation = 0;
             if (quadRotation < 0) 
                 quadRotation = 6.28f;
-
             quadUpVector = new Vector3(MathF.Sin(quadRotation), MathF.Cos(quadRotation), 0);
-
 
             var t = cameraWorld.Translation;
             cameraWorld.Translation = Vector3.Zero;
@@ -136,9 +169,7 @@ namespace ShaderExamples
                 cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Right, speed2);
             if (Keyboard.GetState().IsKeyDown(Keys.W))
                 cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Right, -speed2);
-
             cameraWorld.Translation = t;
-
 
             // use the arrow keys to alter the camera lookat position.
             if (Keyboard.GetState().IsKeyDown(Keys.Right))
@@ -173,61 +204,7 @@ namespace ShaderExamples
             base.Update(gameTime);
         }
 
-        public void SetInitialVPmatrices()
-        {
-            if (useOrtho)
-            {
-                //projection = Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1, 10000f);
-                MgMathExtras.CreateOrthographicViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, false, out cameraWorld, out projection);
-            }
-            else
-            {
-                if (useFov)
-                {
-                    //projection = Matrix.CreatePerspectiveFieldOfView(fov, GraphicsDevice.Viewport.Width / GraphicsDevice.Viewport.Height, 1f, 10000f);
-                    MgMathExtras.CreatePerspectiveViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, fov, 1f, 10000f, out cameraWorld, out projection);
-                }
-                else
-                {
-                    //cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Backward, Vector3.Down);
-                    view = Matrix.Invert(cameraWorld);
-                    projection = Matrix.CreatePerspectiveOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1f, 10000f);
-                    //projection = Matrix.CreatePerspective(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 1f, 10000f);
-                }
-            }
-            if (SimpleDrawingWithMatrixClassEffect.effect != null)
-                SimpleDrawingWithMatrixClassEffect.Projection = projection;
-        }
 
-        public void SetProjection()
-        {
-            if (useOrtho)
-            {
-                //projection = Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1, 10000f);
-                MgMathExtras.CreateOrthographicViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, false, out cameraWorld, out projection);
-            }
-            else
-            {
-                if (useFov)
-                {
-                    //projection = Matrix.CreatePerspectiveFieldOfView(fov, GraphicsDevice.Viewport.Width / GraphicsDevice.Viewport.Height, 1f, 10000f);
-                    //MgMathExtras.CreatePerspectiveViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, fov, 1f, 10000f, out cameraWorld, out projection);
-
-                    projection = MgMathExtras.CreateInfinitePerspectiveFieldOfViewRHLH(fov, GraphicsDevice.Viewport.AspectRatio, 1f, 10000f, true);
-                }
-                else
-                {
-                    cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Zero - cameraWorldPosition, Vector3.Up);
-                    view = Matrix.Invert(cameraWorld);
-                    projection = Matrix.CreatePerspectiveOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1f, 10000f);
-                    //projection = Matrix.CreatePerspective(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 1f, 10000f);
-                    //projection = Matrix.CreateScale(1, -1, 1) * Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 0, 10000);
-                }
-            }
-
-            if (SimpleDrawingWithMatrixClassEffect.effect != null)
-                SimpleDrawingWithMatrixClassEffect.Projection = projection;
-        }
 
         protected override void Draw(GameTime gameTime)
         {
@@ -237,6 +214,7 @@ namespace ShaderExamples
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
             SimpleDrawingWithMatrixClassEffect.View = view;
+            SimpleDrawingWithMatrixClassEffect.Projection = projection;
 
             quad.OrientWorld(new Vector3(100, 100, 0), Vector3.Forward, Vector3.Up);
             quad.Draw(GraphicsDevice);
