@@ -77,17 +77,17 @@ namespace ShaderExamples
             font3 = Content.Load<SpriteFont>("MgFont3");
 
 
-            if (useOrtho)
-            {
-                //cameraWorld = Matrix.CreateWorld(cameraWorldPosition, cameraForwardVector, cameraUpVector);
-                cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Backward, Vector3.Down);
-                MgMathExtras.CreateOrthographicViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, false, out cameraWorld, out projection);
-            }
-            else
-            {
-                cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Backward, Vector3.Down);
-                MgMathExtras.CreatePerspectiveViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, fov, 1f, 10000f, out cameraWorld, out projection);
-            }
+            //if (useOrtho)
+            //{
+            //    MgMathExtras.CreateOrthographicViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, false, out cameraWorld, out projection);
+            //    //cameraWorld = Matrix.CreateWorld(cameraWorldPosition, cameraForwardVector, cameraUpVector);
+            //    cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Backward, Vector3.Down);
+            //}
+            //else
+            //{
+            //    MgMathExtras.CreatePerspectiveViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, fov, 1f, 10000f, out cameraWorld, out projection);
+            //    //cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Backward, Vector3.Down);
+            //}
 
             SetProjection();
 
@@ -109,29 +109,38 @@ namespace ShaderExamples
         {
             if (useOrtho)
             {
-                //projection = Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1, 10000f);
-
-                projection = Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, -GraphicsDevice.Viewport.Height, 0, 0, 10000f);
-                //MgMathExtras.CreateOrthographicViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, false, out cameraWorld, out projection);
+                MgMathExtras.CreateOrthographicViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, false, out cameraWorld, out projection);
             }
             else
             {
-                if (useFov)
-                {
-                    //MgMathExtras.CreatePerspectiveViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, fov, 1f, 10000f, out cameraWorld, out projection);
-                    projection = MgMathExtras.CreateInfinitePerspectiveFieldOfViewRHLH(fov, GraphicsDevice.Viewport.AspectRatio, 1f, 10000f, true);
-
-                    //projection = Matrix.CreatePerspectiveFieldOfView(fov, GraphicsDevice.Viewport.Width / GraphicsDevice.Viewport.Height, 1f, 10000f);
-                }
-                //else
-                //{
-                //    cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Zero - cameraWorldPosition, Vector3.Up);
-                //    view = Matrix.Invert(cameraWorld);
-                //    projection = Matrix.CreatePerspectiveOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1f, 10000f);
-                //    //projection = Matrix.CreatePerspective(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 1f, 10000f);
-                //    //projection = Matrix.CreateScale(1, -1, 1) * Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 0, 10000);
-                //}
+                MgMathExtras.CreatePerspectiveViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, fov, 1f, 10000f, out cameraWorld, out projection);
             }
+
+            //if (useOrtho)
+            //{
+            //    //projection = Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1, 10000f);
+
+            //    projection = Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, -GraphicsDevice.Viewport.Height, 0, 1f, 10000f);
+            //    //MgMathExtras.CreateOrthographicViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, false, out cameraWorld, out projection);
+            //}
+            //else
+            //{
+            //    if (useFov)
+            //    {
+            //        //MgMathExtras.CreatePerspectiveViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, fov, 1f, 10000f, out cameraWorld, out projection);
+            //        projection = MgMathExtras.CreateInfinitePerspectiveFieldOfViewRHLH(fov, GraphicsDevice.Viewport.AspectRatio, 1f, 10000f, true);
+
+            //        //projection = Matrix.CreatePerspectiveFieldOfView(fov, GraphicsDevice.Viewport.Width / GraphicsDevice.Viewport.Height, 1f, 10000f);
+            //    }
+            //    //else
+            //    //{
+            //    //    cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Zero - cameraWorldPosition, Vector3.Up);
+            //    //    view = Matrix.Invert(cameraWorld);
+            //    //    projection = Matrix.CreatePerspectiveOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1f, 10000f);
+            //    //    //projection = Matrix.CreatePerspective(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 1f, 10000f);
+            //    //    //projection = Matrix.CreateScale(1, -1, 1) * Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 0, 10000);
+            //    //}
+            //}
 
             if (SimpleDrawingWithMatrixClassEffect.effect != null)
             {
@@ -203,8 +212,6 @@ namespace ShaderExamples
 
             base.Update(gameTime);
         }
-
-
 
         protected override void Draw(GameTime gameTime)
         {

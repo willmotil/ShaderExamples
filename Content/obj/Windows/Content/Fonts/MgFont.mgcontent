@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Fonts/MgFont.spritefont</SourceFile>
-  <SourceTime>2021-01-01T01:05:59.3347295-05:00</SourceTime>
-  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Content/Fonts/MgFont.xnb</DestFile>
-  <DestTime>2021-01-25T00:48:29.1555144-05:00</DestTime>
+  <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Fonts/MgFont.spritefont</SourceFile>
+  <SourceTime>2020-12-30T04:29:41.7846642-05:00</SourceTime>
+  <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Content/Fonts/MgFont.xnb</DestFile>
+  <DestTime>2021-01-26T06:24:30.5721821-05:00</DestTime>
   <Importer>FontDescriptionImporter</Importer>
   <ImporterTime>2020-08-10T16:17:54-04:00</ImporterTime>
   <Processor>FontDescriptionProcessor</Processor>
