@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/RefractionDirectionalEffect.fx</SourceFile>
-  <SourceTime>2021-01-01T07:29:29.263422-05:00</SourceTime>
-  <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Content/Shaders/RefractionDirectionalEffect.xnb</DestFile>
-  <DestTime>2021-01-26T06:24:38.1635977-05:00</DestTime>
+  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/RefractionDirectionalEffect.fx</SourceFile>
+  <SourceTime>2021-01-08T03:27:38.2552277-05:00</SourceTime>
+  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Content/Shaders/RefractionDirectionalEffect.xnb</DestFile>
+  <DestTime>2021-01-28T01:16:22.2457007-05:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2020-08-10T16:17:54-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>

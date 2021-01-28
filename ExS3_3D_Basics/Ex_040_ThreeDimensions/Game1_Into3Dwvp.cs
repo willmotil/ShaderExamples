@@ -58,7 +58,7 @@ namespace ShaderExamples
         public void OnResize(object sender, EventArgs e)
         {
             rtScene = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.None);
-            SetProjection();
+            SetViewProjection();
         }
 
         protected override void LoadContent()
@@ -76,20 +76,7 @@ namespace ShaderExamples
             font2 = Content.Load<SpriteFont>("MgFont2");
             font3 = Content.Load<SpriteFont>("MgFont3");
 
-
-            //if (useOrtho)
-            //{
-            //    MgMathExtras.CreateOrthographicViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, false, out cameraWorld, out projection);
-            //    //cameraWorld = Matrix.CreateWorld(cameraWorldPosition, cameraForwardVector, cameraUpVector);
-            //    cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Backward, Vector3.Down);
-            //}
-            //else
-            //{
-            //    MgMathExtras.CreatePerspectiveViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, fov, 1f, 10000f, out cameraWorld, out projection);
-            //    //cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Backward, Vector3.Down);
-            //}
-
-            SetProjection();
+            SetViewProjection();
 
             SimpleDrawingWithMatrixClassEffect.Load(Content);
             SimpleDrawingWithMatrixClassEffect.Technique = "TriangleDrawWithTransforms";
@@ -97,50 +84,28 @@ namespace ShaderExamples
             SimpleDrawingWithMatrixClassEffect.View = view;
             SimpleDrawingWithMatrixClassEffect.Projection = projection;
 
-            quad.CreateQuad(GraphicsDevice.Viewport.Bounds, false);
-            quad2.CreateQuad(GraphicsDevice.Viewport.Bounds, false);
+            quad.CreateQuad(GraphicsDevice.Viewport.Bounds, false, true);
+            quad2.CreateQuad(GraphicsDevice.Viewport.Bounds, false, true);
         }
 
         protected override void UnloadContent()
         {
         }
 
-        public void SetProjection()
+        public void SetViewProjection()
         {
-            if (useOrtho)
-            {
-                MgMathExtras.CreateOrthographicViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, false, out cameraWorld, out projection);
-            }
-            else
-            {
-                MgMathExtras.CreatePerspectiveViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, fov, 1f, 10000f, out cameraWorld, out projection);
-            }
-
             //if (useOrtho)
             //{
-            //    //projection = Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1, 10000f);
-
-            //    projection = Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, -GraphicsDevice.Viewport.Height, 0, 1f, 10000f);
-            //    //MgMathExtras.CreateOrthographicViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, false, out cameraWorld, out projection);
+            //    MgMathExtras.CreateOrthographicViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, false, out cameraWorld, out projection);
             //}
             //else
             //{
-            //    if (useFov)
-            //    {
-            //        //MgMathExtras.CreatePerspectiveViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, fov, 1f, 10000f, out cameraWorld, out projection);
-            //        projection = MgMathExtras.CreateInfinitePerspectiveFieldOfViewRHLH(fov, GraphicsDevice.Viewport.AspectRatio, 1f, 10000f, true);
-
-            //        //projection = Matrix.CreatePerspectiveFieldOfView(fov, GraphicsDevice.Viewport.Width / GraphicsDevice.Viewport.Height, 1f, 10000f);
-            //    }
-            //    //else
-            //    //{
-            //    //    cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Zero - cameraWorldPosition, Vector3.Up);
-            //    //    view = Matrix.Invert(cameraWorld);
-            //    //    projection = Matrix.CreatePerspectiveOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 1f, 10000f);
-            //    //    //projection = Matrix.CreatePerspective(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 1f, 10000f);
-            //    //    //projection = Matrix.CreateScale(1, -1, 1) * Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 0, 10000);
-            //    //}
+            //    MgMathExtras.CreatePerspectiveViewSpriteBatchAligned(GraphicsDevice, Vector3.Zero, fov, 1f, 10000f, out cameraWorld, out projection);
             //}
+
+            cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Zero - cameraWorldPosition, cameraUpVector);
+            view = Matrix.Invert(cameraWorld);
+            projection = Matrix.CreatePerspectiveFieldOfView(fov, GraphicsDevice.Viewport.AspectRatio, 1f, 10000f);
 
             if (SimpleDrawingWithMatrixClassEffect.effect != null)
             {
@@ -201,13 +166,13 @@ namespace ShaderExamples
             if (Keys.D1.IsKeyPressedWithDelay(gameTime))
             {
                 useOrtho = !useOrtho;
-                SetProjection();
+                SetViewProjection();
             }
 
             if (Keys.D2.IsKeyPressedWithDelay(gameTime))
             {
                 useFov = !useFov;
-                SetProjection();
+                SetViewProjection();
             }
 
             base.Update(gameTime);
@@ -223,8 +188,8 @@ namespace ShaderExamples
             SimpleDrawingWithMatrixClassEffect.View = view;
             SimpleDrawingWithMatrixClassEffect.Projection = projection;
 
-            quad.OrientWorld(new Vector3(100, 100, 0), Vector3.Forward, Vector3.Up);
-            quad.Draw(GraphicsDevice);
+            //quad.OrientWorld(new Vector3(100, 100, 0), Vector3.Forward, Vector3.Up);
+            //quad.Draw(GraphicsDevice);
 
             quad2.OrientWorld(quadWorldPosition, Vector3.Forward, quadUpVector);
             quad2.Draw(GraphicsDevice);
@@ -264,17 +229,22 @@ namespace ShaderExamples
         {
         }
 
-        public void CreateQuad(Rectangle destination, bool flipWindingDirection)
+        public void CreateQuad(Rectangle destination, bool flipWindingDirection, bool center)
         {
             vertices = new CustomVertexPositionNormalTexture[4];
             indices = new int[6];
 
             var normal = Vector3.Forward; //  this is just a dummy value for now.
+            var scale = 2f;
 
-            var left = destination.Left;
-            var right = destination.Right;
-            var top = destination.Top;
-            var bottom = destination.Bottom;
+            var origin = Vector2.Zero;
+            if (center)
+                origin = destination.Center.ToVector2() * scale;
+
+            var left = destination.Left * scale - origin.X;
+            var right = destination.Right * scale - origin.X;
+            var top = destination.Top * scale - origin.Y;
+            var bottom = destination.Bottom * scale - origin.Y;
             vertices[0] = new CustomVertexPositionNormalTexture(new Vector3(left, top, 0), normal, new Vector2(0f, 0f)); // tl
             vertices[1] = new CustomVertexPositionNormalTexture(new Vector3(left, bottom, 0), normal, new Vector2(0f, 1f)); // bl
             vertices[2] = new CustomVertexPositionNormalTexture(new Vector3(right, bottom, 0), normal, new Vector2(1f, 1f)); // br
@@ -359,7 +329,6 @@ namespace ShaderExamples
             );
             VertexDeclaration IVertexType.VertexDeclaration { get { return VertexDeclaration; } }
         }
-
     }
 
     // Wrap up our effect.
@@ -414,8 +383,6 @@ namespace ShaderExamples
             set { effect.Parameters["Projection"].SetValue(value); }
         }
     }
-
-
 }
 
 
