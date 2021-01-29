@@ -358,3 +358,125 @@ namespace ShaderExamples
 }
 
 
+//public class Primitive2dQuadBuffer
+//{
+//    // ccw winding.
+
+//    List<VertexPositionNormalTexture> verticeList = new List<VertexPositionNormalTexture>();
+//    VertexPositionNormalTexture[] vertices;
+//    public void AddVertexRectangleToBuffer(GraphicsDevice gd, Rectangle r, float depth)
+//    {
+//        var normal = Vector3.Normalize(new Vector3(0, 0, depth));
+//        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Left, r.Top, depth) , normal, new Vector2(0f, 0f))); ;  // p1
+//        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Left, r.Bottom, depth) , normal, new Vector2(0f, 1f))); // p0
+//        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Right, r.Bottom, depth) , normal, new Vector2(1f, 1f)));// p3
+
+//        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Right, r.Bottom, depth) , normal, new Vector2(1f, 1f)));// p3
+//        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Right, r.Top, depth) , normal, new Vector2(1f, 0f)));// p2
+//        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Left, r.Top, depth) , normal, new Vector2(0f, 0f))); // p1
+
+//        vertices = verticeList.ToArray();
+//    }
+
+//    public void AlterVertexRectanglePositionInBuffer(GraphicsDevice gd, int index, Rectangle r, float depth)
+//    {
+//        // Triangle 1
+//        vertices[index + 0].Position = new Vector3(r.Left, r.Top, depth);  // p1
+//        vertices[index + 1].Position = new Vector3(r.Left, r.Bottom, depth); // p0
+//        vertices[index + 2].Position = new Vector3(r.Right, r.Bottom, depth); // p3
+//        // Triangle 2
+//        vertices[index + 3].Position = new Vector3(r.Right, r.Bottom, depth);// p3
+//        vertices[index + 4].Position = new Vector3(r.Right, r.Top, depth); // p2
+//        vertices[index + 5].Position = new Vector3(r.Left, r.Top, depth); // p1
+//    }
+
+//    public void DrawQuadBuffer(GraphicsDevice device, Effect effect)
+//    {
+//        if (vertices != null)
+//        {
+//            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+//            {
+//                pass.Apply();
+//                int numberOfTriangles = vertices.Length / 3;
+//                device.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, numberOfTriangles);
+//            }
+//        }
+//    }
+//    public void DrawQuadRangeInBuffer(GraphicsDevice device, Effect effect, int startQuad, int quadDrawLength)
+//    {
+//        int startVertice = startQuad * 2 * 3;
+//        int numberOfTriangles = quadDrawLength * 2;
+//        if (vertices != null)
+//        {
+//            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+//            {
+//                pass.Apply();
+//                device.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, startVertice, numberOfTriangles);
+//            }
+//        }
+//    }
+//}
+
+//public class Primitive2dIndexedQuadBuffer
+//{
+//    // ccw winding.
+
+//    List<VertexPositionNormalTexture> verticeList = new List<VertexPositionNormalTexture>();
+//    List<int> indiceList = new List<int>();
+//    VertexPositionNormalTexture[] vertices;
+//    int[] indices;
+//    public void AddVertexRectangleToBuffer(GraphicsDevice gd, Rectangle r, float depth)
+//    {
+//        int currentCount = verticeList.Count;
+//        var normal = Vector3.Normalize(new Vector3(0, 0, depth));
+//        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Left, r.Top, depth), normal, new Vector2(0f, 0f)));  // p1
+//        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Left, r.Bottom, depth), normal, new Vector2(0f, 1f))); // p0
+//        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Right, r.Bottom, depth), normal, new Vector2(1f, 1f)));// p3
+//        verticeList.Add(new VertexPositionNormalTexture(new Vector3(r.Right, r.Top, depth), normal, new Vector2(1f, 0f)));// p4
+//        vertices = verticeList.ToArray();
+
+//        // triangle 0 indices.
+//        indiceList.Add(currentCount + 0);
+//        indiceList.Add(currentCount + 1);
+//        indiceList.Add(currentCount + 3);
+//        // triangle 1 indices.
+//        indiceList.Add(currentCount + 1);
+//        indiceList.Add(currentCount + 2);
+//        indiceList.Add(currentCount + 3);
+//        indices = indiceList.ToArray();
+//    }
+
+//    public void AlterVertexRectanglePositionInBuffer(GraphicsDevice gd, int index, Rectangle r, float depth)
+//    {
+//        vertices[index + 0].Position = new Vector3(r.Left, r.Top, depth);  // p1
+//        vertices[index + 1].Position = new Vector3(r.Left, r.Bottom, depth); // p0
+//        vertices[index + 2].Position = new Vector3(r.Right, r.Bottom, depth); // p3
+//        vertices[index + 4].Position = new Vector3(r.Right, r.Top, depth); // p2
+//    }
+
+//    public void DrawQuadBuffer(GraphicsDevice device, Effect effect)
+//    {
+//        if (vertices != null)
+//        {
+//            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+//            {
+//                pass.Apply();
+//                int numberOfTriangles = vertices.Length / 3;
+//                device.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, numberOfTriangles);
+//            }
+//        }
+//    }
+//    public void DrawQuadRangeInBuffer(GraphicsDevice device, Effect effect, int startQuad, int quadDrawLength)
+//    {
+//        int startVertice = startQuad * 2 * 3;
+//        int numberOfTriangles = quadDrawLength * 2;
+//        if (vertices != null)
+//        {
+//            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+//            {
+//                pass.Apply();
+//                device.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, startVertice, numberOfTriangles);
+//            }
+//        }
+//    }
+//}

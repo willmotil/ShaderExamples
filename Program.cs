@@ -36,7 +36,8 @@ namespace ShaderExamples
             //using (var game = new Game1_TriangleDirectlyToTheGpu()) game.Run();
             //using (var game = new Game1_QuadWithMatrices()) game.Run();
             //using (var game = new Game1_ManipulatingTheMatrices()) game.Run();
-            using (var game = new Game1_Into3Dwvp()) game.Run();
+            //using (var game = new Game1_ViewPerspectiveProjection()) game.Run();
+            using (var game = new Game1_IndexedMesh()) game.Run();
             
 
             // tests or imcomplete.
