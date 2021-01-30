@@ -66,13 +66,12 @@ namespace ShaderExamples
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-
             effect.CurrentTechnique = effect.Techniques["Basic"];
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, effect, null);
             spriteBatch.Draw(texture, new Rectangle(0, 0, 300, 300), Color.White);
             spriteBatch.Draw(shadingMultiTexture, new Rectangle(0, 300, 300, 300), Color.White);
-            spriteBatch.Draw(stenciledTexture, new Rectangle(300, 300, 300, 300), Color.White);
+            spriteBatch.Draw(stenciledTexture, new Rectangle(300, 0, 300, 300), Color.White);
             spriteBatch.End();
 
             if (_useBlend)
@@ -81,7 +80,7 @@ namespace ShaderExamples
                 effect.CurrentTechnique = effect.Techniques["MaskAndOverlay"];
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, effect, null);
-            spriteBatch.Draw(texture, new Rectangle(300, 0, 300, 300), Color.White);
+            spriteBatch.Draw(texture, new Rectangle(300, 300, 300, 300), Color.White);
             spriteBatch.End();
 
             base.Draw(gameTime);

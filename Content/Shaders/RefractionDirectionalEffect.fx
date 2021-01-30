@@ -29,7 +29,7 @@ float4 RefractPS(float4 position : SV_Position, float4 color : COLOR0, float2 Te
 {
     float2 sampleDirPullOffset = normalize(displacementDirection).xy;
     float2 mapUvTimeOffset = sampleDirPullOffset * displacementTime;
-    float2 sampleDirOffset = DisplacementTexture.Sample(Sampler, TextureCoordinates + mapUvTimeOffset).xy - float2(.5,.5f);
+    float2 sampleDirOffset = DisplacementTexture.Sample(Sampler, TextureCoordinates + mapUvTimeOffset).xy - float2(.5f,.5f);
    
     float winc = 0.02f;
     float w = 0;

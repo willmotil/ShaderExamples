@@ -35,21 +35,6 @@ struct VertexShaderOutput
 // PixelShaders PS
 //_________________________________________________
 
-float4 MaskAndOverlayPS(VertexShaderOutput input) : COLOR
-{
-	float2 texCoordOffset = float2(CycleTime,0.0f);
-	float4 color = tex2D(SpriteTextureSampler, input.TextureCoordinates + texCoordOffset);
-	float4 stencilColor = tex2D(SpriteStencilTextureSampler, input.TextureCoordinates);
-
-	color.rgba *= stencilColor.rgba;
-
-	if (stencilColor.a < 0.01f)
-		color.rgba = 0.0f;
-
-	// Color here is the input color from spriteBatch.Draw(, ,, Color.White , , , );  white doesn't change anything.
-	return color *= input.Color;
-}
-
 float4 MaskAndBlendPS(VertexShaderOutput input) : COLOR
 {
     float2 texCoordOffset = float2(CycleTime, 0.0f);
@@ -63,7 +48,22 @@ float4 MaskAndBlendPS(VertexShaderOutput input) : COLOR
 	return color *= input.Color;
 }
 
-float4 RegularPS(VertexShaderOutput input) : COLOR
+float4 MaskAndOverlayPS(VertexShaderOutput input) : COLOR
+{
+	float2 texCoordOffset = float2(CycleTime,0.0f);
+	float4 color = tex2D(SpriteTextureSampler, input.TextureCoordinates + texCoordOffset);
+	float4 stencilColor = tex2D(SpriteStencilTextureSampler, input.TextureCoordinates);
+
+	color.rgba *= stencilColor.rgba;
+
+	if (stencilColor.a < 0.01f)
+		color.rgba = 0.0f;
+
+	// Color here is the input color from spriteBatch.Draw(, , , Color.White , , , );  white doesn't change anything.
+	return color *= input.Color;
+}
+
+float4 BasicPS(VertexShaderOutput input) : COLOR
 {
 	float4 color = tex2D(SpriteTextureSampler, input.TextureCoordinates);
 	// Color here is the input color from spriteBatch.Draw(, ,, Color.White , , , );  white doesn't change anything.
@@ -78,7 +78,8 @@ technique MaskAndBlend
 {
 	pass P0
 	{
-		PixelShader = compile PS_SHADERMODEL MaskAndBlendPS();
+		PixelShader = compile PS_SHADERMODEL 
+			MaskAndBlendPS();
 	}
 };
 
@@ -86,7 +87,8 @@ technique MaskAndOverlay
 {
 	pass P0
 	{
-		PixelShader = compile PS_SHADERMODEL MaskAndOverlayPS();
+		PixelShader = compile PS_SHADERMODEL 
+			MaskAndOverlayPS();
 	}
 };
 
@@ -95,6 +97,7 @@ technique Basic
 {
 	pass P0
 	{
-		PixelShader = compile PS_SHADERMODEL RegularPS();
+		PixelShader = compile PS_SHADERMODEL 
+			BasicPS();
 	}
 };

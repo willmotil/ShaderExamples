@@ -124,7 +124,9 @@ namespace ShaderExamples
                 cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Right, speed2);
             cameraWorld.Translation = t;
 
-            // Use the Z and C keys to rotate the camera.
+            // Use the Z and C keys to rotate the quad as a excersize you can change this to rotate the cameras up vector as above.
+            // cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Forward, speed2);
+            //
             if (Keyboard.GetState().IsKeyDown(Keys.Z))
                 quadRotation += speed * .01f;
             if (Keyboard.GetState().IsKeyDown(Keys.C))
@@ -185,7 +187,8 @@ namespace ShaderExamples
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
             string msg =
                 $" \n The camera exists as a world matrix that holds a position and orientation." +
-                $" \n The keys WASD change the forward view direction (which is the major take away here). ZC allows for spin." +
+                $" \n The keys WASD change the forward view direction (which is the major take away here). " +
+                $" \n ZC allows us to z axis rotate the quad itself." +
                 $" \n The Arrows move the camera translation as strafing motion. " +
                 $" \n In this example we also create a dead simple Quad Class and a mock up wrapper effect." +
                 $" \n The projection matrix is a perspective field of view type. (FOV)" +

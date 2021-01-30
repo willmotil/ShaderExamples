@@ -7,24 +7,31 @@
 #define PS_SHADERMODEL ps_4_0
 #endif
 
-texture2D SpriteMultiTexture;
-texture2D SpriteStencilTexture;
 
-sampler2D SpriteTextureSampler : register(s0)
+texture2D SpriteMultiTexture : register (t1);
+texture2D SpriteStencilTexture  : register (t2);
+
+SamplerState TextureSampler = sampler_state
 {
 	Texture = (Texture);
-	magfilter = POINT; minfilter = POINT; mipfilter = POINT;
+	magfilter = POINT; minfilter = POINT; mipfilter = POINT; //magfilter = linear;//minfilter = linear;
 };
 
-sampler2D SpriteMultiTextureSampler = sampler_state
-{
-	Texture = (SpriteMultiTexture);
-};
+// we avoid doing it the below way when used with spritebatch as it moves texture registers and sampler2D's around on its own.
 
-sampler2D SpriteStencilTextureSampler = sampler_state
-{
-	Texture = (SpriteStencilTexture);
-};
+//sampler2D SpriteTextureSampler : register(s0)
+//{
+//	Texture = (Texture);
+//	magfilter = POINT; minfilter = POINT; mipfilter = POINT;
+//};
+//sampler2D SpriteMultiTextureSampler = sampler_state
+//{
+//	Texture = (SpriteMultiTexture);
+//};
+//sampler2D SpriteStencilTextureSampler = sampler_state
+//{
+//	Texture = (SpriteStencilTexture);
+//};
 
 
 struct VertexShaderOutput
@@ -41,9 +48,13 @@ struct VertexShaderOutput
 
 float4 MaskAndOverlayPS(VertexShaderOutput input) : COLOR
 {
-	float4 color = tex2D(SpriteTextureSampler, input.TextureCoordinates);
-	float4 overlayColor = tex2D(SpriteMultiTextureSampler, input.TextureCoordinates);
-	float4 stencilColor = tex2D(SpriteStencilTextureSampler, input.TextureCoordinates);
+	//float4 color = tex2D(SpriteTextureSampler, input.TextureCoordinates);
+	//float4 overlayColor = tex2D(SpriteMultiTextureSampler, input.TextureCoordinates);
+	//float4 stencilColor = tex2D(SpriteStencilTextureSampler, input.TextureCoordinates);
+
+	float4 overlayColor = SpriteMultiTexture.Sample(TextureSampler, input.TextureCoordinates);
+	float4 stencilColor = SpriteStencilTexture.Sample(TextureSampler, input.TextureCoordinates);
+	float4 color = tex2D(TextureSampler, input.TextureCoordinates);
 
 	float alpha = overlayColor.a;
 	float invalpha = 1.0f - overlayColor.a;
@@ -59,9 +70,13 @@ float4 MaskAndOverlayPS(VertexShaderOutput input) : COLOR
 
 float4 MaskAndBlendPS(VertexShaderOutput input) : COLOR
 {
-	float4 color = tex2D(SpriteTextureSampler, input.TextureCoordinates);
-	float4 textureBlendColor = tex2D(SpriteMultiTextureSampler, input.TextureCoordinates);
-	float4 stencilColor = tex2D(SpriteStencilTextureSampler, input.TextureCoordinates);
+	//float4 color = tex2D(SpriteTextureSampler, input.TextureCoordinates);
+	//float4 textureBlendColor = tex2D(SpriteMultiTextureSampler, input.TextureCoordinates);
+	//float4 stencilColor = tex2D(SpriteStencilTextureSampler, input.TextureCoordinates);
+
+	float4 color = tex2D(TextureSampler, input.TextureCoordinates);
+	float4 textureBlendColor = SpriteMultiTexture.Sample(TextureSampler, input.TextureCoordinates);
+	float4 stencilColor = SpriteStencilTexture.Sample(TextureSampler, input.TextureCoordinates);
 
 	color.rgb *= textureBlendColor.rgb;
 
@@ -73,7 +88,7 @@ float4 MaskAndBlendPS(VertexShaderOutput input) : COLOR
 
 float4 RegularPS(VertexShaderOutput input) : COLOR
 {
-	float4 color = tex2D(SpriteTextureSampler, input.TextureCoordinates);
+	float4 color = tex2D(TextureSampler, input.TextureCoordinates);
 	// Color here is the input color from spriteBatch.Draw(, ,, Color.White , , , );  white doesn't change anything.
 	return color * input.Color;
 }
