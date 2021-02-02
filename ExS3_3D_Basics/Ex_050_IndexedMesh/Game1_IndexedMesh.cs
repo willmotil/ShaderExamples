@@ -20,6 +20,7 @@ namespace ShaderExamples
         MouseState mouse;
 
         QuadModel quad = new QuadModel();
+        PrimitiveMesh mesh;
 
         Matrix view;
         Matrix projection;
@@ -82,6 +83,8 @@ namespace ShaderExamples
             SimpleDrawingWithMatrixClassEffect.Projection = projection;
 
             quad.CreateQuad(GraphicsDevice.Viewport.Bounds, 1f, false, true);
+            mesh = new PrimitiveMesh(4,4, 1f, true, false, true);
+            mesh.showOutput = true;
         }
 
         protected override void UnloadContent()
@@ -171,8 +174,10 @@ namespace ShaderExamples
             SimpleDrawingWithMatrixClassEffect.View = view;
             SimpleDrawingWithMatrixClassEffect.Projection = projection;
 
-            quad.OrientWorld(quadWorldPosition, Vector3.Forward, quadUpVector);
-            quad.Draw(GraphicsDevice);
+            mesh.DrawPrimitive(GraphicsDevice, SimpleDrawingWithMatrixClassEffect.effect);
+
+            //quad.OrientWorld(quadWorldPosition, Vector3.Forward, quadUpVector);
+            //quad.Draw(GraphicsDevice);
 
             DrawSpriteBatches(gameTime);
 
@@ -202,6 +207,59 @@ namespace ShaderExamples
                 ;
             spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Blue);
             spriteBatch.End();
+        }
+
+        // Wrap up our effect.
+        public static class SimpleDrawingWithMatrixClassEffect
+        {
+            public static Effect effect;
+
+            public static void InfoForCreateMethods()
+            {
+                Console.WriteLine($"\n effect.Name: \n   {effect.Name} ");
+                Console.WriteLine($"\n effect.Parameters: \n ");
+                var pparams = effect.Parameters;
+                foreach (var p in pparams)
+                {
+                    Console.WriteLine($"   p.Name: {p.Name}  ");
+                }
+                Console.WriteLine($"\n effect.Techniques: \n ");
+                var tparams = effect.Techniques;
+                foreach (var t in tparams)
+                {
+                    Console.WriteLine($"   t.Name: {t.Name}  ");
+                }
+            }
+            public static void Load(Microsoft.Xna.Framework.Content.ContentManager Content)
+            {
+                Content.RootDirectory = @"Content/Shaders3D";
+                effect = Content.Load<Effect>("SimpleDrawingWithMatriceEffect");
+                effect.CurrentTechnique = effect.Techniques["TriangleDrawWithTransforms"];
+            }
+            public static Effect GetEffect
+            {
+                get { return effect; }
+            }
+            public static string Technique
+            {
+                set { effect.CurrentTechnique = effect.Techniques[value]; }
+            }
+            public static Texture2D SpriteTexture//(Texture2D value)
+            {
+                set { effect.Parameters["SpriteTexture"].SetValue(value); }
+            }
+            public static Matrix World
+            {
+                set { effect.Parameters["World"].SetValue(value); }
+            }
+            public static Matrix View
+            {
+                set { effect.Parameters["View"].SetValue(value); }
+            }
+            public static Matrix Projection
+            {
+                set { effect.Parameters["Projection"].SetValue(value); }
+            }
         }
 
         public class QuadModel
@@ -315,57 +373,191 @@ namespace ShaderExamples
             }
         }
 
-        // Wrap up our effect.
-        public static class SimpleDrawingWithMatrixClassEffect
-        {
-            public static Effect effect;
 
-            public static void InfoForCreateMethods()
+
+
+
+
+
+        public class PrimitiveMesh
+        {
+            public bool showOutput = false;
+            // ...
+            public static Matrix matrixNegativeX = Matrix.CreateWorld(Vector3.Zero, new Vector3(-1.0f, 0, 0), Vector3.Up);
+            public static Matrix matrixNegativeZ = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 0, -1.0f), Vector3.Up);
+            public static Matrix matrixPositiveX = Matrix.CreateWorld(Vector3.Zero, new Vector3(1.0f, 0, 0), Vector3.Up);
+            public static Matrix matrixPositiveZ = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 0, 1.0f), Vector3.Up);
+            public static Matrix matrixPositiveY = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 1.0f, 0), Vector3.Backward);
+            public static Matrix matrixNegativeY = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, -1.0f, 0), Vector3.Forward);
+
+            public VertexPositionNormalTexture[] vertices;
+            public int[] indices;
+
+            public PrimitiveMesh()
             {
-                Console.WriteLine($"\n effect.Name: \n   {effect.Name} ");
-                Console.WriteLine($"\n effect.Parameters: \n ");
-                var pparams = effect.Parameters;
-                foreach (var p in pparams)
+                CreatePrimitiveMesh(2, 2, 1f, false, true, true, 0);
+            }
+
+            public PrimitiveMesh(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool directionalFaces)
+            {
+                CreatePrimitiveMesh(subdivisionWidth, subdividsionHeight, scale, clockwise, invert, directionalFaces, 0);
+            }
+
+            public void CreatePrimitiveMesh(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool directionalFaces, int faceIndex)
+            {
+                List<VertexPositionNormalTexture> cubesFaceMeshLists = new List<VertexPositionNormalTexture>();
+                List<int> cubeFaceMeshIndexLists = new List<int>();
+
+                if (subdivisionWidth < 2)
+                    subdivisionWidth = 2;
+                if (subdividsionHeight < 2)
+                    subdividsionHeight = 2;
+
+                float depth = -scale;
+                if (invert)
+                    depth = -depth;
+
+                float left = -1f;
+                float right = +1f;
+                float top = -1f;
+                float bottom = +1f;
+
+                int v = 0;
+                //for (int faceIndex = 0; faceIndex < 6; faceIndex++)
+                //{
+                    if (showOutput)
+                        System.Console.WriteLine("\n  faceIndex: " + faceIndex);
+                    for (int y = 0; y < subdividsionHeight; y++)
+                    {
+                        float perY = (float)(y) / (float)(subdividsionHeight - 1);
+                        for (int x = 0; x < subdivisionWidth; x++)
+                        {
+                            float perX = (float)(x) / (float)(subdivisionWidth - 1);
+
+                            float X = Interpolate(left, right, perX);
+                            float Y = Interpolate(top, bottom, perY);
+
+                            var p0 = new Vector3(X * scale, Y * scale, depth);
+                            var uv0 = new Vector2(perX, perY);
+                            var v0 = GetVertice(p0, faceIndex, directionalFaces, depth, uv0);
+
+                            if (showOutput)
+                                System.Console.WriteLine("v0: " + v0);
+
+                            cubesFaceMeshLists.Add(v0);
+                            v += 1;
+                        }
+                    }
+                    if (showOutput)
+                        System.Console.WriteLine(" faceIndex: " + faceIndex + " v " + v);
+                //}
+
+                int faceOffset = 0;
+                //for (int faceIndex = 0; faceIndex < 6; faceIndex++)
+                //{
+                    if (showOutput)
+                        System.Console.WriteLine("\n  faceIndex: " + faceIndex);
+                    faceOffset = faceIndex * (subdividsionHeight * subdivisionWidth);
+
+                    for (int y = 0; y < subdividsionHeight - 1; y++)
+                    {
+                        for (int x = 0; x < subdivisionWidth - 1; x++)
+                        {
+                            var faceVerticeOffset = subdivisionWidth * y + x + faceOffset;
+                            var stride = subdivisionWidth;
+                            var tl = faceVerticeOffset;
+                            var bl = faceVerticeOffset + stride;
+                            var br = faceVerticeOffset + stride + 1;
+                            var tr = faceVerticeOffset + 1;
+
+                            cubeFaceMeshIndexLists.Add(tl);
+                            cubeFaceMeshIndexLists.Add(bl);
+                            cubeFaceMeshIndexLists.Add(br);
+
+                            cubeFaceMeshIndexLists.Add(br);
+                            cubeFaceMeshIndexLists.Add(tr);
+                            cubeFaceMeshIndexLists.Add(tl);
+
+                            if (showOutput)
+                            {
+                                System.Console.WriteLine();
+                                System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + tl + "] " + "  vert " + cubesFaceMeshLists[tl]);
+                                System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + bl + "] " + "  vert " + cubesFaceMeshLists[bl]);
+                                System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + br + "] " + "  vert " + cubesFaceMeshLists[br]);
+
+                                System.Console.WriteLine();
+                                System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + br + "] " + "  vert " + cubesFaceMeshLists[br]);
+                                System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + tr + "] " + "  vert " + cubesFaceMeshLists[tr]);
+                                System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + tl + "] " + "  vert " + cubesFaceMeshLists[tl]);
+                            }
+                        }
+                    }
+                //}
+                vertices = cubesFaceMeshLists.ToArray();
+                indices = cubeFaceMeshIndexLists.ToArray();
+            }
+
+            public static Matrix GetWorldFaceMatrix(int i)
+            {
+                switch (i)
                 {
-                    Console.WriteLine($"   p.Name: {p.Name}  ");
+                    case (int)CubeMapFace.PositiveX: // 0 FACE_RIGHT
+                        return matrixPositiveX;
+                    case (int)CubeMapFace.NegativeX: // 1 FACE_LEFT
+                        return matrixNegativeX;
+                    case (int)CubeMapFace.PositiveY: // 2 FACE_TOP
+                        return matrixPositiveY;
+                    case (int)CubeMapFace.NegativeY: // 3 FACE_BOTTOM
+                        return matrixNegativeY;
+                    case (int)CubeMapFace.PositiveZ: // 4 FACE_BACK
+                        return matrixPositiveZ;
+                    case (int)CubeMapFace.NegativeZ: // 5 FACE_FORWARD
+                        return matrixNegativeZ;
+                    default:
+                        return matrixNegativeX;
                 }
-                Console.WriteLine($"\n effect.Techniques: \n ");
-                var tparams = effect.Techniques;
-                foreach (var t in tparams)
+            }
+
+            private float Interpolate(float A, float B, float t)
+            {
+                return ((B - A) * t) + A;
+            }
+
+            private VertexPositionNormalTexture GetVertice(Vector3 v, int faceIndex, bool directionalFaces, float depth, Vector2 uv)
+            {
+                var v2 = Vector3.Transform(v, GetWorldFaceMatrix(faceIndex));
+                var n = Vector3.Normalize(v2);
+                v2 = n * depth;
+                return new VertexPositionNormalTexture(v2, FlatFaceOrDirectional(v, faceIndex, directionalFaces, depth), uv);
+            }
+
+            private Vector3 FlatFaceOrDirectional(Vector3 v, int faceIndex, bool directionalFaces, float depth)
+            {
+                if (directionalFaces == false)
+                    v = new Vector3(0, 0, depth);
+                v = Vector3.Normalize(v);
+                return Vector3.Transform(v, GetWorldFaceMatrix(faceIndex));
+            }
+
+            public void DrawPrimitive(GraphicsDevice gd, Effect effect)
+            {
+                foreach (EffectPass pass in effect.CurrentTechnique.Passes)
                 {
-                    Console.WriteLine($"   t.Name: {t.Name}  ");
+                    pass.Apply();
+                    gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, indices.Length / 3, VertexPositionNormalTexture.VertexDeclaration);
                 }
             }
-            public static void Load(Microsoft.Xna.Framework.Content.ContentManager Content)
-            {
-                Content.RootDirectory = @"Content/Shaders3D";
-                effect = Content.Load<Effect>("SimpleDrawingWithMatriceEffect");
-                effect.CurrentTechnique = effect.Techniques["TriangleDrawWithTransforms"];
-            }
-            public static Effect GetEffect
-            {
-                get { return effect; }
-            }
-            public static string Technique
-            {
-                set { effect.CurrentTechnique = effect.Techniques[value]; }
-            }
-            public static Texture2D SpriteTexture//(Texture2D value)
-            {
-                set { effect.Parameters["SpriteTexture"].SetValue(value); }
-            }
-            public static Matrix World
-            {
-                set { effect.Parameters["World"].SetValue(value); }
-            }
-            public static Matrix View
-            {
-                set { effect.Parameters["View"].SetValue(value); }
-            }
-            public static Matrix Projection
-            {
-                set { effect.Parameters["Projection"].SetValue(value); }
-            }
+
+            //public void DrawPrimitiveSphereFace(GraphicsDevice gd, Effect effect, TextureCube cubeTexture, int cubeFaceToRender)
+            //{
+            //    effect.Parameters["CubeMap"].SetValue(cubeTexture);
+            //    foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            //    {
+            //        pass.Apply();
+            //        gd.DrawUserPrimitives(PrimitiveType.TriangleList, cubesFaceVertices, cubeFaceToRender * 6, 2, VertexPositionNormalTexture.VertexDeclaration);
+            //    }
+            //}
+
         }
     }
 }
