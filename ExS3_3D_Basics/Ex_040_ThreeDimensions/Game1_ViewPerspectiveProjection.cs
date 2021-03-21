@@ -190,6 +190,7 @@ namespace ShaderExamples
                 $" \n The keys WASD change the forward view direction (which is the major take away here). " +
                 $" \n ZC allows us to z axis rotate the quad itself." +
                 $" \n The Arrows move the camera translation as strafing motion. " +
+                $" \n " +
                 $" \n In this example we also create a dead simple Quad Class and a mock up wrapper effect." +
                 $" \n The projection matrix is a perspective field of view type. (FOV)" +
                 $" \n The view matrix is lined up here to initially match spritebatch with a call to a method in MgMathExtras." +
@@ -318,7 +319,7 @@ namespace ShaderExamples
             }
         }
 
-        // Wrap up our effect.
+        // Wrap up our effect to make it nicer.
         public static class SimpleDrawingWithMatrixClassEffect
         {
             public static Effect effect;
@@ -344,6 +345,9 @@ namespace ShaderExamples
                 Content.RootDirectory = @"Content/Shaders3D";
                 effect = Content.Load<Effect>("SimpleDrawingWithMatriceEffect");
                 effect.CurrentTechnique = effect.Techniques["TriangleDrawWithTransforms"];
+                World = Matrix.Identity;
+                View = Matrix.Identity;
+                Projection = Matrix.CreatePerspectiveFieldOfView(1, 1.33f, 1f, 10000f); // just something default;
             }
             public static Effect GetEffect
             {

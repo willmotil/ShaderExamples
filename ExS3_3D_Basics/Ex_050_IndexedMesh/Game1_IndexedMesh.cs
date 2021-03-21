@@ -15,12 +15,13 @@ namespace ShaderExamples
         SpriteFont font2;
         SpriteFont font3;
         Texture2D texture;
+        Texture2D dotTexture;
         Effect effect;
         RenderTarget2D rtScene;
         MouseState mouse;
 
-        QuadModel quad = new QuadModel();
-        PrimitiveMesh mesh;
+        //QuadModel quad = new QuadModel();
+        PrimitiveIndexedMesh mesh;
 
         Matrix view;
         Matrix projection;
@@ -67,6 +68,7 @@ namespace ShaderExamples
 
             Content.RootDirectory = @"Content/Images";
             texture = Content.Load<Texture2D>("MG_Logo_Med_exCanvs");
+            dotTexture = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Green);
 
             Content.RootDirectory = @"Content/Fonts";
             font = Content.Load<SpriteFont>("MgFont");
@@ -82,9 +84,10 @@ namespace ShaderExamples
             SimpleDrawingWithMatrixClassEffect.View = view;
             SimpleDrawingWithMatrixClassEffect.Projection = projection;
 
-            quad.CreateQuad(GraphicsDevice.Viewport.Bounds, 1f, false, true);
-            mesh = new PrimitiveMesh(4,4, 1f, true, false, true);
-            mesh.showOutput = true;
+            //quad.CreateQuad(GraphicsDevice.Viewport.Bounds, 1f, false, true);
+
+            PrimitiveIndexedMesh.showOutput = true;
+            mesh = new PrimitiveIndexedMesh(4,4, 300f, true, false, true);
         }
 
         protected override void UnloadContent()
@@ -142,7 +145,7 @@ namespace ShaderExamples
             cameraWorld = Matrix.CreateWorld(cameraWorld.Translation, cameraWorld.Forward, cameraWorld.Up);
             view = Matrix.Invert(cameraWorld);
 
-            // Reset the view matrix.
+            // Reset the view projection matrix.
             if (Keys.F1.IsKeyPressedWithDelay(gameTime))
                 InitialView();
 
@@ -164,16 +167,28 @@ namespace ShaderExamples
                 SimpleDrawingWithMatrixClassEffect.Projection = projection;
         }
 
+        RasterizerState rasterizerState_CULLNONE_WIREFRAME = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
+        RasterizerState rasterizerState_CULLNONE_SOLID = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.Solid };
+
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Moccasin);
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
-            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+            GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
 
             SimpleDrawingWithMatrixClassEffect.View = view;
             SimpleDrawingWithMatrixClassEffect.Projection = projection;
+            SimpleDrawingWithMatrixClassEffect.World = Matrix.Identity;
 
+            // draw regularly
+            GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
+            SimpleDrawingWithMatrixClassEffect.SpriteTexture = texture;
+            mesh.DrawPrimitive(GraphicsDevice, SimpleDrawingWithMatrixClassEffect.effect);
+
+            // draw the wireframe
+            GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_WIREFRAME;
+            SimpleDrawingWithMatrixClassEffect.SpriteTexture = dotTexture;
             mesh.DrawPrimitive(GraphicsDevice, SimpleDrawingWithMatrixClassEffect.effect);
 
             //quad.OrientWorld(quadWorldPosition, Vector3.Forward, quadUpVector);
@@ -192,12 +207,10 @@ namespace ShaderExamples
                 $" \n The camera exists as a world matrix that holds a position and orientation." +
                 $" \n The keys WASD change the forward view direction (which is the major take away here). ZC allows for spin." +
                 $" \n The Arrows move the camera translation as strafing motion. " +
-                $" \n In this example we also create a dead simple Quad Class and a mock up wrapper effect." +
-                $" \n The projection matrix is a perspective field of view type. (FOV)" +
-                $" \n The view matrix is lined up here to initially match spritebatch with a call to a method in MgMathExtras." +
+                $" \n  " +
+                $" \n In this example we draw a extremely simple index mesh and map a texture onto it." +
+                $" \n We then draw the mesh with a rasterizerstate we have created to turn on wireframe with a dot texture." +
                 $" \n " +
-                $" \n Typically there is no reason to line up a perspective projection with a orthographic spritebatch." +
-                $" \n In fact it's simpler not to and later we probably wont for expedience." +
                 $" \n " +
                 $" \n { cameraWorld.DisplayMatrix("cameraWorld") }" +
                 $" \n { view.DisplayMatrix("view") }" +
@@ -210,7 +223,7 @@ namespace ShaderExamples
         }
 
         // Wrap up our effect.
-        public static class SimpleDrawingWithMatrixClassEffect
+        public class SimpleDrawingWithMatrixClassEffect
         {
             public static Effect effect;
 
@@ -235,6 +248,9 @@ namespace ShaderExamples
                 Content.RootDirectory = @"Content/Shaders3D";
                 effect = Content.Load<Effect>("SimpleDrawingWithMatriceEffect");
                 effect.CurrentTechnique = effect.Techniques["TriangleDrawWithTransforms"];
+                World = Matrix.Identity;
+                View = Matrix.Identity;
+                Projection = Matrix.CreatePerspectiveFieldOfView(1, 1.33f, 1f, 10000f); // just something default;
             }
             public static Effect GetEffect
             {
@@ -262,148 +278,27 @@ namespace ShaderExamples
             }
         }
 
-        public class QuadModel
+
+
+
+        public class PrimitiveIndexedMesh
         {
-            CustomVertexPositionNormalTexture[] vertices;
-            int[] indices;
-            public Matrix world = Matrix.Identity;
-
-            public QuadModel()
-            {
-            }
-
-            public void CreateQuad(Rectangle destination, float scaleAdjustment, bool flipWindingDirection, bool center)
-            {
-                vertices = new CustomVertexPositionNormalTexture[4];
-                indices = new int[6];
-
-                var normal = Vector3.Forward; //  this is just a dummy value for now.
-                var scale = scaleAdjustment;
-
-                var origin = Vector2.Zero;
-                if (center)
-                    origin = destination.Center.ToVector2() * scale;
-
-                var left = destination.Left * scale - origin.X;
-                var right = destination.Right * scale - origin.X;
-                var top = destination.Top * scale - origin.Y;
-                var bottom = destination.Bottom * scale - origin.Y;
-                vertices[0] = new CustomVertexPositionNormalTexture(new Vector3(left, top, 0), normal, new Vector2(0f, 0f)); // tl
-                vertices[1] = new CustomVertexPositionNormalTexture(new Vector3(left, bottom, 0), normal, new Vector2(0f, 1f)); // bl
-                vertices[2] = new CustomVertexPositionNormalTexture(new Vector3(right, bottom, 0), normal, new Vector2(1f, 1f)); // br
-                vertices[3] = new CustomVertexPositionNormalTexture(new Vector3(right, top, 0), normal, new Vector2(1f, 0f)); // tr
-
-                if (flipWindingDirection)
-                {
-                    // triangle 1
-                    indices[0] = 0;
-                    indices[1] = 1;
-                    indices[2] = 2;
-                    // triangle 2
-                    indices[3] = 0;
-                    indices[4] = 2;
-                    indices[5] = 3;
-                }
-                else
-                {
-                    // triangle 1
-                    indices[0] = 0;
-                    indices[1] = 2;
-                    indices[2] = 1;
-                    // triangle 2
-                    indices[3] = 0;
-                    indices[4] = 3;
-                    indices[5] = 2;
-                }
-            }
-
-            public void OrientWorld(Vector3 position, Vector3 forwardDirection, Vector3 up)
-            {
-                world = Matrix.CreateWorld(position, forwardDirection, up);
-            }
-
-            public void Draw(GraphicsDevice graphicsDevice)
-            {
-                SimpleDrawingWithMatrixClassEffect.World = world;
-                foreach (EffectPass pass in SimpleDrawingWithMatrixClassEffect.GetEffect.CurrentTechnique.Passes)
-                {
-                    pass.Apply();
-
-                    int numberOfVertices = vertices.Length;
-                    int numberOfVerticesInaTriangle = 3;
-                    int numberOfTriangles = indices.Length / numberOfVerticesInaTriangle;
-                    int startingVerticeInArray = 0; // the reason for this offset is incase you put more then one mesh or grouping of vertices into the same array.
-                    int startingIndiceInArray = 0; // likewise for this they should line up together you have to keep track of that though.
-
-                    graphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, startingVerticeInArray, numberOfVertices, indices, startingIndiceInArray, numberOfTriangles, CustomVertexPositionNormalTexture.VertexDeclaration);
-                }
-            }
-
-            /// <summary>
-            /// This will be a replacement to the monogame version VertexPositionNormalTexture.
-            /// Later will make versions that take more data and or do more stuff.
-            /// </summary>
-            public struct CustomVertexPositionNormalTexture : IVertexType
-            {
-                // class members
-                public Vector3 Position;
-                public Vector3 Normal;
-                public Vector2 TextureCoordinate;
-
-                // constructor
-                public CustomVertexPositionNormalTexture(Vector3 position, Vector3 normal, Vector2 uvcoordinates)
-                {
-                    Position = position;
-                    Normal = normal;
-                    TextureCoordinate = uvcoordinates;
-                }
-
-                // static vertex declaration
-                public static VertexDeclaration VertexDeclaration = new VertexDeclaration
-                (
-                      //
-                      // Note these line up with the shader structs.
-                      // The offset is the starting byte aka the second element starts were the first element ends in bytes 4+4+4 = 12 a vector3 is 12 bytes
-                      //
-                      new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0),                //    float4 Position : POSITION0;
-                      new VertexElement(12, VertexElementFormat.Vector3, VertexElementUsage.Normal, 0),                //  	float4 Normal : NORMAL0;
-                      new VertexElement(24, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0) //	float2 TextureCoordinates : TEXCOORD0;
-                );
-                VertexDeclaration IVertexType.VertexDeclaration { get { return VertexDeclaration; } }
-            }
-        }
-
-
-
-
-
-
-
-        public class PrimitiveMesh
-        {
-            public bool showOutput = false;
-            // ...
-            public static Matrix matrixNegativeX = Matrix.CreateWorld(Vector3.Zero, new Vector3(-1.0f, 0, 0), Vector3.Up);
-            public static Matrix matrixNegativeZ = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 0, -1.0f), Vector3.Up);
-            public static Matrix matrixPositiveX = Matrix.CreateWorld(Vector3.Zero, new Vector3(1.0f, 0, 0), Vector3.Up);
-            public static Matrix matrixPositiveZ = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 0, 1.0f), Vector3.Up);
-            public static Matrix matrixPositiveY = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 1.0f, 0), Vector3.Backward);
-            public static Matrix matrixNegativeY = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, -1.0f, 0), Vector3.Forward);
+            public static bool showOutput = false;
 
             public VertexPositionNormalTexture[] vertices;
             public int[] indices;
 
-            public PrimitiveMesh()
+            public PrimitiveIndexedMesh()
             {
                 CreatePrimitiveMesh(2, 2, 1f, false, true, true, 0);
             }
 
-            public PrimitiveMesh(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool directionalFaces)
+            public PrimitiveIndexedMesh(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invertNormals, bool directionalFaces)
             {
-                CreatePrimitiveMesh(subdivisionWidth, subdividsionHeight, scale, clockwise, invert, directionalFaces, 0);
+                CreatePrimitiveMesh(subdivisionWidth, subdividsionHeight, scale, clockwise, invertNormals, directionalFaces, 0);
             }
 
-            public void CreatePrimitiveMesh(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool directionalFaces, int faceIndex)
+            public void CreatePrimitiveMesh(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invertNormals, bool directionalFaces, int faceIndex)
             {
                 List<VertexPositionNormalTexture> cubesFaceMeshLists = new List<VertexPositionNormalTexture>();
                 List<int> cubeFaceMeshIndexLists = new List<int>();
@@ -413,109 +308,71 @@ namespace ShaderExamples
                 if (subdividsionHeight < 2)
                     subdividsionHeight = 2;
 
-                float depth = -scale;
-                if (invert)
-                    depth = -depth;
+                float depth = 0;
 
                 float left = -1f;
                 float right = +1f;
                 float top = -1f;
                 float bottom = +1f;
 
-                int v = 0;
-                //for (int faceIndex = 0; faceIndex < 6; faceIndex++)
-                //{
-                    if (showOutput)
-                        System.Console.WriteLine("\n  faceIndex: " + faceIndex);
-                    for (int y = 0; y < subdividsionHeight; y++)
+                int vertCounter = 0;
+                for (int y = 0; y < subdividsionHeight; y++)
+                {
+                    float stepV = (float)(y) / (float)(subdividsionHeight - 1);
+                    for (int x = 0; x < subdivisionWidth; x++)
                     {
-                        float perY = (float)(y) / (float)(subdividsionHeight - 1);
-                        for (int x = 0; x < subdivisionWidth; x++)
+                        float stepU = (float)(x) / (float)(subdivisionWidth - 1);
+
+                        float X = Interpolate(left, right, stepU);
+                        float Y = Interpolate(top, bottom, stepV);
+
+                        var p0 = new Vector3(X, Y, depth) * scale;
+                        var uv0 = new Vector2(stepU, stepV);
+                        var vert = GetVertice(p0, faceIndex, directionalFaces, depth, uv0);
+
+                        if (showOutput)
+                            System.Console.WriteLine("vert["+ vertCounter + "]: " + vert);
+
+                        cubesFaceMeshLists.Add(vert);
+                        vertCounter += 1;
+                    }
+                }
+
+                for (int y = 0; y < subdividsionHeight - 1; y++)
+                {
+                    for (int x = 0; x < subdivisionWidth - 1; x++)
+                    {
+                        var stride = subdivisionWidth;
+                        var faceVerticeOffset = stride * y + x;
+                        var tl = faceVerticeOffset;
+                        var bl = faceVerticeOffset + stride;
+                        var br = faceVerticeOffset + stride + 1;
+                        var tr = faceVerticeOffset + 1;
+
+                        cubeFaceMeshIndexLists.Add(tl);
+                        cubeFaceMeshIndexLists.Add(bl);
+                        cubeFaceMeshIndexLists.Add(br);
+
+                        cubeFaceMeshIndexLists.Add(br);
+                        cubeFaceMeshIndexLists.Add(tr);
+                        cubeFaceMeshIndexLists.Add(tl);
+
+                        if (showOutput)
                         {
-                            float perX = (float)(x) / (float)(subdivisionWidth - 1);
+                            System.Console.WriteLine();
+                            System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + tl + "] " + "  vert " + cubesFaceMeshLists[tl]);
+                            System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + bl + "] " + "  vert " + cubesFaceMeshLists[bl]);
+                            System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + br + "] " + "  vert " + cubesFaceMeshLists[br]);
 
-                            float X = Interpolate(left, right, perX);
-                            float Y = Interpolate(top, bottom, perY);
-
-                            var p0 = new Vector3(X * scale, Y * scale, depth);
-                            var uv0 = new Vector2(perX, perY);
-                            var v0 = GetVertice(p0, faceIndex, directionalFaces, depth, uv0);
-
-                            if (showOutput)
-                                System.Console.WriteLine("v0: " + v0);
-
-                            cubesFaceMeshLists.Add(v0);
-                            v += 1;
+                            System.Console.WriteLine();
+                            System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + br + "] " + "  vert " + cubesFaceMeshLists[br]);
+                            System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + tr + "] " + "  vert " + cubesFaceMeshLists[tr]);
+                            System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + tl + "] " + "  vert " + cubesFaceMeshLists[tl]);
                         }
                     }
-                    if (showOutput)
-                        System.Console.WriteLine(" faceIndex: " + faceIndex + " v " + v);
-                //}
-
-                int faceOffset = 0;
-                //for (int faceIndex = 0; faceIndex < 6; faceIndex++)
-                //{
-                    if (showOutput)
-                        System.Console.WriteLine("\n  faceIndex: " + faceIndex);
-                    faceOffset = faceIndex * (subdividsionHeight * subdivisionWidth);
-
-                    for (int y = 0; y < subdividsionHeight - 1; y++)
-                    {
-                        for (int x = 0; x < subdivisionWidth - 1; x++)
-                        {
-                            var faceVerticeOffset = subdivisionWidth * y + x + faceOffset;
-                            var stride = subdivisionWidth;
-                            var tl = faceVerticeOffset;
-                            var bl = faceVerticeOffset + stride;
-                            var br = faceVerticeOffset + stride + 1;
-                            var tr = faceVerticeOffset + 1;
-
-                            cubeFaceMeshIndexLists.Add(tl);
-                            cubeFaceMeshIndexLists.Add(bl);
-                            cubeFaceMeshIndexLists.Add(br);
-
-                            cubeFaceMeshIndexLists.Add(br);
-                            cubeFaceMeshIndexLists.Add(tr);
-                            cubeFaceMeshIndexLists.Add(tl);
-
-                            if (showOutput)
-                            {
-                                System.Console.WriteLine();
-                                System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + tl + "] " + "  vert " + cubesFaceMeshLists[tl]);
-                                System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + bl + "] " + "  vert " + cubesFaceMeshLists[bl]);
-                                System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + br + "] " + "  vert " + cubesFaceMeshLists[br]);
-
-                                System.Console.WriteLine();
-                                System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + br + "] " + "  vert " + cubesFaceMeshLists[br]);
-                                System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + tr + "] " + "  vert " + cubesFaceMeshLists[tr]);
-                                System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + tl + "] " + "  vert " + cubesFaceMeshLists[tl]);
-                            }
-                        }
-                    }
-                //}
+                }
                 vertices = cubesFaceMeshLists.ToArray();
                 indices = cubeFaceMeshIndexLists.ToArray();
-            }
-
-            public static Matrix GetWorldFaceMatrix(int i)
-            {
-                switch (i)
-                {
-                    case (int)CubeMapFace.PositiveX: // 0 FACE_RIGHT
-                        return matrixPositiveX;
-                    case (int)CubeMapFace.NegativeX: // 1 FACE_LEFT
-                        return matrixNegativeX;
-                    case (int)CubeMapFace.PositiveY: // 2 FACE_TOP
-                        return matrixPositiveY;
-                    case (int)CubeMapFace.NegativeY: // 3 FACE_BOTTOM
-                        return matrixNegativeY;
-                    case (int)CubeMapFace.PositiveZ: // 4 FACE_BACK
-                        return matrixPositiveZ;
-                    case (int)CubeMapFace.NegativeZ: // 5 FACE_FORWARD
-                        return matrixNegativeZ;
-                    default:
-                        return matrixNegativeX;
-                }
             }
 
             private float Interpolate(float A, float B, float t)
@@ -523,20 +380,11 @@ namespace ShaderExamples
                 return ((B - A) * t) + A;
             }
 
+
+            // TODO we should generate smooth normals here if flat faces is false.
             private VertexPositionNormalTexture GetVertice(Vector3 v, int faceIndex, bool directionalFaces, float depth, Vector2 uv)
             {
-                var v2 = Vector3.Transform(v, GetWorldFaceMatrix(faceIndex));
-                var n = Vector3.Normalize(v2);
-                v2 = n * depth;
-                return new VertexPositionNormalTexture(v2, FlatFaceOrDirectional(v, faceIndex, directionalFaces, depth), uv);
-            }
-
-            private Vector3 FlatFaceOrDirectional(Vector3 v, int faceIndex, bool directionalFaces, float depth)
-            {
-                if (directionalFaces == false)
-                    v = new Vector3(0, 0, depth);
-                v = Vector3.Normalize(v);
-                return Vector3.Transform(v, GetWorldFaceMatrix(faceIndex));
+                return new VertexPositionNormalTexture(v, new Vector3(0, 0, 1) , uv);
             }
 
             public void DrawPrimitive(GraphicsDevice gd, Effect effect)
@@ -547,17 +395,118 @@ namespace ShaderExamples
                     gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, indices.Length / 3, VertexPositionNormalTexture.VertexDeclaration);
                 }
             }
-
-            //public void DrawPrimitiveSphereFace(GraphicsDevice gd, Effect effect, TextureCube cubeTexture, int cubeFaceToRender)
-            //{
-            //    effect.Parameters["CubeMap"].SetValue(cubeTexture);
-            //    foreach (EffectPass pass in effect.CurrentTechnique.Passes)
-            //    {
-            //        pass.Apply();
-            //        gd.DrawUserPrimitives(PrimitiveType.TriangleList, cubesFaceVertices, cubeFaceToRender * 6, 2, VertexPositionNormalTexture.VertexDeclaration);
-            //    }
-            //}
-
         }
+
+
+        //public class QuadModel
+        //{
+        //    CustomVertexPositionNormalTexture[] vertices;
+        //    int[] indices;
+        //    public Matrix world = Matrix.Identity;
+
+        //    public QuadModel()
+        //    {
+        //    }
+
+        //    public void CreateQuad(Rectangle destination, float scaleAdjustment, bool flipWindingDirection, bool center)
+        //    {
+        //        vertices = new CustomVertexPositionNormalTexture[4];
+        //        indices = new int[6];
+
+        //        var normal = Vector3.Forward; //  this is just a dummy value for now.
+        //        var scale = scaleAdjustment;
+
+        //        var origin = Vector2.Zero;
+        //        if (center)
+        //            origin = destination.Center.ToVector2() * scale;
+
+        //        var left = destination.Left * scale - origin.X;
+        //        var right = destination.Right * scale - origin.X;
+        //        var top = destination.Top * scale - origin.Y;
+        //        var bottom = destination.Bottom * scale - origin.Y;
+        //        vertices[0] = new CustomVertexPositionNormalTexture(new Vector3(left, top, 0), normal, new Vector2(0f, 0f)); // tl
+        //        vertices[1] = new CustomVertexPositionNormalTexture(new Vector3(left, bottom, 0), normal, new Vector2(0f, 1f)); // bl
+        //        vertices[2] = new CustomVertexPositionNormalTexture(new Vector3(right, bottom, 0), normal, new Vector2(1f, 1f)); // br
+        //        vertices[3] = new CustomVertexPositionNormalTexture(new Vector3(right, top, 0), normal, new Vector2(1f, 0f)); // tr
+
+        //        if (flipWindingDirection)
+        //        {
+        //            // triangle 1
+        //            indices[0] = 0;
+        //            indices[1] = 1;
+        //            indices[2] = 2;
+        //            // triangle 2
+        //            indices[3] = 0;
+        //            indices[4] = 2;
+        //            indices[5] = 3;
+        //        }
+        //        else
+        //        {
+        //            // triangle 1
+        //            indices[0] = 0;
+        //            indices[1] = 2;
+        //            indices[2] = 1;
+        //            // triangle 2
+        //            indices[3] = 0;
+        //            indices[4] = 3;
+        //            indices[5] = 2;
+        //        }
+        //    }
+
+        //    public void OrientWorld(Vector3 position, Vector3 forwardDirection, Vector3 up)
+        //    {
+        //        world = Matrix.CreateWorld(position, forwardDirection, up);
+        //    }
+
+        //    public void Draw(GraphicsDevice graphicsDevice)
+        //    {
+        //        SimpleDrawingWithMatrixClassEffect.World = world;
+        //        foreach (EffectPass pass in SimpleDrawingWithMatrixClassEffect.GetEffect.CurrentTechnique.Passes)
+        //        {
+        //            pass.Apply();
+
+        //            int numberOfVertices = vertices.Length;
+        //            int numberOfVerticesInaTriangle = 3;
+        //            int numberOfTriangles = indices.Length / numberOfVerticesInaTriangle;
+        //            int startingVerticeInArray = 0; // the reason for this offset is incase you put more then one mesh or grouping of vertices into the same array.
+        //            int startingIndiceInArray = 0; // likewise for this they should line up together you have to keep track of that though.
+
+        //            graphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, startingVerticeInArray, numberOfVertices, indices, startingIndiceInArray, numberOfTriangles, CustomVertexPositionNormalTexture.VertexDeclaration);
+        //        }
+        //    }
+
+        //    /// <summary>
+        //    /// This will be a replacement to the monogame version VertexPositionNormalTexture.
+        //    /// Later will make versions that take more data and or do more stuff.
+        //    /// </summary>
+        //    public struct CustomVertexPositionNormalTexture : IVertexType
+        //    {
+        //        // class members
+        //        public Vector3 Position;
+        //        public Vector3 Normal;
+        //        public Vector2 TextureCoordinate;
+
+        //        // constructor
+        //        public CustomVertexPositionNormalTexture(Vector3 position, Vector3 normal, Vector2 uvcoordinates)
+        //        {
+        //            Position = position;
+        //            Normal = normal;
+        //            TextureCoordinate = uvcoordinates;
+        //        }
+
+        //        // static vertex declaration
+        //        public static VertexDeclaration VertexDeclaration = new VertexDeclaration
+        //        (
+        //              //
+        //              // Note these line up with the shader structs.
+        //              // The offset is the starting byte aka the second element starts were the first element ends in bytes 4+4+4 = 12 a vector3 is 12 bytes
+        //              //
+        //              new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0),                //    float4 Position : POSITION0;
+        //              new VertexElement(12, VertexElementFormat.Vector3, VertexElementUsage.Normal, 0),                //  	float4 Normal : NORMAL0;
+        //              new VertexElement(24, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0) //	float2 TextureCoordinates : TEXCOORD0;
+        //        );
+        //        VertexDeclaration IVertexType.VertexDeclaration { get { return VertexDeclaration; } }
+        //    }
+        //}
     }
 }

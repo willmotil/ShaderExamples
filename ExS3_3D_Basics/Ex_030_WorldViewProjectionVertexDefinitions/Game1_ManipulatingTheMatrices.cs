@@ -177,13 +177,9 @@ namespace ShaderExamples
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
             //GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;  // counter clockwise is the default.
 
-
-
             DrawRectangleTriangles(new Vector3(100, 100, 0), Vector3.Forward, Vector3.Up);
 
             DrawRectangleTriangles(quadWorldPosition, Vector3.Forward, quadUpVector);
-
-
 
             DrawSpriteBatches(gameTime);
 
