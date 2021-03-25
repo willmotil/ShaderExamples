@@ -20,7 +20,6 @@ namespace ShaderExamples
         RenderTarget2D rtScene;
         MouseState mouse;
 
-        //QuadModel quad = new QuadModel();
         PrimitiveIndexedMesh mesh;
 
         Matrix view;
@@ -63,9 +62,6 @@ namespace ShaderExamples
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            //Content.RootDirectory = @"Content/Shaders3D";
-            //effect = Content.Load<Effect>("SimpleDrawingWithMatriceEffect");
-
             Content.RootDirectory = @"Content/Images";
             texture = Content.Load<Texture2D>("MG_Logo_Med_exCanvs");
             dotTexture = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Green);
@@ -83,8 +79,6 @@ namespace ShaderExamples
             SimpleDrawingWithMatrixClassEffect.SpriteTexture = texture;
             SimpleDrawingWithMatrixClassEffect.View = view;
             SimpleDrawingWithMatrixClassEffect.Projection = projection;
-
-            //quad.CreateQuad(GraphicsDevice.Viewport.Bounds, 1f, false, true);
 
             PrimitiveIndexedMesh.showOutput = true;
             mesh = new PrimitiveIndexedMesh(4,4, 300f, true, false, true);
@@ -191,9 +185,6 @@ namespace ShaderExamples
             SimpleDrawingWithMatrixClassEffect.SpriteTexture = dotTexture;
             mesh.DrawPrimitive(GraphicsDevice, SimpleDrawingWithMatrixClassEffect.effect);
 
-            //quad.OrientWorld(quadWorldPosition, Vector3.Forward, quadUpVector);
-            //quad.Draw(GraphicsDevice);
-
             DrawSpriteBatches(gameTime);
 
             base.Draw(gameTime);
@@ -277,8 +268,6 @@ namespace ShaderExamples
                 set { effect.Parameters["Projection"].SetValue(value); }
             }
         }
-
-
 
 
         public class PrimitiveIndexedMesh
@@ -380,7 +369,6 @@ namespace ShaderExamples
                 return ((B - A) * t) + A;
             }
 
-
             // TODO we should generate smooth normals here if flat faces is false.
             private VertexPositionNormalTexture GetVertice(Vector3 v, int faceIndex, bool directionalFaces, float depth, Vector2 uv)
             {
@@ -397,116 +385,5 @@ namespace ShaderExamples
             }
         }
 
-
-        //public class QuadModel
-        //{
-        //    CustomVertexPositionNormalTexture[] vertices;
-        //    int[] indices;
-        //    public Matrix world = Matrix.Identity;
-
-        //    public QuadModel()
-        //    {
-        //    }
-
-        //    public void CreateQuad(Rectangle destination, float scaleAdjustment, bool flipWindingDirection, bool center)
-        //    {
-        //        vertices = new CustomVertexPositionNormalTexture[4];
-        //        indices = new int[6];
-
-        //        var normal = Vector3.Forward; //  this is just a dummy value for now.
-        //        var scale = scaleAdjustment;
-
-        //        var origin = Vector2.Zero;
-        //        if (center)
-        //            origin = destination.Center.ToVector2() * scale;
-
-        //        var left = destination.Left * scale - origin.X;
-        //        var right = destination.Right * scale - origin.X;
-        //        var top = destination.Top * scale - origin.Y;
-        //        var bottom = destination.Bottom * scale - origin.Y;
-        //        vertices[0] = new CustomVertexPositionNormalTexture(new Vector3(left, top, 0), normal, new Vector2(0f, 0f)); // tl
-        //        vertices[1] = new CustomVertexPositionNormalTexture(new Vector3(left, bottom, 0), normal, new Vector2(0f, 1f)); // bl
-        //        vertices[2] = new CustomVertexPositionNormalTexture(new Vector3(right, bottom, 0), normal, new Vector2(1f, 1f)); // br
-        //        vertices[3] = new CustomVertexPositionNormalTexture(new Vector3(right, top, 0), normal, new Vector2(1f, 0f)); // tr
-
-        //        if (flipWindingDirection)
-        //        {
-        //            // triangle 1
-        //            indices[0] = 0;
-        //            indices[1] = 1;
-        //            indices[2] = 2;
-        //            // triangle 2
-        //            indices[3] = 0;
-        //            indices[4] = 2;
-        //            indices[5] = 3;
-        //        }
-        //        else
-        //        {
-        //            // triangle 1
-        //            indices[0] = 0;
-        //            indices[1] = 2;
-        //            indices[2] = 1;
-        //            // triangle 2
-        //            indices[3] = 0;
-        //            indices[4] = 3;
-        //            indices[5] = 2;
-        //        }
-        //    }
-
-        //    public void OrientWorld(Vector3 position, Vector3 forwardDirection, Vector3 up)
-        //    {
-        //        world = Matrix.CreateWorld(position, forwardDirection, up);
-        //    }
-
-        //    public void Draw(GraphicsDevice graphicsDevice)
-        //    {
-        //        SimpleDrawingWithMatrixClassEffect.World = world;
-        //        foreach (EffectPass pass in SimpleDrawingWithMatrixClassEffect.GetEffect.CurrentTechnique.Passes)
-        //        {
-        //            pass.Apply();
-
-        //            int numberOfVertices = vertices.Length;
-        //            int numberOfVerticesInaTriangle = 3;
-        //            int numberOfTriangles = indices.Length / numberOfVerticesInaTriangle;
-        //            int startingVerticeInArray = 0; // the reason for this offset is incase you put more then one mesh or grouping of vertices into the same array.
-        //            int startingIndiceInArray = 0; // likewise for this they should line up together you have to keep track of that though.
-
-        //            graphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, startingVerticeInArray, numberOfVertices, indices, startingIndiceInArray, numberOfTriangles, CustomVertexPositionNormalTexture.VertexDeclaration);
-        //        }
-        //    }
-
-        //    /// <summary>
-        //    /// This will be a replacement to the monogame version VertexPositionNormalTexture.
-        //    /// Later will make versions that take more data and or do more stuff.
-        //    /// </summary>
-        //    public struct CustomVertexPositionNormalTexture : IVertexType
-        //    {
-        //        // class members
-        //        public Vector3 Position;
-        //        public Vector3 Normal;
-        //        public Vector2 TextureCoordinate;
-
-        //        // constructor
-        //        public CustomVertexPositionNormalTexture(Vector3 position, Vector3 normal, Vector2 uvcoordinates)
-        //        {
-        //            Position = position;
-        //            Normal = normal;
-        //            TextureCoordinate = uvcoordinates;
-        //        }
-
-        //        // static vertex declaration
-        //        public static VertexDeclaration VertexDeclaration = new VertexDeclaration
-        //        (
-        //              //
-        //              // Note these line up with the shader structs.
-        //              // The offset is the starting byte aka the second element starts were the first element ends in bytes 4+4+4 = 12 a vector3 is 12 bytes
-        //              //
-        //              new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0),                //    float4 Position : POSITION0;
-        //              new VertexElement(12, VertexElementFormat.Vector3, VertexElementUsage.Normal, 0),                //  	float4 Normal : NORMAL0;
-        //              new VertexElement(24, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0) //	float2 TextureCoordinates : TEXCOORD0;
-        //        );
-        //        VertexDeclaration IVertexType.VertexDeclaration { get { return VertexDeclaration; } }
-        //    }
-        //}
     }
 }
