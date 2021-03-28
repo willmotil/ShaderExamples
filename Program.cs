@@ -37,8 +37,9 @@ namespace ShaderExamples
             //using (var game = new Game1_QuadWithMatrices()) game.Run();
             //using (var game = new Game1_ManipulatingTheMatrices()) game.Run();
             //using (var game = new Game1_ViewPerspectiveProjection()) game.Run();
-            using (var game = new Game1_IndexedMesh()) game.Run();
-            
+            //using (var game = new Game1_IndexedMesh()) game.Run();
+            using (var game = new Game1_ImprovedIndexedMesh()) game.Run();
+
 
             // tests or imcomplete.
             //using (var game = new Game1_XXXXXXX()) game.Run();
