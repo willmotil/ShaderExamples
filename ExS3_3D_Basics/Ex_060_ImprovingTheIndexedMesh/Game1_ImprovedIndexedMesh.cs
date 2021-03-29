@@ -84,11 +84,11 @@ namespace ShaderExamples
             InitialView();
             UpdateProjection();
 
-            SimpleDrawingWithMatrixClassEffect.Load(Content);
-            SimpleDrawingWithMatrixClassEffect.Technique = "TriangleDrawWithTransforms";
-            SimpleDrawingWithMatrixClassEffect.SpriteTexture = texture;
-            SimpleDrawingWithMatrixClassEffect.View = view;
-            SimpleDrawingWithMatrixClassEffect.Projection = projection;
+            ImprovedIndexMeshEffectClass.Load(Content);
+            ImprovedIndexMeshEffectClass.Technique = "TriangleDrawWithTransforms";
+            ImprovedIndexMeshEffectClass.SpriteTexture = texture;
+            ImprovedIndexMeshEffectClass.View = view;
+            ImprovedIndexMeshEffectClass.Projection = projection;
 
             PrimitiveIndexedMesh.showOutput = true;
 
@@ -169,14 +169,14 @@ namespace ShaderExamples
             cameraWorldPosition.Z = MgMathExtras.GetRequisitePerspectiveSpriteBatchAlignmentZdistance(GraphicsDevice, fov);
             cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Zero - cameraWorldPosition, cameraUpVector);
             view = Matrix.Invert(cameraWorld);
-            if (SimpleDrawingWithMatrixClassEffect.effect != null)
-                SimpleDrawingWithMatrixClassEffect.View = view;
+            if (ImprovedIndexMeshEffectClass.effect != null)
+                ImprovedIndexMeshEffectClass.View = view;
         }
         public void UpdateProjection()
         {
             projection = Matrix.CreatePerspectiveFieldOfView(fov, GraphicsDevice.Viewport.AspectRatio, 1f, 10000f);
-            if (SimpleDrawingWithMatrixClassEffect.effect != null)
-                SimpleDrawingWithMatrixClassEffect.Projection = projection;
+            if (ImprovedIndexMeshEffectClass.effect != null)
+                ImprovedIndexMeshEffectClass.Projection = projection;
         }
 
         RasterizerState rasterizerState_CULLNONE_WIREFRAME = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
@@ -190,9 +190,9 @@ namespace ShaderExamples
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
 
-            SimpleDrawingWithMatrixClassEffect.View = view;
-            SimpleDrawingWithMatrixClassEffect.Projection = projection;
-            SimpleDrawingWithMatrixClassEffect.World = Matrix.Identity;
+            ImprovedIndexMeshEffectClass.View = view;
+            ImprovedIndexMeshEffectClass.Projection = projection;
+            ImprovedIndexMeshEffectClass.World = Matrix.Identity;
 
             DrawMesh();
 
@@ -207,15 +207,15 @@ namespace ShaderExamples
         public void DrawMesh()
         {
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
-            SimpleDrawingWithMatrixClassEffect.SpriteTexture = texture;
-            mesh.DrawPrimitive(GraphicsDevice, SimpleDrawingWithMatrixClassEffect.effect);
+            ImprovedIndexMeshEffectClass.SpriteTexture = texture;
+            mesh.DrawPrimitive(GraphicsDevice, ImprovedIndexMeshEffectClass.effect);
         }
 
         public void DrawWireFrameMesh()
         {
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_WIREFRAME;
-            SimpleDrawingWithMatrixClassEffect.SpriteTexture = dotTexture;
-            mesh.DrawPrimitive(GraphicsDevice, SimpleDrawingWithMatrixClassEffect.effect);
+            ImprovedIndexMeshEffectClass.SpriteTexture = dotTexture;
+            mesh.DrawPrimitive(GraphicsDevice, ImprovedIndexMeshEffectClass.effect);
         }
 
         public void DrawSpriteBatches(GameTime gameTime)
@@ -243,7 +243,7 @@ namespace ShaderExamples
         }
 
         // Wrap up our effect.
-        public class SimpleDrawingWithMatrixClassEffect
+        public class ImprovedIndexMeshEffectClass
         {
             public static Effect effect;
 
@@ -266,8 +266,8 @@ namespace ShaderExamples
             public static void Load(Microsoft.Xna.Framework.Content.ContentManager Content)
             {
                 Content.RootDirectory = @"Content/Shaders3D";
-                effect = Content.Load<Effect>("SimpleDrawingWithMatriceEffect");
-                effect.CurrentTechnique = effect.Techniques["TriangleDrawWithTransforms"];
+                effect = Content.Load<Effect>("ImprovedIndexMeshEffect");
+                effect.CurrentTechnique = effect.Techniques["IndexedMeshDraw"];
                 World = Matrix.Identity;
                 View = Matrix.Identity;
                 Projection = Matrix.CreatePerspectiveFieldOfView(1, 1.33f, 1f, 10000f); // just something default;
@@ -318,6 +318,7 @@ namespace ShaderExamples
             public int[] indices;
 
             Color[] heightColorArray;
+            Vector3 defaultNormal = new Vector3(0, 0, 1);
 
             public PrimitiveIndexedMesh()
             {
@@ -438,6 +439,8 @@ namespace ShaderExamples
                 }
                 vertices = cubesFaceMeshLists.ToArray();
                 indices = cubeFaceMeshIndexLists.ToArray();
+
+                CreateSmoothNormals(vertices, indices, false);
             }
 
             public void AddQuadIndexes(int faceIndex, int tl, int tr, int bl, int br, List<int> cubeFaceMeshIndexLists)
@@ -465,6 +468,11 @@ namespace ShaderExamples
             private float Interpolate(float A, float B, float t)
             {
                 return ((B - A) * t) + A;
+            }
+
+            private VertexPositionNormalTexture GetVertice(Vector3 v, Vector2 uv)
+            {
+                return new VertexPositionNormalTexture(v, defaultNormal, uv);
             }
 
             private byte GetAvgHeightFromFloatAsByte(float v)
@@ -499,6 +507,70 @@ namespace ShaderExamples
                 return result;
             }
 
+            VertexPositionNormalTexture[] CreateSmoothNormals(VertexPositionNormalTexture[] vertices, int[] indexs, bool invertNormalsOnCreation)
+            {
+                // For each vertice we must calculate the surrounding triangles normals, average them and set the normal.
+                int tvertmultiplier = 3;
+                int triangles = (int)(indexs.Length / tvertmultiplier);
+                for (int currentTestedVerticeIndex = 0; currentTestedVerticeIndex < vertices.Length; currentTestedVerticeIndex++)
+                {
+                    Vector3 sum = Vector3.Zero;
+                    float total = 0;
+                    for (int t = 0; t < triangles; t++)
+                    {
+                        int tvstart = t * tvertmultiplier;
+                        int tindex0 = tvstart + 0;
+                        int tindex1 = tvstart + 1;
+                        int tindex2 = tvstart + 2;
+                        var vindex0 = indices[tindex0];
+                        var vindex1 = indices[tindex1];
+                        var vindex2 = indices[tindex2];
+                        if (vindex0 == currentTestedVerticeIndex || vindex1 == currentTestedVerticeIndex || vindex2 == currentTestedVerticeIndex)
+                        {
+                            var n0 = (vertices[vindex1].Position - vertices[vindex0].Position) * 10f; // supersticous math artifact avoidance.
+                            var n1 = (vertices[vindex2].Position - vertices[vindex1].Position) * 10f;
+                            var cnorm = Vector3.Cross(n0, n1);
+                            sum += cnorm;
+                            total += 1;
+                        }
+                    }
+                    if (total > 0)
+                    {
+                        var averagednormal = sum / total;
+                        averagednormal.Normalize();
+                        if (invertNormalsOnCreation)
+                            averagednormal = -averagednormal;
+                        vertices[currentTestedVerticeIndex].Normal = averagednormal;
+                    }
+                }
+                return vertices;
+            }
+
+            //void CreateTangents(VertexPositionNormalTextureTangents[] vertices, int surfacePointWidth)
+            //{
+            //    for (int i = 0; i < vertices.Length; i++)
+            //    {
+            //        int y = i / surfacePointWidth;
+            //        int x = i - (y * surfacePointWidth);
+            //        int up = (y - 1) * surfacePointWidth + x;
+            //        int down = (y + 1) * surfacePointWidth + x;
+            //        Vector3 tangent = new Vector3();
+            //        if (down >= vertices.Length)
+            //        {
+            //            tangent = vertices[up].Position - vertices[i].Position;
+            //            tangent.Normalize();
+            //            vertices[i].Tangent = tangent;
+            //        }
+            //        else
+            //        {
+            //            tangent = vertices[i].Position - vertices[down].Position;
+            //            tangent.Normalize();
+            //            vertices[i].Tangent = tangent;
+            //        }
+            //    }
+            //}
+
+
             public void ConsoleOutput(int faceIndex, int tl, int tr, int bl, int br, List<VertexPositionNormalTexture> cubesFaceMeshLists)
             {
                 if (showOutput)
@@ -513,12 +585,6 @@ namespace ShaderExamples
                     System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + tr + "] " + "  vert " + cubesFaceMeshLists[tr]);
                     System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + tl + "] " + "  vert " + cubesFaceMeshLists[tl]);
                 }
-            }
-
-            // TODO we should generate smooth normals here if flat faces is false.
-            private VertexPositionNormalTexture GetVertice(Vector3 v, Vector2 uv)
-            {
-                return new VertexPositionNormalTexture(v, new Vector3(0, 0, 1) , uv);
             }
 
             public void DrawPrimitive(GraphicsDevice gd, Effect effect)
