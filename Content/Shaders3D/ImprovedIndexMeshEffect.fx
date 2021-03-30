@@ -18,15 +18,11 @@ matrix World;
 matrix View;
 matrix Projection;
 
-
 texture2D SpriteTexture;
 sampler2D SpriteTextureSampler = sampler_state
 {
 	Texture = (SpriteTexture);
 };
-
-
-
 
 // structs
 struct VertexShaderInput
@@ -39,6 +35,7 @@ struct VertexShaderInput
 struct VertexShaderOutput
 {
 	float4 Position : SV_POSITION;
+	float4 Normal : NORMAL0;
 	float2 TextureCoordinates : TEXCOORD0;
 };
 
@@ -53,6 +50,7 @@ VertexShaderOutput TriangleDrawWithTransformsVS(in VertexShaderInput input)
 	matrix wvp = mul(World, vp);
 
 	output.Position = mul(input.Position, wvp); // we transform the position.
+	output.Normal = mul(input.Normal, wvp);
 	output.TextureCoordinates = input.TextureCoordinates;
 
 	return output;
@@ -63,6 +61,7 @@ VertexShaderOutput TriangleDrawWithTransformsVS(in VertexShaderInput input)
 float4 TriangleDrawWithTransformsPS(VertexShaderOutput input) : COLOR
 {
 	float4 col = tex2D(SpriteTextureSampler, input.TextureCoordinates);
+	//col.g += 0.5f;
 	return col;
 }
 

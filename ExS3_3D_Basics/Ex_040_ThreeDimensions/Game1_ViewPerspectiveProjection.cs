@@ -41,7 +41,7 @@ namespace ShaderExamples
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
             Content.RootDirectory = "Content";
             Window.AllowUserResizing = true;
-            Window.Title = " ex Mimic Spritebatch test first ";
+            Window.Title = " ex ViewProjection ";
             IsMouseVisible = true;
             Window.ClientSizeChanged += OnResize;
         }

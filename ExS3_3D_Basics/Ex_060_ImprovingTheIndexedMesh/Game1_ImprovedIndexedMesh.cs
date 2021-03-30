@@ -16,18 +16,21 @@ namespace ShaderExamples
         SpriteFont font3;
         Texture2D texture;
         Texture2D dotTexture;
-        Effect effect;
+        Texture2D dotTexture2;
+        //Effect effect;
         RenderTarget2D rtScene;
-        MouseState mouse;
+        //MouseState mouse;
 
         PrimitiveIndexedMesh mesh;
+        PrimitiveNormalArrows visualNormals = new PrimitiveNormalArrows();
 
         float[] heightMap = new float[]
         {
-            0.1f, 0.2f, 0.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.8f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.5f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.1f, 0.9f, 0.0f
+            0.0f, 0.1f, 0.2f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 0.8f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
         };
 
         Matrix view;
@@ -45,6 +48,7 @@ namespace ShaderExamples
         float quadRotation = 0;
 
         bool displayWireframe = false;
+        bool displayNormals = false;
 
         public Game1_ImprovedIndexedMesh()
         {
@@ -52,7 +56,7 @@ namespace ShaderExamples
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
             Content.RootDirectory = "Content";
             Window.AllowUserResizing = true;
-            Window.Title = " ex Mimic Spritebatch test first ";
+            Window.Title = " ex Improved Indexed Mesh ";
             IsMouseVisible = true;
             Window.ClientSizeChanged += OnResize;
         }
@@ -73,8 +77,9 @@ namespace ShaderExamples
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             Content.RootDirectory = @"Content/Images";
-            texture = Content.Load<Texture2D>("MG_Logo_Med_exCanvs");
-            dotTexture = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Green);
+            texture = Content.Load<Texture2D>("MG_Logo_Med_exCanvs"); // MG_Logo_Med_exCanvs  blue_atmosphere
+            dotTexture = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Red);
+            dotTexture2 = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Green);
 
             Content.RootDirectory = @"Content/Fonts";
             font = Content.Load<SpriteFont>("MgFont");
@@ -85,18 +90,19 @@ namespace ShaderExamples
             UpdateProjection();
 
             ImprovedIndexMeshEffectClass.Load(Content);
-            ImprovedIndexMeshEffectClass.Technique = "TriangleDrawWithTransforms";
             ImprovedIndexMeshEffectClass.SpriteTexture = texture;
             ImprovedIndexMeshEffectClass.View = view;
             ImprovedIndexMeshEffectClass.Projection = projection;
 
             PrimitiveIndexedMesh.showOutput = true;
 
-            //mesh = new PrimitiveIndexedMesh(4,4, new Vector3(300f, 250, 0f ));
+            //mesh = new PrimitiveIndexedMesh(4,4, new Vector3(300f, 250, 0f ), true);
 
-            //mesh = new PrimitiveIndexedMesh(heightMap, 5, new Vector3( 300f, 250, 100f ));
+            //mesh = new PrimitiveIndexedMesh(heightMap, 6, new Vector3( 300f, 250, 10f ), true);
+            //visualNormals.CreateVisualNormalsForPrimitiveMesh(mesh.vertices, mesh.indices, dotTexture2, 0.75f, 2.5f);
 
-            mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f ));
+            mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), true);
+            visualNormals.CreateVisualNormalsForPrimitiveMesh(mesh.vertices, mesh.indices, dotTexture2, 0.25f, 1.5f);
         }
 
         protected override void UnloadContent()
@@ -149,6 +155,7 @@ namespace ShaderExamples
             if (quadRotation < 0)
                 quadRotation = 6.28f;
             quadUpVector = new Vector3(MathF.Sin(quadRotation), MathF.Cos(quadRotation), 0);
+            //cameraWorld.Up = quadUpVector;
 
             // Set the view matrix.
             cameraWorld = Matrix.CreateWorld(cameraWorld.Translation, cameraWorld.Forward, cameraWorld.Up);
@@ -160,6 +167,9 @@ namespace ShaderExamples
 
             if (Keys.F2.IsKeyPressedWithDelay(gameTime))
                 displayWireframe = !displayWireframe;
+            if (Keys.F3.IsKeyPressedWithDelay(gameTime))
+                displayNormals = !displayNormals;
+            
 
             base.Update(gameTime);
         }
@@ -193,11 +203,15 @@ namespace ShaderExamples
             ImprovedIndexMeshEffectClass.View = view;
             ImprovedIndexMeshEffectClass.Projection = projection;
             ImprovedIndexMeshEffectClass.World = Matrix.Identity;
+            ImprovedIndexMeshEffectClass.SpriteTexture = texture;
 
             DrawMesh();
 
             if(displayWireframe)
                 DrawWireFrameMesh();
+
+            if(displayNormals)
+            DrawNormalsForMesh();
 
             DrawSpriteBatches(gameTime);
 
@@ -218,6 +232,13 @@ namespace ShaderExamples
             mesh.DrawPrimitive(GraphicsDevice, ImprovedIndexMeshEffectClass.effect);
         }
 
+        public void DrawNormalsForMesh()
+        {
+            GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
+            ImprovedIndexMeshEffectClass.SpriteTexture = visualNormals.texture;
+            visualNormals.Draw(GraphicsDevice, ImprovedIndexMeshEffectClass.effect);
+        }
+
         public void DrawSpriteBatches(GameTime gameTime)
         {
             // Draw all the regular stuff
@@ -226,11 +247,11 @@ namespace ShaderExamples
                 $" \n The camera exists as a world matrix that holds a position and orientation." +
                 $" \n The keys WASD change the forward view direction (which is the major take away here). ZC allows for spin." +
                 $" \n The Arrows move the camera translation as strafing motion. " +
-                $" \n  The F2 key will turn a wireframe on or off." +
+                $" \n The F2 key will turn a wireframe on or off." +
                 $" \n  " +
-                $" \n In this example we improve the previous mesh we all the mesh to take a height map." +
+                $" \n In this example we improve the previous mesh we allow the mesh to take a height map." +
                 $" \n The map can be in the form of a array or of a texture we also create normals for the mesh." +
-                $" \n " +
+                $" \n This is created on the cpu at runtime." +
                 $" \n " +
                 $" \n { cameraWorld.DisplayMatrix("cameraWorld") }" +
                 $" \n { view.DisplayMatrix("view") }" +
@@ -247,22 +268,6 @@ namespace ShaderExamples
         {
             public static Effect effect;
 
-            public static void InfoForCreateMethods()
-            {
-                Console.WriteLine($"\n effect.Name: \n   {effect.Name} ");
-                Console.WriteLine($"\n effect.Parameters: \n ");
-                var pparams = effect.Parameters;
-                foreach (var p in pparams)
-                {
-                    Console.WriteLine($"   p.Name: {p.Name}  ");
-                }
-                Console.WriteLine($"\n effect.Techniques: \n ");
-                var tparams = effect.Techniques;
-                foreach (var t in tparams)
-                {
-                    Console.WriteLine($"   t.Name: {t.Name}  ");
-                }
-            }
             public static void Load(Microsoft.Xna.Framework.Content.ContentManager Content)
             {
                 Content.RootDirectory = @"Content/Shaders3D";
@@ -295,6 +300,23 @@ namespace ShaderExamples
             public static Matrix Projection
             {
                 set { effect.Parameters["Projection"].SetValue(value); }
+            }
+
+            public static void InfoForCreateMethods()
+            {
+                Console.WriteLine($"\n effect.Name: \n   {effect.Name} ");
+                Console.WriteLine($"\n effect.Parameters: \n ");
+                var pparams = effect.Parameters;
+                foreach (var p in pparams)
+                {
+                    Console.WriteLine($"   p.Name: {p.Name}  ");
+                }
+                Console.WriteLine($"\n effect.Techniques: \n ");
+                var tparams = effect.Techniques;
+                foreach (var t in tparams)
+                {
+                    Console.WriteLine($"   t.Name: {t.Name}  ");
+                }
             }
         }
 
@@ -330,10 +352,10 @@ namespace ShaderExamples
                     heightColorArray[i].R = 0;
                     heightColorArray[i].A = 0;
                 }
-                CreatePrimitiveMesh(heightColorArray, 2, Vector3.Zero);
+                CreatePrimitiveMesh(heightColorArray, 2, Vector3.Zero, false);
                 heightColorArray = new Color[0];
             }
-            public PrimitiveIndexedMesh(int subdivisionWidth, int subdividsionHeight, Vector3 scale)
+            public PrimitiveIndexedMesh(int subdivisionWidth, int subdividsionHeight, Vector3 scale, bool negateNormalDirection)
             {
                 heightColorArray = new Color[subdivisionWidth * subdividsionHeight];
                 for (int i = 0; i < subdivisionWidth * subdividsionHeight; i++)
@@ -341,7 +363,7 @@ namespace ShaderExamples
                     heightColorArray[i].R = 0;
                     heightColorArray[i].A = 0;
                 }
-                CreatePrimitiveMesh(heightColorArray, subdivisionWidth, scale);
+                CreatePrimitiveMesh(heightColorArray, subdivisionWidth, scale, negateNormalDirection);
                 heightColorArray = new Color[0];
             }
 
@@ -353,11 +375,11 @@ namespace ShaderExamples
                     heightColorArray[i].R = GetAvgHeightFromFloatAsByte(heightArray[i]);
                     heightColorArray[i].A = GetAvgHeightFromFloatAsByte(heightArray[i]);
                 }
-                CreatePrimitiveMesh(heightColorArray, strideWidth, Vector3.Zero);
+                CreatePrimitiveMesh(heightColorArray, strideWidth, Vector3.Zero, false);
                 heightColorArray = new Color[0];
             }
 
-            public PrimitiveIndexedMesh(float[] heightArray, int strideWidth, Vector3 scale)
+            public PrimitiveIndexedMesh(float[] heightArray, int strideWidth, Vector3 scale, bool negateNormalDirection)
             {
                 heightColorArray = new Color[heightArray.Length];
                 for (int i = 0; i < heightArray.Length; i++)
@@ -365,21 +387,21 @@ namespace ShaderExamples
                     heightColorArray[i].R = GetAvgHeightFromFloatAsByte(heightArray[i]);
                     heightColorArray[i].A = GetAvgHeightFromFloatAsByte(heightArray[i]);
                 }
-                CreatePrimitiveMesh(heightColorArray, strideWidth, scale);
+                CreatePrimitiveMesh(heightColorArray, strideWidth, scale, negateNormalDirection);
                 heightColorArray = new Color[0];
             }
 
-            public PrimitiveIndexedMesh(Texture2D heightTexture, Vector3 scale)
+            public PrimitiveIndexedMesh(Texture2D heightTexture, Vector3 scale, bool negateNormalDirection)
             {
                 Color[] heightColorArray = new Color[heightTexture.Width * heightTexture.Height];
                 heightTexture.GetData<Color>(heightColorArray);
-                CreatePrimitiveMesh(heightColorArray, heightTexture.Width, scale);
+                CreatePrimitiveMesh(heightColorArray, heightTexture.Width, scale, negateNormalDirection);
                 heightColorArray = new Color[0];
             }
 
-            public void CreatePrimitiveMesh(Color[] heighColorArray, int strideWidth, Vector3 scale)
+            public void CreatePrimitiveMesh(Color[] heighColorArray, int strideWidth, Vector3 scale, bool negateNormalDirection)
             {
-                List<VertexPositionNormalTexture> cubesFaceMeshLists = new List<VertexPositionNormalTexture>();
+                List<VertexPositionNormalTexture> cubesFaceMeshVertexLists = new List<VertexPositionNormalTexture>();
                 List<int> cubeFaceMeshIndexLists = new List<int>();
 
                 int subdivisionWidth = strideWidth;
@@ -414,11 +436,12 @@ namespace ShaderExamples
                         var p0 = new Vector3(stepU, stepV, hval) * scale;
                         var uv0 = new Vector2(stepU, stepV);
 
-                        cubesFaceMeshLists.Add(GetVertice(p0, uv0));
+                        cubesFaceMeshVertexLists.Add(GetVertice(p0, uv0));
                         vertCounter += 1;
                     }
                 }
 
+                int k = 0;
                 for (int y = 0; y < subdividsionHeight - 1; y++)
                 {
                     for (int x = 0; x < subdivisionWidth - 1; x++)
@@ -431,27 +454,65 @@ namespace ShaderExamples
                         var br = faceVerticeOffset + stride + 1;
                         var tr = faceVerticeOffset + 1;
 
-                        AddQuadIndexes(0, tl, tr, bl, br, cubeFaceMeshIndexLists);
+                        AddQuadIndexes(tl, tr, bl, br, ref cubeFaceMeshIndexLists);
+                        CalcululateNormalAddToVertices(k + 0, k + 1, k + 2, k + 3, ref cubesFaceMeshVertexLists, ref cubeFaceMeshIndexLists);
 
                         if (showOutput)
-                            ConsoleOutput(0, tl, tr, bl, br, cubesFaceMeshLists);
+                            ConsoleOutput(0, tl, tr, bl, br, cubesFaceMeshVertexLists);
+                        k += 6;
                     }
                 }
-                vertices = cubesFaceMeshLists.ToArray();
-                indices = cubeFaceMeshIndexLists.ToArray();
 
-                CreateSmoothNormals(vertices, indices, false);
+                // vector addition normals normalize.
+                for (int i = 0; i < cubesFaceMeshVertexLists.Count; i++)
+                {
+                    var v = cubesFaceMeshVertexLists[i];
+                    if(negateNormalDirection)
+                        v.Normal = -(Vector3.Normalize(v.Normal));
+                    else
+                        v.Normal = Vector3.Normalize(v.Normal);
+                    cubesFaceMeshVertexLists[i] = v;
+                }
+
+                vertices = cubesFaceMeshVertexLists.ToArray();
+                indices = cubeFaceMeshIndexLists.ToArray();
             }
 
-            public void AddQuadIndexes(int faceIndex, int tl, int tr, int bl, int br, List<int> cubeFaceMeshIndexLists)
+            public void AddQuadIndexes( int tl, int tr, int bl, int br, ref List<int> cubeFaceMeshIndexLists)
             {
-                    cubeFaceMeshIndexLists.Add(tl);
-                    cubeFaceMeshIndexLists.Add(bl);
-                    cubeFaceMeshIndexLists.Add(br);
+                cubeFaceMeshIndexLists.Add(tl);
+                cubeFaceMeshIndexLists.Add(bl);
+                cubeFaceMeshIndexLists.Add(br);
 
-                    cubeFaceMeshIndexLists.Add(br);
-                    cubeFaceMeshIndexLists.Add(tr);
-                    cubeFaceMeshIndexLists.Add(tl);
+                cubeFaceMeshIndexLists.Add(br);
+                cubeFaceMeshIndexLists.Add(tr);
+                cubeFaceMeshIndexLists.Add(tl);
+            }
+
+            public void CalcululateNormalAddToVertices( int tl, int tr, int bl, int br, ref List<VertexPositionNormalTexture> cubesFaceMeshVertexLists,ref List<int> cubeFaceMeshIndexLists)
+            {
+                //t0
+                var v0 = cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[tl]];
+                var v1 = cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[bl]];
+                var v2 = cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[br]];
+                var n0 = Vector3.Cross(v1.Position - v0.Position, v2.Position - v0.Position);
+                v0.Normal += n0;
+                v1.Normal += n0;
+                v2.Normal += n0;
+                cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[tl]] = v0;
+                cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[bl]] = v1;
+                cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[br]] = v2;
+                //t1
+                var v3 = cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[br]];
+                var v4 = cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[tr]];
+                var v5 = cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[tl]];
+                var n1 = Vector3.Cross(v4.Position - v3.Position, v5.Position - v3.Position);
+                v3.Normal += n1;
+                v4.Normal += n1;
+                v5.Normal += n1;
+                cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[br]] = v3;
+                cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[tr]] = v4;
+                cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[tl]] = v5;
             }
 
             public int GetIndex(int x, int y, int stride)
@@ -505,45 +566,6 @@ namespace ShaderExamples
                         break;
                 }
                 return result;
-            }
-
-            VertexPositionNormalTexture[] CreateSmoothNormals(VertexPositionNormalTexture[] vertices, int[] indexs, bool invertNormalsOnCreation)
-            {
-                // For each vertice we must calculate the surrounding triangles normals, average them and set the normal.
-                int tvertmultiplier = 3;
-                int triangles = (int)(indexs.Length / tvertmultiplier);
-                for (int currentTestedVerticeIndex = 0; currentTestedVerticeIndex < vertices.Length; currentTestedVerticeIndex++)
-                {
-                    Vector3 sum = Vector3.Zero;
-                    float total = 0;
-                    for (int t = 0; t < triangles; t++)
-                    {
-                        int tvstart = t * tvertmultiplier;
-                        int tindex0 = tvstart + 0;
-                        int tindex1 = tvstart + 1;
-                        int tindex2 = tvstart + 2;
-                        var vindex0 = indices[tindex0];
-                        var vindex1 = indices[tindex1];
-                        var vindex2 = indices[tindex2];
-                        if (vindex0 == currentTestedVerticeIndex || vindex1 == currentTestedVerticeIndex || vindex2 == currentTestedVerticeIndex)
-                        {
-                            var n0 = (vertices[vindex1].Position - vertices[vindex0].Position) * 10f; // supersticous math artifact avoidance.
-                            var n1 = (vertices[vindex2].Position - vertices[vindex1].Position) * 10f;
-                            var cnorm = Vector3.Cross(n0, n1);
-                            sum += cnorm;
-                            total += 1;
-                        }
-                    }
-                    if (total > 0)
-                    {
-                        var averagednormal = sum / total;
-                        averagednormal.Normalize();
-                        if (invertNormalsOnCreation)
-                            averagednormal = -averagednormal;
-                        vertices[currentTestedVerticeIndex].Normal = averagednormal;
-                    }
-                }
-                return vertices;
             }
 
             //void CreateTangents(VertexPositionNormalTextureTangents[] vertices, int surfacePointWidth)

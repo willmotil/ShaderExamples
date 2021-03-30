@@ -68,6 +68,8 @@ C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\I
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\wallnormmap.xnb
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\walltomap.xnb
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\water04.xnb
+C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\ImprovedIndexMeshDrawing.xnb
+C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\ImprovedIndexMeshEffect.xnb
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\SimpleDirectDrawEffect.xnb
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\SimpleDrawingWithMatriceEffect.xnb
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\SimpleTriangleDrawingEffect.xnb
@@ -125,4 +127,3 @@ C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExa
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.dll
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.pdb
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.genruntimeconfig.cache
-C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.csprojAssemblyReference.cache

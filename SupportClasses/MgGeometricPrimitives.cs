@@ -366,6 +366,69 @@ namespace Microsoft.Xna.Framework
 
     }
 
+
+    public class PrimitiveNormalArrows
+    {
+        public VertexPositionNormalTexture[] vertices;
+        public int[] indices;
+
+        public Texture2D texture;
+
+        public PrimitiveNormalArrows()
+        {
+        }
+
+        public void CreateVisualNormalsForPrimitiveMesh(VertexPositionNormalTexture[] inVertices, int[] inIndices, Texture2D t, float thickness, float scale)
+        {
+            texture = t;
+            int len = inVertices.Length;
+
+            // for each vertice in the model we will make a quad composed of 4 vertices and 6 indices.
+            VertexPositionNormalTexture[] nverts = new VertexPositionNormalTexture[len * 4];
+            int[] nindices = new int[len * 6];
+
+            for (int j = 0; j < len; j++)
+            {
+                int v = j * 4;
+                int i = j * 6;
+                //
+                nverts[v + 0].Position = new Vector3(0f, 0f, 0f) + inVertices[j].Position;
+                nverts[v + 1].Position = new Vector3(0f, -.2f * thickness, 0f) + inVertices[j].Position;
+                nverts[v + 2].Position = new Vector3(0f, 0f, 0f) + inVertices[j].Position + inVertices[j].Normal * scale;
+                nverts[v + 3].Position = new Vector3(0f, -.2f * thickness, 0f) + inVertices[j].Position + inVertices[j].Normal * scale;
+                //
+                nverts[v + 0].TextureCoordinate = new Vector2(0f, 0f);
+                nverts[v + 1].TextureCoordinate = new Vector2(0f, .33f); 
+                nverts[v + 2].TextureCoordinate = new Vector2(1f, .0f);
+                nverts[v + 3].TextureCoordinate = new Vector2(1f, .33f);
+                //
+                nverts[v + 0].Normal = inVertices[j].Normal;
+                nverts[v + 1].Normal = inVertices[j].Normal;
+                nverts[v + 2].Normal = inVertices[j].Normal;
+                nverts[v + 3].Normal = inVertices[j].Normal;
+
+                // indices
+                nindices[i + 0] = 0 + v;
+                nindices[i + 1] = 1 + v;
+                nindices[i + 2] = 2 + v;
+                nindices[i + 3] = 2 + v;
+                nindices[i + 4] = 1 + v;
+                nindices[i + 5] = 3 + v;
+            }
+            this.vertices = nverts;
+            this.indices = nindices;
+        }
+
+        public void Draw(GraphicsDevice gd, Effect effect)
+        {
+            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, (indices.Length / 3), VertexPositionNormalTexture.VertexDeclaration);
+            }
+        }
+    }
+
     public class Quad
     {
         public VertexPositionNormalTexture[] vertices;
