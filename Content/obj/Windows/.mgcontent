@@ -45,11 +45,13 @@
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/ShockwaveRippleEffect.fx</File>
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/TestingCanidateEffects.fx</File>
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/TextShadowEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/DiffuseLightEffect.fx</File>
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/ImprovedIndexMeshEffect.fx</File>
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/SimpleDirectDrawEffect.fx</File>
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/SimpleDrawingWithMatriceEffect.fx</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

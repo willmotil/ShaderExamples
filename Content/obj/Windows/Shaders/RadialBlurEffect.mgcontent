@@ -3,7 +3,7 @@
   <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/RadialBlurEffect.fx</SourceFile>
   <SourceTime>2021-01-08T03:27:38.2542277-05:00</SourceTime>
   <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Shaders/RadialBlurEffect.xnb</DestFile>
-  <DestTime>2021-03-29T01:36:32.9159599-04:00</DestTime>
+  <DestTime>2021-03-31T03:40:56.2650999-04:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2018-09-23T17:55:52-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>

@@ -3,7 +3,7 @@
   <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/planet_stencil.png</SourceFile>
   <SourceTime>2020-12-08T02:07:54.7487768-05:00</SourceTime>
   <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Images/planet_stencil.xnb</DestFile>
-  <DestTime>2021-03-29T01:36:22.0718054-04:00</DestTime>
+  <DestTime>2021-03-31T03:40:45.1516465-04:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2018-09-23T17:55:52-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

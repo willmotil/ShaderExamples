@@ -3,7 +3,7 @@
   <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/ShockwaveRippleEffect.fx</SourceFile>
   <SourceTime>2021-01-08T05:15:21.8054832-05:00</SourceTime>
   <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Shaders/ShockwaveRippleEffect.xnb</DestFile>
-  <DestTime>2021-03-29T01:36:35.5989947-04:00</DestTime>
+  <DestTime>2021-03-31T03:40:58.6129263-04:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2018-09-23T17:55:52-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>

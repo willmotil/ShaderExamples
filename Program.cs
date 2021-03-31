@@ -33,15 +33,17 @@ namespace ShaderExamples
 
 
 
-            //3D shader examples
+            //3D basic shader examples
             //using (var game = new Game1_TriangleDirectlyToTheGpu()) game.Run();
             //using (var game = new Game1_QuadWithMatrices()) game.Run();
             //using (var game = new Game1_ManipulatingTheMatrices()) game.Run();
             //using (var game = new Game1_ViewPerspectiveProjection()) game.Run();
             //using (var game = new Game1_IndexedMesh()) game.Run();
-            using (var game = new Game1_ImprovedIndexedMesh()) game.Run();
-            //using (var game = new Game1_DiffuseLighting()) game.Run();
-            
+            //using (var game = new Game1_ImprovedIndexedMesh()) game.Run();
+
+            // 3D Shader examples
+            using (var game = new Game1_DiffuseLighting()) game.Run();
+
 
             // tests or imcomplete.
             //using (var game = new Game1_XXXXXXX()) game.Run();

@@ -9,6 +9,11 @@ namespace ShaderExamples
 {
     public class Game1_DiffuseLighting : Game
     {
+        bool rotateLight = true;
+        bool displayWireframe = true;
+        bool displayNormals = true;
+
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         SpriteFont font;
@@ -17,6 +22,7 @@ namespace ShaderExamples
         Texture2D texture;
         Texture2D dotTexture;
         Texture2D dotTexture2;
+        Texture2D dotTexture3;
         RenderTarget2D rtScene;
 
         PrimitiveIndexedMesh mesh;
@@ -24,10 +30,11 @@ namespace ShaderExamples
 
         float[] heightMap = new float[]
         {
-            0.0f, 0.1f, 0.2f, 0.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 0.8f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.99f, 0.99f, 0.99f, 0.0f,
+            0.0f, 0.0f, 0.99f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.99f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.99f, 0.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
         };
 
@@ -48,9 +55,6 @@ namespace ShaderExamples
         Vector3 lightPosition = new Vector3(0, 0, 500f);
         float lightRotationRadians = 0f;
         
-        bool rotateLight = true;
-        bool displayWireframe = false;
-        bool displayNormals = false;
 
         public Game1_DiffuseLighting()
         {
@@ -80,8 +84,10 @@ namespace ShaderExamples
 
             Content.RootDirectory = @"Content/Images";
             texture = Content.Load<Texture2D>("MG_Logo_Modifyed"); // MG_Logo_Med_exCanvs  blue_atmosphere
+            
             dotTexture = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Red);
             dotTexture2 = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Green);
+            dotTexture3 = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.White);
 
             Content.RootDirectory = @"Content/Fonts";
             font = Content.Load<SpriteFont>("MgFont");
@@ -91,16 +97,16 @@ namespace ShaderExamples
             InitialView();
             UpdateProjection();
 
-            ImprovedIndexMeshEffectClass.Load(Content);
-            ImprovedIndexMeshEffectClass.SpriteTexture = texture;
-            ImprovedIndexMeshEffectClass.View = view;
-            ImprovedIndexMeshEffectClass.Projection = projection;
+            DiffuseLightEffectClass.Load(Content);
+            DiffuseLightEffectClass.SpriteTexture = dotTexture3;
+            DiffuseLightEffectClass.View = view;
+            DiffuseLightEffectClass.Projection = projection;
 
 
             PrimitiveIndexedMesh.showOutput = true;
             //mesh = new PrimitiveIndexedMesh(4,4, new Vector3(300f, 250, 0f ), true);
-            //mesh = new PrimitiveIndexedMesh(heightMap, 6, new Vector3( 300f, 250, 10f ), true);
-            mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), true);
+            mesh = new PrimitiveIndexedMesh(heightMap, 6, new Vector3( 300f, 250, 70f ), true);
+            //mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), true);
 
             CreateVisualMeshNormals(mesh, dotTexture2, 0.50f, 2.0f);
 
@@ -181,10 +187,11 @@ namespace ShaderExamples
 
             if (rotateLight)
             {
-                lightRotationRadians += .01f;
+                lightRotationRadians += .005f;
                 if (lightRotationRadians > 6.12)
                     lightRotationRadians = 0;
-                lightPosition = Vector3.Transform(new Vector3(0, 0, 500), Matrix.CreateFromAxisAngle(Vector3.UnitY, lightRotationRadians));
+                lightPosition = Vector3.Transform(new Vector3(0, 0, 500), Matrix.CreateRotationY( lightRotationRadians));
+                //lightPosition = Vector3.Transform(new Vector3(0, 0, 500), Matrix.CreateFromAxisAngle(Vector3.UnitY, lightRotationRadians));
             }
             
 
@@ -195,15 +202,23 @@ namespace ShaderExamples
         {
             cameraWorldPosition.Z = MgMathExtras.GetRequisitePerspectiveSpriteBatchAlignmentZdistance(GraphicsDevice, fov);
             cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Zero - cameraWorldPosition, cameraUpVector);
+            // well make it specific.
+            cameraWorld = new Matrix
+            (
+                1f, 0f, 0f, 0f,
+                0f, -0.141f, -0.990f, 0f,
+                0f, 0.990f, -0.141f, 0f,
+                153f, 253f, -20f, 1.0f
+            );
             view = Matrix.Invert(cameraWorld);
-            if (ImprovedIndexMeshEffectClass.effect != null)
-                ImprovedIndexMeshEffectClass.View = view;
+            if (DiffuseLightEffectClass.effect != null)
+                DiffuseLightEffectClass.View = view;
         }
         public void UpdateProjection()
         {
             projection = Matrix.CreatePerspectiveFieldOfView(fov, GraphicsDevice.Viewport.AspectRatio, 1f, 10000f);
-            if (ImprovedIndexMeshEffectClass.effect != null)
-                ImprovedIndexMeshEffectClass.Projection = projection;
+            if (DiffuseLightEffectClass.effect != null)
+                DiffuseLightEffectClass.Projection = projection;
         }
 
         RasterizerState rasterizerState_CULLNONE_WIREFRAME = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
@@ -217,13 +232,12 @@ namespace ShaderExamples
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
 
-            ImprovedIndexMeshEffectClass.View = view;
-            ImprovedIndexMeshEffectClass.Projection = projection;
-            ImprovedIndexMeshEffectClass.World = Matrix.Identity;
-            ImprovedIndexMeshEffectClass.SpriteTexture = texture;
-            ImprovedIndexMeshEffectClass.LightPosition = lightPosition;
+            DiffuseLightEffectClass.View = view;
+            DiffuseLightEffectClass.Projection = projection;
+            DiffuseLightEffectClass.World = Matrix.Identity;
+            DiffuseLightEffectClass.LightPosition = lightPosition;
 
-            DrawMesh();
+            DrawMesh(dotTexture3);
 
             if(displayWireframe)
                 DrawWireFrameMesh();
@@ -236,25 +250,25 @@ namespace ShaderExamples
             base.Draw(gameTime);
         }
 
-        public void DrawMesh()
+        public void DrawMesh(Texture2D texture)
         {
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
-            ImprovedIndexMeshEffectClass.SpriteTexture = texture;
-            mesh.DrawPrimitive(GraphicsDevice, ImprovedIndexMeshEffectClass.effect);
+            DiffuseLightEffectClass.SpriteTexture = texture;
+            mesh.DrawPrimitive(GraphicsDevice, DiffuseLightEffectClass.effect);
         }
 
         public void DrawWireFrameMesh()
         {
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_WIREFRAME;
-            ImprovedIndexMeshEffectClass.SpriteTexture = dotTexture;
-            mesh.DrawPrimitive(GraphicsDevice, ImprovedIndexMeshEffectClass.effect);
+            DiffuseLightEffectClass.SpriteTexture = dotTexture;
+            mesh.DrawPrimitive(GraphicsDevice, DiffuseLightEffectClass.effect);
         }
 
         public void DrawNormalsForMesh()
         {
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
-            ImprovedIndexMeshEffectClass.SpriteTexture = visualNormals.texture;
-            visualNormals.Draw(GraphicsDevice, ImprovedIndexMeshEffectClass.effect);
+            DiffuseLightEffectClass.SpriteTexture = visualNormals.texture;
+            visualNormals.Draw(GraphicsDevice, DiffuseLightEffectClass.effect);
         }
 
         public void DrawSpriteBatches(GameTime gameTime)
@@ -265,16 +279,16 @@ namespace ShaderExamples
                 $" \n The camera exists as a world matrix that holds a position and orientation." +
                 $" \n The keys WASD change the forward view direction (which is the major take away here). ZC allows for spin." +
                 $" \n The Arrows move the camera translation as strafing motion. " +
-                $" \n The F2 key will turn a wireframe on or off." +
+                $" \n The F2 key will turn a wireframe on or off. F3 will show normals." +
                 $" \n  " +
-                $" \n In this example we improve the previous mesh we allow the mesh to take a height map." +
-                $" \n The map can be in the form of a array or of a texture we also create normals for the mesh." +
-                $" \n This is created on the cpu at runtime." +
+                $" \n In this example we make a shader that creates a diffuse light." +
+                $" \n The light rotates around the mesh illuminating faces depending on the triangle normals." +
                 $" \n " +
                 $" \n { cameraWorld.DisplayMatrix("cameraWorld") }" +
                 $" \n { view.DisplayMatrix("view") }" +
                 $" \n { projection.DisplayMatrix("projection") }" +
                 $" \n" +
+                $" \n {lightPosition.VectorToString("LightPosition")}" +
                 $" \n"
                 ;
             spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Blue);
@@ -282,15 +296,15 @@ namespace ShaderExamples
         }
 
         // Wrap up our effect.
-        public class ImprovedIndexMeshEffectClass
+        public class DiffuseLightEffectClass
         {
             public static Effect effect;
 
             public static void Load(Microsoft.Xna.Framework.Content.ContentManager Content)
             {
                 Content.RootDirectory = @"Content/Shaders3D";
-                effect = Content.Load<Effect>("ImprovedIndexMeshEffect");
-                effect.CurrentTechnique = effect.Techniques["IndexedMeshDraw"];
+                effect = Content.Load<Effect>("DiffuseLightEffect");
+                effect.CurrentTechnique = effect.Techniques["DiffuseLighting"];
                 World = Matrix.Identity;
                 View = Matrix.Identity;
                 Projection = Matrix.CreatePerspectiveFieldOfView(1, 1.33f, 1f, 10000f); // just something default;

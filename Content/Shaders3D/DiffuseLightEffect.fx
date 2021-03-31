@@ -43,7 +43,7 @@ struct VertexShaderOutput
 
 //   using the matrices in our vertice shader this time.
 
-VertexShaderOutput TriangleDrawWithTransformsVS(in VertexShaderInput input)
+VertexShaderOutput VS(in VertexShaderInput input)
 {
 	VertexShaderOutput output = (VertexShaderOutput)0;
 
@@ -60,7 +60,7 @@ VertexShaderOutput TriangleDrawWithTransformsVS(in VertexShaderInput input)
 
 
 // our familiar pixel shader.
-float4 TriangleDrawWithTransformsPS(VertexShaderOutput input) : COLOR
+float4 PS(VertexShaderOutput input) : COLOR
 {
 	float4 col = tex2D(SpriteTextureSampler, input.TextureCoordinates);
 
@@ -75,14 +75,14 @@ float4 TriangleDrawWithTransformsPS(VertexShaderOutput input) : COLOR
 
 
 // the technique.
-technique IndexedMeshDraw
+technique DiffuseLighting
 {
 	pass P0
 	{
 		VertexShader = compile VS_SHADERMODEL
-			TriangleDrawWithTransformsVS();
+			VS();
 		PixelShader = compile PS_SHADERMODEL
-			TriangleDrawWithTransformsPS();
+			PS();
 	}
 };
 

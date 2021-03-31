@@ -3,7 +3,7 @@
   <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/gamma_correction_brightness.png</SourceFile>
   <SourceTime>2021-01-08T03:27:38.1863492-05:00</SourceTime>
   <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Images/gamma_correction_brightness.xnb</DestFile>
-  <DestTime>2021-03-29T01:36:19.9097211-04:00</DestTime>
+  <DestTime>2021-03-31T03:40:40.6944431-04:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2018-09-23T17:55:52-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

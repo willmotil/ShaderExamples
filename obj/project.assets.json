@@ -7312,25 +7312,25 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\will\\.nuget\\packages\\": {},
+    "C:\\Users\\Owner\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {},
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\will\\MainFiles\\GitPrjs\\ShaderExamples\\ShaderExamples.csproj",
+      "projectUniqueName": "C:\\Users\\Owner\\GithubPrjs\\ShaderExamples\\ShaderExamples.csproj",
       "projectName": "ShaderExamples",
-      "projectPath": "C:\\Users\\will\\MainFiles\\GitPrjs\\ShaderExamples\\ShaderExamples.csproj",
-      "packagesPath": "C:\\Users\\will\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\will\\MainFiles\\GitPrjs\\ShaderExamples\\obj\\",
+      "projectPath": "C:\\Users\\Owner\\GithubPrjs\\ShaderExamples\\ShaderExamples.csproj",
+      "packagesPath": "C:\\Users\\Owner\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Owner\\GithubPrjs\\ShaderExamples\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "C:\\Users\\will\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Owner\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -7339,9 +7339,7 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\SuperDownloadFolder": {},
-        "https://api.nuget.org/v3/index.json": {},
-        "https://www.myget.org/F/mellinoe/api/v3/index.json": {}
+        "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "netcoreapp3.1": {
