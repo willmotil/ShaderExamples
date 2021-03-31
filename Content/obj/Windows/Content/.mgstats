@@ -1,2 +1,3 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/ImprovedIndexMeshEffect.fx","C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Content/Shaders3D/ImprovedIndexMeshEffect.xnb","EffectProcessor","CompiledEffectContent",2117,2721,0.538456
+"C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/MG_Logo_Modifyed.png","C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Content/Images/MG_Logo_Modifyed.xnb","TextureProcessor","Texture2DContent",6956,147541,0.1823543
+"C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/ImprovedIndexMeshEffect.fx","C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Content/Shaders3D/ImprovedIndexMeshEffect.xnb","EffectProcessor","CompiledEffectContent",2299,2930,0.5529197

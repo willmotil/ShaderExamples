@@ -4,6 +4,7 @@ namespace ShaderExamples
 {
     public static class Program
     {
+
         [STAThread]
         static void Main()
         { 
@@ -39,7 +40,8 @@ namespace ShaderExamples
             //using (var game = new Game1_ViewPerspectiveProjection()) game.Run();
             //using (var game = new Game1_IndexedMesh()) game.Run();
             using (var game = new Game1_ImprovedIndexedMesh()) game.Run();
-
+            //using (var game = new Game1_DiffuseLighting()) game.Run();
+            
 
             // tests or imcomplete.
             //using (var game = new Game1_XXXXXXX()) game.Run();

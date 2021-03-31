@@ -4,15 +4,11 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-// cause something broke the easy console way grrrrr.
-using System.Runtime.InteropServices;
-using Microsoft.Win32.SafeHandles;
 
 namespace ShaderExamples
 {
-    public class Game1_ImprovedIndexedMesh : Game
+    public class Game1_DiffuseLighting : Game
     {
-
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         SpriteFont font;
@@ -35,12 +31,11 @@ namespace ShaderExamples
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
         };
 
-        float fov = 1.4f;
-
         Matrix view;
         Matrix projection;
-        Matrix cameraWorld = Matrix.Identity;
 
+        float fov = 1.4f;
+        Matrix cameraWorld = Matrix.Identity;
         Vector3 cameraWorldPosition = new Vector3(0, 0, 500f);
         Vector3 cameraForwardVector = Vector3.Forward;
         Vector3 cameraUpVector = Vector3.Down;
@@ -57,14 +52,13 @@ namespace ShaderExamples
         bool displayWireframe = false;
         bool displayNormals = false;
 
-        public Game1_ImprovedIndexedMesh()
+        public Game1_DiffuseLighting()
         {
             graphics = new GraphicsDeviceManager(this);
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
             Content.RootDirectory = "Content";
             Window.AllowUserResizing = true;
             Window.Title = " ex Improved Indexed Mesh ";
-            //Console.Title = " ex Improved Indexed Mesh ";
             IsMouseVisible = true;
             Window.ClientSizeChanged += OnResize;
         }
@@ -184,6 +178,14 @@ namespace ShaderExamples
                 displayWireframe = !displayWireframe;
             if (Keys.F3.IsKeyPressedWithDelay(gameTime))
                 displayNormals = !displayNormals;
+
+            if (rotateLight)
+            {
+                lightRotationRadians += .01f;
+                if (lightRotationRadians > 6.12)
+                    lightRotationRadians = 0;
+                lightPosition = Vector3.Transform(new Vector3(0, 0, 500), Matrix.CreateFromAxisAngle(Vector3.UnitY, lightRotationRadians));
+            }
             
 
             base.Update(gameTime);
@@ -193,14 +195,6 @@ namespace ShaderExamples
         {
             cameraWorldPosition.Z = MgMathExtras.GetRequisitePerspectiveSpriteBatchAlignmentZdistance(GraphicsDevice, fov);
             cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Zero - cameraWorldPosition, cameraUpVector);
-            // well make it specific.
-            cameraWorld = new Matrix
-            (
-                1f, 0f, 0f, 0f,
-                0f, -0.436f, -0.9f, 0f,
-                0f, 0.9f, -0.436f, 0f,
-                153f, 285f, -83f, 1.0f
-            );
             view = Matrix.Invert(cameraWorld);
             if (ImprovedIndexMeshEffectClass.effect != null)
                 ImprovedIndexMeshEffectClass.View = view;
@@ -227,6 +221,7 @@ namespace ShaderExamples
             ImprovedIndexMeshEffectClass.Projection = projection;
             ImprovedIndexMeshEffectClass.World = Matrix.Identity;
             ImprovedIndexMeshEffectClass.SpriteTexture = texture;
+            ImprovedIndexMeshEffectClass.LightPosition = lightPosition;
 
             DrawMesh();
 
@@ -272,11 +267,9 @@ namespace ShaderExamples
                 $" \n The Arrows move the camera translation as strafing motion. " +
                 $" \n The F2 key will turn a wireframe on or off." +
                 $" \n  " +
-                $" \n In this example we improve the previous mesh we create normals and allow the mesh to take a height map." +
+                $" \n In this example we improve the previous mesh we allow the mesh to take a height map." +
                 $" \n The map can be in the form of a array or of a texture we also create normals for the mesh." +
                 $" \n This is created on the cpu at runtime." +
-                $" \n In addition we create a new VertexDefinition that allows us to pass our own vertice structure to the shader." +
-                $" \n In this way we prepare to add the ability to do more complex shader effects with the extra information." +
                 $" \n " +
                 $" \n { cameraWorld.DisplayMatrix("cameraWorld") }" +
                 $" \n { view.DisplayMatrix("view") }" +
@@ -301,6 +294,7 @@ namespace ShaderExamples
                 World = Matrix.Identity;
                 View = Matrix.Identity;
                 Projection = Matrix.CreatePerspectiveFieldOfView(1, 1.33f, 1f, 10000f); // just something default;
+                LightPosition = new Vector3(0, 0, 10000);
             }
             public static Effect GetEffect
             {
@@ -325,6 +319,11 @@ namespace ShaderExamples
             public static Matrix Projection
             {
                 set { effect.Parameters["Projection"].SetValue(value); }
+            }
+
+            public static Vector3 LightPosition
+            {
+                set { effect.Parameters["LightPosition"].SetValue(value); }
             }
 
             public static void InfoForCreateMethods()
@@ -592,6 +591,31 @@ namespace ShaderExamples
                 }
                 return result;
             }
+
+            //void CreateTangents(VertexPositionNormalTextureTangents[] vertices, int surfacePointWidth)
+            //{
+            //    for (int i = 0; i < vertices.Length; i++)
+            //    {
+            //        int y = i / surfacePointWidth;
+            //        int x = i - (y * surfacePointWidth);
+            //        int up = (y - 1) * surfacePointWidth + x;
+            //        int down = (y + 1) * surfacePointWidth + x;
+            //        Vector3 tangent = new Vector3();
+            //        if (down >= vertices.Length)
+            //        {
+            //            tangent = vertices[up].Position - vertices[i].Position;
+            //            tangent.Normalize();
+            //            vertices[i].Tangent = tangent;
+            //        }
+            //        else
+            //        {
+            //            tangent = vertices[i].Position - vertices[down].Position;
+            //            tangent.Normalize();
+            //            vertices[i].Tangent = tangent;
+            //        }
+            //    }
+            //}
+
 
             public void ConsoleOutput(int faceIndex, int tl, int tr, int bl, int br, List<VertexPositionNormalTextureTangentWeights> cubesFaceMeshLists)
             {

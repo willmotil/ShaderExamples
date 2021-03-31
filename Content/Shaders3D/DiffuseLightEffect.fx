@@ -50,10 +50,10 @@ VertexShaderOutput TriangleDrawWithTransformsVS(in VertexShaderInput input)
 	matrix vp = mul(View, Projection);
 	matrix wvp = mul(World, vp);
 
-	output.Position = mul(input.Position, wvp); // we transform the position gpu to place on screen.
+	output.Position = mul(input.Position, wvp); // we transform the position.
 	output.TextureCoordinates = input.TextureCoordinates;
-	output.Position3D = mul(input.Position, World); // we pass the world position of our mesh vertices to the pixel shader.
 	output.Normal = mul(input.Normal, World);
+	output.Position3D = mul(input.Position, World);
 
 	return output;
 }
@@ -63,6 +63,13 @@ VertexShaderOutput TriangleDrawWithTransformsVS(in VertexShaderInput input)
 float4 TriangleDrawWithTransformsPS(VertexShaderOutput input) : COLOR
 {
 	float4 col = tex2D(SpriteTextureSampler, input.TextureCoordinates);
+
+	// simple diffuse.
+	float3 L = normalize(LightPosition - input.Position3D);
+	float3 N = normalize(input.Normal);
+	float LdotN = saturate( dot( N, L) );
+	col.rgb = col.rgb * LdotN + col.rgb * 0.1f;
+
 	return col;
 }
 
