@@ -1,24 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Owner\\GithubPrjs\\ShaderExamples\\ShaderExamples.csproj": {}
+    "C:\\Users\\will\\MainFiles\\GitPrjs\\ShaderExamples\\ShaderExamples.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Owner\\GithubPrjs\\ShaderExamples\\ShaderExamples.csproj": {
+    "C:\\Users\\will\\MainFiles\\GitPrjs\\ShaderExamples\\ShaderExamples.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Owner\\GithubPrjs\\ShaderExamples\\ShaderExamples.csproj",
+        "projectUniqueName": "C:\\Users\\will\\MainFiles\\GitPrjs\\ShaderExamples\\ShaderExamples.csproj",
         "projectName": "ShaderExamples",
-        "projectPath": "C:\\Users\\Owner\\GithubPrjs\\ShaderExamples\\ShaderExamples.csproj",
-        "packagesPath": "C:\\Users\\Owner\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Owner\\GithubPrjs\\ShaderExamples\\obj\\",
+        "projectPath": "C:\\Users\\will\\MainFiles\\GitPrjs\\ShaderExamples\\ShaderExamples.csproj",
+        "packagesPath": "C:\\Users\\will\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\will\\MainFiles\\GitPrjs\\ShaderExamples\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\Owner\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\will\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -27,7 +27,9 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {}
+          "C:\\SuperDownloadFolder": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://www.myget.org/F/mellinoe/api/v3/index.json": {}
         },
         "frameworks": {
           "netcoreapp3.1": {
@@ -67,9 +69,6 @@
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
-            },
-            "Microsoft.WindowsDesktop.App.WindowsForms": {
-              "privateAssets": "none"
             }
           },
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.201\\RuntimeIdentifierGraph.json"

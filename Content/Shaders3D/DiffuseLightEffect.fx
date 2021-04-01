@@ -85,12 +85,3 @@ technique DiffuseLighting
 			PS();
 	}
 };
-
-
-//______________________________________________________________________________
-
-// GraphicsDevice.Textures[0] = myTexture2d;  Alternately we could assign the texture manually to the graphics device in game1 that sets it to it to register T0
-//sampler2D SpriteTextureSampler : register(s0)
-//{
-//	Texture = (Texture);  //magfilter = POINT; minfilter = POINT; mipfilter = POINT;
-//};

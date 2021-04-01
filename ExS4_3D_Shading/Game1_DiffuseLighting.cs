@@ -26,16 +26,21 @@ namespace ShaderExamples
         RenderTarget2D rtScene;
 
         PrimitiveIndexedMesh mesh;
-        PrimitiveNormalArrows visualNormals = new PrimitiveNormalArrows();
+        PrimitiveNormals visualNormals = new PrimitiveNormals();
+        PrimitiveNormals visualLightNormal = new PrimitiveNormals();
+
 
         float[] heightMap = new float[]
         {
-            0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.99f, 0.99f, 0.99f, 0.0f,
-            0.0f, 0.0f, 0.99f, 0.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.99f, 0.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.99f, 0.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
+            0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 0.0f, 0.2f, 0.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 0.2f, 0.5f, 0.2f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.2f, 0.5f, 0.7f, 0.5f, 0.2f, 0.0f, 0.0f,
+            0.0f, 0.2f, 0.5f, 0.7f, 0.9f, 0.7f, 0.5f, 0.2f, 0.0f,
+            0.0f, 0.0f, 0.2f, 0.5f, 0.7f, 0.5f, 0.2f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 0.2f, 0.5f, 0.2f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 0.0f, 0.2f, 0.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
         };
 
         Matrix view;
@@ -53,6 +58,7 @@ namespace ShaderExamples
         float quadRotation = 0;
 
         Vector3 lightPosition = new Vector3(0, 0, 500f);
+        Matrix lightTransform = Matrix.Identity;
         float lightRotationRadians = 0f;
         
 
@@ -62,7 +68,7 @@ namespace ShaderExamples
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
             Content.RootDirectory = "Content";
             Window.AllowUserResizing = true;
-            Window.Title = " ex Improved Indexed Mesh ";
+            Window.Title = " ex Diffuse lighting ";
             IsMouseVisible = true;
             Window.ClientSizeChanged += OnResize;
         }
@@ -103,13 +109,15 @@ namespace ShaderExamples
             DiffuseLightEffectClass.Projection = projection;
 
 
-            PrimitiveIndexedMesh.showOutput = true;
+            PrimitiveIndexedMesh.showOutput = false;
+            PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_RED;
+
             //mesh = new PrimitiveIndexedMesh(4,4, new Vector3(300f, 250, 0f ), true);
-            mesh = new PrimitiveIndexedMesh(heightMap, 6, new Vector3( 300f, 250, 70f ), true);
-            //mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), true);
+            //mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3( 300f, 250, 70f ), true);
+            mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), true);
 
             CreateVisualMeshNormals(mesh, dotTexture2, 0.50f, 2.0f);
-
+            CreateVisualLightNormal(dotTexture2, 20, 300);
         }
 
         public void CreateVisualMeshNormals(PrimitiveIndexedMesh mesh, Texture2D texture, float thickness, float scale)
@@ -118,6 +126,15 @@ namespace ShaderExamples
             for (int i = 0; i < mesh.vertices.Length; i++)
                 tmp[i] = new VertexPositionNormalTexture() { Position = mesh.vertices[i].Position, Normal = mesh.vertices[i].Normal, TextureCoordinate = mesh.vertices[i].TextureCoordinate };
             visualNormals.CreateVisualNormalsForPrimitiveMesh(tmp, mesh.indices, texture, thickness, scale);
+        }
+
+        public void CreateVisualLightNormal(Texture2D texture, float thickness, float scale)
+        {
+            VertexPositionNormalTexture[] tmp = new VertexPositionNormalTexture[1];
+            tmp[0] = new VertexPositionNormalTexture() { Position = new Vector3(0, 0, 0), Normal = new Vector3(0, 0, 1), TextureCoordinate = new Vector2(0, 0) };
+            int[] tmpindices = new int[1];
+            tmpindices[0] = 0;
+            visualLightNormal.CreateVisualNormalsForPrimitiveMesh(tmp, tmpindices, texture, thickness, scale);
         }
 
         protected override void UnloadContent()
@@ -137,13 +154,13 @@ namespace ShaderExamples
                 cameraWorld.Translation += cameraWorld.Right * speed;
             if (Keyboard.GetState().IsKeyDown(Keys.Right))
                 cameraWorld.Translation += cameraWorld.Right * -speed;
-            if (Keyboard.GetState().IsKeyDown(Keys.Down))
-                cameraWorld.Translation += cameraWorld.Up * speed;
             if (Keyboard.GetState().IsKeyDown(Keys.Up))
+                cameraWorld.Translation += cameraWorld.Up * +speed;
+            if (Keyboard.GetState().IsKeyDown(Keys.Down))
                 cameraWorld.Translation += cameraWorld.Up * -speed;
-            if (Keyboard.GetState().IsKeyDown(Keys.Q))
-                cameraWorld.Translation += cameraWorld.Forward * speed;
             if (Keyboard.GetState().IsKeyDown(Keys.E))
+                cameraWorld.Translation += cameraWorld.Forward * speed;
+            if (Keyboard.GetState().IsKeyDown(Keys.Q))
                 cameraWorld.Translation += cameraWorld.Forward * -speed;
 
             // Use wasd to alter the lookat direction.
@@ -190,10 +207,9 @@ namespace ShaderExamples
                 lightRotationRadians += .005f;
                 if (lightRotationRadians > 6.12)
                     lightRotationRadians = 0;
-                lightPosition = Vector3.Transform(new Vector3(0, 0, 500), Matrix.CreateRotationY( lightRotationRadians));
-                //lightPosition = Vector3.Transform(new Vector3(0, 0, 500), Matrix.CreateFromAxisAngle(Vector3.UnitY, lightRotationRadians));
+                lightTransform = Matrix.CreateRotationY(lightRotationRadians);
+                lightPosition = Vector3.Transform(new Vector3(0, 0, 500), lightTransform);
             }
-            
 
             base.Update(gameTime);
         }
@@ -269,6 +285,11 @@ namespace ShaderExamples
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
             DiffuseLightEffectClass.SpriteTexture = visualNormals.texture;
             visualNormals.Draw(GraphicsDevice, DiffuseLightEffectClass.effect);
+
+            GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
+            DiffuseLightEffectClass.World = lightTransform;
+            DiffuseLightEffectClass.SpriteTexture = dotTexture;
+            visualLightNormal.Draw(GraphicsDevice, DiffuseLightEffectClass.effect);
         }
 
         public void DrawSpriteBatches(GameTime gameTime)
@@ -283,7 +304,11 @@ namespace ShaderExamples
                 $" \n  " +
                 $" \n In this example we make a shader that creates a diffuse light." +
                 $" \n The light rotates around the mesh illuminating faces depending on the triangle normals." +
-                $" \n " +
+                $" \n We also create a class that allows us to visualize normals per vertice and for the light." +
+                $" \n Well place the light into rotation so we can see how the diffuse shader works." +
+                $" \n Simple diffuse lighting is achieved via a dot product on the light and normals aka NdotL ." +
+                $" \n this can be found in the shader" +
+                $" \n  " +
                 $" \n { cameraWorld.DisplayMatrix("cameraWorld") }" +
                 $" \n { view.DisplayMatrix("view") }" +
                 $" \n { projection.DisplayMatrix("projection") }" +
@@ -581,7 +606,8 @@ namespace ShaderExamples
 
             private float GetAvgHeightFromColorAsUnitLengthValue(Color c, int option)
             {
-            float result = 0;
+                float result = 0;
+                float alphamult = (c.A / 255f);
                 switch (option)
                 {
                     case AVERAGING_OPTION_USE_NONALPHACONSISTANTLY :
@@ -591,16 +617,16 @@ namespace ShaderExamples
                         result = c.R;
                         result = c.G > result ? c.G : result;
                         result = c.B > result ? c.B : result;
-                        result = (c.R / 255f) * (c.A / 255f);
+                        result = (c.R / 255f) * alphamult;
                         break;
                     case AVERAGING_OPTION_USE_AVERAGE:
-                        result = (((c.R + c.G + c.B) / 3f) * (c.A / 255f));
+                        result = (( ((c.R + c.G + c.B) / 3f) / 255f) * alphamult);
                         break;
                     case AVERAGING_OPTION_USE_RED:
                         result = (c.R / 255f);
                         break;
                     default:
-                        result = (c.R / 255f);
+                        result = alphamult;
                         break;
                 }
                 return result;
@@ -707,6 +733,68 @@ namespace ShaderExamples
             public static int OffsetVector2() { var s = sizeof(float) * 2; currentByteSize += s; return currentByteSize - s; }
             public static int OffsetVector3() { var s = sizeof(float) * 3; currentByteSize += s; return currentByteSize - s; }
             public static int OffsetVector4() { var s = sizeof(float) * 4; currentByteSize += s; return currentByteSize - s; }
+        }
+
+
+
+
+        public class PrimitiveNormals
+        {
+            public VertexPositionNormalTexture[] vertices;
+            public int[] indices;
+            public Texture2D texture;
+
+            public PrimitiveNormals(){ }
+
+            public void CreateVisualNormalsForPrimitiveMesh(VertexPositionNormalTexture[] inVertices, int[] inIndices, Texture2D t, float thickness, float scale)
+            {
+                texture = t;
+                int len = inVertices.Length;
+
+                // for each vertice in the model we will make a quad composed of 4 vertices and 6 indices.
+                VertexPositionNormalTexture[] nverts = new VertexPositionNormalTexture[len * 4];
+                int[] nindices = new int[len * 6];
+
+                for (int j = 0; j < len; j++)
+                {
+                    int v = j * 4;
+                    int i = j * 6;
+                    //
+                    nverts[v + 0].Position = new Vector3(0f, 0f, 0f) + inVertices[j].Position;
+                    nverts[v + 1].Position = new Vector3(0f, -.2f * thickness, 0f) + inVertices[j].Position;
+                    nverts[v + 2].Position = new Vector3(0f, 0f, 0f) + inVertices[j].Position + inVertices[j].Normal * scale;
+                    nverts[v + 3].Position = new Vector3(0f, -.2f * thickness, 0f) + inVertices[j].Position + inVertices[j].Normal * scale;
+                    //
+                    nverts[v + 0].TextureCoordinate = new Vector2(0f, 0f);
+                    nverts[v + 1].TextureCoordinate = new Vector2(0f, .33f);
+                    nverts[v + 2].TextureCoordinate = new Vector2(1f, .0f);
+                    nverts[v + 3].TextureCoordinate = new Vector2(1f, .33f);
+                    //
+                    nverts[v + 0].Normal = inVertices[j].Normal;
+                    nverts[v + 1].Normal = inVertices[j].Normal;
+                    nverts[v + 2].Normal = inVertices[j].Normal;
+                    nverts[v + 3].Normal = inVertices[j].Normal;
+
+                    // indices
+                    nindices[i + 0] = 0 + v;
+                    nindices[i + 1] = 1 + v;
+                    nindices[i + 2] = 2 + v;
+                    nindices[i + 3] = 2 + v;
+                    nindices[i + 4] = 1 + v;
+                    nindices[i + 5] = 3 + v;
+                }
+                this.vertices = nverts;
+                this.indices = nindices;
+            }
+
+            public void Draw(GraphicsDevice gd, Effect effect)
+            {
+                foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, (indices.Length / 3), VertexPositionNormalTexture.VertexDeclaration);
+                }
+            }
         }
 
     }

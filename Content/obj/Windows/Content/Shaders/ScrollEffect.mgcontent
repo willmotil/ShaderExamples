@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/ScrollEffect.fx</SourceFile>
-  <SourceTime>2021-01-08T03:27:38.2572277-05:00</SourceTime>
-  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Content/Shaders/ScrollEffect.xnb</DestFile>
-  <DestTime>2021-03-31T00:00:42.7152589-04:00</DestTime>
+  <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/ScrollEffect.fx</SourceFile>
+  <SourceTime>2020-12-29T19:05:25.0757937-05:00</SourceTime>
+  <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Content/Shaders/ScrollEffect.xnb</DestFile>
+  <DestTime>2021-03-31T07:19:03.4011908-04:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2020-08-10T16:17:54-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>
