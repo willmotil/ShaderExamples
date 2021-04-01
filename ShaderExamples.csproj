@@ -28,5 +28,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ExS0_GeneralConcepts\Ex_040_TODO_UsingTheMouseAndKeyboard\" />
+    <Folder Include="ExS4_3D_Shading\Ex_020_NormalMaps\" />
   </ItemGroup>
 </Project>
