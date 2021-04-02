@@ -68,7 +68,7 @@ namespace ShaderExamples
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
             Content.RootDirectory = "Content";
             Window.AllowUserResizing = true;
-            Window.Title = " ex Diffuse lighting ";
+            Window.Title = " ex Normal Mapping with Diffuse lighting ";
             IsMouseVisible = true;
             Window.ClientSizeChanged += OnResize;
         }
@@ -116,7 +116,7 @@ namespace ShaderExamples
             //mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3( 300f, 250, 70f ), true);
             mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), true);
 
-            CreateVisualMeshNormals(mesh, dotTexture2, 0.50f, 2.0f);
+            CreateVisualMeshNormals(mesh, dotTexture2, 0.60f, 3.0f);
             CreateVisualLightNormal(dotTexture2, 20, 300);
         }
 
