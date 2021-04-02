@@ -18,10 +18,18 @@ matrix World;
 matrix View;
 matrix Projection;
 
-texture2D SpriteTexture;
+texture2D TextureDiffuse;
 sampler2D SpriteTextureSampler = sampler_state
 {
-	Texture = (SpriteTexture);
+	Texture = (TextureDiffuse);
+};
+
+Texture2D TextureNormalMap;
+sampler TextureSamplerNormalMap = sampler_state
+{
+	texture = (TextureNormalMap);
+	AddressU = clamp;
+	AddressV = clamp;
 };
 
 // structs
@@ -29,20 +37,37 @@ struct VertexShaderInput
 {
 	float4 Position : POSITION0;
 	float4 Normal : NORMAL0;
+	float4 Tangent : NORMAL1;
 	float2 TextureCoordinates : TEXCOORD0;
 };
 
 struct VertexShaderOutput
 {
 	float4 Position : SV_POSITION;
-	float4 Normal : NORMAL0;
+	float4 Normal : NORMAL0; 
+	float4 Tangent : NORMAL1;
 	float2 TextureCoordinates : TEXCOORD0;
 	float3 Position3D : TEXCOORD1;
 };
 
+//
+float3 FunctionNormalMapGeneratedBiTangent(float3 normal, float3 tangent, float2 texCoords)
+{
+	// Normal Map
+	float3 NormalMap = tex2D(TextureSamplerNormalMap, texCoords).rgb;
+	NormalMap.g = 1.0f - NormalMap.g; // flips the y. the program i used fliped the green,  bump mapping is when you don't do this i guess.
+	NormalMap = NormalMap * 2.0 - 1.0;
+	float3 bitangent = cross(normal, tangent);
 
-//   using the matrices in our vertice shader this time.
+	float3x3 mat;
+	mat[0] = bitangent; // set right
+	mat[1] = tangent; // set up
+	mat[2] = normal; // set forward
 
+	return normalize(mul(NormalMap, mat)); // norm to ensure later scaling wont break it.
+}
+
+// 
 VertexShaderOutput VS(in VertexShaderInput input)
 {
 	VertexShaderOutput output = (VertexShaderOutput)0;
@@ -53,20 +78,21 @@ VertexShaderOutput VS(in VertexShaderInput input)
 	output.Position = mul(input.Position, wvp); // we transform the position.
 	output.TextureCoordinates = input.TextureCoordinates;
 	output.Normal = mul(input.Normal, World);
+	output.Tangent = mul(input.Tangent, World);
 	output.Position3D = mul(input.Position, World);
 
 	return output;
 }
 
 
-// our familiar pixel shader.
+// 
 float4 PS(VertexShaderOutput input) : COLOR
 {
 	float4 col = tex2D(SpriteTextureSampler, input.TextureCoordinates);
 
 	// simple diffuse.
+	float3 N = FunctionNormalMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);
 	float3 L = normalize(LightPosition - input.Position3D);
-	float3 N = normalize(input.Normal);
 	float LdotN = saturate( dot( N, L) );
 	col.rgb = col.rgb * LdotN + col.rgb * 0.1f;
 

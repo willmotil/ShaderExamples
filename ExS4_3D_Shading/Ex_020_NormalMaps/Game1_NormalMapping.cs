@@ -19,7 +19,8 @@ namespace ShaderExamples
         SpriteFont font;
         SpriteFont font2;
         SpriteFont font3;
-        Texture2D texture;
+        Texture2D texture; 
+        Texture2D textureNormalMap;
         Texture2D dotTexture;
         Texture2D dotTexture2;
         Texture2D dotTexture3;
@@ -89,8 +90,9 @@ namespace ShaderExamples
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             Content.RootDirectory = @"Content/Images";
-            texture = Content.Load<Texture2D>("MG_Logo_Modifyed"); // MG_Logo_Med_exCanvs  blue_atmosphere
-            
+            texture = Content.Load<Texture2D>("walltomap");
+            textureNormalMap = Content.Load<Texture2D>("wallnormmap");
+
             dotTexture = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Red);
             dotTexture2 = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Green);
             dotTexture3 = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.White);
@@ -104,7 +106,7 @@ namespace ShaderExamples
             UpdateProjection();
 
             DiffuseLightEffectClass.Load(Content);
-            DiffuseLightEffectClass.SpriteTexture = dotTexture3;
+            DiffuseLightEffectClass.TextureDiffuse = dotTexture3;
             DiffuseLightEffectClass.View = view;
             DiffuseLightEffectClass.Projection = projection;
 
@@ -112,9 +114,9 @@ namespace ShaderExamples
             PrimitiveIndexedMesh.showOutput = false;
             PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_RED;
 
-            //mesh = new PrimitiveIndexedMesh(4,4, new Vector3(300f, 250, 0f ), true);
+            mesh = new PrimitiveIndexedMesh(4,4, new Vector3(300f, 250, 0f ), true);
             //mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3( 300f, 250, 70f ), true);
-            mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), true);
+            //mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), true);
 
             CreateVisualMeshNormals(mesh, dotTexture2, 0.60f, 3.0f);
             CreateVisualLightNormal(dotTexture2, 20, 300);
@@ -258,8 +260,8 @@ namespace ShaderExamples
             if(displayWireframe)
                 DrawWireFrameMesh();
 
-            if(displayNormals)
-                DrawNormalsForMesh();
+            //if(displayNormals)
+            //    DrawNormalsForMesh();
 
             DrawSpriteBatches(gameTime);
 
@@ -269,26 +271,27 @@ namespace ShaderExamples
         public void DrawMesh(Texture2D texture)
         {
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
-            DiffuseLightEffectClass.SpriteTexture = texture;
+            DiffuseLightEffectClass.TextureDiffuse = texture;
+            DiffuseLightEffectClass.TextureNormalMap = textureNormalMap;
             mesh.DrawPrimitive(GraphicsDevice, DiffuseLightEffectClass.effect);
         }
 
         public void DrawWireFrameMesh()
         {
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_WIREFRAME;
-            DiffuseLightEffectClass.SpriteTexture = dotTexture;
+            DiffuseLightEffectClass.TextureDiffuse = dotTexture;
             mesh.DrawPrimitive(GraphicsDevice, DiffuseLightEffectClass.effect);
         }
 
         public void DrawNormalsForMesh()
         {
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
-            DiffuseLightEffectClass.SpriteTexture = visualNormals.texture;
+            DiffuseLightEffectClass.TextureDiffuse = visualNormals.texture;
             visualNormals.Draw(GraphicsDevice, DiffuseLightEffectClass.effect);
 
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
             DiffuseLightEffectClass.World = lightTransform;
-            DiffuseLightEffectClass.SpriteTexture = dotTexture;
+            DiffuseLightEffectClass.TextureDiffuse = dotTexture;
             visualLightNormal.Draw(GraphicsDevice, DiffuseLightEffectClass.effect);
         }
 
@@ -328,8 +331,8 @@ namespace ShaderExamples
             public static void Load(Microsoft.Xna.Framework.Content.ContentManager Content)
             {
                 Content.RootDirectory = @"Content/Shaders3D";
-                effect = Content.Load<Effect>("DiffuseLightEffect");
-                effect.CurrentTechnique = effect.Techniques["DiffuseLighting"];
+                effect = Content.Load<Effect>("NormalMapEffect");
+                effect.CurrentTechnique = effect.Techniques["NormalMapDiffuseLighting"];
                 World = Matrix.Identity;
                 View = Matrix.Identity;
                 Projection = Matrix.CreatePerspectiveFieldOfView(1, 1.33f, 1f, 10000f); // just something default;
@@ -343,10 +346,15 @@ namespace ShaderExamples
             {
                 set { effect.CurrentTechnique = effect.Techniques[value]; }
             }
-            public static Texture2D SpriteTexture//(Texture2D value)
+            public static Texture2D TextureDiffuse
             {
-                set { effect.Parameters["SpriteTexture"].SetValue(value); }
+                set { effect.Parameters["TextureDiffuse"].SetValue(value); }
             }
+            public static Texture2D TextureNormalMap
+            {
+                set { effect.Parameters["TextureNormalMap"].SetValue(value); }
+            }
+
             public static Matrix World
             {
                 set { effect.Parameters["World"].SetValue(value); }
@@ -518,7 +526,7 @@ namespace ShaderExamples
                         var tr = faceVerticeOffset + 1;
 
                         AddQuadIndexes(tl, tr, bl, br, ref cubeFaceMeshIndexLists);
-                        CalcululateNormalAddToVertices(k + 0, k + 1, k + 2, k + 3, ref cubesFaceMeshVertexLists, ref cubeFaceMeshIndexLists);
+                        CalcululateNormalsAndTangentsAddToVertices(k + 0, k + 1, k + 2, k + 3, ref cubesFaceMeshVertexLists, ref cubeFaceMeshIndexLists);
 
                         if (showOutput)
                             ConsoleOutput(0, tl, tr, bl, br, cubesFaceMeshVertexLists);
@@ -526,14 +534,16 @@ namespace ShaderExamples
                     }
                 }
 
-                // vector addition normals normalize.
+                // vector addition normals and tangents normalized.
                 for (int i = 0; i < cubesFaceMeshVertexLists.Count; i++)
                 {
                     var v = cubesFaceMeshVertexLists[i];
-                    if(negateNormalDirection)
+                    if (negateNormalDirection)
                         v.Normal = -(Vector3.Normalize(v.Normal));
                     else
                         v.Normal = Vector3.Normalize(v.Normal);
+
+                    v.Tangent = -(Vector3.Normalize(v.Tangent));
                     cubesFaceMeshVertexLists[i] = v;
                 }
 
@@ -552,27 +562,39 @@ namespace ShaderExamples
                 cubeFaceMeshIndexLists.Add(tl);
             }
 
-            public void CalcululateNormalAddToVertices( int tl, int tr, int bl, int br, ref List<VertexPositionNormalTextureTangentWeights> cubesFaceMeshVertexLists,ref List<int> cubeFaceMeshIndexLists)
+            public void CalcululateNormalsAndTangentsAddToVertices( int tl, int tr, int bl, int br, ref List<VertexPositionNormalTextureTangentWeights> cubesFaceMeshVertexLists,ref List<int> cubeFaceMeshIndexLists)
             {
                 //t0
                 var v0 = cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[tl]];
                 var v1 = cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[bl]];
                 var v2 = cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[br]];
+                var t0 = Vector3.Normalize(v1.Position - v0.Position);
                 var n0 = Vector3.Cross(v1.Position - v0.Position, v2.Position - v0.Position);
-                v0.Normal += n0;
-                v1.Normal += n0;
-                v2.Normal += n0;
-                cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[tl]] = v0;
-                cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[bl]] = v1;
-                cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[br]] = v2;
                 //t1
                 var v3 = cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[br]];
                 var v4 = cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[tr]];
                 var v5 = cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[tl]];
+                var t1 = Vector3.Normalize(v4.Position - v3.Position);
                 var n1 = Vector3.Cross(v4.Position - v3.Position, v5.Position - v3.Position);
+                // t0
+                v0.Normal += n0;
+                v1.Normal += n0;
+                v2.Normal += n0;
+                // left vertices.
+                v0.Tangent += t0;
+                v1.Tangent += t0;
+                // t1
                 v3.Normal += n1;
                 v4.Normal += n1;
                 v5.Normal += n1;
+                // right vertices.
+                v3.Tangent += t1;
+                v4.Tangent += t1;
+                // t0
+                cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[tl]] = v0;
+                cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[bl]] = v1;
+                cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[br]] = v2;
+                // t1
                 cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[br]] = v3;
                 cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[tr]] = v4;
                 cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[tl]] = v5;
@@ -631,31 +653,6 @@ namespace ShaderExamples
                 }
                 return result;
             }
-
-            //void CreateTangents(VertexPositionNormalTextureTangents[] vertices, int surfacePointWidth)
-            //{
-            //    for (int i = 0; i < vertices.Length; i++)
-            //    {
-            //        int y = i / surfacePointWidth;
-            //        int x = i - (y * surfacePointWidth);
-            //        int up = (y - 1) * surfacePointWidth + x;
-            //        int down = (y + 1) * surfacePointWidth + x;
-            //        Vector3 tangent = new Vector3();
-            //        if (down >= vertices.Length)
-            //        {
-            //            tangent = vertices[up].Position - vertices[i].Position;
-            //            tangent.Normalize();
-            //            vertices[i].Tangent = tangent;
-            //        }
-            //        else
-            //        {
-            //            tangent = vertices[i].Position - vertices[down].Position;
-            //            tangent.Normalize();
-            //            vertices[i].Tangent = tangent;
-            //        }
-            //    }
-            //}
-
 
             public void ConsoleOutput(int faceIndex, int tl, int tr, int bl, int br, List<VertexPositionNormalTextureTangentWeights> cubesFaceMeshLists)
             {
