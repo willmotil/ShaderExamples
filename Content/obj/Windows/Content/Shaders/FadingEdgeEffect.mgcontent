@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/FadingEdgeEffect.fx</SourceFile>
-  <SourceTime>2020-12-29T15:55:53.4074115-05:00</SourceTime>
-  <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Content/Shaders/FadingEdgeEffect.xnb</DestFile>
-  <DestTime>2021-03-31T07:18:58.6441843-04:00</DestTime>
+  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/FadingEdgeEffect.fx</SourceFile>
+  <SourceTime>2021-01-08T03:27:38.1903495-05:00</SourceTime>
+  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Content/Shaders/FadingEdgeEffect.xnb</DestFile>
+  <DestTime>2021-04-01T01:06:29.5606057-04:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2020-08-10T16:17:54-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>
