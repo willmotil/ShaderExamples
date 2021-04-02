@@ -666,13 +666,6 @@ namespace Microsoft.Xna.Framework
 
 /*
  
-  .5,.5  a^2+b^  = .25. , .25  sum = .5  squaroot(.5) = .707    the sin   take the (sin * sin)   .707 * .707  to get the acos .5, .5  back were we started or the inner cube at 45 degrees. 
-  45 degree is as also the cosine of two dot products at 45 degrees 
-
-
- */
-/*
- 
          /// <summary>
         /// simplifyed writeExceptionMsg
         /// </summary>

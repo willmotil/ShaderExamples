@@ -28,5 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ExS0_GeneralConcepts\Ex_040_TODO_UsingTheMouseAndKeyboard\" />
+    <Folder Include="ExS3_3D_Basics\Ex_070_Skybox\" />
+    <Folder Include="ExS4_3D_Shading\Ex_030_SpecularLighting\" />
   </ItemGroup>
 </Project>

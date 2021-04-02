@@ -5,7 +5,7 @@ Instancing particles.
 https://www.geeks3d.com/20110316/shader-library-simple-2d-effects-sphere-and-ripple-in-glsl/
 shockwave https://www.geeks3d.com/20091116/shader-library-2d-shockwave-post-processing-filter-glsl/
 radial blur ... prolly pretty easy to do that one straight up.
-normal map
+normal map ... easy
 bloom shader ....  https://github.com/UnterrainerInformatik/BloomEffectRenderer/blob/master/BloomEffectRenderer/Effects/Resources/BloomCombine.fx
 figures this dudes got one too https://learnopengl.com/Advanced-Lighting/Bloom
 kinda gotta have that one in there the real one.  here is scribbles http://www.alienscribbleinteractive.com/Tutorials/bloom_tutorial.html

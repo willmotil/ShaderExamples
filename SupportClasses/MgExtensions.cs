@@ -160,17 +160,20 @@ namespace Microsoft.Xna.Framework
 
         public static int Absolute(this int n)
         {
-            if (n < 0) { return -n; }
+            if (n < 0) 
+                return -n;
             return n;
         }
         public static float Absolute(this float n)
         {
-            if (n < 0) { return -n; }
+            if (n < 0) 
+                return -n; 
             return n;
         }
         public static double Absolute(this double n)
         {
-            if (n < 0) { return -n; }
+            if (n < 0) 
+                return -n; 
             return n;
         }
         public static Vector2 Absolute(this Vector2 v)
@@ -186,13 +189,13 @@ namespace Microsoft.Xna.Framework
             if (v.Z < 0f) { v.Z = -v.Z; }
             return v;
         }
-        public static float AcosineOfTwoVectors(this Vector2 A, Vector2 B)
+        public static float AcosineOfTwoNormalizedVectors(this Vector2 A, Vector2 B)
         {
             var n = ((A.X * B.X) + (A.Y * B.Y));
             return n * n;
         }
 
-        public static float AcosineOfTwoVectors(this Vector3 A, Vector3 B)
+        public static float AcosineOfTwoNormalizedVectors(this Vector3 A, Vector3 B)
         {
             var n = ((A.X * B.X) + (A.Y * B.Y) + (A.Z * B.Z));
             return n * n;
@@ -219,7 +222,7 @@ namespace Microsoft.Xna.Framework
 
         public static double Square(this double n)
         {
-            return n*n;
+            return n * n;
         }
 
         public static float SquareRoot(this float n)
@@ -280,8 +283,8 @@ namespace Microsoft.Xna.Framework
         }
 
         /// <summary>
-        /// Given a distance from a point and a direction we obtain points on a circle there is a square that contains.
-        /// this functions returns the equivillent points on that square for a given vector.
+        /// Given a distance from a point and a direction we might obtain points on a unit length circle in relation.
+        /// this functions returns the equivillent points on a square that contains that circle for a given vector.
         /// </summary>
         public static Vector2 OuterSquareSinCosVector(this Vector2 directionVector)
         {

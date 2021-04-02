@@ -406,6 +406,12 @@
 /processorParam:DebugMode=Auto
 /build:Shaders3D/ImprovedIndexMeshEffect.fx
 
+#begin Shaders3D/NormalMapEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders3D/NormalMapEffect.fx
+
 #begin Shaders3D/SimpleDirectDrawEffect.fx
 /importer:EffectImporter
 /processor:EffectProcessor
