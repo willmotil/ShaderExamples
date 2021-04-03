@@ -90,6 +90,24 @@ namespace Microsoft.Xna.Framework
             return n;
         }
 
+        public static bool ContainsWithin(this Rectangle r, Point p)
+        {
+            return
+            (
+                p.X > r.Left && p.X < r.Right - 1 &&
+                p.Y > r.Top && p.Y < r.Bottom - 1
+            );
+        }
+
+        public static bool ContainsIntersects(Rectangle r, Point p)
+        {
+            return
+            (
+                p.X >= r.Left && p.X < r.Right &&
+                p.Y >= r.Top && p.Y < r.Bottom
+            );
+        }
+
         public static float DotProduct2D(this Vector2 A, Vector2 B)
         {
             return A.X * B.X + A.Y * B.Y;

@@ -10,6 +10,7 @@ namespace ShaderExamples
     public class Game1_NormalMapping : Game
     {
         bool rotateLight = true;
+        bool displayMesh = true;
         bool displayWireframe = true;
         bool displayNormals = true;
 
@@ -21,13 +22,14 @@ namespace ShaderExamples
         SpriteFont font3;
         Texture2D texture; 
         Texture2D textureNormalMap;
-        Texture2D dotTexture;
-        Texture2D dotTexture2;
-        Texture2D dotTexture3;
+        Texture2D dotTextureRed;
+        Texture2D dotTextureGreen;
+        Texture2D dotTextureWhite;
         RenderTarget2D rtScene;
 
         PrimitiveIndexedMesh mesh;
         PrimitiveNormals visualNormals = new PrimitiveNormals();
+        PrimitiveNormals visualTangents = new PrimitiveNormals();
         PrimitiveNormals visualLightNormal = new PrimitiveNormals();
 
 
@@ -61,7 +63,7 @@ namespace ShaderExamples
         Vector3 lightPosition = new Vector3(0, 0, 500f);
         Matrix lightTransform = Matrix.Identity;
         float lightRotationRadians = 0f;
-        
+
 
         public Game1_NormalMapping()
         {
@@ -93,9 +95,9 @@ namespace ShaderExamples
             texture = Content.Load<Texture2D>("walltomap");
             textureNormalMap = Content.Load<Texture2D>("wallnormmap");
 
-            dotTexture = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Red);
-            dotTexture2 = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Green);
-            dotTexture3 = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.White);
+            dotTextureRed = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Red);
+            dotTextureGreen = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Green);
+            dotTextureWhite = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.White);
 
             Content.RootDirectory = @"Content/Fonts";
             font = Content.Load<SpriteFont>("MgFont");
@@ -106,20 +108,21 @@ namespace ShaderExamples
             UpdateProjection();
 
             DiffuseLightEffectClass.Load(Content);
-            DiffuseLightEffectClass.TextureDiffuse = dotTexture3;
+            DiffuseLightEffectClass.TextureDiffuse = dotTextureWhite;
             DiffuseLightEffectClass.View = view;
             DiffuseLightEffectClass.Projection = projection;
 
 
-            PrimitiveIndexedMesh.showOutput = false;
+            PrimitiveIndexedMesh.ShowOutput = true;
             PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_RED;
 
-            mesh = new PrimitiveIndexedMesh(4,4, new Vector3(300f, 250, 0f ), true);
+            mesh = new PrimitiveIndexedMesh(5,5, new Vector3(300f, 250, 0f ), true);
             //mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3( 300f, 250, 70f ), true);
             //mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), true);
 
-            CreateVisualMeshNormals(mesh, dotTexture2, 0.60f, 3.0f);
-            CreateVisualLightNormal(dotTexture2, 20, 300);
+            CreateVisualMeshNormals(mesh, dotTextureGreen, 5.00f, 25.0f);  // .6  3
+            CreateVisualMeshTangents(mesh, dotTextureWhite, 5.00f, 30.0f);
+            CreateVisualLightNormal(dotTextureGreen, 20, 300);
         }
 
         public void CreateVisualMeshNormals(PrimitiveIndexedMesh mesh, Texture2D texture, float thickness, float scale)
@@ -128,6 +131,16 @@ namespace ShaderExamples
             for (int i = 0; i < mesh.vertices.Length; i++)
                 tmp[i] = new VertexPositionNormalTexture() { Position = mesh.vertices[i].Position, Normal = mesh.vertices[i].Normal, TextureCoordinate = mesh.vertices[i].TextureCoordinate };
             visualNormals.CreateVisualNormalsForPrimitiveMesh(tmp, mesh.indices, texture, thickness, scale);
+            visualNormals.SetUpBasicEffect(GraphicsDevice, dotTextureGreen, view, projection);
+        }
+
+        public void CreateVisualMeshTangents(PrimitiveIndexedMesh mesh, Texture2D texture, float thickness, float scale)
+        {
+            VertexPositionNormalTexture[] tmp = new VertexPositionNormalTexture[mesh.vertices.Length];
+            for (int i = 0; i < mesh.vertices.Length; i++)
+                tmp[i] = new VertexPositionNormalTexture() { Position = mesh.vertices[i].Position, Normal = mesh.vertices[i].Tangent, TextureCoordinate = mesh.vertices[i].TextureCoordinate };
+            visualTangents.CreateVisualNormalsForPrimitiveMesh(tmp, mesh.indices, texture, thickness, scale);
+            visualTangents.SetUpBasicEffect(GraphicsDevice, dotTextureWhite, view, projection);
         }
 
         public void CreateVisualLightNormal(Texture2D texture, float thickness, float scale)
@@ -137,6 +150,7 @@ namespace ShaderExamples
             int[] tmpindices = new int[1];
             tmpindices[0] = 0;
             visualLightNormal.CreateVisualNormalsForPrimitiveMesh(tmp, tmpindices, texture, thickness, scale);
+            visualLightNormal.SetUpBasicEffect(GraphicsDevice, dotTextureRed, view, projection);
         }
 
         protected override void UnloadContent()
@@ -153,9 +167,9 @@ namespace ShaderExamples
 
             // Use the arrow keys to alter the camera position.
             if (Keyboard.GetState().IsKeyDown(Keys.Left))
-                cameraWorld.Translation += cameraWorld.Right * speed;
-            if (Keyboard.GetState().IsKeyDown(Keys.Right))
                 cameraWorld.Translation += cameraWorld.Right * -speed;
+            if (Keyboard.GetState().IsKeyDown(Keys.Right))
+                cameraWorld.Translation += cameraWorld.Right * +speed;
             if (Keyboard.GetState().IsKeyDown(Keys.Up))
                 cameraWorld.Translation += cameraWorld.Up * +speed;
             if (Keyboard.GetState().IsKeyDown(Keys.Down))
@@ -203,6 +217,8 @@ namespace ShaderExamples
                 displayWireframe = !displayWireframe;
             if (Keys.F3.IsKeyPressedWithDelay(gameTime))
                 displayNormals = !displayNormals;
+            if (Keys.F4.IsKeyPressedWithDelay(gameTime))
+                displayMesh = !displayMesh;
 
             if (rotateLight)
             {
@@ -255,13 +271,19 @@ namespace ShaderExamples
             DiffuseLightEffectClass.World = Matrix.Identity;
             DiffuseLightEffectClass.LightPosition = lightPosition;
 
-            DrawMesh(dotTexture3);
+            if (displayMesh)
+                DrawMesh(dotTextureWhite);
 
             if(displayWireframe)
                 DrawWireFrameMesh();
 
-            //if(displayNormals)
-            //    DrawNormalsForMesh();
+            if (displayNormals)
+            {
+                DrawNormalsForMesh();
+                DrawTangentsForMesh();
+                DrawLightLine();
+            }
+
 
             DrawSpriteBatches(gameTime);
 
@@ -279,24 +301,38 @@ namespace ShaderExamples
         public void DrawWireFrameMesh()
         {
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_WIREFRAME;
-            DiffuseLightEffectClass.TextureDiffuse = dotTexture;
+            DiffuseLightEffectClass.TextureDiffuse = dotTextureRed;
             mesh.DrawPrimitive(GraphicsDevice, DiffuseLightEffectClass.effect);
         }
 
         public void DrawNormalsForMesh()
         {
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
-            DiffuseLightEffectClass.TextureDiffuse = visualNormals.texture;
-            visualNormals.Draw(GraphicsDevice, DiffuseLightEffectClass.effect);
+            visualNormals.World = Matrix.Identity;
+            visualNormals.View = view;
+            visualNormals.Draw(GraphicsDevice);
+        }
 
+        public void DrawTangentsForMesh()
+        {
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
-            DiffuseLightEffectClass.World = lightTransform;
-            DiffuseLightEffectClass.TextureDiffuse = dotTexture;
-            visualLightNormal.Draw(GraphicsDevice, DiffuseLightEffectClass.effect);
+            visualTangents.World = Matrix.Identity;
+            visualTangents.View = view;
+            visualTangents.Draw(GraphicsDevice);
+        }
+
+        public void DrawLightLine()
+        {
+            GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
+            visualLightNormal.World = lightTransform;
+            visualLightNormal.View = view;
+            visualLightNormal.Draw(GraphicsDevice);
         }
 
         public void DrawSpriteBatches(GameTime gameTime)
         {
+            GraphicsDevice.DepthStencilState = DepthStencilState.None;
+            GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
             // Draw all the regular stuff
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
             string msg =
@@ -320,6 +356,7 @@ namespace ShaderExamples
                 $" \n"
                 ;
             spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Blue);
+
             spriteBatch.End();
         }
 
@@ -399,7 +436,8 @@ namespace ShaderExamples
 
         public class PrimitiveIndexedMesh
         {
-            public static bool showOutput = false;
+            public static bool ShowOutput { get; set; } = false;
+
             public static int AveragingOption { get; set; } = AVERAGING_OPTION_USE_NONALPHACONSISTANTLY;
 
             public const int AVERAGING_OPTION_USE_NONALPHACONSISTANTLY = 3;
@@ -472,8 +510,8 @@ namespace ShaderExamples
 
             public void CreatePrimitiveMesh(Color[] heighColorArray, int strideWidth, Vector3 scale, bool negateNormalDirection)
             {
-                List<VertexPositionNormalTextureTangentWeights> cubesFaceMeshVertexLists = new List<VertexPositionNormalTextureTangentWeights>();
-                List<int> cubeFaceMeshIndexLists = new List<int>();
+                List<VertexPositionNormalTextureTangentWeights> VertexLists = new List<VertexPositionNormalTextureTangentWeights>();
+                List<int> IndexLists = new List<int>();
 
                 int subdivisionWidth = strideWidth;
                 int subdividsionHeight = (int)(heighColorArray.Length / strideWidth);
@@ -483,13 +521,12 @@ namespace ShaderExamples
                 if (subdividsionHeight < 2)
                     subdividsionHeight = 2;
 
-                float depth = 0;
-
                 float left = -1f;
                 float right = +1f;
                 float top = -1f;
                 float bottom = +1f;
 
+                // add vertices.
                 int vertCounter = 0;
                 for (int y = 0; y < subdividsionHeight; y++)
                 {
@@ -507,97 +544,181 @@ namespace ShaderExamples
                         var p0 = new Vector3(stepU, stepV, hval) * scale;
                         var uv0 = new Vector2(stepU, stepV);
 
-                        cubesFaceMeshVertexLists.Add(GetInitialVertice(p0, uv0));
+                        VertexLists.Add(GetInitialVertice(p0, uv0));
                         vertCounter += 1;
                     }
                 }
 
-                int k = 0;
+                // add indices
+                int quadIndice = 0;
                 for (int y = 0; y < subdividsionHeight - 1; y++)
                 {
                     for (int x = 0; x < subdivisionWidth - 1; x++)
                     {
                         var stride = subdivisionWidth;
-                        var faceVerticeOffset = stride * y + x;
+                        var verticeOffset = stride * y + x;
 
-                        var tl = faceVerticeOffset;
-                        var bl = faceVerticeOffset + stride;
-                        var br = faceVerticeOffset + stride + 1;
-                        var tr = faceVerticeOffset + 1;
+                        var tl = verticeOffset;
+                        var tr = verticeOffset + 1;
+                        var bl = verticeOffset + stride;
+                        var br = verticeOffset + stride + 1;
 
-                        AddQuadIndexes(tl, tr, bl, br, ref cubeFaceMeshIndexLists);
-                        CalcululateNormalsAndTangentsAddToVertices(k + 0, k + 1, k + 2, k + 3, ref cubesFaceMeshVertexLists, ref cubeFaceMeshIndexLists);
+                        AddQuadIndexes(tl, tr, bl, br, ref IndexLists);
 
-                        if (showOutput)
-                            ConsoleOutput(0, tl, tr, bl, br, cubesFaceMeshVertexLists);
-                        k += 6;
+                        quadIndice += 6;
                     }
                 }
 
-                // vector addition normals and tangents normalized.
-                for (int i = 0; i < cubesFaceMeshVertexLists.Count; i++)
+                // calculate normals and tangents
+                for (int n = 0; n < IndexLists.Count; n += 6)
                 {
-                    var v = cubesFaceMeshVertexLists[i];
+                    CalcululateNormalsAddToVertices(n, ref VertexLists, ref IndexLists);
+                    CalcululateTangentsAddToVertices(n, ref VertexLists, ref IndexLists);
+                }
+
+                // vector addition normals and tangents normalized.
+                for (int i = 0; i < VertexLists.Count; i++)
+                {
+                    var v = VertexLists[i];
                     if (negateNormalDirection)
                         v.Normal = -(Vector3.Normalize(v.Normal));
                     else
                         v.Normal = Vector3.Normalize(v.Normal);
 
-                    v.Tangent = -(Vector3.Normalize(v.Tangent));
-                    cubesFaceMeshVertexLists[i] = v;
+                    if (negateNormalDirection)
+                        v.Tangent = -(Vector3.Normalize(v.Tangent));
+                    else
+                        v.Tangent = (Vector3.Normalize(v.Tangent));
+                    VertexLists[i] = v;
                 }
 
-                vertices = cubesFaceMeshVertexLists.ToArray();
-                indices = cubeFaceMeshIndexLists.ToArray();
+                for (int n = 0; n < IndexLists.Count; n += 6)
+                    if (ShowOutput)
+                        ConsoleOutput(n, VertexLists, IndexLists);
+
+                vertices = VertexLists.ToArray();
+                indices = IndexLists.ToArray();
             }
 
-            public void AddQuadIndexes( int tl, int tr, int bl, int br, ref List<int> cubeFaceMeshIndexLists)
+            /// <summary>
+            /// CCW
+            /// 
+            /// tl[0] > bl[1] > tr[2] > br[3]
+            /// 
+            /// 0        2
+            /// tl        tr
+            /// |      /  |
+            /// | t0/    |
+            /// |  /  t1 |
+            /// |/        |
+            /// bl      br
+            /// 1        3
+            /// 
+            /// triangle 0:   
+            /// tl > bl > tr   0,1,2
+            /// 
+            /// triangle 1:    
+            /// br > tr > bl   3,2,1
+            /// </summary>
+            public void AddQuadIndexes( int tl, int tr, int bl, int br, ref List<int> IndexLists)
             {
-                cubeFaceMeshIndexLists.Add(tl);
-                cubeFaceMeshIndexLists.Add(bl);
-                cubeFaceMeshIndexLists.Add(br);
+                // tl > bl > tr   0,1,2
+                IndexLists.Add(tl);  
+                IndexLists.Add(bl); 
+                IndexLists.Add(tr); 
 
-                cubeFaceMeshIndexLists.Add(br);
-                cubeFaceMeshIndexLists.Add(tr);
-                cubeFaceMeshIndexLists.Add(tl);
+                // br > tr > bl   3,2,1
+                IndexLists.Add(br); 
+                IndexLists.Add(tr);  
+                IndexLists.Add(bl);  
             }
 
-            public void CalcululateNormalsAndTangentsAddToVertices( int tl, int tr, int bl, int br, ref List<VertexPositionNormalTextureTangentWeights> cubesFaceMeshVertexLists,ref List<int> cubeFaceMeshIndexLists)
+            public void CalcululateNormalsAddToVertices(int startIndice, ref List<VertexPositionNormalTextureTangentWeights> VertexLists,ref List<int> IndexLists)
             {
-                //t0
-                var v0 = cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[tl]];
-                var v1 = cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[bl]];
-                var v2 = cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[br]];
-                var t0 = Vector3.Normalize(v1.Position - v0.Position);
-                var n0 = Vector3.Cross(v1.Position - v0.Position, v2.Position - v0.Position);
-                //t1
-                var v3 = cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[br]];
-                var v4 = cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[tr]];
-                var v5 = cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[tl]];
-                var t1 = Vector3.Normalize(v4.Position - v3.Position);
-                var n1 = Vector3.Cross(v4.Position - v3.Position, v5.Position - v3.Position);
-                // t0
-                v0.Normal += n0;
-                v1.Normal += n0;
-                v2.Normal += n0;
-                // left vertices.
-                v0.Tangent += t0;
-                v1.Tangent += t0;
-                // t1
-                v3.Normal += n1;
-                v4.Normal += n1;
-                v5.Normal += n1;
-                // right vertices.
-                v3.Tangent += t1;
-                v4.Tangent += t1;
-                // t0
-                cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[tl]] = v0;
-                cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[bl]] = v1;
-                cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[br]] = v2;
-                // t1
-                cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[br]] = v3;
-                cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[tr]] = v4;
-                cubesFaceMeshVertexLists[cubeFaceMeshIndexLists[tl]] = v5;
+                // tl[0] > bl[1] > tr[2] > br[3]
+
+                var tl = IndexLists[startIndice + 0];
+                var bl = IndexLists[startIndice + 1];
+                var tr = IndexLists[startIndice + 2];
+                var br = IndexLists[startIndice + 3];
+
+                var TL = VertexLists[tl];
+                var BL = VertexLists[bl];
+                var TR = VertexLists[tr];
+                var BR = VertexLists[br];
+
+                var d0 = BL.Position - TL.Position;
+                var d1 = TR.Position - TL.Position;
+                var n = Vector3.Cross(d0, d1);
+                TL.Normal += n;
+                BL.Normal += n;
+                BR.Normal += n;
+
+                d0 = TR.Position - BR.Position;
+                d1 = BL.Position - BR.Position;
+                n = Vector3.Cross(d0, d1);
+                TL.Normal += n;
+                TR.Normal += n;
+                BR.Normal += n;
+
+                VertexLists[tl] = TL;
+                VertexLists[bl] = BL;
+                VertexLists[tr] = TR;
+                VertexLists[br] = BR;
+            }
+
+            public void CalcululateTangentsAddToVertices(int startIndice, ref List<VertexPositionNormalTextureTangentWeights> VertexLists, ref List<int> IndexLists)
+            {
+                // tl[0] > bl[1] > tr[2] > br[3]
+                var tl = IndexLists[startIndice + 0];
+                var bl = IndexLists[startIndice + 1];
+                var tr = IndexLists[startIndice + 2];
+                var br = IndexLists[startIndice + 3];
+
+                var TL = VertexLists[tl];
+                var BL = VertexLists[bl];
+                var TR = VertexLists[tr];
+                var BR = VertexLists[br];
+
+                var lefttan =  BL.Position - TL.Position;
+                TL.Tangent += lefttan;
+                BL.Tangent += lefttan;
+                var righttan =  BR.Position - TR.Position;
+                TR.Tangent += righttan;
+                BR.Tangent += righttan;
+
+                VertexLists[tl] = TL;
+                VertexLists[bl] = BL;
+                VertexLists[tr] = TR;
+                VertexLists[br] = BR;
+            }
+
+            public void ConsoleOutput(int k, List<VertexPositionNormalTextureTangentWeights> MeshLists, List<int> IndexLists)
+            {
+                System.Console.WriteLine();
+                int T0_Index_0 = k + 0;  // tl
+                int T0_Index_1 = k + 1;  // bl
+                int T0_Index_2 = k + 2;  // br
+                int T1_Index_0 = k + 3;  // br 
+                int T1_Index_1 = k + 4;  // tr
+                int T1_Index_2 = k + 5;  // tl
+
+                int T0_VIndex_0 = IndexLists[T0_Index_0];  // tl
+                int T0_VIndex_1 = IndexLists[T0_Index_1];  // bl
+                int T0_VIndex_2 = IndexLists[T0_Index_2];  // br
+                int T1_VIndex_0 = IndexLists[T1_Index_0];  // br
+                int T1_VIndex_1 = IndexLists[T1_Index_1];  // tr
+                int T1_VIndex_2 = IndexLists[T1_Index_2];  // tl
+
+                System.Console.WriteLine("quad " + k / 6);
+                System.Console.WriteLine("t0   TL  IndexLists [" + T0_Index_0 + "] " + "  vert  [" + T0_VIndex_0 + "] Pos: " + MeshLists[T0_VIndex_0].Position + " Norm: " + MeshLists[T0_VIndex_0].Normal + " Tangent: " + MeshLists[T0_VIndex_0].Tangent);
+                System.Console.WriteLine("t0   BL  IndexLists [" + T0_Index_1 + "] " + "  vert  [" + T0_VIndex_1 + "] Pos: " + MeshLists[T0_VIndex_1].Position + " Norm: " + MeshLists[T0_VIndex_1].Normal + " Tangent: " + MeshLists[T0_VIndex_1].Tangent);
+                System.Console.WriteLine("t0   BR  IndexLists [" + T0_Index_2 + "] " + "  vert  [" + T0_VIndex_2 + "] Pos: " + MeshLists[T0_VIndex_2].Position + " Norm: " + MeshLists[T0_VIndex_2].Normal + " Tangent: " + MeshLists[T0_VIndex_2].Tangent);
+
+                System.Console.WriteLine();
+                System.Console.WriteLine("t1   BR  IndexLists [" + T1_Index_0 + "] " + "  vert  [" + T1_VIndex_0 + "] Pos: " + MeshLists[T1_VIndex_0].Position + " Norm: " + MeshLists[T1_VIndex_0].Normal + " Tangent: " + MeshLists[T1_VIndex_0].Tangent);
+                System.Console.WriteLine("t1   TR  IndexLists [" + T1_Index_1 + "] " + "  vert  [" + T1_VIndex_1 + "] Pos: " + MeshLists[T1_VIndex_1].Position + " Norm: " + MeshLists[T1_VIndex_1].Normal + " Tangent: " + MeshLists[T1_VIndex_1].Tangent);
+                System.Console.WriteLine("t1   TL  IndexLists [" + T1_Index_2 + "] " + "  vert  [" + T1_VIndex_2 + "] Pos: " + MeshLists[T1_VIndex_2].Position + " Norm: " + MeshLists[T1_VIndex_2].Normal + " Tangent: " + MeshLists[T1_VIndex_2].Tangent);
             }
 
             public int GetIndex(int x, int y, int stride)
@@ -654,21 +775,6 @@ namespace ShaderExamples
                 return result;
             }
 
-            public void ConsoleOutput(int faceIndex, int tl, int tr, int bl, int br, List<VertexPositionNormalTextureTangentWeights> cubesFaceMeshLists)
-            {
-                if (showOutput)
-                {
-                    System.Console.WriteLine();
-                    System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + tl + "] " + "  vert " + cubesFaceMeshLists[tl]);
-                    System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + bl + "] " + "  vert " + cubesFaceMeshLists[bl]);
-                    System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + br + "] " + "  vert " + cubesFaceMeshLists[br]);
-
-                    System.Console.WriteLine();
-                    System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + br + "] " + "  vert " + cubesFaceMeshLists[br]);
-                    System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + tr + "] " + "  vert " + cubesFaceMeshLists[tr]);
-                    System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + tl + "] " + "  vert " + cubesFaceMeshLists[tl]);
-                }
-            }
 
             public void DrawPrimitive(GraphicsDevice gd, Effect effect)
             {
@@ -741,7 +847,27 @@ namespace ShaderExamples
             public int[] indices;
             public Texture2D texture;
 
-            public PrimitiveNormals(){ }
+            public BasicEffect basicEffect;
+
+            public PrimitiveNormals(){}
+
+            public void SetUpBasicEffect(GraphicsDevice device, Texture2D texture, Matrix view, Matrix proj)
+            {
+                basicEffect = new BasicEffect(device);
+                basicEffect.VertexColorEnabled = false;
+                basicEffect.TextureEnabled = true;
+                basicEffect.EnableDefaultLighting();
+                basicEffect.AmbientLightColor = new Vector3(1.0f,1.0f,1.0f);
+                World = Matrix.Identity;
+                basicEffect.View = view;
+                basicEffect.Projection = proj;
+                basicEffect.Texture = texture;
+            }
+
+            public Matrix World { set { basicEffect.World = value; } get { return basicEffect.World; } }
+            public Matrix View { set { basicEffect.View = value; } get { return basicEffect.View; } }
+            public Matrix Projection { set { basicEffect.Projection = value; } get { return basicEffect.Projection; } }
+            public Texture2D Texture { set { basicEffect.Texture = value; } get { return basicEffect.Texture; } }
 
             public void CreateVisualNormalsForPrimitiveMesh(VertexPositionNormalTexture[] inVertices, int[] inIndices, Texture2D t, float thickness, float scale)
             {
@@ -782,6 +908,15 @@ namespace ShaderExamples
                 }
                 this.vertices = nverts;
                 this.indices = nindices;
+            }
+
+            public void Draw(GraphicsDevice gd)
+            {
+                foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, (indices.Length / 3), VertexPositionNormalTexture.VertexDeclaration);
+                }
             }
 
             public void Draw(GraphicsDevice gd, Effect effect)
