@@ -18,10 +18,10 @@ matrix World;
 matrix View;
 matrix Projection;
 
-texture2D TextureDiffuse;
-sampler2D SpriteTextureSampler = sampler_state
+Texture2D TextureDiffuse;
+sampler2D TextureSamplerDiffuse = sampler_state
 {
-	Texture = (TextureDiffuse);
+	texture = (TextureDiffuse);
 };
 
 Texture2D TextureNormalMap;
@@ -55,8 +55,8 @@ float3 FunctionNormalMapGeneratedBiTangent(float3 normal, float3 tangent, float2
 {
 	// Normal Map
 	float3 NormalMap = tex2D(TextureSamplerNormalMap, texCoords).rgb;
-	NormalMap.g = 1.0f - NormalMap.g; // flips the y. the program i used fliped the green,  bump mapping is when you don't do this i guess.
-	NormalMap = NormalMap * 2.0 - 1.0;
+	NormalMap.g = 1.0f - NormalMap.g;  // flips the y. the program i used fliped the green,  bump mapping is when you don't do this i guess.
+	NormalMap = NormalMap * 2.0f - 1.0f;
 	float3 bitangent = cross(normal, tangent);
 
 	float3x3 mat;
@@ -84,17 +84,16 @@ VertexShaderOutput VS(in VertexShaderInput input)
 	return output;
 }
 
-
 // 
 float4 PS(VertexShaderOutput input) : COLOR
 {
-	float4 col = tex2D(SpriteTextureSampler, input.TextureCoordinates);
+	float4 col = tex2D(TextureSamplerDiffuse, input.TextureCoordinates);
 
 	// simple diffuse.
-	float3 N = FunctionNormalMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);
-	float3 L = normalize(LightPosition - input.Position3D);
+	float3 N = FunctionNormalMapGeneratedBiTangent( input.Normal, input.Tangent, input.TextureCoordinates );
+	float3 L = normalize( LightPosition - input.Position3D );
 	float LdotN = saturate( dot( N, L) );
-	col.rgb = col.rgb * LdotN + col.rgb * 0.1f;
+	col.rgb = ( col.rgb * LdotN * 0.95f ) + (col.rgb * 0.05f);
 
 	return col;
 }

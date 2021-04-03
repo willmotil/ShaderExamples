@@ -23,6 +23,7 @@ namespace ShaderExamples
         Texture2D texture; 
         Texture2D textureNormalMap;
         Texture2D dotTextureRed;
+        Texture2D dotTextureBlue;
         Texture2D dotTextureGreen;
         Texture2D dotTextureWhite;
         RenderTarget2D rtScene;
@@ -49,7 +50,7 @@ namespace ShaderExamples
         Matrix view;
         Matrix projection;
 
-        float fov = 1.4f;
+        float fov = 1.0f; // 1.4
         Matrix cameraWorld = Matrix.Identity;
         Vector3 cameraWorldPosition = new Vector3(0, 0, 500f);
         Vector3 cameraForwardVector = Vector3.Forward;
@@ -60,7 +61,7 @@ namespace ShaderExamples
         Vector3 quadForwardVector = Vector3.Forward;
         float quadRotation = 0;
 
-        Vector3 lightPosition = new Vector3(0, 0, 500f);
+        Vector3 lightPosition = new Vector3(0, 0, 5000f);
         Matrix lightTransform = Matrix.Identity;
         float lightRotationRadians = 0f;
 
@@ -94,9 +95,11 @@ namespace ShaderExamples
             Content.RootDirectory = @"Content/Images";
             texture = Content.Load<Texture2D>("walltomap");
             textureNormalMap = Content.Load<Texture2D>("wallnormmap");
+            //textureNormalMap = Content.Load<Texture2D>("RefactionTexture"); // with the opposite encoding
 
             dotTextureRed = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Red);
             dotTextureGreen = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Green);
+            dotTextureBlue = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Blue);
             dotTextureWhite = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.White);
 
             Content.RootDirectory = @"Content/Fonts";
@@ -113,16 +116,16 @@ namespace ShaderExamples
             DiffuseLightEffectClass.Projection = projection;
 
 
-            PrimitiveIndexedMesh.ShowOutput = true;
-            PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_RED;
+            PrimitiveIndexedMesh.ShowOutput = false;
+            PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_HIGHEST; //PrimitiveIndexedMesh.AVERAGING_OPTION_USE_RED;
 
-            mesh = new PrimitiveIndexedMesh(5,5, new Vector3(300f, 250, 0f ), true);
-            //mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3( 300f, 250, 70f ), true);
-            //mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), true);
+            mesh = new PrimitiveIndexedMesh(5,5, new Vector3(300f, 250, 0f ), false);
+            //mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3( 300f, 250, 70f ), false);
+            //mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), false);
 
-            CreateVisualMeshNormals(mesh, dotTextureGreen, 5.00f, 25.0f);  // .6  3
-            CreateVisualMeshTangents(mesh, dotTextureWhite, 5.00f, 30.0f);
-            CreateVisualLightNormal(dotTextureGreen, 20, 300);
+            CreateVisualMeshNormals(mesh, dotTextureGreen, .1f, 10.0f);  // .6  3
+            CreateVisualMeshTangents(mesh, dotTextureBlue, .1f, 10.0f);
+            CreateVisualLightNormal(dotTextureWhite, 1, 300);
         }
 
         public void CreateVisualMeshNormals(PrimitiveIndexedMesh mesh, Texture2D texture, float thickness, float scale)
@@ -140,7 +143,7 @@ namespace ShaderExamples
             for (int i = 0; i < mesh.vertices.Length; i++)
                 tmp[i] = new VertexPositionNormalTexture() { Position = mesh.vertices[i].Position, Normal = mesh.vertices[i].Tangent, TextureCoordinate = mesh.vertices[i].TextureCoordinate };
             visualTangents.CreateVisualNormalsForPrimitiveMesh(tmp, mesh.indices, texture, thickness, scale);
-            visualTangents.SetUpBasicEffect(GraphicsDevice, dotTextureWhite, view, projection);
+            visualTangents.SetUpBasicEffect(GraphicsDevice, dotTextureBlue, view, projection);
         }
 
         public void CreateVisualLightNormal(Texture2D texture, float thickness, float scale)
@@ -150,7 +153,7 @@ namespace ShaderExamples
             int[] tmpindices = new int[1];
             tmpindices[0] = 0;
             visualLightNormal.CreateVisualNormalsForPrimitiveMesh(tmp, tmpindices, texture, thickness, scale);
-            visualLightNormal.SetUpBasicEffect(GraphicsDevice, dotTextureRed, view, projection);
+            visualLightNormal.SetUpBasicEffect(GraphicsDevice, dotTextureWhite, view, projection);
         }
 
         protected override void UnloadContent()
@@ -260,7 +263,7 @@ namespace ShaderExamples
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Moccasin);
+            GraphicsDevice.Clear(Color.CornflowerBlue);
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
@@ -272,17 +275,17 @@ namespace ShaderExamples
             DiffuseLightEffectClass.LightPosition = lightPosition;
 
             if (displayMesh)
-                DrawMesh(dotTextureWhite);
-
-            if(displayWireframe)
-                DrawWireFrameMesh();
+                DrawMesh(texture);
 
             if (displayNormals)
             {
                 DrawNormalsForMesh();
-                DrawTangentsForMesh();
+                //DrawTangentsForMesh();
                 DrawLightLine();
             }
+
+            if (displayWireframe)
+                DrawWireFrameMesh();
 
 
             DrawSpriteBatches(gameTime);
@@ -292,22 +295,15 @@ namespace ShaderExamples
 
         public void DrawMesh(Texture2D texture)
         {
-            GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
+            //GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
             DiffuseLightEffectClass.TextureDiffuse = texture;
             DiffuseLightEffectClass.TextureNormalMap = textureNormalMap;
             mesh.DrawPrimitive(GraphicsDevice, DiffuseLightEffectClass.effect);
         }
 
-        public void DrawWireFrameMesh()
-        {
-            GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_WIREFRAME;
-            DiffuseLightEffectClass.TextureDiffuse = dotTextureRed;
-            mesh.DrawPrimitive(GraphicsDevice, DiffuseLightEffectClass.effect);
-        }
-
         public void DrawNormalsForMesh()
         {
-            GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
+            //GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
             visualNormals.World = Matrix.Identity;
             visualNormals.View = view;
             visualNormals.Draw(GraphicsDevice);
@@ -315,7 +311,7 @@ namespace ShaderExamples
 
         public void DrawTangentsForMesh()
         {
-            GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
+            //GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
             visualTangents.World = Matrix.Identity;
             visualTangents.View = view;
             visualTangents.Draw(GraphicsDevice);
@@ -323,10 +319,17 @@ namespace ShaderExamples
 
         public void DrawLightLine()
         {
-            GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
+            //GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
             visualLightNormal.World = lightTransform;
             visualLightNormal.View = view;
             visualLightNormal.Draw(GraphicsDevice);
+        }
+
+        public void DrawWireFrameMesh()
+        {
+            GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_WIREFRAME;
+            DiffuseLightEffectClass.TextureDiffuse = dotTextureRed;
+            mesh.DrawPrimitive(GraphicsDevice, DiffuseLightEffectClass.effect);
         }
 
         public void DrawSpriteBatches(GameTime gameTime)
@@ -680,12 +683,20 @@ namespace ShaderExamples
                 var TR = VertexLists[tr];
                 var BR = VertexLists[br];
 
-                var lefttan =  BL.Position - TL.Position;
-                TL.Tangent += lefttan;
-                BL.Tangent += lefttan;
-                var righttan =  BR.Position - TR.Position;
-                TR.Tangent += righttan;
-                BR.Tangent += righttan;
+                var t0 = (BL.Position - TL.Position);
+                var t1 = (BR.Position - TR.Position);
+                TL.Tangent += t0;
+                BL.Tangent += t0;
+                TR.Tangent += t1;
+                BR.Tangent += t1;
+
+                // looks to be correct for the bi tangent.
+                //var t0 = -(TR.Position - TL.Position);
+                //var t1 = -(BR.Position - BL.Position);
+                //TL.Tangent += t0;
+                //TR.Tangent += t0;
+                //BR.Tangent += t1;
+                //BL.Tangent += t1;
 
                 VertexLists[tl] = TL;
                 VertexLists[bl] = BL;
@@ -856,8 +867,9 @@ namespace ShaderExamples
                 basicEffect = new BasicEffect(device);
                 basicEffect.VertexColorEnabled = false;
                 basicEffect.TextureEnabled = true;
-                basicEffect.EnableDefaultLighting();
-                basicEffect.AmbientLightColor = new Vector3(1.0f,1.0f,1.0f);
+                //basicEffect.LightingEnabled = true;
+                //basicEffect.EnableDefaultLighting();
+                //basicEffect.AmbientLightColor = new Vector3(1.0f,1.0f,1.0f);
                 World = Matrix.Identity;
                 basicEffect.View = view;
                 basicEffect.Projection = proj;
@@ -874,40 +886,81 @@ namespace ShaderExamples
                 texture = t;
                 int len = inVertices.Length;
 
-                // for each vertice in the model we will make a quad composed of 4 vertices and 6 indices.
-                VertexPositionNormalTexture[] nverts = new VertexPositionNormalTexture[len * 4];
-                int[] nindices = new int[len * 6];
+                // we will make a tubular line
+                List<VertexPositionNormalTexture> nverts = new List<VertexPositionNormalTexture>();
+                List<int> nindices = new List<int>();
 
+                // well define the number of sides of the tube
+                int sides = 4;
+                // the number of vertices per line
+                int lineVerts = 4 * 2;
+                // the number of indices per line
+                int lineIndices = sides * 6;
+
+                // for each vertice in the model
                 for (int j = 0; j < len; j++)
                 {
-                    int v = j * 4;
-                    int i = j * 6;
-                    //
-                    nverts[v + 0].Position = new Vector3(0f, 0f, 0f) + inVertices[j].Position;
-                    nverts[v + 1].Position = new Vector3(0f, -.2f * thickness, 0f) + inVertices[j].Position;
-                    nverts[v + 2].Position = new Vector3(0f, 0f, 0f) + inVertices[j].Position + inVertices[j].Normal * scale;
-                    nverts[v + 3].Position = new Vector3(0f, -.2f * thickness, 0f) + inVertices[j].Position + inVertices[j].Normal * scale;
-                    //
-                    nverts[v + 0].TextureCoordinate = new Vector2(0f, 0f);
-                    nverts[v + 1].TextureCoordinate = new Vector2(0f, .33f);
-                    nverts[v + 2].TextureCoordinate = new Vector2(1f, .0f);
-                    nverts[v + 3].TextureCoordinate = new Vector2(1f, .33f);
-                    //
-                    nverts[v + 0].Normal = inVertices[j].Normal;
-                    nverts[v + 1].Normal = inVertices[j].Normal;
-                    nverts[v + 2].Normal = inVertices[j].Normal;
-                    nverts[v + 3].Normal = inVertices[j].Normal;
+                    int startvert = j * lineVerts;
+                    int startindices = j * lineIndices;
 
-                    // indices
-                    nindices[i + 0] = 0 + v;
-                    nindices[i + 1] = 1 + v;
-                    nindices[i + 2] = 2 + v;
-                    nindices[i + 3] = 2 + v;
-                    nindices[i + 4] = 1 + v;
-                    nindices[i + 5] = 3 + v;
+                    var p = inVertices[j].Position;
+                    var n = inVertices[j].Normal;
+                    var p2 = n * scale + p;
+
+                    int index = 0;
+                    float radMult = 6.28f / sides;
+                    for (int k =0; k < sides; k ++)
+                    {
+                        float rads = (float)(k) * radMult;
+                        var m = Matrix.CreateFromAxisAngle(n, rads);
+                        var mright = m.Right;
+                        var np = p + m.Right * thickness;
+                        var np2 = p2 + m.Right * thickness;
+
+                        var v0 = new VertexPositionNormalTexture() { Position = np, Normal = n, TextureCoordinate = new Vector2((float)(k) / (float)(sides - 1), 0f) };
+                        var v1 = new VertexPositionNormalTexture() { Position = np2, Normal = n, TextureCoordinate = new Vector2((float)(k) / (float)(sides - 1), 1f) };
+                        nverts.Add( v0 );
+                        nverts.Add( v1);
+
+                        index += 2;
+                    }
                 }
-                this.vertices = nverts;
-                this.indices = nindices;
+
+                // build the indices and line them up to the vertices.
+                for (int j = 0; j < len; j++)
+                {
+                    int startvert = j * lineVerts;
+                    int startindices = j * lineIndices;
+                    for (int quadindex = 0; quadindex < sides; quadindex++)
+                    {
+                        int offsetVertice = quadindex * 2 + startvert;
+                        //int offsetIndice = quadindex * 6;
+
+                        if (quadindex != sides - 1)
+                        {
+                            nindices.Add(offsetVertice + 0);
+                            nindices.Add(offsetVertice + 1);
+                            nindices.Add(offsetVertice + 2);
+
+                            nindices.Add(offsetVertice + 2);
+                            nindices.Add(offsetVertice + 1);
+                            nindices.Add(offsetVertice + 3);
+                        }
+                        else // the last face wraps around well sort of manually attach this.
+                        {
+                            nindices.Add(offsetVertice + 0);
+                            nindices.Add(offsetVertice + 1);
+                            nindices.Add(startvert + 0);
+
+                            nindices.Add(startvert + 0);
+                            nindices.Add(offsetVertice + 1);
+                            nindices.Add(startvert + 1);
+                        }
+                    }
+                }
+
+                this.vertices = nverts.ToArray();
+                this.indices = nindices.ToArray();
             }
 
             public void Draw(GraphicsDevice gd)

@@ -378,7 +378,6 @@ namespace Microsoft.Xna.Framework
         {
         }
 
-
         public void CreateVisualNormalsForPrimitiveMesh(VertexPositionNormalTexture[] inVertices, int[] inIndices, Texture2D t, float thickness, float scale)
         {
             texture = t;
