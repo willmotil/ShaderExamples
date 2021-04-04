@@ -138,6 +138,21 @@ namespace Microsoft.Xna.Framework
             spriteBatch.Draw(dot, new Rectangle((int)p.X, (int)p.Y, 1 + size, 1 + size), new Rectangle(0, 0, 1, 1), c, 0.0f, new Vector2(.5f, .5f), SpriteEffects.None, 0);
         }
 
+        /// <summary>
+        /// Super inefficient just for tests.
+        /// </summary>
+        public static void DrawCircleOutline(this SpriteBatch spriteBatch, Vector2 center, int radius, int segments, int linethickness, Color c)
+        {
+            var coef = 1f / (float)(segments) * 6.2831530717f;
+            Vector2 s = RotatePointAboutZaxis(new Vector2(0, radius), 0 * coef) + center;
+            for (int curseg = 1; curseg < segments+1; curseg++)
+            {
+                var e = RotatePointAboutZaxis(new Vector2(0, radius), curseg * coef) + center;
+                spriteBatch.DrawBasicLine(s, e, linethickness, c);
+                s = e;
+            }
+        }
+
         #endregion
 
         #region TextureGenerationCalls
@@ -376,6 +391,18 @@ namespace Microsoft.Xna.Framework
         public static Vector3 BiCubicSubdivision(Vector3 a0, Vector3 a1, Vector3 a2, Vector3 a3, float time)
         {
             return (((((a3 - a2) * time + a2) - ((a2 - a1) * time + a1)) * time + ((a2 - a1) * time + a1)) - ((((a2 - a1) * time + a1) - ((a1 - a0) * time + a0)) * time + ((a1 - a0) * time + a0))) * time + ((((a2 - a1) * time + a1) - ((a1 - a0) * time + a0)) * time + ((a1 - a0) * time + a0));
+        }
+
+        public static Vector2 RotatePointAboutZaxis(this Vector2 p, double q)
+        {
+            //x' = x*cos s - y*sin s
+            //y' = x*sin s + y*cos s 
+            //z' = z
+            return new Vector2
+                (
+                (float)(p.X * Math.Cos(q) - p.Y * Math.Sin(q)),
+                (float)(p.X * Math.Sin(q) + p.Y * Math.Cos(q))
+                );
         }
 
         public static Vector3 RotatePointAboutZaxis(this Vector3 p, double q)

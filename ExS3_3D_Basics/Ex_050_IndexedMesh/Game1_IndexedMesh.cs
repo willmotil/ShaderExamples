@@ -16,25 +16,12 @@ namespace ShaderExamples
         SpriteFont font3;
         Texture2D texture;
         Texture2D dotTexture;
-        Effect effect;
+        //Effect effect;
+        //MouseState mouse;
         RenderTarget2D rtScene;
-        MouseState mouse;
+        PrototypePrimitiveIndexedMesh mesh;
+        CameraAndKeyboardControls cam = new CameraAndKeyboardControls();
 
-        PrimitiveIndexedMesh mesh;
-
-        Matrix view;
-        Matrix projection;
-
-        float fov = 1.4f;
-        Matrix cameraWorld = Matrix.Identity;
-        Vector3 cameraWorldPosition = new Vector3(0, 0, -500f);
-        Vector3 cameraForwardVector = Vector3.Forward;
-        Vector3 cameraUpVector = Vector3.Down;
-
-        Vector3 quadWorldPosition = Vector3.Zero;
-        Vector3 quadUpVector = Vector3.Up;
-        Vector3 quadForwardVector = Vector3.Forward;
-        float quadRotation = 0;
 
         public Game1_IndexedMesh()
         {
@@ -55,7 +42,7 @@ namespace ShaderExamples
         public void OnResize(object sender, EventArgs e)
         {
             rtScene = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.None);
-            UpdateProjection();
+            cam.UpdateProjection(GraphicsDevice);
         }
 
         protected override void LoadContent()
@@ -71,17 +58,17 @@ namespace ShaderExamples
             font2 = Content.Load<SpriteFont>("MgFont2");
             font3 = Content.Load<SpriteFont>("MgFont3");
 
-            InitialView();
-            UpdateProjection();
+            cam.InitialView(GraphicsDevice);
+            cam.UpdateProjection(GraphicsDevice);
 
             SimpleDrawingWithMatrixClassEffect.Load(Content);
             SimpleDrawingWithMatrixClassEffect.Technique = "TriangleDrawWithTransforms";
             SimpleDrawingWithMatrixClassEffect.SpriteTexture = texture;
-            SimpleDrawingWithMatrixClassEffect.View = view;
-            SimpleDrawingWithMatrixClassEffect.Projection = projection;
+            SimpleDrawingWithMatrixClassEffect.View = cam.view;
+            SimpleDrawingWithMatrixClassEffect.Projection = cam.projection;
 
-            PrimitiveIndexedMesh.showOutput = true;
-            mesh = new PrimitiveIndexedMesh(4,4, 300f, true, false, true);
+            PrototypePrimitiveIndexedMesh.showOutput = true;
+            mesh = new PrototypePrimitiveIndexedMesh(4,4, 300f, true, false, true);
         }
 
         protected override void UnloadContent()
@@ -93,73 +80,12 @@ namespace ShaderExamples
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            float speed = 1f;
-            float speed2 = speed * .01f;
-
-            // Use the arrow keys to alter the camera position.
-            if (Keyboard.GetState().IsKeyDown(Keys.Left))
-                cameraWorld.Translation += cameraWorld.Right * speed;
-            if (Keyboard.GetState().IsKeyDown(Keys.Right))
-                cameraWorld.Translation += cameraWorld.Right * -speed;
-            if (Keyboard.GetState().IsKeyDown(Keys.Down))
-                cameraWorld.Translation += cameraWorld.Up * speed;
-            if (Keyboard.GetState().IsKeyDown(Keys.Up))
-                cameraWorld.Translation += cameraWorld.Up * -speed;
-            if (Keyboard.GetState().IsKeyDown(Keys.Q))
-                cameraWorld.Translation += cameraWorld.Forward * speed;
-            if (Keyboard.GetState().IsKeyDown(Keys.E))
-                cameraWorld.Translation += cameraWorld.Forward * -speed;
-
-            // Use wasd to alter the lookat direction.
-            var t = cameraWorld.Translation;
-            cameraWorld.Translation = Vector3.Zero;
-            // 
-            if (Keyboard.GetState().IsKeyDown(Keys.D))
-                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Up, -speed2);
-            if (Keyboard.GetState().IsKeyDown(Keys.A))
-                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Up, speed2);
-            if (Keyboard.GetState().IsKeyDown(Keys.S))
-                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Right, -speed2);
-            if (Keyboard.GetState().IsKeyDown(Keys.W))
-                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Right, speed2);
-            cameraWorld.Translation = t;
-
-            // Use the Z and C keys to rotate the camera.
-            if (Keyboard.GetState().IsKeyDown(Keys.Z))
-                quadRotation += speed * .01f;
-            if (Keyboard.GetState().IsKeyDown(Keys.C))
-                quadRotation -= speed * .01f;
-            if (quadRotation > 6.28)
-                quadRotation = 0;
-            if (quadRotation < 0)
-                quadRotation = 6.28f;
-            quadUpVector = new Vector3(MathF.Sin(quadRotation), MathF.Cos(quadRotation), 0);
-
-            // Set the view matrix.
-            cameraWorld = Matrix.CreateWorld(cameraWorld.Translation, cameraWorld.Forward, cameraWorld.Up);
-            view = Matrix.Invert(cameraWorld);
-
-            // Reset the view projection matrix.
-            if (Keys.F1.IsKeyPressedWithDelay(gameTime))
-                InitialView();
+            cam.Update(gameTime);
 
             base.Update(gameTime);
         }
 
-        public void InitialView()
-        {
-            cameraWorldPosition.Z = MgMathExtras.GetRequisitePerspectiveSpriteBatchAlignmentZdistance(GraphicsDevice, fov);
-            cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Zero - cameraWorldPosition, cameraUpVector);
-            view = Matrix.Invert(cameraWorld);
-            if (SimpleDrawingWithMatrixClassEffect.effect != null)
-                SimpleDrawingWithMatrixClassEffect.View = view;
-        }
-        public void UpdateProjection()
-        {
-            projection = Matrix.CreatePerspectiveFieldOfView(fov, GraphicsDevice.Viewport.AspectRatio, 1f, 10000f);
-            if (SimpleDrawingWithMatrixClassEffect.effect != null)
-                SimpleDrawingWithMatrixClassEffect.Projection = projection;
-        }
+
 
         RasterizerState rasterizerState_CULLNONE_WIREFRAME = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
         RasterizerState rasterizerState_CULLNONE_SOLID = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.Solid };
@@ -171,8 +97,8 @@ namespace ShaderExamples
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
 
-            SimpleDrawingWithMatrixClassEffect.View = view;
-            SimpleDrawingWithMatrixClassEffect.Projection = projection;
+            SimpleDrawingWithMatrixClassEffect.View = cam.view;
+            SimpleDrawingWithMatrixClassEffect.Projection = cam.projection;
             SimpleDrawingWithMatrixClassEffect.World = Matrix.Identity;
 
             // draw regularly
@@ -201,11 +127,13 @@ namespace ShaderExamples
                 $" \n  " +
                 $" \n In this example we draw a extremely simple index mesh and map a texture onto it." +
                 $" \n We then draw the mesh with a rasterizerstate we have created to turn on wireframe with a dot texture." +
+                $" \n We also put some of our update code camera related stuff into its own camera class." +
+                $" \n This will now reside in the ExamplSupportClasses folder were most of our stuff we reuse will go. " +
+                $" \n We'll start to do this a bit more in the next example as we will add quite a bit as prep to 3d shading." +
                 $" \n " +
-                $" \n " +
-                $" \n { cameraWorld.DisplayMatrix("cameraWorld") }" +
-                $" \n { view.DisplayMatrix("view") }" +
-                $" \n { projection.DisplayMatrix("projection") }" +
+                $" \n { cam.cameraWorld.DisplayMatrix("cameraWorld") }" +
+                $" \n { cam.view.DisplayMatrix("view") }" +
+                $" \n { cam.projection.DisplayMatrix("projection") }" +
                 $" \n" +
                 $" \n"
                 ;
@@ -269,28 +197,30 @@ namespace ShaderExamples
             }
         }
 
-
-        public class PrimitiveIndexedMesh
+        /// <summary>
+        /// This is a simple indexed mesh it demonstrates the changes going from a quad to a grid of vertices and indices ... aka a mesh.
+        /// </summary>
+        public class PrototypePrimitiveIndexedMesh
         {
             public static bool showOutput = false;
 
             public VertexPositionNormalTexture[] vertices;
             public int[] indices;
 
-            public PrimitiveIndexedMesh()
+            public PrototypePrimitiveIndexedMesh()
             {
                 CreatePrimitiveMesh(2, 2, 1f, false, true, true, 0);
             }
 
-            public PrimitiveIndexedMesh(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invertNormals, bool directionalFaces)
+            public PrototypePrimitiveIndexedMesh(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invertNormals, bool directionalFaces)
             {
                 CreatePrimitiveMesh(subdivisionWidth, subdividsionHeight, scale, clockwise, invertNormals, directionalFaces, 0);
             }
 
             public void CreatePrimitiveMesh(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invertNormals, bool directionalFaces, int faceIndex)
             {
-                List<VertexPositionNormalTexture> cubesFaceMeshLists = new List<VertexPositionNormalTexture>();
-                List<int> cubeFaceMeshIndexLists = new List<int>();
+                List<VertexPositionNormalTexture> meshList = new List<VertexPositionNormalTexture>();
+                List<int> indexList = new List<int>();
 
                 if (subdivisionWidth < 2)
                     subdivisionWidth = 2;
@@ -322,7 +252,7 @@ namespace ShaderExamples
                         if (showOutput)
                             System.Console.WriteLine("vert["+ vertCounter + "]: " + vert);
 
-                        cubesFaceMeshLists.Add(vert);
+                        meshList.Add(vert);
                         vertCounter += 1;
                     }
                 }
@@ -338,30 +268,30 @@ namespace ShaderExamples
                         var br = faceVerticeOffset + stride + 1;
                         var tr = faceVerticeOffset + 1;
 
-                        cubeFaceMeshIndexLists.Add(tl);
-                        cubeFaceMeshIndexLists.Add(bl);
-                        cubeFaceMeshIndexLists.Add(br);
+                        indexList.Add(tl);
+                        indexList.Add(bl);
+                        indexList.Add(br);
 
-                        cubeFaceMeshIndexLists.Add(br);
-                        cubeFaceMeshIndexLists.Add(tr);
-                        cubeFaceMeshIndexLists.Add(tl);
+                        indexList.Add(br);
+                        indexList.Add(tr);
+                        indexList.Add(tl);
 
                         if (showOutput)
                         {
                             System.Console.WriteLine();
-                            System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + tl + "] " + "  vert " + cubesFaceMeshLists[tl]);
-                            System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + bl + "] " + "  vert " + cubesFaceMeshLists[bl]);
-                            System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + br + "] " + "  vert " + cubesFaceMeshLists[br]);
+                            System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + tl + "] " + "  vert " + meshList[tl]);
+                            System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + bl + "] " + "  vert " + meshList[bl]);
+                            System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + br + "] " + "  vert " + meshList[br]);
 
                             System.Console.WriteLine();
-                            System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + br + "] " + "  vert " + cubesFaceMeshLists[br]);
-                            System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + tr + "] " + "  vert " + cubesFaceMeshLists[tr]);
-                            System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + tl + "] " + "  vert " + cubesFaceMeshLists[tl]);
+                            System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + br + "] " + "  vert " + meshList[br]);
+                            System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + tr + "] " + "  vert " + meshList[tr]);
+                            System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + tl + "] " + "  vert " + meshList[tl]);
                         }
                     }
                 }
-                vertices = cubesFaceMeshLists.ToArray();
-                indices = cubeFaceMeshIndexLists.ToArray();
+                vertices = meshList.ToArray();
+                indices = indexList.ToArray();
             }
 
             private float Interpolate(float A, float B, float t)

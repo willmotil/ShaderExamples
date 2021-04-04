@@ -6,6 +6,12 @@ namespace Microsoft.Xna.Framework
 {
     /// <summary>
     /// Assorted functions for support.
+    /// Additional Resources found 
+    /// https://repo.progsbase.com/repoviewer/no.inductive.idea10.programs/math/latest/
+    /// https://repo.progsbase.com/repoviewer/
+    /// https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
+    /// https://mathworld.wolfram.com/Euclidean.html
+    /// https://mathopenref.com/
     /// </summary>
     public static class MgMathExtras
     {
@@ -254,6 +260,12 @@ namespace Microsoft.Xna.Framework
             if (n < 0) { return -n; }
             return n;
         }
+        public static double Absolute(double n)
+        {
+            if (n < 0) { return -n; }
+            return n;
+        }
+
         public static Vector2 Absolute(Vector2 v)
         {
             if (v.X < 0f) { v.X = -v.X; }
@@ -388,9 +400,6 @@ namespace Microsoft.Xna.Framework
             else
                 return new Vector2(a.X * s.X * rate.Y * d, d * s.Y);
         }
-
-        //_________________________some old functions not 100% on there reliabiltiy i maybe broke the line line one_______________
-
         public static float RatioOfN(float n, float b)
         {
             return n / (n + b);
@@ -400,6 +409,62 @@ namespace Microsoft.Xna.Framework
         {
             return n / b;
         }
+
+        // euler rotations.
+        public static Vector3 RotatePointAboutZaxis(Vector3 p, double q)
+        {
+            //x' = x*cos s - y*sin s //y' = x*sin s + y*cos s   //z' = z
+            return new Vector3
+                (
+                (float)(p.X * Math.Cos(q) - p.Y * Math.Sin(q)),
+                (float)(p.X * Math.Sin(q) + p.Y * Math.Cos(q)),
+                p.Z
+                );
+        }
+        public static Vector3 RotatePointAboutXaxis(Vector3 p, double q)
+        {
+            //y' = y*cos s - z*sin s //z' = y*sin s + z*cos s //x' = x
+            return new Vector3
+                (
+                (float)(p.Y * Math.Cos(q) - p.Z * Math.Sin(q)),
+                (float)(p.Y * Math.Sin(q) + p.Z * Math.Cos(q)),
+                p.X
+                );
+        }
+
+        public static Vector3 RotatePointAboutYaxis(Vector3 p, double q)
+        {
+            //z' = z*cos s - x*sin s //x' = z*sin s + x*cos s //y' = y
+            return new Vector3
+                (
+                (float)(p.Z * Math.Cos(q) - p.X * Math.Sin(q)),
+                (float)(p.Z * Math.Sin(q) + p.X * Math.Cos(q)),
+                p.Y
+                );
+        }
+
+        public static Vector2 CalculateNormalAndOutDistance(Vector2 v, out float dist)
+        {
+            dist = (float)(Math.Sqrt(v.X * v.X + v.Y * v.Y));
+            return new Vector2(v.X / dist, v.Y / dist);
+        }
+        public static Vector3 CalculateNormalAndOutDistance(Vector3 v, out float dist)
+        {
+            dist = (float)(Math.Sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z));
+            return new Vector3(v.X / dist, v.Y / dist, v.Z / dist);
+        }
+
+
+        //_________________________some old functions not 100% on there reliabiltiy i maybe broke the line line one_______________
+
+
+        /// <summary>
+        /// Normal probability density function.
+        /// </summary>
+        //public static double NormalDensity(double x, double mu, double sd)
+        //{
+        //    return 1d / (Sqrt(2d * PI) * sd) * Exp(-(Pow(x - mu, 2d) / (2d * Pow(sd, 2d))));
+        //}
 
         public static float Sagitta(float chordlength, float radius)
         {
@@ -483,31 +548,26 @@ namespace Microsoft.Xna.Framework
 
             var r_pdif = p2 - p1;
             var s_qdiff = q2 - q1;
+            var dqp = q1 - p1;
             var rxs = Cross2D(r_pdif, s_qdiff);
-            var qpxr = Cross2D((q1 - p1), r_pdif); // hopefully i didn't use the wrong handed cross product here.
+            var qpxr = Cross2D(dqp, r_pdif); // hopefully i didn't use the wrong handed cross product here and break it need to retest it.
 
-            // If r x s = 0 and (q - p) x r = 0, then the two lines are collinear.
-            if (rxs == Vector2.Zero && qpxr == Vector2.Zero)
-            {
-                return false;
-            }
-
+            // 2. If r x s = 0 and (q - p) x r = 0, then the two lines are collinear.
             // 3. If r x s = 0 and (q - p) x r != 0, then the two lines are parallel and non-intersecting.
-            if (rxs == Vector2.Zero && !(qpxr == Vector2.Zero))
+            //if ( (rxs == Vector2.Zero && qpxr == Vector2.Zero) || (rxs == Vector2.Zero && !(qpxr == Vector2.Zero)))
+            //    return false;
+
+            // fast fail.
+            if (rxs == Vector2.Zero)
                 return false;
 
-            // t = (q - p) x s / (r x s)
-            var t = Cross2D((q1 - p1), s_qdiff) / rxs;
-            // u = (q - p) x r / (r x s)
-            var u = Cross2D((q1 - p1), r_pdif) / rxs;
+            var t = Cross2D(dqp, s_qdiff) / rxs;   // t = (q - p) x s / (r x s)
+            var u = Cross2D(dqp, r_pdif) / rxs;    // u = (q - p) x r / (r x s)
 
-            // 4. If r x s != 0 and 0 <= t <= 1 and 0 <= u <= 1
-            // the two line segments meet at the point p + t r = q + u s.
-
+            // 4. If r x s != 0 and 0 <= t <= 1 and 0 <= u <= 1 // the two line segments meet at the point p + t r = q + u s.
             if (!(rxs == Vector2.Zero) && (LessThanEqual(Vector2.Zero, t) && LessThanEqual(t, Vector2.One)) && (LessThanEqual(Vector2.Zero , u) && LessThanEqual(u , Vector2.One) )  )
             {
-                // We can calculate the intersection point using either t or u.
-                intersection = p1 + t * r_pdif;
+                intersection = p1 + t * r_pdif;  // We can calculate the intersection point using either t or u.
                 return true;
             }
             // 5. Otherwise, the two line segments are not parallel but do not intersect.
@@ -520,6 +580,24 @@ namespace Microsoft.Xna.Framework
                 return true;
             else
                 return false;
+        }
+
+        /// <summary>
+        /// maybe cheaper then the above not yet tested
+        /// </summary>
+        public static bool IsIntersecting(Point startA, Point endA, Point startB, Point endB)
+        {
+            float denominator = ((endA.X - startA.X) * (endB.Y - startB.Y)) - ((endA.Y - startA.Y) * (endB.X - startB.X));
+            float numerator1 = ((startA.Y - startB.Y) * (endB.X - startB.X)) - ((startA.X - startB.X) * (endB.Y - startB.Y));
+            float numerator2 = ((startA.Y - startB.Y) * (endA.X - startA.X)) - ((startA.X - startB.X) * (endA.Y - startA.Y));
+
+            // Detect coincident lines (has a edge case, which is the case in which two lines are coincident but don't overlap)
+            if (denominator == 0) return numerator1 == 0 && numerator2 == 0;
+
+            float r = numerator1 / denominator;
+            float s = numerator2 / denominator;
+
+            return (r >= 0 && r <= 1) && (s >= 0 && s <= 1);
         }
 
         public static int ShortestTurnToTargetLeftOrRight(Vector2 pDirection, Vector2 position, Vector2 targetPosition)
@@ -541,50 +619,6 @@ namespace Microsoft.Xna.Framework
                 return (-result * 3.141592653589f + 3.141592653589f);
             else
                 return (1f - result) * 6.28318530f;
-        }
-
-        // euler rotations.
-        public static Vector3 RotatePointAboutZaxis(Vector3 p, double q)
-        {
-            //x' = x*cos s - y*sin s //y' = x*sin s + y*cos s   //z' = z
-            return new Vector3
-                (
-                (float)(p.X * Math.Cos(q) - p.Y * Math.Sin(q)),
-                (float)(p.X * Math.Sin(q) + p.Y * Math.Cos(q)),
-                p.Z
-                );
-        }
-        public static Vector3 RotatePointAboutXaxis(Vector3 p, double q)
-        {
-            //y' = y*cos s - z*sin s //z' = y*sin s + z*cos s //x' = x
-            return new Vector3
-                (
-                (float)(p.Y * Math.Cos(q) - p.Z * Math.Sin(q)),
-                (float)(p.Y * Math.Sin(q) + p.Z * Math.Cos(q)),
-                p.X
-                );
-        }
-
-        public static Vector3 RotatePointAboutYaxis(Vector3 p, double q)
-        {
-            //z' = z*cos s - x*sin s //x' = z*sin s + x*cos s //y' = y
-            return new Vector3
-                (
-                (float)(p.Z * Math.Cos(q) - p.X * Math.Sin(q)),
-                (float)(p.Z * Math.Sin(q) + p.X * Math.Cos(q)),
-                p.Y
-                );
-        }
-
-        public static Vector2 CalculateNormalAndOutDistance(Vector2 v, out float dist)
-        {
-            dist = (float)(Math.Sqrt(v.X * v.X + v.Y * v.Y));
-            return new Vector2(v.X / dist, v.Y / dist);
-        }
-        public static Vector3 CalculateNormalAndOutDistance(Vector3 v, out float dist)
-        {
-            dist = (float)(Math.Sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z));
-            return new Vector3(v.X / dist, v.Y / dist, v.Z / dist);
         }
 
         // this is sort of a guesstimation on the future positions.
@@ -661,6 +695,76 @@ namespace Microsoft.Xna.Framework
             a = b;
             b = temp;
         }
+
+
+        //_______________________________
+        // L E S S  U S E D   C O M M O N
+        //_______________________________
+
+
+        public static double Factorial(double x)
+        {
+            double i, f;
+            f = 1d;
+            for (i = 2d; i <= x; i = i + 1d)
+                f = f * i;
+            return f;
+        }
+
+        public static double SurfaceAreaOfSphere(double r)
+        {
+            return 4d * PI * Math.Pow(r, 2d);
+        }
+
+        public static double AreaOfCircle(double r)
+        {
+            return PI * Math.Pow(r, 2d);
+        }
+
+        public static double SurfaceAreaOfCylinder(double r, double h)
+        {
+            return 2d * AreaOfCircle(r) + AreaOfRectangle(2d * PI * r, h);
+        }
+
+        public static double AreaOfRectangle(double b, double h)
+        {
+            return b * h;
+        }
+
+        public static double AreaOfTriangle(double b, double h)
+        {
+            return 1d / 2d * b * h;
+        }
+
+        public static double AreaOfTriangleSides(double a, double b, double c)
+        {
+            double s = 1d / 2d * (a + b + c);
+            return Math.Sqrt(s * (s - a) * (s - b) * (s - c));
+        }
+
+        public static double LeastCommonMultiple(double a, double b)
+        {
+            double lcm;
+
+            if (a > 0d && b > 0d)
+                lcm = Absolute(a * b) / GreatestCommonDivisor(a, b);
+            else
+                lcm = 0d;
+            return lcm;
+        }
+
+        public static double GreatestCommonDivisor(double a, double b)
+        {
+            double t;
+            for (; b != 0d;)
+            {
+                t = b;
+                b = a % b;
+                a = t;
+            }
+            return a;
+        }
+
     }
 }
 

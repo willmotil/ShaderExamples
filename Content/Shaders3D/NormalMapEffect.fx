@@ -13,6 +13,7 @@
 #endif
 
 float3 LightPosition;
+float AmbientStrength;
 
 matrix World;
 matrix View;
@@ -93,7 +94,7 @@ float4 PS(VertexShaderOutput input) : COLOR
 	float3 N = FunctionNormalMapGeneratedBiTangent( input.Normal, input.Tangent, input.TextureCoordinates );
 	float3 L = normalize( LightPosition - input.Position3D );
 	float LdotN = saturate( dot( N, L) );
-	col.rgb = ( col.rgb * LdotN * 0.95f ) + (col.rgb * 0.05f);
+	col.rgb = ( col.rgb * LdotN * 0.90f ) + (col.rgb * 0.10f);
 
 	return col;
 }
