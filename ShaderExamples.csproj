@@ -12,6 +12,11 @@
     <StartupObject>ShaderExamples.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="ExS4_3D_Shading\Ex_030_SpecularLighting\**" />
+    <EmbeddedResource Remove="ExS4_3D_Shading\Ex_030_SpecularLighting\**" />
+    <None Remove="ExS4_3D_Shading\Ex_030_SpecularLighting\**" />
+  </ItemGroup>
+  <ItemGroup>
     <TrimmerRootAssembly Include="Microsoft.Xna.Framework.Content.ContentTypeReader" Visible="false" />
   </ItemGroup>
   <ItemGroup>
@@ -29,6 +34,6 @@
   <ItemGroup>
     <Folder Include="ExS0_GeneralConcepts\Ex_040_TODO_UsingTheMouseAndKeyboard\" />
     <Folder Include="ExS3_3D_Basics\Ex_070_Skybox\" />
-    <Folder Include="ExS4_3D_Shading\Ex_030_SpecularLighting\" />
+    <Folder Include="ExS4_3D_Shading\Ex_30_SpecularLighting\" />
   </ItemGroup>
 </Project>
