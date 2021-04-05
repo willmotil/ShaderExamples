@@ -318,7 +318,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
 
         private VertexPositionNormalTextureTangentWeights GetInitialVertice(Vector3 v, Vector2 uv)
         {
-            return new VertexPositionNormalTextureTangentWeights(v, defaultNormal, uv, Vector3.UnitX, new Color(1, 0, 0, 0), new Color(1, 0, 0, 0));
+            return new VertexPositionNormalTextureTangentWeights(v, defaultNormal, uv, Vector3.Zero, new Color(1, 0, 0, 0), new Color(1, 0, 0, 0));
         }
 
         private byte GetAvgHeightFromFloatAsByte(float v)

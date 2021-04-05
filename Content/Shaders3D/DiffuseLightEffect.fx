@@ -28,14 +28,14 @@ sampler2D SpriteTextureSampler = sampler_state
 struct VertexShaderInput
 {
 	float4 Position : POSITION0;
-	float4 Normal : NORMAL0;
+	float3 Normal : NORMAL0;
 	float2 TextureCoordinates : TEXCOORD0;
 };
 
 struct VertexShaderOutput
 {
 	float4 Position : SV_POSITION;
-	float4 Normal : NORMAL0;
+	float3 Normal : NORMAL0;
 	float2 TextureCoordinates : TEXCOORD0;
 	float4 Position3D : TEXCOORD1;
 };
@@ -65,13 +65,13 @@ float4 PS(VertexShaderOutput input) : COLOR
 	float4 col = tex2D(SpriteTextureSampler, input.TextureCoordinates);
 	float3 P = input.Position3D;
 	float3 L = normalize(LightPosition - P);
-	float3 N = normalize(input.Normal);
+	float3 N = input.Normal;
 
 	// simple diffuse.
 	float NdotL = max(0.0f, dot( N, L) );
 
-	//col.rgb = (col.rgb * NdotL) + (col.rgb * 0.1f);
-	col.rgb = NdotL;
+	//	col.rgb = NdotL;
+	col.rgb = (col.rgb * NdotL) + (col.rgb * 0.1f);
 
 	return col;
 }

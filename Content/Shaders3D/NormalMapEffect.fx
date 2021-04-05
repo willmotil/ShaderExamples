@@ -37,16 +37,16 @@ sampler TextureSamplerNormalMap = sampler_state
 struct VertexShaderInput
 {
 	float4 Position : POSITION0;
-	float4 Normal : NORMAL0;
-	float4 Tangent : NORMAL1;
+	float3 Normal : NORMAL0;
+	float3 Tangent : NORMAL1;
 	float2 TextureCoordinates : TEXCOORD0;
 };
 
 struct VertexShaderOutput
 {
 	float4 Position : SV_POSITION;
-	float4 Normal : NORMAL0; 
-	float4 Tangent : NORMAL1;
+	float3 Normal : NORMAL0; 
+	float3 Tangent : NORMAL1;
 	float2 TextureCoordinates : TEXCOORD0;
 	float3 Position3D : TEXCOORD1;
 };
@@ -89,10 +89,10 @@ VertexShaderOutput VS(in VertexShaderInput input)
 float4 PS(VertexShaderOutput input) : COLOR
 {
 	float4 col = tex2D(TextureSamplerDiffuse, input.TextureCoordinates);
+	float3 N = FunctionNormalMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);
+	float3 L = normalize(LightPosition - input.Position3D);
 
 	// simple diffuse.
-	float3 N = FunctionNormalMapGeneratedBiTangent( input.Normal, input.Tangent, input.TextureCoordinates );
-	float3 L = normalize( LightPosition - input.Position3D );
 	float LdotN = saturate( dot( N, L) );
 	col.rgb = ( col.rgb * LdotN * 0.90f ) + (col.rgb * 0.10f);
 

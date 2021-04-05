@@ -205,7 +205,7 @@ namespace Microsoft.Xna.Framework
         private VertexPositionNormalTexture GetVertice(Vector3 v, int faceIndex, bool flatFaces, float depth, Vector2 uv, Color[] heightData, float dataScalar, int width, int height)
         {
             var v2 = Vector3.Transform(v, GetWorldFaceMatrix(faceIndex));
-            var n = Vector3.Normalize(v2);;
+            var n = Vector3.Normalize(v2);
             var suv = CubeMapNormalTo2dEquaRectangularMapUvCoordinatesAlt(n);
             int x = (int)(suv.X * width);
             int y = (int)(suv.Y * height);

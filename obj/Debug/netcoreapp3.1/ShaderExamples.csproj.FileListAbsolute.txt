@@ -223,3 +223,10 @@ C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExa
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.dll
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.pdb
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.genruntimeconfig.cache
+C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Flower-ambientocclusion.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Flower-bump.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Flower-diffuse.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Flower-normal.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Flower-reflectiveocclusion.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\TestNormalMap.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.csprojAssemblyReference.cache

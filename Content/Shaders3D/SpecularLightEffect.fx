@@ -62,16 +62,16 @@ sampler TextureSamplerNormalMap = sampler_state
 struct VertexShaderInput
 {
 	float4 Position : POSITION0;
-	float4 Normal : NORMAL0;
-	float4 Tangent : NORMAL1;
+	float3 Normal : NORMAL0;
+	float3 Tangent : NORMAL1;
 	float2 TextureCoordinates : TEXCOORD0;
 };
 
 struct VertexShaderOutput
 {
 	float4 Position : SV_POSITION;
-	float4 Normal : NORMAL0;
-	float4 Tangent : NORMAL1;
+	float3 Normal : NORMAL0;
+	float3 Tangent : NORMAL1;
 	float2 TextureCoordinates : TEXCOORD0;
 	float3 Position3D : TEXCOORD1;
 };
@@ -86,6 +86,7 @@ float MaxDot(float3 a, float3 b)
 	return max(0.0f, dot(a, b));
 }
 
+// L , V
 float3 HalfNormal(float3 pixelToLight, float3 pixelToCamera)
 {
 	return normalize(pixelToLight + pixelToCamera);
@@ -124,7 +125,7 @@ float SpecularCurveFit(float NdotH, float sharpness)
 	float n = NdotH;
 	float t = sharpness;
 	float i = 1.0f - t;
-	float b = (((n - 1.0f) + n) + n + n) * .5f;
+	float b = ( (n - 1.0f) + n * 3.0f) * .5f;
 	return (i * i) + b * 2.0f * (i * t) + (t * t);
 }
 
@@ -133,7 +134,7 @@ float SpecularSharpener(float specular, float scalar)
 	return saturate(specular - scalar) * (1.0f / (1.0f - scalar));
 }
 
-float falloff(float distance, float lightRadius)
+float Falloff(float distance, float lightRadius)
 {
 	return pow(saturate(1.0f - pow(distance / lightRadius, 4)), 2) / (distance * distance + 1);
 }
@@ -201,20 +202,30 @@ float4 PS(VertexShaderOutput input) : COLOR
 	float4 col = tex2D(TextureSamplerDiffuse, input.TextureCoordinates);
 	float3 N = FunctionNormalMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);
 	float3 P = input.Position3D;
+	float3 C = CameraPosition;
+	float3 V = normalize(C - P);
+	float NdotV = MaxDot(N, V);
+	float3 R = 2.0f * NdotV * N - V;
 	float3 L = normalize(LightPosition - P);
+	float3 H = HalfNormal(L, V);
+	float NdotH = MaxDot(N, H);
+	float NdotL = MaxDot(N, L);
 
 	// simple diffuse.
-	float NdotL = MaxDot(N, L);
+
 	// specular.
-	float specular = SpecularBlinnPhong( P, L, 1.0f , N);
+	float sbp = SpecularBlinnPhong( P, L, 50.0f , N);
+	float sp= SpecularPhong(P, L, 50.0f, N);
+	float sm = SpecularCurveFit(NdotH, 0.5f);
 
 	// combine.
 	//col.rgb = (col.rgb * AmbientStrength) +(col.rgb * NdotL * (1.0f - AmbientStrength));
 	//col.rgb = (col.rgb * AmbientStrength) + (col.rgb * specular * 0.90f) +(col.rgb * NdotL * 0.10f);
 	col.rgb = (col.rgb * 0.1f);
-	col.rgb += NdotL * 0.9f;
-	//col.b += specular;
-
+	col.b += NdotL * NdotL * 0.5f;
+	col.r += sbp * 0.5f;
+	//col.r += sp * 0.5f;
+	//col.r += sm * 0.5f;
 	return col;
 }
 
