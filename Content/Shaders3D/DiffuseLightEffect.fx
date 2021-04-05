@@ -37,7 +37,7 @@ struct VertexShaderOutput
 	float4 Position : SV_POSITION;
 	float4 Normal : NORMAL0;
 	float2 TextureCoordinates : TEXCOORD0;
-	float3 Position3D : TEXCOORD1;
+	float4 Position3D : TEXCOORD1;
 };
 
 
@@ -63,12 +63,15 @@ VertexShaderOutput VS(in VertexShaderInput input)
 float4 PS(VertexShaderOutput input) : COLOR
 {
 	float4 col = tex2D(SpriteTextureSampler, input.TextureCoordinates);
+	float3 P = input.Position3D;
+	float3 L = normalize(LightPosition - P);
+	float3 N = normalize(input.Normal);
 
 	// simple diffuse.
-	float3 L = normalize(LightPosition - input.Position3D);
-	float3 N = normalize(input.Normal);
-	float LdotN = saturate( dot( N, L) );
-	col.rgb = col.rgb * LdotN + col.rgb * 0.1f;
+	float NdotL = max(0.0f, dot( N, L) );
+
+	//col.rgb = (col.rgb * NdotL) + (col.rgb * 0.1f);
+	col.rgb = NdotL;
 
 	return col;
 }

@@ -88,9 +88,9 @@ namespace ShaderExamples
 
 
             PrimitiveIndexedMesh.ShowOutput = false;
-            //mesh = new PrimitiveIndexedMesh(4,4, new Vector3(300f, 250, 0f ), true);
-            //mesh = new PrimitiveIndexedMesh(heightMap, 6, new Vector3( 300f, 250, 10f ), true);
-            mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), true);
+            //mesh = new PrimitiveIndexedMesh(4,4, new Vector3(300f, 250, 0f ), true, false);
+            //mesh = new PrimitiveIndexedMesh(heightMap, 6, new Vector3( 300f, 250, 10f ), true, false);
+            mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), true, false);
 
             CreateVisualMeshNormals(mesh, dotTexture2, 0.50f, 2.0f);
 

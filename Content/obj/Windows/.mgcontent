@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SourceFileCollection xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<SourceFileCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Profile>Reach</Profile>
   <Platform>Windows</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/SpecularLightEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Fonts/MgFont.spritefont</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Fonts/MgFont2.spritefont</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Fonts/MgFont3.spritefont</File>
@@ -14,6 +13,11 @@
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/blue-square-button-editted-md.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/clouds-heavy.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/cutePuppy.jpeg</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Flower-ambientocclusion.jpg</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Flower-bump.jpg</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Flower-diffuse.jpg</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Flower-normal.jpg</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Flower-reflectiveocclusion.jpg</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/gamma_correction_brightness.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/GeneratedSphere.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/GeneratedSphereBlue.png</File>
@@ -26,6 +30,7 @@
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/RefactionTexture.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Tanzania.jpg</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Terran02.png</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/TestNormalMap.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/TextureAlignmentTestImage2.jpg</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/wallnormmap.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/walltomap.png</File>
@@ -51,8 +56,61 @@
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/NormalMapEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/SimpleDirectDrawEffect.fx</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/SimpleDrawingWithMatriceEffect.fx</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/SpecularLightEffect.fx</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
   </DestFiles>
 </SourceFileCollection>

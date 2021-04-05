@@ -40,10 +40,10 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                 heightColorArray[i].R = 0;
                 heightColorArray[i].A = 0;
             }
-            CreatePrimitiveMesh(heightColorArray, 2, Vector3.Zero, false);
+            CreatePrimitiveMesh(heightColorArray, 2, Vector3.Zero, false, false);
             heightColorArray = new Color[0];
         }
-        public PrimitiveIndexedMesh(int subdivisionWidth, int subdividsionHeight, Vector3 scale, bool negateNormalDirection)
+        public PrimitiveIndexedMesh(int subdivisionWidth, int subdividsionHeight, Vector3 scale, bool negateNormalDirection, bool negateTangentDirection)
         {
             heightColorArray = new Color[subdivisionWidth * subdividsionHeight];
             for (int i = 0; i < subdivisionWidth * subdividsionHeight; i++)
@@ -51,7 +51,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                 heightColorArray[i].R = 0;
                 heightColorArray[i].A = 0;
             }
-            CreatePrimitiveMesh(heightColorArray, subdivisionWidth, scale, negateNormalDirection);
+            CreatePrimitiveMesh(heightColorArray, subdivisionWidth, scale, negateNormalDirection, negateTangentDirection);
             heightColorArray = new Color[0];
         }
 
@@ -63,11 +63,11 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                 heightColorArray[i].R = GetAvgHeightFromFloatAsByte(heightArray[i]);
                 heightColorArray[i].A = GetAvgHeightFromFloatAsByte(heightArray[i]);
             }
-            CreatePrimitiveMesh(heightColorArray, strideWidth, Vector3.Zero, false);
+            CreatePrimitiveMesh(heightColorArray, strideWidth, Vector3.Zero, false, false);
             heightColorArray = new Color[0];
         }
 
-        public PrimitiveIndexedMesh(float[] heightArray, int strideWidth, Vector3 scale, bool negateNormalDirection)
+        public PrimitiveIndexedMesh(float[] heightArray, int strideWidth, Vector3 scale, bool negateNormalDirection, bool negateTangentDirection)
         {
             heightColorArray = new Color[heightArray.Length];
             for (int i = 0; i < heightArray.Length; i++)
@@ -75,19 +75,19 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                 heightColorArray[i].R = GetAvgHeightFromFloatAsByte(heightArray[i]);
                 heightColorArray[i].A = GetAvgHeightFromFloatAsByte(heightArray[i]);
             }
-            CreatePrimitiveMesh(heightColorArray, strideWidth, scale, negateNormalDirection);
+            CreatePrimitiveMesh(heightColorArray, strideWidth, scale, negateNormalDirection, negateTangentDirection);
             heightColorArray = new Color[0];
         }
 
-        public PrimitiveIndexedMesh(Texture2D heightTexture, Vector3 scale, bool negateNormalDirection)
+        public PrimitiveIndexedMesh(Texture2D heightTexture, Vector3 scale, bool negateNormalDirection, bool negateTangentDirection)
         {
             Color[] heightColorArray = new Color[heightTexture.Width * heightTexture.Height];
             heightTexture.GetData<Color>(heightColorArray);
-            CreatePrimitiveMesh(heightColorArray, heightTexture.Width, scale, negateNormalDirection);
+            CreatePrimitiveMesh(heightColorArray, heightTexture.Width, scale, negateNormalDirection, negateTangentDirection);
             heightColorArray = new Color[0];
         }
 
-        public void CreatePrimitiveMesh(Color[] heighColorArray, int strideWidth, Vector3 scale, bool negateNormalDirection)
+        public void CreatePrimitiveMesh(Color[] heighColorArray, int strideWidth, Vector3 scale, bool negateNormalDirection, bool negateTangentDirection)
         {
             List<VertexPositionNormalTextureTangentWeights> VertexLists = new List<VertexPositionNormalTextureTangentWeights>();
             List<int> IndexLists = new List<int>();
@@ -164,7 +164,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                 else
                     v.Normal = Vector3.Normalize(v.Normal);
 
-                if (negateNormalDirection)
+                if (negateTangentDirection)
                     v.Tangent = -(Vector3.Normalize(v.Tangent));
                 else
                     v.Tangent = (Vector3.Normalize(v.Tangent));

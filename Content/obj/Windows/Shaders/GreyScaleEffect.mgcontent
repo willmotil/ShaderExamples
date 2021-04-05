@@ -3,7 +3,7 @@
   <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/GreyScaleEffect.fx</SourceFile>
   <SourceTime>2020-12-29T08:19:35.7255107-05:00</SourceTime>
   <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Shaders/GreyScaleEffect.xnb</DestFile>
-  <DestTime>2021-04-02T03:32:39.4624961-04:00</DestTime>
+  <DestTime>2021-04-04T19:48:49.1696426-04:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2020-05-27T15:15:40-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>

@@ -3,7 +3,7 @@
   <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/BarFillColorReplaceEffect.fx</SourceFile>
   <SourceTime>2021-01-17T10:04:19.0156285-05:00</SourceTime>
   <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Shaders/BarFillColorReplaceEffect.xnb</DestFile>
-  <DestTime>2021-04-02T03:32:37.5140255-04:00</DestTime>
+  <DestTime>2021-04-04T19:48:47.1584753-04:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2020-05-27T15:15:40-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>

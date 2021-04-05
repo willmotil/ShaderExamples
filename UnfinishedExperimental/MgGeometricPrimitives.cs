@@ -1111,14 +1111,14 @@ namespace Microsoft.Xna.Framework
         }
     }
 
-    public class Line
+    public class LineOld
     {
         VertexPositionColor[] vertices;
         int[] indices;
 
         public Vector3 camUp = Vector3.Up;
 
-        public Line(float linewidth, Color c, Vector3 start, Vector3 end)
+        public LineOld(float linewidth, Color c, Vector3 start, Vector3 end)
         {
             CreateLine(linewidth, c, start, end);
         }

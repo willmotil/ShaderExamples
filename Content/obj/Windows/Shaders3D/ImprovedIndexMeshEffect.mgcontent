@@ -3,7 +3,7 @@
   <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/ImprovedIndexMeshEffect.fx</SourceFile>
   <SourceTime>2021-03-30T22:33:39.2479704-04:00</SourceTime>
   <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Shaders3D/ImprovedIndexMeshEffect.xnb</DestFile>
-  <DestTime>2021-04-02T03:32:44.3643352-04:00</DestTime>
+  <DestTime>2021-04-04T19:48:54.1880581-04:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2020-05-27T15:15:40-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>

@@ -94,9 +94,9 @@ namespace ShaderExamples
             PrimitiveIndexedMesh.ShowOutput = false;
             PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_RED;
 
-            //mesh = new PrimitiveIndexedMesh(4,4, new Vector3(300f, 250, 0f ), false);
-            //mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3( 300f, 250, 70f ), false);
-            mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), false);
+            //mesh = new PrimitiveIndexedMesh(4,4, new Vector3(300f, 250, 0f ), false, false);
+            //mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3( 300f, 250, 70f ), false, false);
+            mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), false, false);
 
             CreateVisualMeshNormals(mesh, dotTexture2, 0.10f, 3.0f);
             CreateVisualLightNormal(dotTexture2, 2, 3000);

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/NormalMapEffect.fx</SourceFile>
-  <SourceTime>2021-04-04T00:14:49.8772561-04:00</SourceTime>
-  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Content/Shaders3D/NormalMapEffect.xnb</DestFile>
-  <DestTime>2021-04-04T01:07:49.9031192-04:00</DestTime>
+  <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/NormalMapEffect.fx</SourceFile>
+  <SourceTime>2021-04-03T23:21:40.5455418-04:00</SourceTime>
+  <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Content/Shaders3D/NormalMapEffect.xnb</DestFile>
+  <DestTime>2021-04-04T06:14:56.7726601-04:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2020-08-10T16:17:54-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>

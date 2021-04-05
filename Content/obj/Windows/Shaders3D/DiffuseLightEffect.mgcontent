@@ -3,7 +3,7 @@
   <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/DiffuseLightEffect.fx</SourceFile>
   <SourceTime>2021-03-31T20:43:24.5664151-04:00</SourceTime>
   <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Shaders3D/DiffuseLightEffect.xnb</DestFile>
-  <DestTime>2021-04-02T03:32:43.9411198-04:00</DestTime>
+  <DestTime>2021-04-04T19:48:53.7750237-04:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2020-05-27T15:15:40-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>

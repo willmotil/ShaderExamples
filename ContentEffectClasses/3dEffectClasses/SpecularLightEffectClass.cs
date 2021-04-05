@@ -24,18 +24,22 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
             Projection = Matrix.CreatePerspectiveFieldOfView(1, 1.33f, 1f, 10000f); // just something default;
             LightPosition = new Vector3(0, 0, 10000);
         }
+
         public static Effect GetEffect
         {
             get { return effect; }
         }
+
         public static string Technique
         {
             set { effect.CurrentTechnique = effect.Techniques[value]; }
         }
+
         public static Texture2D TextureDiffuse
         {
             set { effect.Parameters["TextureDiffuse"].SetValue(value); }
         }
+
         public static Texture2D TextureNormalMap
         {
             set { effect.Parameters["TextureNormalMap"].SetValue(value); }
@@ -45,23 +49,30 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
         {
             set { effect.Parameters["World"].SetValue(value); }
         }
+
         public static Matrix View
         {
             set { effect.Parameters["View"].SetValue(value); }
         }
+
         public static Matrix Projection
         {
             set { effect.Parameters["Projection"].SetValue(value); }
         }
 
-        public static float AmbientStrength
+        public static Vector3 CameraPosition
         {
-            set { effect.Parameters["AmbientStrength"].SetValue(value); }
+            set { effect.Parameters["CameraPosition"].SetValue(value); }
         }
 
         public static Vector3 LightPosition
         {
             set { effect.Parameters["LightPosition"].SetValue(value); }
+        }
+
+        public static float AmbientStrength
+        {
+            set { effect.Parameters["AmbientStrength"].SetValue(value); }
         }
 
         public static void InfoForCreateMethods()

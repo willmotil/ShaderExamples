@@ -9,6 +9,25 @@ namespace ShaderExamples
 {
     public class Game1_NormalMapping : Game
     {
+        /* Excerpt. https://dreamlight.com/how-to-create-normal-maps-from-photographs/
+         Normal maps use the three color channels R-red, G-green and B-blue to encode the X, Y and Z normal vector data in an 8-bit image.
+
+The R channel in the image ranges from 0 to 255 and represents the left to right direction. 
+        R = 0 corresponds to X = -1 pointing toward the left side of the image 
+        R = 255 corresponds to X = 1 pointing toward the right side of the image.
+
+Then the G channel in the image ranges from 0 to 255 and represents the bottom to top direction. 
+        G = 0 corresponds to Y = -1 pointing toward the bottom of the image 
+        G = 255 corresponds to Y = 1 pointing toward the top of the image.
+
+Finally the B channel in the image ranges from 128 to 255 
+        represents how far out the vector points toward the viewer. B = 128 corresponds to Z = 0  pointing along the same plane as the image 
+        B = 255 corresponds to Z = -1 pointing perpendicular to the image. 
+        The Z channel only uses half of the range, B = 128 to 255 and Z = 0 to -1 because the normal can only point between parallel to the image plane or perpendicular to the front of the image plane. 
+        The normal can’t go backward behind the image plane.
+         */
+
+
         bool rotateLight = true;
         bool displayMesh = true;
         bool displayWireframe = false;
@@ -108,13 +127,13 @@ namespace ShaderExamples
             PrimitiveIndexedMesh.ShowOutput = false;
             PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_HIGHEST; //PrimitiveIndexedMesh.AVERAGING_OPTION_USE_RED;
 
-            //mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(300f, 250, 0f), false);
+            //mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(300f, 250, 0f), false, false);
             //float thickness = .1f; float scale = 10f;
 
-            //mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3( 300f, 250, 70f ), false);
+            //mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3( 300f, 250, 70f ), false, false);
             //float thickness = .1f; float scale = 10f;
 
-            mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), false);
+            mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), false, false);
             float thickness = .01f; float scale = 1f;
 
             mesh.DiffuseTexture = dotTextureWhite; // texture;
