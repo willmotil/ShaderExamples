@@ -121,13 +121,24 @@ float SpecularBlinnPhong(float3 toViewer, float3 toLight, float3 normal, float s
 
 // My own old lighting geometry function. Slide values between 0 and 1 up or down depending on sharpness in a curved rate.
 // for specular you put it low you get a small spot, high you get a big spot, there can also be falloff if the value for sharpness is not 0 or 1.
-float SpecularCurveFit(float NdotH, float sharpness)
+//float SpecularCurveFit(float NdotH, float H float sharpness)
+//{
+//	float n = NdotH;
+//	float t = sharpness;
+//	float i = 1.0f - t;
+//	float b = ( (n - 1.0f) + n * 3.0f) * .5f;
+//	return (i * i) + b * 2.0f * (i * t) + (t * t);
+//}
+
+float SpecularCurveFit(float3 V, float3 L, float3 N, float sharpness)
 {
-	float n = NdotH;
+	float3 h = normalize(L + V);
+	float ndoth = saturate(dot(h, N));
 	float t = sharpness;
 	float i = 1.0f - t;
-	float b = ( (n - 1.0f) + n * 3.0f) * .5f;
-	return (i * i) + b * 2.0f * (i * t) + (t * t);
+	float b = ((ndoth - 1.0f) + ndoth * 3.0f) * 0.5f;
+	float ndotl = saturate(dot(L, N));
+	return ((i * i) + b * 2.0f * (i * t) + (t * t)) * ndotl;
 }
 
 float SpecularSharpener(float specular, float scalar)
@@ -215,11 +226,11 @@ float4 PS(VertexShaderOutput input) : COLOR
 	// simple diffuse.
 
 	// specular.
-	float sp= SpecularPhong(V, L, N, 50.0f);
-	float sbp = SpecularBlinnPhong(V, L, N, 50.0f);
-	float sm = SpecularCurveFit(NdotH, 0.5f);
+	float sp= SpecularPhong(V, L, N, 100.0f);
+	float sbp = SpecularBlinnPhong(V, L, N, 100.0f);
+	float sm = SpecularCurveFit(V, L, N, 0.3f);
 
-	float spec = sp;
+	float spec = sm;
 
 	// combine.
 	col.rgb = (col.rgb * AmbientStrength) + (col.rgb * spec * 0.60f) +(col.rgb * NdotL * NdotL * 0.60f);
