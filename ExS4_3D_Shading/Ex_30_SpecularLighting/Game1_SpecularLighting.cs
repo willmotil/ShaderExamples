@@ -92,8 +92,8 @@ namespace ShaderExamples
 
             Content.RootDirectory = @"Content/Images";
             textureMonogameLogo = Content.Load<Texture2D>("MG_Logo_Modifyed");
-            textureSphere = Content.Load<Texture2D>("Flower-diffuse");
-            textureNormalMapSphere = Content.Load<Texture2D>("Flower-normal");
+            textureSphere = Content.Load<Texture2D>("walltomap");
+            textureNormalMapSphere = Content.Load<Texture2D>("wallnormmap");
             texture = Content.Load<Texture2D>("TestNormalMap");
             textureNormalMap = Content.Load<Texture2D>("TestNormalMap");
             //texture = Content.Load<Texture2D>("wallnormmap");
