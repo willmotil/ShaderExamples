@@ -55,9 +55,9 @@ namespace ShaderExamples //.ExampleSupportClasses
         {
             // Use the arrow keys to alter the camera position.
             if (Keyboard.GetState().IsKeyDown(Keys.Left))
-                cameraWorld.Translation += cameraWorld.Right * speed;
-            if (Keyboard.GetState().IsKeyDown(Keys.Right))
                 cameraWorld.Translation += cameraWorld.Right * -speed;
+            if (Keyboard.GetState().IsKeyDown(Keys.Right))
+                cameraWorld.Translation += cameraWorld.Right * +speed;
             if (Keyboard.GetState().IsKeyDown(Keys.Up))
                 cameraWorld.Translation += cameraWorld.Up * +speed;
             if (Keyboard.GetState().IsKeyDown(Keys.Down))

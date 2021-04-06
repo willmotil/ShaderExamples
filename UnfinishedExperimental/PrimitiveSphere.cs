@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Microsoft.Xna.Framework
+namespace ShaderExamples //Microsoft.Xna.Framework
 {
     //
     // there we go or not the spacing is off needs fixed.
@@ -37,25 +37,81 @@ namespace Microsoft.Xna.Framework
         public static Matrix matrixPositiveY = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 1.0f, 0), Vector3.Backward);
         public static Matrix matrixNegativeY = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, -1.0f, 0), Vector3.Forward);
 
-        public VertexPositionNormalTexture[] cubesFaceVertices;
+        public VertexPositionNormalTextureTangentWeights[] cubesFaceVertices;
         public int[] cubesFacesIndices;
 
-        public PrimitiveSphere()
-        {
-            CreatePrimitiveSphere(0, 0, 1f, false, true, true, null, 1f);
-        }
+        //public PrimitiveSphere()
+        //{
+        //    CreatePrimitiveSphere(0, 0, 1f, false, true, true, null, 1f, false, false);
+        //}
 
         public PrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces)
         {
-            CreatePrimitiveSphere(subdivisionWidth, subdividsionHeight, scale, clockwise, invert, flatFaces, null, 1f);
+            CreatePrimitiveSphere(subdivisionWidth, subdividsionHeight, scale, clockwise, invert, flatFaces, null, 1f, false, false);
         }
 
         public PrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces, Texture2D heightMap, float dataScalar)
         {
-            CreatePrimitiveSphere(subdivisionWidth, subdividsionHeight, scale, clockwise, invert, flatFaces, heightMap, dataScalar);
+            CreatePrimitiveSphere(subdivisionWidth, subdividsionHeight, scale, clockwise, invert, flatFaces, heightMap, dataScalar, false, false);
         }
 
-        public void CreatePrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces, Texture2D heightMap, float dataScalar)
+        public PrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces, bool negateNormalDirection, bool negateTangentDirection)
+        {
+            CreatePrimitiveSphere(subdivisionWidth, subdividsionHeight, scale, clockwise, invert, flatFaces, null, 1f, negateNormalDirection, negateTangentDirection);
+        }
+
+        public PrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces, Texture2D heightMap, float dataScalar, bool negateNormalDirection, bool negateTangentDirection)
+        {
+            CreatePrimitiveSphere(subdivisionWidth, subdividsionHeight, scale, clockwise, invert, flatFaces, heightMap, dataScalar, negateNormalDirection, negateTangentDirection);
+        }
+
+        public void CreatePrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces, Texture2D heightMap, float dataScalar, bool negateNormalDirection, bool negateTangentDirection)
+        {
+            List<VertexPositionNormalTextureTangentWeights> cubesFaceMeshVertList = new List<VertexPositionNormalTextureTangentWeights>();
+            List<int> cubeFaceMeshIndexList = new List<int>();
+
+            if (subdivisionWidth < 2)
+                subdivisionWidth = 2;
+            if (subdividsionHeight < 2)
+                subdividsionHeight = 2;
+
+            var quadsPerFace = ((subdivisionWidth - 1) * (subdividsionHeight - 1));
+            var quadsTotal = quadsPerFace * 6;
+            System.Console.WriteLine($"\n Expected ...   quads per face {quadsPerFace}   quadsTotal {quadsTotal} ");
+
+            CreateInitialVertices( cubesFaceMeshVertList, subdivisionWidth, subdividsionHeight, scale, clockwise, invert, flatFaces, heightMap, dataScalar);
+
+            CreateIndices( cubeFaceMeshIndexList, subdivisionWidth, subdividsionHeight);
+
+            CreateTangents( cubesFaceMeshVertList, cubeFaceMeshIndexList, subdivisionWidth, subdividsionHeight, negateNormalDirection, negateTangentDirection);
+
+            cubesFaceVertices = cubesFaceMeshVertList.ToArray();
+            cubesFacesIndices = cubeFaceMeshIndexList.ToArray();
+        }
+
+        bool HasInvalidValues(Vector3 v)
+        {
+            return IsNan(v) || IsInfinity(v);
+        }
+        bool IsNan(Vector3 v)
+        {
+            return float.IsNaN(v.X) || float.IsNaN(v.Y) || float.IsNaN(v.Z);
+        }
+        bool IsInfinity(Vector3 v)
+        {
+            return float.IsInfinity(v.X) || float.IsInfinity(v.Y) || float.IsInfinity(v.Z);
+        }
+
+        float NormalIdentity(Vector3 v)
+        {
+            var d = v.X * v.X + v.Y * v.Y + v.Z * v.Z;
+            if (d > .9999f && d < 1.0001f)
+                return 1.0f;
+            else
+                return d;
+        }
+
+        private void CreateInitialVertices(List<VertexPositionNormalTextureTangentWeights> cubesFaceMeshVertsLists, int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces, Texture2D heightMap, float dataScalar)
         {
             bool hasHeightMapdata = false;
             Color[] heightdata = new Color[0];
@@ -64,14 +120,6 @@ namespace Microsoft.Xna.Framework
                 hasHeightMapdata = true;
                 heightdata = GetSphericalTextureHeightMapData(heightMap);
             }
-
-            List<VertexPositionNormalTexture> cubesFaceMeshLists = new List<VertexPositionNormalTexture>();
-            List<int> cubeFaceMeshIndexLists = new List<int>();
-
-            if (subdivisionWidth < 2)
-                subdivisionWidth = 2;
-            if (subdividsionHeight < 2)
-                subdividsionHeight = 2;
 
             float depth = scale;
             if (invert)
@@ -82,7 +130,6 @@ namespace Microsoft.Xna.Framework
             float top = -1f;
             float bottom = 1f;
 
-            int v = 0;
             for (int faceIndex = 0; faceIndex < 6; faceIndex++)
             {
                 if (showOutput)
@@ -99,7 +146,7 @@ namespace Microsoft.Xna.Framework
 
                         var p0 = new Vector3(X * scale, Y * scale, depth);
                         var uv0 = new Vector2(perX, perY);
-                        VertexPositionNormalTexture v0;
+                        VertexPositionNormalTextureTangentWeights v0;
                         if (hasHeightMapdata)
                             v0 = GetVertice(p0, faceIndex, flatFaces, depth, uv0, heightdata, dataScalar, heightMap.Width, heightMap.Height);
                         else
@@ -108,21 +155,21 @@ namespace Microsoft.Xna.Framework
                         if (showOutput)
                             System.Console.WriteLine("v0: " + v0);
 
-                        cubesFaceMeshLists.Add(v0);
-                        v += 1;
+                        cubesFaceMeshVertsLists.Add(v0);
                     }
                 }
-                if (showOutput)
-                    System.Console.WriteLine(" faceIndex: " + faceIndex + " v " + v);
             }
+            System.Console.WriteLine($"\n  totalVertices.Count: {cubesFaceMeshVertsLists.Count} ");
+        }
 
+        private void CreateIndices(List<int> cubeFaceMeshIndexLists, int subdivisionWidth, int subdividsionHeight)
+        {
             int faceOffset = 0;
             for (int faceIndex = 0; faceIndex < 6; faceIndex++)
             {
                 if (showOutput)
                     System.Console.WriteLine("\n  faceIndex: " + faceIndex);
                 faceOffset = faceIndex * (subdividsionHeight * subdivisionWidth);
-
                 for (int y = 0; y < subdividsionHeight - 1; y++)
                 {
                     for (int x = 0; x < subdivisionWidth - 1; x++)
@@ -143,22 +190,98 @@ namespace Microsoft.Xna.Framework
                         cubeFaceMeshIndexLists.Add(tl);
 
                         if (showOutput)
-                        {
-                            System.Console.WriteLine();
-                            System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + tl + "] " + "  vert " + cubesFaceMeshLists[tl]);
-                            System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + bl + "] " + "  vert " + cubesFaceMeshLists[bl]);
-                            System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + br + "] " + "  vert " + cubesFaceMeshLists[br]);
-
-                            System.Console.WriteLine();
-                            System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + br + "] " + "  vert " + cubesFaceMeshLists[br]);
-                            System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + tr + "] " + "  vert " + cubesFaceMeshLists[tr]);
-                            System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + tl + "] " + "  vert " + cubesFaceMeshLists[tl]);
-                        }
+                            Output(faceIndex, cubeFaceMeshIndexLists, tl, bl, br, tr);
                     }
                 }
             }
-            cubesFaceVertices = cubesFaceMeshLists.ToArray();
-            cubesFacesIndices = cubeFaceMeshIndexLists.ToArray();
+            System.Console.WriteLine($"\n  cubeFaceMeshIndexLists: {cubeFaceMeshIndexLists.Count}    count/6: {cubeFaceMeshIndexLists.Count/6}");
+        }
+
+        private void CreateTangents( List<VertexPositionNormalTextureTangentWeights> cubesFaceMeshVertLists, List<int> cubeFaceMeshIndexLists, int subdivisionWidth, int subdividsionHeight, bool negateNormalDirection, bool negateTangentDirection)
+        {
+            int faceOffset = 0;
+            for (int faceIndex = 0; faceIndex < 6; faceIndex++)
+            {
+                Console.WriteLine($"faceIndex {faceIndex}");
+                faceOffset = faceIndex * (subdividsionHeight * subdivisionWidth);
+                for (int y = 0; y < subdividsionHeight-1; y++)
+                {
+                    Console.WriteLine($"faceIndex {faceIndex} Y index {y}");
+                    for (int x = 0; x < subdivisionWidth; x++)
+                    {
+                        var faceVerticeOffset = subdivisionWidth * y + x + faceOffset;
+                        var tl = faceVerticeOffset;
+                        var bl = faceVerticeOffset + subdivisionWidth;
+
+                        var vTL = cubesFaceMeshVertLists[tl];
+                        var vBL = cubesFaceMeshVertLists[bl];
+
+                        var t = Vector3.Normalize(vTL.Position - vBL.Position);
+
+                        vTL.Tangent += t;
+                        vBL.Tangent += t;
+
+                        cubesFaceMeshVertLists[tl] = vTL;
+                        cubesFaceMeshVertLists[bl] = vBL;
+
+                        Console.WriteLine($"OO y [{y}] x [{x}]  faceOffset {faceOffset}  faceVerticeOffset {faceVerticeOffset}   tl {tl} bl {bl}    tangent    vTL{cubesFaceMeshVertLists[tl].Tangent} {NormalIdentity(cubesFaceMeshVertLists[tl].Tangent)}       vBL{cubesFaceMeshVertLists[bl].Tangent}  {NormalIdentity(cubesFaceMeshVertLists[bl].Tangent)}   ");
+                    }
+                }
+            }
+
+
+            //if (HasInvalidValues(vBL.Tangent) || HasInvalidValues(vTL.Tangent) || vBL.Tangent == Vector3.Zero || vTL.Tangent == Vector3.Zero)
+            //{
+            //    Console.WriteLine($"faceVerticeOffset {faceVerticeOffset} vTL.Tangent{vTL.Tangent} vBL.Tangent{vBL.Tangent}  ");
+            //}
+
+            // smooth out tangents and normals.
+            // vector addition normals and tangents normalized.
+            for (int curvert = 0; curvert < cubesFaceMeshVertLists.Count; curvert++)
+            {
+                var v = cubesFaceMeshVertLists[curvert];
+
+                if (negateNormalDirection)
+                    v.Normal = -(Vector3.Normalize(v.Normal));
+                else
+                    v.Normal = Vector3.Normalize(v.Normal);
+
+                if (negateTangentDirection)
+                    v.Tangent = -(Vector3.Normalize(v.Tangent));
+                else
+                    v.Tangent = (Vector3.Normalize(v.Tangent));
+
+                //var bitan = Vector3.Cross(v.Normal, v.Tangent);
+                //v.Tangent = Vector3.Cross(v.Normal, bitan);
+
+                if (HasInvalidValues(v.Tangent) || v.Tangent == Vector3.Zero)
+                    System.Diagnostics.Debug.Assert(HasInvalidValues(v.Tangent), $"Tnagent Inf or Nan  PrimitiveSphere.CreateTangents() vertice {curvert}");
+
+                cubesFaceMeshVertLists[curvert] = v;
+            }
+
+            faceOffset = 0;
+            for (int faceIndex = 0; faceIndex < 6; faceIndex++)
+            {
+                Console.WriteLine($"faceIndex {faceIndex}");
+                faceOffset = faceIndex * (subdividsionHeight * subdivisionWidth);
+                for (int y = 0; y < subdividsionHeight; y++)
+                {
+                    Console.WriteLine($"faceIndex {faceIndex} Y {y}");
+                    for (int x = 0; x < subdivisionWidth; x++)
+                    {
+                        var faceVerticeOffset = subdivisionWidth * y + x + faceOffset;
+
+                        var v = cubesFaceMeshVertLists[faceVerticeOffset];
+
+                        if (HasInvalidValues(v.Tangent) || v.Tangent == Vector3.Zero)
+                            Console.WriteLine($"XXXXX  y [{y}] x [{x}]  current vert {faceVerticeOffset}      v.tan  {v.Tangent}  {NormalIdentity(v.Tangent)} ");
+                        else
+                            Console.WriteLine($">>       y [{y}] x [{x}]  current vert {faceVerticeOffset}     v.tan  {v.Tangent}  {NormalIdentity(v.Tangent)}");
+                    }
+                }
+            }
+
         }
 
         public static Matrix GetWorldFaceMatrix(int i)
@@ -194,15 +317,15 @@ namespace Microsoft.Xna.Framework
                 return ((B - A) * t) + A;
         }
 
-        private VertexPositionNormalTexture GetVertice(Vector3 v, int faceIndex, bool flatFaces, float depth, Vector2 uv)
+        private VertexPositionNormalTextureTangentWeights GetVertice(Vector3 v, int faceIndex, bool flatFaces, float depth, Vector2 uv)
         {
             var v2 = Vector3.Transform(v, GetWorldFaceMatrix(faceIndex));
             var n = Vector3.Normalize(v2);
             v2 = n * depth;
-            return new VertexPositionNormalTexture(v2, FlatFaceOrDirectional(v, faceIndex, flatFaces, depth), uv);
+            return new VertexPositionNormalTextureTangentWeights(v2, FlatFaceOrDirectional(v, faceIndex, flatFaces, depth), uv, Vector3.Zero, Color.Transparent, new Color(1,0,0,0) );
         }
 
-        private VertexPositionNormalTexture GetVertice(Vector3 v, int faceIndex, bool flatFaces, float depth, Vector2 uv, Color[] heightData, float dataScalar, int width, int height)
+        private VertexPositionNormalTextureTangentWeights GetVertice(Vector3 v, int faceIndex, bool flatFaces, float depth, Vector2 uv, Color[] heightData, float dataScalar, int width, int height)
         {
             var v2 = Vector3.Transform(v, GetWorldFaceMatrix(faceIndex));
             var n = Vector3.Normalize(v2);
@@ -216,18 +339,18 @@ namespace Microsoft.Xna.Framework
             //mapDepth = 1.0f;
 
             v2 = n * (depth + mapDepth);
-            return new VertexPositionNormalTexture(v2, FlatFaceOrDirectional(v2, faceIndex, flatFaces, depth), uv);
+            return new VertexPositionNormalTextureTangentWeights(v2, FlatFaceOrDirectional(v2, faceIndex, flatFaces, depth), uv, Vector3.Zero, Color.Transparent, new Color(1, 0, 0, 0));
         }
 
         private Vector3 FlatFaceOrDirectional(Vector3 v, int faceIndex, bool flatFaces, float depth)
         {
-            if (flatFaces == true)
+            if (flatFaces)
                 v = new Vector3(0, 0, depth);
             v = Vector3.Normalize(v);
             return Vector3.Transform(v, GetWorldFaceMatrix(faceIndex));
         }
 
-        public Color[] GetSphericalTextureHeightMapData(Texture2D texturemap)
+        private Color[] GetSphericalTextureHeightMapData(Texture2D texturemap)
         {
             var data = new Color[texturemap.Width * texturemap.Height];
             texturemap.GetData<Color>(data);
@@ -236,7 +359,7 @@ namespace Microsoft.Xna.Framework
 
         // https://en.wikipedia.org/wiki/List_of_common_coordinate_transformations
 
-        Vector2 NormalTo2dSphericalUvCoordinates(Vector3 normal)
+        private Vector2 NormalTo2dSphericalUvCoordinates(Vector3 normal)
         {
             Vector2 uv = new Vector2(Atan2Xna(-normal.Z, normal.X, true), (float)Math.Asin(normal.Y));
             Vector2 INVERT_ATAN = new Vector2(0.1591f, 0.3183f);
@@ -244,7 +367,7 @@ namespace Microsoft.Xna.Framework
             return uv;
         }
 
-        //Vector2 CubeMapNormalTo2dEquaRectangularMapUvCoordinatesAlt(Vector3 v)
+        //private Vector2 CubeMapNormalTo2dEquaRectangularMapUvCoordinatesAlt(Vector3 v)
         //{
         //    float pi = 3.141592653589793f;
         //    Vector3 n = Vector3.Normalize(v);
@@ -254,7 +377,7 @@ namespace Microsoft.Xna.Framework
         //    return new Vector2(sphereCoords.X * 0.5f + 0.5f, sphereCoords.Y);
         //}
 
-        Vector2 CubeMapNormalTo2dEquaRectangularMapUvCoordinatesAlt(Vector3 v)
+        private Vector2 CubeMapNormalTo2dEquaRectangularMapUvCoordinatesAlt(Vector3 v)
         {
             float pi = 3.141592653589793f;
             Vector3 n = Vector3.Normalize(v);
@@ -272,12 +395,25 @@ namespace Microsoft.Xna.Framework
                 return (float)System.Math.Atan2(difx, dify);
         }
 
+        public void Output(int faceIndex, List<int> meshIndexes, int tl, int bl, int br, int tr)
+        {
+            System.Console.WriteLine();
+            System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + tl + "] " + "  vert " + meshIndexes[tl]);
+            System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + bl + "] " + "  vert " + meshIndexes[bl]);
+            System.Console.WriteLine("t0  face" + faceIndex + " cubeFaceMeshIndexLists [" + br + "] " + "  vert " + meshIndexes[br]);
+
+            System.Console.WriteLine();
+            System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + br + "] " + "  vert " + meshIndexes[br]);
+            System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + tr + "] " + "  vert " + meshIndexes[tr]);
+            System.Console.WriteLine("t1  face" + faceIndex + " cubeFaceMeshIndexLists [" + tl + "] " + "  vert " + meshIndexes[tl]);
+        }
+
         public void DrawPrimitiveSphere(GraphicsDevice gd, Effect effect)
         {
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
-                gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, cubesFaceVertices, 0, cubesFaceVertices.Length, cubesFacesIndices, 0, cubesFacesIndices.Length / 3, VertexPositionNormalTexture.VertexDeclaration);
+                gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, cubesFaceVertices, 0, cubesFaceVertices.Length, cubesFacesIndices, 0, cubesFacesIndices.Length / 3, VertexPositionNormalTextureTangentWeights.VertexDeclaration);
             }
         }
 
@@ -287,7 +423,7 @@ namespace Microsoft.Xna.Framework
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
-                gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, cubesFaceVertices, 0, cubesFaceVertices.Length, cubesFacesIndices, 0, cubesFacesIndices.Length / 3, VertexPositionNormalTexture.VertexDeclaration);
+                gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, cubesFaceVertices, 0, cubesFaceVertices.Length, cubesFacesIndices, 0, cubesFacesIndices.Length / 3, VertexPositionNormalTextureTangentWeights.VertexDeclaration);
             }
         }
 
@@ -297,7 +433,7 @@ namespace Microsoft.Xna.Framework
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
-                gd.DrawUserPrimitives(PrimitiveType.TriangleList, cubesFaceVertices, cubeFaceToRender * 6, 2, VertexPositionNormalTexture.VertexDeclaration);
+                gd.DrawUserPrimitives(PrimitiveType.TriangleList, cubesFaceVertices, cubeFaceToRender * 6, 2, VertexPositionNormalTextureTangentWeights.VertexDeclaration);
             }
         }
 

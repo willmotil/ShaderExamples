@@ -23,6 +23,9 @@ namespace ShaderExamples
         SpriteFont font3;
         Texture2D texture; 
         Texture2D textureNormalMap;
+        Texture2D textureSphere;
+        Texture2D textureNormalMapSphere;
+        Texture2D textureMonogameLogo;
         Texture2D dotTextureRed;
         Texture2D dotTextureBlue;
         Texture2D dotTextureGreen;
@@ -35,9 +38,9 @@ namespace ShaderExamples
         VisualizationNormals visualTangents = new VisualizationNormals();
         VisualizationLine visualLightNormal = new VisualizationLine();
 
-        PrimitiveSphere sphere = new PrimitiveSphere();
+        PrimitiveSphere sphere;
         VisualizationNormals visualSphereNormals = new VisualizationNormals();
-
+        VisualizationNormals visualSphereTangents = new VisualizationNormals();
 
         float[] heightMap = new float[]
         {
@@ -87,12 +90,15 @@ namespace ShaderExamples
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             Content.RootDirectory = @"Content/Images";
-            //texture = Content.Load<Texture2D>("TestNormalMap");
-            //textureNormalMap = Content.Load<Texture2D>("TestNormalMap");
+            textureMonogameLogo = Content.Load<Texture2D>("MG_Logo_Modifyed");
+            textureSphere = Content.Load<Texture2D>("TestNormalMap");
+            textureNormalMapSphere = Content.Load<Texture2D>("TestNormalMap");
+            texture = Content.Load<Texture2D>("TestNormalMap");
+            textureNormalMap = Content.Load<Texture2D>("TestNormalMap");
+            //texture = Content.Load<Texture2D>("wallnormmap");
+            //textureNormalMap = Content.Load<Texture2D>("wallnormmap");
             //texture = Content.Load<Texture2D>("Flower-normal");
             //textureNormalMap = Content.Load<Texture2D>("Flower-normal");
-            texture = Content.Load<Texture2D>("wallnormmap");
-            textureNormalMap = Content.Load<Texture2D>("wallnormmap");
             //texture = Content.Load<Texture2D>("RefactionTexture");
             //textureNormalMap = Content.Load<Texture2D>("RefactionTexture");
             //textureNormalMap = Content.Load<Texture2D>("RefactionTexture"); // with the opposite encoding    walltomap wallnormmap  Flower-normal , Flower-diffuse  Flower-bump  Flower-ambientocclusion
@@ -120,13 +126,6 @@ namespace ShaderExamples
             SpecularLightEffectClass.CameraPosition = cam.cameraWorld.Translation;
 
 
-            DiffuseLightEffectClass.Load(Content);
-            DiffuseLightEffectClass.SpriteTexture = dotTextureWhite;
-            DiffuseLightEffectClass.View = cam.view;
-            DiffuseLightEffectClass.Projection = cam.projection;
-            DiffuseLightEffectClass.LightPosition = lightStartPosition;
-
-
             PrimitiveIndexedMesh.ShowOutput = false;
             PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_HIGHEST; //PrimitiveIndexedMesh.AVERAGING_OPTION_USE_RED;
 
@@ -148,6 +147,7 @@ namespace ShaderExamples
 
             sphere = new PrimitiveSphere(10, 10, 50, false, false, false);
             CreateVisualSphereNormals(sphere, dotTextureGreen, thickness, scale);
+            CreateVisualSphereTangents(sphere, dotTextureYellow, thickness, scale/5);
 
         }
 
@@ -183,6 +183,15 @@ namespace ShaderExamples
                 tmp[i] = new VertexPositionNormalTexture() { Position = sphere.cubesFaceVertices[i].Position, Normal = sphere.cubesFaceVertices[i].Normal, TextureCoordinate = sphere.cubesFaceVertices[i].TextureCoordinate };
             visualSphereNormals.CreateVisualNormalsForPrimitiveMesh(tmp, sphere.cubesFacesIndices, texture, thickness, scale);
             visualSphereNormals.SetUpBasicEffect(GraphicsDevice, texture, cam.view, cam.projection);
+        }
+
+        public void CreateVisualSphereTangents(PrimitiveSphere sphere, Texture2D texture, float thickness, float scale)
+        {
+            VertexPositionNormalTexture[] tmp = new VertexPositionNormalTexture[sphere.cubesFaceVertices.Length];
+            for (int i = 0; i < sphere.cubesFaceVertices.Length; i++)
+                tmp[i] = new VertexPositionNormalTexture() { Position = sphere.cubesFaceVertices[i].Position, Normal = sphere.cubesFaceVertices[i].Tangent, TextureCoordinate = sphere.cubesFaceVertices[i].TextureCoordinate };
+            visualSphereTangents.CreateVisualNormalsForPrimitiveMesh(tmp, sphere.cubesFacesIndices, texture, thickness, scale);
+            visualSphereTangents.SetUpBasicEffect(GraphicsDevice, texture, cam.view, cam.projection);
         }
 
         protected override void UnloadContent()
@@ -274,6 +283,7 @@ namespace ShaderExamples
 
             DrawSphere();
             DrawNormalsForSphere();
+            DrawTangentsForSphere();
 
 
             DrawSpriteBatches(gameTime);
@@ -330,12 +340,10 @@ namespace ShaderExamples
 
         public void DrawSphere()
         {
-            //DiffuseLightEffectClass.SpriteTexture = dotTextureWhite;
-            DiffuseLightEffectClass.LightPosition = lightPosition;
-            DiffuseLightEffectClass.World = Matrix.CreateTranslation(new Vector3(0, 0, -50));
-            DiffuseLightEffectClass.View = cam.view;
-            DiffuseLightEffectClass.Projection = cam.projection;
-            sphere.DrawPrimitiveSphere(GraphicsDevice, DiffuseLightEffectClass.effect);
+            SpecularLightEffectClass.TextureDiffuse = textureSphere;
+            SpecularLightEffectClass.TextureNormalMap = textureNormalMapSphere;
+            SpecularLightEffectClass.World = Matrix.CreateTranslation(new Vector3(0, 0, -50));
+            sphere.DrawPrimitiveSphere(GraphicsDevice, SpecularLightEffectClass.effect);
         }
 
         public void DrawNormalsForSphere()
@@ -344,6 +352,13 @@ namespace ShaderExamples
             visualSphereNormals.View = cam.view;
             visualSphereNormals.Projection = cam.projection;
             visualSphereNormals.Draw(GraphicsDevice);
+        }
+        public void DrawTangentsForSphere()
+        {
+            visualSphereTangents.World = Matrix.CreateTranslation(new Vector3(0, 0, -50));
+            visualSphereTangents.View = cam.view;
+            visualSphereTangents.Projection = cam.projection;
+            visualSphereTangents.Draw(GraphicsDevice);
         }
 
         public void DrawSpriteBatches(GameTime gameTime)
