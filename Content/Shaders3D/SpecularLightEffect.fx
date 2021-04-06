@@ -102,20 +102,21 @@ float3 GammaToLinear(float3 gammaColor)
 	return pow(gammaColor, 2.2f);
 }
 
-float SpecularBlinnPhong(float3 pos, float3 lightDir, float shininess, float3 normal)
+// to viewer can be   pos   or  v   aka  cam - pixel
+float SpecularPhong(float3 toViewer, float3 toLight, float3 normal, float shininess)
 {
-	float3 viewDir = normalize(-pos);
-	float3 halfDir = normalize(lightDir + viewDir);
-	float specAngle = max(dot(halfDir, normal), 0.0f);
-	return pow(specAngle, shininess);
+	float3 viewDir = normalize(-toViewer);
+	float3 reflectDir = reflect(toLight, normal);
+	float b = max(dot(reflectDir, viewDir), 0.0f);
+	return pow(b, shininess / 4.0f); // note that the exponent is different here
 }
 
-float SpecularPhong(float3 pos, float3 lightDir, float shininess, float3 normal)
+float SpecularBlinnPhong(float3 toViewer, float3 toLight, float3 normal, float shininess)
 {
-	float3 viewDir = normalize(-pos);
-	float3 reflectDir = reflect(-lightDir, normal);
-	float specAngle = max(dot(reflectDir, viewDir), 0.0f);
-	return pow(specAngle, shininess / 4.0f); // note that the exponent is different here
+	toViewer = normalize(toViewer);
+	float3 halfnorm = normalize(toLight + toViewer);
+	float cosb = max(dot(normal, halfnorm), 0.0f);
+	return pow(cosb, shininess);
 }
 
 // My own old lighting geometry function. Slide values between 0 and 1 up or down depending on sharpness in a curved rate.
@@ -214,18 +215,15 @@ float4 PS(VertexShaderOutput input) : COLOR
 	// simple diffuse.
 
 	// specular.
-	float sbp = SpecularBlinnPhong( P, L, 50.0f , N);
-	float sp= SpecularPhong(P, L, 50.0f, N);
+	float sp= SpecularPhong(V, L, N, 50.0f);
+	float sbp = SpecularBlinnPhong(V, L, N, 50.0f);
 	float sm = SpecularCurveFit(NdotH, 0.5f);
 
+	float spec = sp;
+
 	// combine.
-	//col.rgb = (col.rgb * AmbientStrength) +(col.rgb * NdotL * (1.0f - AmbientStrength));
-	//col.rgb = (col.rgb * AmbientStrength) + (col.rgb * specular * 0.90f) +(col.rgb * NdotL * 0.10f);
-	col.rgb = (col.rgb * 0.1f);
-	col.b += NdotL * NdotL * 0.5f;
-	col.r += sbp * 0.5f;
-	//col.r += sp * 0.5f;
-	//col.r += sm * 0.5f;
+	col.rgb = (col.rgb * AmbientStrength) + (col.rgb * spec * 0.60f) +(col.rgb * NdotL * NdotL * 0.60f);
+	//col.r += spec * 0.6f;
 	return col;
 }
 

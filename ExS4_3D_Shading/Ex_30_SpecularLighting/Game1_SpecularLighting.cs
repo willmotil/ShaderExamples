@@ -9,7 +9,7 @@ namespace ShaderExamples
 {
     public class Game1_SpecularLighting : Game
     {
-        bool rotateLight = true;
+        bool manuallyRotateLight = false;
         bool displayMesh = true;
         bool displayWireframe = false;
         bool displayNormals = true;
@@ -36,7 +36,8 @@ namespace ShaderExamples
         PrimitiveIndexedMesh mesh;
         VisualizationNormals visualNormals = new VisualizationNormals();
         VisualizationNormals visualTangents = new VisualizationNormals();
-        VisualizationLine visualLightNormal = new VisualizationLine();
+        VisualizationLine visualLightLineToMesh = new VisualizationLine();
+        VisualizationLine visualLightLineToSphere = new VisualizationLine();
 
         PrimitiveSphere sphere;
         VisualizationNormals visualSphereNormals = new VisualizationNormals();
@@ -55,13 +56,13 @@ namespace ShaderExamples
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
         };
 
-        Vector3 lightStartPosition = new Vector3(1, 800, -300);
+        Vector3 lightStartPosition = new Vector3(150, 1, 300); // new Vector3(1, 800, 300)
         Vector3 lightPosition = new Vector3(0, 0, 0);
         Matrix lightTransform = Matrix.Identity;
         float lightRotationRadians = 0f;
         Vector3 meshDimensions = new Vector3(300f, 250,0);
         Vector3 meshCenter = new Vector3(150,125,0);
-
+        Vector3 sphereCenter = new Vector3(0, 0, -50);
 
         public Game1_SpecularLighting()
         {
@@ -69,7 +70,7 @@ namespace ShaderExamples
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
             Content.RootDirectory = "Content";
             Window.AllowUserResizing = true;
-            Window.Title = " ex Normal Mapping with Diffuse lighting ";
+            Window.Title = " ex Normal Mapping with Diffuse and Specular lighting ";
             IsMouseVisible = true;
             Window.ClientSizeChanged += OnResize;
         }
@@ -91,13 +92,13 @@ namespace ShaderExamples
 
             Content.RootDirectory = @"Content/Images";
             textureMonogameLogo = Content.Load<Texture2D>("MG_Logo_Modifyed");
-            textureSphere = Content.Load<Texture2D>("TestNormalMap");
-            textureNormalMapSphere = Content.Load<Texture2D>("TestNormalMap");
+            textureSphere = Content.Load<Texture2D>("Flower-diffuse");
+            textureNormalMapSphere = Content.Load<Texture2D>("Flower-normal");
             texture = Content.Load<Texture2D>("TestNormalMap");
             textureNormalMap = Content.Load<Texture2D>("TestNormalMap");
             //texture = Content.Load<Texture2D>("wallnormmap");
             //textureNormalMap = Content.Load<Texture2D>("wallnormmap");
-            //texture = Content.Load<Texture2D>("Flower-normal");
+            //texture = Content.Load<Texture2D>("Flower-diffuse");
             //textureNormalMap = Content.Load<Texture2D>("Flower-normal");
             //texture = Content.Load<Texture2D>("RefactionTexture");
             //textureNormalMap = Content.Load<Texture2D>("RefactionTexture");
@@ -143,11 +144,12 @@ namespace ShaderExamples
 
             CreateVisualMeshNormals(mesh, dotTextureGreen, thickness, scale);  // .6  3
             CreateVisualMeshTangents(mesh, dotTextureYellow, thickness, scale);
-            CreateVisualLightNormal(dotTextureWhite, meshCenter, lightStartPosition, 1, Color.White);
+            visualLightLineToMesh = CreateVisualLine(dotTextureWhite, meshCenter, lightStartPosition, 1, Color.White);
 
             sphere = new PrimitiveSphere(10, 10, 50, false, false, false);
             CreateVisualSphereNormals(sphere, dotTextureGreen, thickness, scale);
             CreateVisualSphereTangents(sphere, dotTextureYellow, thickness, scale/5);
+            visualLightLineToSphere = CreateVisualLine(dotTextureWhite, sphereCenter, lightStartPosition, 1, Color.White);
 
         }
 
@@ -169,11 +171,12 @@ namespace ShaderExamples
             visualTangents.SetUpBasicEffect(GraphicsDevice, texture, cam.view, cam.projection);
         }
 
-        public void CreateVisualLightNormal(Texture2D texture, Vector3 startPosition, Vector3 endPosition, float thickness, Color color)
+        public VisualizationLine CreateVisualLine(Texture2D texture, Vector3 startPosition, Vector3 endPosition, float thickness, Color color)
         {
-            visualLightNormal = new VisualizationLine();
-            visualLightNormal.CreateVisualLine(texture, startPosition, endPosition, thickness, color);
-            visualLightNormal.SetUpBasicEffect(GraphicsDevice, texture, cam.view, cam.projection);
+            var vln = new VisualizationLine();
+            vln.CreateVisualLine(texture, startPosition, endPosition, thickness, color);
+            vln.SetUpBasicEffect(GraphicsDevice, texture, cam.view, cam.projection);
+            return vln;
         }
 
         public void CreateVisualSphereNormals(PrimitiveSphere sphere, Texture2D texture, float thickness, float scale)
@@ -221,9 +224,9 @@ namespace ShaderExamples
                 cam.InitialView(GraphicsDevice);
 
             if (Keys.Space.IsKeyPressedWithDelay(gameTime))
-                rotateLight = !rotateLight;
+                manuallyRotateLight = !manuallyRotateLight;
 
-            if (rotateLight)
+            if (manuallyRotateLight)
             {
                 if (Keys.OemPlus.IsKeyDown())
                     lightRotationRadians += .005f;
@@ -246,9 +249,8 @@ namespace ShaderExamples
             var axisOfRotation = new Vector3(1, 0, 0);
             lightTransform = Matrix.CreateFromAxisAngle(axisOfRotation, lightRotationRadians);
             lightPosition = Vector3.Transform(lightStartPosition, lightTransform);
-            var start = meshCenter;
-            var end = lightPosition + meshCenter;
-            CreateVisualLightNormal(dotTextureWhite, start, end, 1, Color.White);
+            visualLightLineToMesh = CreateVisualLine(dotTextureWhite, meshCenter, lightPosition, 1, Color.White);
+            visualLightLineToSphere = CreateVisualLine(dotTextureWhite, sphereCenter, lightPosition, 1, Color.White);
 
             base.Update(gameTime);
         }
@@ -274,16 +276,21 @@ namespace ShaderExamples
             {
                 DrawNormalsForMesh();
                 DrawTangentsForMesh();
-                DrawLightLine();
             }
+            DrawLightLineToMesh();
 
+            
             if (displayWireframe)
                 DrawWireFrameMesh();
 
 
             DrawSphere();
-            DrawNormalsForSphere();
-            DrawTangentsForSphere();
+            if (displayNormals)
+            {
+                DrawNormalsForSphere();
+                DrawTangentsForSphere();
+            }
+            DrawLightLineToSphere();
 
 
             DrawSpriteBatches(gameTime);
@@ -322,11 +329,11 @@ namespace ShaderExamples
             visualTangents.Draw(GraphicsDevice);
         }
 
-        public void DrawLightLine()
+        public void DrawLightLineToMesh()
         {
-            visualLightNormal.World = Matrix.Identity; //lightTransform;
-            visualLightNormal.View = cam.view;
-            visualLightNormal.Draw(GraphicsDevice);
+            visualLightLineToMesh.World = Matrix.Identity; //lightTransform;
+            visualLightLineToMesh.View = cam.view;
+            visualLightLineToMesh.Draw(GraphicsDevice);
         }
 
         public void DrawWireFrameMesh()
@@ -342,23 +349,30 @@ namespace ShaderExamples
         {
             SpecularLightEffectClass.TextureDiffuse = textureSphere;
             SpecularLightEffectClass.TextureNormalMap = textureNormalMapSphere;
-            SpecularLightEffectClass.World = Matrix.CreateTranslation(new Vector3(0, 0, -50));
+            SpecularLightEffectClass.World = Matrix.CreateTranslation(sphereCenter);
             sphere.DrawPrimitiveSphere(GraphicsDevice, SpecularLightEffectClass.effect);
         }
 
         public void DrawNormalsForSphere()
         {
-            visualSphereNormals.World = Matrix.CreateTranslation(new Vector3(0, 0, -50));
+            visualSphereNormals.World = Matrix.CreateTranslation(sphereCenter);
             visualSphereNormals.View = cam.view;
             visualSphereNormals.Projection = cam.projection;
             visualSphereNormals.Draw(GraphicsDevice);
         }
         public void DrawTangentsForSphere()
         {
-            visualSphereTangents.World = Matrix.CreateTranslation(new Vector3(0, 0, -50));
+            visualSphereTangents.World = Matrix.CreateTranslation(sphereCenter);
             visualSphereTangents.View = cam.view;
             visualSphereTangents.Projection = cam.projection;
             visualSphereTangents.Draw(GraphicsDevice);
+        }
+
+        public void DrawLightLineToSphere()
+        {
+            visualLightLineToSphere.World = Matrix.Identity; 
+            visualLightLineToSphere.View = cam.view;
+            visualLightLineToSphere.Draw(GraphicsDevice);
         }
 
         public void DrawSpriteBatches(GameTime gameTime)
@@ -396,6 +410,9 @@ namespace ShaderExamples
                 spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Blue);
             else
                 spriteBatch.DrawString(font, "Press F1 for information" , new Vector2(10, 10), Color.Blue);
+
+            if (Keys.End.IsKeyPressedWithDelay(gameTime))
+                Console.WriteLine( $"{cam.cameraWorld.DisplayMatrixForCopy("cameraWorld") }");
 
             spriteBatch.End();
         }

@@ -13,8 +13,8 @@ Comment in the game1_xxx example you want to see execute and comment out the oth
 _______
 
 
-<img src="ShaderFade.png"  height="400" width="400">
-
+<img src="scrshotShaderFade.png"  height="400" width="400">
+<img src="scrshotSpecular.png"  height="400" width="400">
 _______
 
 Additionally you can look to this reference post on the monogame community site for reference to shader tutorials and such for monogame.

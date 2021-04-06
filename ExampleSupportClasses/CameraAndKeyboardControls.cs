@@ -32,13 +32,13 @@ namespace ShaderExamples //.ExampleSupportClasses
             cameraWorldPosition.Z = MgMathExtras.GetRequisitePerspectiveSpriteBatchAlignmentZdistance(device, fov);
             cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Zero - cameraWorldPosition, cameraUpVector);
             // well make it specific.
-            cameraWorld = new Matrix
-            (
-                1f, 0f, 0f, 0f,
-                0f, -0.141f, -0.990f, 0f,
-                0f, 0.990f, -0.141f, 0f,
-                153f, 253f, -20f, 1.0f
-            );
+            cameraWorld= new Matrix
+                (
+                +1.000f, +0.000f, +0.000f, +0.000f,
+                +0.000f, -0.986f, -0.165f, +0.000f,
+                +0.000f, +0.165f, -0.986f, +0.000f,
+                +89.500f, +157.642f, -381.373f, +1.000f
+               );
             view = Matrix.Invert(cameraWorld);
             if (DiffuseLightEffectClass.effect != null)
                 DiffuseLightEffectClass.View = view;

@@ -613,5 +613,27 @@ namespace Microsoft.Xna.Framework
                 ;
         }
 
+        ///// <summary>
+        ///// Display matrix.
+        ///// </summary>
+        public static string DisplayMatrixForCopy(this Matrix m, string name)
+        {
+            string f0 = "{0,12:+####0.000;-####0.000;+####0.000}f ,";
+            string f1 = "{1,12:+####0.000;-####0.000;+####0.000}f ,";
+            string f2 = "{2,12:+####0.000;-####0.000;+####0.000}f ,";
+            string f3 = "{3,12:+####0.000;-####0.000;+####0.000}f ";
+            string s = ",";
+            return 
+                name + " = new Matrix" +
+                "\n (" +
+                "\n " + String.Format(f0 + f1 + f2 + f3, m.M11, m.M12, m.M13, m.M14) + ", " +
+                "\n " + String.Format(f0 + f1 + f2 + f3, m.M21, m.M22, m.M23, m.M24) + ", " +
+                "\n " + String.Format(f0 + f1 + f2 + f3, m.M31, m.M32, m.M33, m.M34) + ", " +
+                "\n " + String.Format(f0 + f1 + f2 + f3, m.M41, m.M42, m.M43, m.M44) + " " +
+                "\n );" +
+                ""
+                ;
+        }
+
     }
 }

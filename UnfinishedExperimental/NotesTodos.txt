@@ -21,7 +21,7 @@ Make a grid with a blank texture that would be a pretty useful idea.
 Aura around a sprite also a good idea.
 
 
-
+// https://github.com/cpt-max/MonoGame-Shader-Samples
 
 http://ninslash.com/5-simple-fragment-shaders-for-2d-games-glsl/
 

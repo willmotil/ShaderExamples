@@ -8,23 +8,15 @@ using Microsoft.Xna.Framework.Input;
 namespace ShaderExamples //Microsoft.Xna.Framework
 {
     //
-    // there we go or not the spacing is off needs fixed.
-    //
-    // 
-    // todo's
-    // ensure partitions work and then displace meshes.
-    // nasa map height data.
-    //
-    // make a mesh on the list per face need to pass width height
-    // extending normals tangents and uv's is all par for the course no problems there.
-    // however besides the parameter methods that i need to pass.
-    // i need to be able to pass image data for nasa map data i want to add that in.    
-    //
     // We want this to be nice and clean i put this off for like a year and didn't take the time to redo it.
     // So take a little time to ...
     // Make it clean simple extendable and reusable into the future.
     //
-    // https://github.com/cpt-max/MonoGame-Shader-Samples
+    // https://cpetry.github.io/NormalMap-Online/  make a normal map.
+    //
+    // http://graphics.cs.cmu.edu/nsp/course/15-462/Spring04/slides/09-texture.pdf
+    // https://www.katjaas.nl/transpose/transpose.html more matrix stuff waves complexs and fouriers.
+    // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-13-normal-mapping/
 
     public class PrimitiveSphere
     {
@@ -132,8 +124,8 @@ namespace ShaderExamples //Microsoft.Xna.Framework
 
             for (int faceIndex = 0; faceIndex < 6; faceIndex++)
             {
-                if (showOutput)
-                    System.Console.WriteLine("\n  faceIndex: " + faceIndex);
+                //if (showOutput)
+                //    System.Console.WriteLine("\n  faceIndex: " + faceIndex);
                 for (int y = 0; y < subdividsionHeight; y++)
                 {
                     float perY = (float)(y) / (float)(subdividsionHeight - 1);
@@ -159,7 +151,7 @@ namespace ShaderExamples //Microsoft.Xna.Framework
                     }
                 }
             }
-            System.Console.WriteLine($"\n  totalVertices.Count: {cubesFaceMeshVertsLists.Count} ");
+            //System.Console.WriteLine($"\n  totalVertices.Count: {cubesFaceMeshVertsLists.Count} ");
         }
 
         private void CreateIndices(List<int> cubeFaceMeshIndexLists, int subdivisionWidth, int subdividsionHeight)
@@ -167,8 +159,8 @@ namespace ShaderExamples //Microsoft.Xna.Framework
             int faceOffset = 0;
             for (int faceIndex = 0; faceIndex < 6; faceIndex++)
             {
-                if (showOutput)
-                    System.Console.WriteLine("\n  faceIndex: " + faceIndex);
+                //if (showOutput)
+                //    System.Console.WriteLine("\n  faceIndex: " + faceIndex);
                 faceOffset = faceIndex * (subdividsionHeight * subdivisionWidth);
                 for (int y = 0; y < subdividsionHeight - 1; y++)
                 {
@@ -194,7 +186,7 @@ namespace ShaderExamples //Microsoft.Xna.Framework
                     }
                 }
             }
-            System.Console.WriteLine($"\n  cubeFaceMeshIndexLists: {cubeFaceMeshIndexLists.Count}    count/6: {cubeFaceMeshIndexLists.Count/6}");
+            //System.Console.WriteLine($"\n  cubeFaceMeshIndexLists: {cubeFaceMeshIndexLists.Count}    count/6: {cubeFaceMeshIndexLists.Count/6}");
         }
 
         private void CreateTangents( List<VertexPositionNormalTextureTangentWeights> cubesFaceMeshVertLists, List<int> cubeFaceMeshIndexLists, int subdivisionWidth, int subdividsionHeight, bool negateNormalDirection, bool negateTangentDirection)
@@ -202,11 +194,11 @@ namespace ShaderExamples //Microsoft.Xna.Framework
             int faceOffset = 0;
             for (int faceIndex = 0; faceIndex < 6; faceIndex++)
             {
-                Console.WriteLine($"faceIndex {faceIndex}");
+                //Console.WriteLine($"faceIndex {faceIndex}");
                 faceOffset = faceIndex * (subdividsionHeight * subdivisionWidth);
                 for (int y = 0; y < subdividsionHeight-1; y++)
                 {
-                    Console.WriteLine($"faceIndex {faceIndex} Y index {y}");
+                    //Console.WriteLine($"faceIndex {faceIndex} Y index {y}");
                     for (int x = 0; x < subdivisionWidth; x++)
                     {
                         var faceVerticeOffset = subdivisionWidth * y + x + faceOffset;
@@ -216,7 +208,7 @@ namespace ShaderExamples //Microsoft.Xna.Framework
                         var vTL = cubesFaceMeshVertLists[tl];
                         var vBL = cubesFaceMeshVertLists[bl];
 
-                        var t = Vector3.Normalize(vTL.Position - vBL.Position);
+                        var t = Vector3.Normalize(vBL.Position - vTL.Position);
 
                         vTL.Tangent += t;
                         vBL.Tangent += t;
@@ -224,7 +216,7 @@ namespace ShaderExamples //Microsoft.Xna.Framework
                         cubesFaceMeshVertLists[tl] = vTL;
                         cubesFaceMeshVertLists[bl] = vBL;
 
-                        Console.WriteLine($"OO y [{y}] x [{x}]  faceOffset {faceOffset}  faceVerticeOffset {faceVerticeOffset}   tl {tl} bl {bl}    tangent    vTL{cubesFaceMeshVertLists[tl].Tangent} {NormalIdentity(cubesFaceMeshVertLists[tl].Tangent)}       vBL{cubesFaceMeshVertLists[bl].Tangent}  {NormalIdentity(cubesFaceMeshVertLists[bl].Tangent)}   ");
+                        //Console.WriteLine($"OO y [{y}] x [{x}]  faceOffset {faceOffset}  faceVerticeOffset {faceVerticeOffset}   tl {tl} bl {bl}    tangent    vTL{cubesFaceMeshVertLists[tl].Tangent} {NormalIdentity(cubesFaceMeshVertLists[tl].Tangent)}       vBL{cubesFaceMeshVertLists[bl].Tangent}  {NormalIdentity(cubesFaceMeshVertLists[bl].Tangent)}   ");
                     }
                 }
             }
@@ -263,21 +255,21 @@ namespace ShaderExamples //Microsoft.Xna.Framework
             faceOffset = 0;
             for (int faceIndex = 0; faceIndex < 6; faceIndex++)
             {
-                Console.WriteLine($"faceIndex {faceIndex}");
+                //Console.WriteLine($"faceIndex {faceIndex}");
                 faceOffset = faceIndex * (subdividsionHeight * subdivisionWidth);
                 for (int y = 0; y < subdividsionHeight; y++)
                 {
-                    Console.WriteLine($"faceIndex {faceIndex} Y {y}");
+                    //Console.WriteLine($"faceIndex {faceIndex} Y {y}");
                     for (int x = 0; x < subdivisionWidth; x++)
                     {
                         var faceVerticeOffset = subdivisionWidth * y + x + faceOffset;
 
                         var v = cubesFaceMeshVertLists[faceVerticeOffset];
 
-                        if (HasInvalidValues(v.Tangent) || v.Tangent == Vector3.Zero)
-                            Console.WriteLine($"XXXXX  y [{y}] x [{x}]  current vert {faceVerticeOffset}      v.tan  {v.Tangent}  {NormalIdentity(v.Tangent)} ");
-                        else
-                            Console.WriteLine($">>       y [{y}] x [{x}]  current vert {faceVerticeOffset}     v.tan  {v.Tangent}  {NormalIdentity(v.Tangent)}");
+                        //if (HasInvalidValues(v.Tangent) || v.Tangent == Vector3.Zero)
+                        //    Console.WriteLine($"XXXXX  y [{y}] x [{x}]  current vert {faceVerticeOffset}      v.tan  {v.Tangent}  {NormalIdentity(v.Tangent)} ");
+                        //else
+                        //    Console.WriteLine($">>       y [{y}] x [{x}]  current vert {faceVerticeOffset}     v.tan  {v.Tangent}  {NormalIdentity(v.Tangent)}");
                     }
                 }
             }
