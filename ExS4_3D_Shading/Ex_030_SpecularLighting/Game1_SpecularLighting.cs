@@ -40,7 +40,7 @@ namespace ShaderExamples
         VisualizationLine visualLightLineToMesh = new VisualizationLine();
         VisualizationLine visualLightLineToSphere = new VisualizationLine();
 
-        PrimitiveSphere sphere;
+        ProtoTypePrimitiveSphere sphere;
         VisualizationNormals visualSphereNormals = new VisualizationNormals();
         VisualizationNormals visualSphereTangents = new VisualizationNormals();
 
@@ -154,7 +154,7 @@ namespace ShaderExamples
             CreateVisualMeshTangents(mesh, dotTextureYellow, thickness, scale);
             visualLightLineToMesh = CreateVisualLine(dotTextureWhite, meshCenter, lightStartPosition, 1, Color.White);
 
-            sphere = new PrimitiveSphere(10, 10, 50, false, false, false);
+            sphere = new ProtoTypePrimitiveSphere(10, 10, 50, false, false, false);
             CreateVisualSphereNormals(sphere, dotTextureGreen, thickness, scale);
             CreateVisualSphereTangents(sphere, dotTextureYellow, thickness, scale/5);
             visualLightLineToSphere = CreateVisualLine(dotTextureWhite, sphereCenter, lightStartPosition, 1, Color.White);
@@ -187,7 +187,7 @@ namespace ShaderExamples
             return vln;
         }
 
-        public void CreateVisualSphereNormals(PrimitiveSphere sphere, Texture2D texture, float thickness, float scale)
+        public void CreateVisualSphereNormals(ProtoTypePrimitiveSphere sphere, Texture2D texture, float thickness, float scale)
         {
             VertexPositionNormalTexture[] tmp = new VertexPositionNormalTexture[sphere.cubesFaceVertices.Length];
             for (int i = 0; i < sphere.cubesFaceVertices.Length; i++)
@@ -196,7 +196,7 @@ namespace ShaderExamples
             visualSphereNormals.SetUpBasicEffect(GraphicsDevice, texture, cam.view, cam.projection);
         }
 
-        public void CreateVisualSphereTangents(PrimitiveSphere sphere, Texture2D texture, float thickness, float scale)
+        public void CreateVisualSphereTangents(ProtoTypePrimitiveSphere sphere, Texture2D texture, float thickness, float scale)
         {
             VertexPositionNormalTexture[] tmp = new VertexPositionNormalTexture[sphere.cubesFaceVertices.Length];
             for (int i = 0; i < sphere.cubesFaceVertices.Length; i++)

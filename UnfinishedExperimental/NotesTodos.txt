@@ -46,8 +46,8 @@ Diffuse.
 Specular.
 Normal mapping.
 Enviromental mapping reflections.
+Water Mirroring planes.
 3d Refraction.
-Water
 Weights and weight indices
 Morphing bone displacement
 Basic depth shadow maping.

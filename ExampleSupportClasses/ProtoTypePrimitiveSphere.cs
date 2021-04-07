@@ -18,7 +18,7 @@ namespace ShaderExamples //Microsoft.Xna.Framework
     // https://www.katjaas.nl/transpose/transpose.html more matrix stuff waves complexs and fouriers.
     // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-13-normal-mapping/
 
-    public class PrimitiveSphere
+    public class ProtoTypePrimitiveSphere
     {
         public bool showOutput = false;
         // ...
@@ -37,22 +37,22 @@ namespace ShaderExamples //Microsoft.Xna.Framework
         //    CreatePrimitiveSphere(0, 0, 1f, false, true, true, null, 1f, false, false);
         //}
 
-        public PrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces)
+        public ProtoTypePrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces)
         {
             CreatePrimitiveSphere(subdivisionWidth, subdividsionHeight, scale, clockwise, invert, flatFaces, null, 1f, false, false);
         }
 
-        public PrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces, Texture2D heightMap, float dataScalar)
+        public ProtoTypePrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces, Texture2D heightMap, float dataScalar)
         {
             CreatePrimitiveSphere(subdivisionWidth, subdividsionHeight, scale, clockwise, invert, flatFaces, heightMap, dataScalar, false, false);
         }
 
-        public PrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces, bool negateNormalDirection, bool negateTangentDirection)
+        public ProtoTypePrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces, bool negateNormalDirection, bool negateTangentDirection)
         {
             CreatePrimitiveSphere(subdivisionWidth, subdividsionHeight, scale, clockwise, invert, flatFaces, null, 1f, negateNormalDirection, negateTangentDirection);
         }
 
-        public PrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces, Texture2D heightMap, float dataScalar, bool negateNormalDirection, bool negateTangentDirection)
+        public ProtoTypePrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces, Texture2D heightMap, float dataScalar, bool negateNormalDirection, bool negateTangentDirection)
         {
             CreatePrimitiveSphere(subdivisionWidth, subdividsionHeight, scale, clockwise, invert, flatFaces, heightMap, dataScalar, negateNormalDirection, negateTangentDirection);
         }
@@ -359,22 +359,12 @@ namespace ShaderExamples //Microsoft.Xna.Framework
             return uv;
         }
 
-        //private Vector2 CubeMapNormalTo2dEquaRectangularMapUvCoordinatesAlt(Vector3 v)
-        //{
-        //    float pi = 3.141592653589793f;
-        //    Vector3 n = Vector3.Normalize(v);
-        //    float lon = (float)System.Math.Atan2(-n.Z, n.X);
-        //    float lat = (float)Math.Acos(n.Y);
-        //    Vector2 sphereCoords = new Vector2(lon, lat) * (1.0f / pi);
-        //    return new Vector2(sphereCoords.X * 0.5f + 0.5f, sphereCoords.Y);
-        //}
-
         private Vector2 CubeMapNormalTo2dEquaRectangularMapUvCoordinatesAlt(Vector3 v)
         {
             float pi = 3.141592653589793f;
             Vector3 n = Vector3.Normalize(v);
             float lon = (float)System.Math.Atan2(-n.Z, n.X);
-            float lat = (float)Math.Acos(-n.Y);
+            float lat = (float)Math.Acos(-n.Y);  // or +y
             Vector2 sphereCoords = new Vector2(lon, lat) * (1.0f / pi);
             return new Vector2(sphereCoords.X * 0.5f + 0.5f, 1.0f - sphereCoords.Y);
         }

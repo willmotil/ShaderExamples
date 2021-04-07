@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/RefactionTexture.png</SourceFile>
-  <SourceTime>2019-10-10T12:50:58-04:00</SourceTime>
-  <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Images/RefactionTexture.xnb</DestFile>
-  <DestTime>2021-04-04T19:48:46.6504348-04:00</DestTime>
+<PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/RefactionTexture.png</SourceFile>
+  <SourceTime>2021-04-02T23:58:19.2793975-04:00</SourceTime>
+  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Images/RefactionTexture.xnb</DestFile>
+  <DestTime>2021-04-07T04:09:09.2682932-04:00</DestTime>
   <Importer>TextureImporter</Importer>
-  <ImporterTime>2020-05-27T15:15:40-04:00</ImporterTime>
+  <ImporterTime>2018-09-23T17:55:52-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>
-  <ProcessorTime>2020-05-27T15:15:40-04:00</ProcessorTime>
+  <ProcessorTime>2018-09-23T17:55:52-04:00</ProcessorTime>
   <Parameters>
     <Key>ColorKeyColor</Key>
     <Value>255,0,255,255</Value>

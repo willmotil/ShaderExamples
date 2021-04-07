@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/MG_Logo_Modifyed.png</SourceFile>
-  <SourceTime>2021-03-30T14:03:42.8211809-04:00</SourceTime>
-  <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Content/Images/MG_Logo_Modifyed.xnb</DestFile>
-  <DestTime>2021-04-06T06:26:28.8706924-04:00</DestTime>
+  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/MG_Logo_Modifyed.png</SourceFile>
+  <SourceTime>2021-04-02T23:58:19.2793975-04:00</SourceTime>
+  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Content/Images/MG_Logo_Modifyed.xnb</DestFile>
+  <DestTime>2021-04-07T00:24:55.5735076-04:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2020-08-10T16:17:54-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

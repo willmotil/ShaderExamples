@@ -472,6 +472,12 @@
 /processorParam:DebugMode=Auto
 /build:Shaders3D/DiffuseLightEffect.fx
 
+#begin Shaders3D/EnviromentalMapEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders3D/EnviromentalMapEffect.fx
+
 #begin Shaders3D/ImprovedIndexMeshEffect.fx
 /importer:EffectImporter
 /processor:EffectProcessor
@@ -501,4 +507,10 @@
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
 /build:Shaders3D/SpecularLightEffect.fx
+
+#begin Shaders3D/TextureCubeBuildEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders3D/TextureCubeBuildEffect.fx
 
