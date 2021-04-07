@@ -30,7 +30,11 @@
 
 float3 CameraPosition;
 float3 LightPosition;
+float3 LightColor;
+
 float AmbientStrength;
+float DiffuseStrength;
+float SpecularStrength;
 
 matrix World;
 matrix View;
@@ -119,32 +123,24 @@ float SpecularBlinnPhong(float3 toViewer, float3 toLight, float3 normal, float s
 	return pow(cosb, shininess);
 }
 
-// My own old lighting geometry function. Slide values between 0 and 1 up or down depending on sharpness in a curved rate.
-// for specular you put it low you get a small spot, high you get a big spot, there can also be falloff if the value for sharpness is not 0 or 1.
-//float SpecularCurveFit(float NdotH, float H float sharpness)
-//{
-//	float n = NdotH;
-//	float t = sharpness;
-//	float i = 1.0f - t;
-//	float b = ( (n - 1.0f) + n * 3.0f) * .5f;
-//	return (i * i) + b * 2.0f * (i * t) + (t * t);
-//}
-
-float SpecularCurveFit(float3 V, float3 L, float3 N, float sharpness)
-{
-	float3 h = normalize(L + V);
-	float ndoth = saturate(dot(h, N));
-	float t = sharpness;
-	float i = 1.0f - t;
-	float b = ((ndoth - 1.0f) + ndoth * 3.0f) * 0.5f;
-	float ndotl = saturate(dot(L, N));
-	return ((i * i) + b * 2.0f * (i * t) + (t * t)) * ndotl;
-}
-
 float SpecularSharpener(float specular, float scalar)
 {
 	return saturate(specular - scalar) * (1.0f / (1.0f - scalar));
 }
+
+float SpecularCurveFit(float3 V, float3 L, float3 N, float sharpness)
+{
+	float3 h = normalize(L + V);
+	float ndoth = max(dot(N, h), 0.0f);
+
+	float a = sharpness / (sharpness + 0.1f); // infinite sliding limit.
+	float ndotl = saturate(dot(L, N));
+	float r = (dot(V, reflect(-L, N)) + ndoth * 0.07f) / 1.07f;  // *ndotl;
+	float result = saturate(r - a) * ( 1.0f / ( 1.0f - a) );
+
+	return result;
+}
+
 
 float Falloff(float distance, float lightRadius)
 {
@@ -204,12 +200,11 @@ VertexShaderOutput VS(in VertexShaderInput input)
 
 
 
-
 //++++++++++++++++++++++++++++++++++++++++
 // P I X E L  S H A D E R S
 //++++++++++++++++++++++++++++++++++++++++
 
-float4 PS(VertexShaderOutput input) : COLOR
+float4 PS_Phong(VertexShaderOutput input) : COLOR
 {
 	float4 col = tex2D(TextureSamplerDiffuse, input.TextureCoordinates);
 	float3 N = FunctionNormalMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);
@@ -223,18 +218,52 @@ float4 PS(VertexShaderOutput input) : COLOR
 	float NdotH = MaxDot(N, H);
 	float NdotL = MaxDot(N, L);
 
-	// simple diffuse.
+	float spec= SpecularPhong(V, L, N, 100.0f);
+	float3 speccol = col.rgb * LightColor;
+	col.rgb =  (speccol.rgb * spec * SpecularStrength) +(col.rgb * NdotL * NdotL * DiffuseStrength) + (col.rgb * AmbientStrength);
+	//col.rgb = (speccol.rgb * spec * (SpecularStrength + DiffuseStrength));
+	return col;
+}
 
-	// specular.
-	float sp= SpecularPhong(V, L, N, 100.0f);
-	float sbp = SpecularBlinnPhong(V, L, N, 100.0f);
-	float sm = SpecularCurveFit(V, L, N, 0.3f);
+float4 PS_BlinnPhong(VertexShaderOutput input) : COLOR
+{
+	float4 col = tex2D(TextureSamplerDiffuse, input.TextureCoordinates);
+	float3 N = FunctionNormalMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);
+	float3 P = input.Position3D;
+	float3 C = CameraPosition;
+	float3 V = normalize(C - P);
+	float NdotV = MaxDot(N, V);
+	float3 R = 2.0f * NdotV * N - V;
+	float3 L = normalize(LightPosition - P);
+	float3 H = HalfNormal(L, V);
+	float NdotH = MaxDot(N, H);
+	float NdotL = MaxDot(N, L);
 
-	float spec = sm;
+	float spec = SpecularBlinnPhong(V, L, N, 100.0f);
+	float3 speccol = col.rgb * LightColor;
+	col.rgb = (speccol.rgb * spec * SpecularStrength) + (col.rgb * NdotL * NdotL * DiffuseStrength) + (col.rgb * AmbientStrength);
+	//col.rgb = (speccol.rgb * spec * (SpecularStrength + DiffuseStrength));
+	return col;
+}
 
-	// combine.
-	col.rgb = (col.rgb * AmbientStrength) + (col.rgb * spec * 0.60f) +(col.rgb * NdotL * NdotL * 0.60f);
-	//col.r += spec * 0.6f;
+float4 PS_Wills(VertexShaderOutput input) : COLOR
+{
+	float4 col = tex2D(TextureSamplerDiffuse, input.TextureCoordinates);
+	float3 N = FunctionNormalMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);
+	float3 P = input.Position3D;
+	float3 C = CameraPosition;
+	float3 V = normalize(C - P);
+	float NdotV = MaxDot(N, V);
+	float3 R = 2.0f * NdotV * N - V;
+	float3 L = normalize(LightPosition - P);
+	float3 H = HalfNormal(L, V);
+	float NdotH = MaxDot(N, H);
+	float NdotL = MaxDot(N, L);
+
+	float spec = SpecularCurveFit(V, L, N, 1.50f);
+	float3 speccol = col.rgb * LightColor;
+	col.rgb = (speccol.rgb * spec * SpecularStrength) + (col.rgb * NdotL * NdotL * DiffuseStrength) + (col.rgb * AmbientStrength);
+	//col.rgb = (speccol.rgb * spec * (SpecularStrength + DiffuseStrength)) ;
 	return col;
 }
 
@@ -243,14 +272,36 @@ float4 PS(VertexShaderOutput input) : COLOR
 // T E C H N I Q U E S.
 //++++++++++++++++++++++++++++++++++++++++
 
-technique Lighting
+technique Lighting_Phong
 {
 	pass P0
 	{
 		VertexShader = compile VS_SHADERMODEL
 			VS();
 		PixelShader = compile PS_SHADERMODEL
-			PS();
+			PS_Phong();
+	}
+};
+
+technique Lighting_Blinn
+{
+	pass P0
+	{
+		VertexShader = compile VS_SHADERMODEL
+			VS();
+		PixelShader = compile PS_SHADERMODEL
+			PS_BlinnPhong();
+	}
+};
+
+technique Lighting_Wills
+{
+	pass P0
+	{
+		VertexShader = compile VS_SHADERMODEL
+			VS();
+		PixelShader = compile PS_SHADERMODEL
+			PS_Wills();
 	}
 };
 

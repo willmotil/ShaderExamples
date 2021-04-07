@@ -14,15 +14,24 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
 
         public static string DirectoryForEffect = @"Content/Shaders3D";
 
+        private static float totalStrength = 1f;
+        private static float ambientStrength = .1f;
+        private static float diffuseStrength = .6f;
+        private static float specularStrength = .4f;
+
         public static void Load(Microsoft.Xna.Framework.Content.ContentManager Content)
         {
             Content.RootDirectory = DirectoryForEffect;
             effect = Content.Load<Effect>("SpecularLightEffect");
-            effect.CurrentTechnique = effect.Techniques["Lighting"];
+            Technique_Lighting_Phong();
+            AmbientStrength = .1f;
+            DiffuseStrength = .6f;
+            SpecularStrength = .4f;
             World = Matrix.Identity;
             View = Matrix.Identity;
             Projection = Matrix.CreatePerspectiveFieldOfView(1, 1.33f, 1f, 10000f); // just something default;
             LightPosition = new Vector3(0, 0, 10000);
+            LightColor = new Vector3(1f, 1f, 1f);
         }
 
         public static Effect GetEffect
@@ -30,9 +39,17 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
             get { return effect; }
         }
 
-        public static string Technique
+        public static void Technique_Lighting_Phong()
         {
-            set { effect.CurrentTechnique = effect.Techniques[value]; }
+            effect.CurrentTechnique = effect.Techniques["Lighting_Phong"];
+        }
+        public static void Technique_Lighting_Blinn()
+        {
+            effect.CurrentTechnique = effect.Techniques["Lighting_Blinn"];
+        }
+        public static void Technique_Lighting_Wills()
+        {
+            effect.CurrentTechnique = effect.Techniques["Lighting_Wills"];
         }
 
         public static Texture2D TextureDiffuse
@@ -70,9 +87,37 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
             set { effect.Parameters["LightPosition"].SetValue(value); }
         }
 
+        public static Vector3 LightColor
+        {
+            set { effect.Parameters["LightColor"].SetValue(value); }
+        }
+
         public static float AmbientStrength
         {
-            set { effect.Parameters["AmbientStrength"].SetValue(value); }
+            set 
+            { 
+                ambientStrength = value;
+                totalStrength = ambientStrength + diffuseStrength + specularStrength;
+                effect.Parameters["AmbientStrength"].SetValue(ambientStrength / totalStrength);
+            }
+        }
+        public static float SpecularStrength
+        {
+            set 
+            {
+                diffuseStrength = value;
+                totalStrength = ambientStrength + diffuseStrength + specularStrength;
+                effect.Parameters["DiffuseStrength"].SetValue(diffuseStrength / totalStrength);
+            }
+        }
+        public static float DiffuseStrength
+        {
+            set 
+            {
+                specularStrength = value;
+                totalStrength = ambientStrength + diffuseStrength + specularStrength;
+                effect.Parameters["SpecularStrength"].SetValue(specularStrength / totalStrength);
+            }
         }
 
         public static void InfoForCreateMethods()

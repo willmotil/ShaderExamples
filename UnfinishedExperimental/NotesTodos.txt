@@ -69,7 +69,16 @@ https://www.geeks3d.com/20101008/shader-library-chromatic-aberration-demo-glsl/ 
 
 
 
+Sources for original algorithms:
+Bubble Sort: https://en.wikipedia.org/wiki/Bubble_...​
+Selection Sort: https://en.wikipedia.org/wiki/Selecti...​
+Insertion Sort:  https://en.wikipedia.org/wiki/Inserti...​
+Quicksort: https://en.wikipedia.org/wiki/Quicksort​
+Shell Sort: https://en.wikipedia.org/wiki/Shellsort
+Radix sort: https://www.geeksforgeeks.org/radix-s...​  fastest for big stuff smaller it is the slower in comparison.
+(Change the base to 256 if you use this code!)
 
+https://www.w3resource.com/csharp-exercises/searching-and-sorting-algorithm/searching-and-sorting-algorithm-exercise-10.php
 
 
 //  fx in glsl to convert

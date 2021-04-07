@@ -12,9 +12,10 @@ namespace ShaderExamples
         bool manuallyRotateLight = false;
         bool displayMesh = true;
         bool displayWireframe = false;
-        bool displayNormals = true;
+        bool displayNormals = false;
         bool displayWhiteDiffuse = false;
         bool displayOnScreenText = false;
+        int whichTechnique = 0;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -64,6 +65,8 @@ namespace ShaderExamples
         Vector3 meshCenter = new Vector3(150,125,0);
         Vector3 sphereCenter = new Vector3(0, 0, -50);
 
+        string spectypemsg = "";
+
         public Game1_SpecularLighting()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -90,6 +93,12 @@ namespace ShaderExamples
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            dotTextureRed = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Red);
+            dotTextureGreen = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Green);
+            dotTextureBlue = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Blue);
+            dotTextureWhite = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.White);
+            dotTextureYellow = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Yellow);
+
             Content.RootDirectory = @"Content/Images";
             textureMonogameLogo = Content.Load<Texture2D>("MG_Logo_Modifyed");
             textureSphere = Content.Load<Texture2D>("walltomap");
@@ -104,11 +113,7 @@ namespace ShaderExamples
             //textureNormalMap = Content.Load<Texture2D>("RefactionTexture");
             //textureNormalMap = Content.Load<Texture2D>("RefactionTexture"); // with the opposite encoding    walltomap wallnormmap  Flower-normal , Flower-diffuse  Flower-bump  Flower-ambientocclusion
 
-            dotTextureRed = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Red);
-            dotTextureGreen = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Green);
-            dotTextureBlue = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Blue);
-            dotTextureWhite = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.White);
-            dotTextureYellow = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Yellow);
+            texture = dotTextureWhite;
 
             Content.RootDirectory = @"Content/Fonts";
             font = Content.Load<SpriteFont>("MgFont");
@@ -119,12 +124,15 @@ namespace ShaderExamples
             cam.UpdateProjection(GraphicsDevice);
 
             SpecularLightEffectClass.Load(Content);
+            SpecularLightEffectClass.Technique_Lighting_Phong();
             SpecularLightEffectClass.TextureDiffuse = dotTextureWhite;
             SpecularLightEffectClass.TextureNormalMap = textureNormalMap;
             SpecularLightEffectClass.AmbientStrength = .10f;
             SpecularLightEffectClass.View = cam.view;
             SpecularLightEffectClass.Projection = cam.projection;
             SpecularLightEffectClass.CameraPosition = cam.cameraWorld.Translation;
+            SpecularLightEffectClass.LightPosition = lightPosition;
+            SpecularLightEffectClass.LightColor = new Vector3(1f, 1f, 1f);
 
 
             PrimitiveIndexedMesh.ShowOutput = false;
@@ -218,11 +226,31 @@ namespace ShaderExamples
                 displayMesh = !displayMesh;
             if (Keys.F5.IsKeyPressedWithDelay(gameTime))
                 displayWhiteDiffuse = !displayWhiteDiffuse;
+            if (Keys.F6.IsKeyPressedWithDelay(gameTime))
+            {
+                whichTechnique++;
+                if(whichTechnique > 2)
+                    whichTechnique = 0;
+                switch(whichTechnique)
+                {
+                    case 0:
+                        SpecularLightEffectClass.Technique_Lighting_Phong();
+                        spectypemsg = "Phong";
+                        break;
+                    case 1:
+                        SpecularLightEffectClass.Technique_Lighting_Blinn();
+                        spectypemsg = "Blinn";
+                        break;
+                    case 2:
+                        SpecularLightEffectClass.Technique_Lighting_Wills();
+                        spectypemsg = "generic";
+                        break;
+                }
+            }
 
-            // Reset the view projection matrix.
+
             if (Keys.Home.IsKeyPressedWithDelay(gameTime))
                 cam.InitialView(GraphicsDevice);
-
             if (Keys.Space.IsKeyPressedWithDelay(gameTime))
                 manuallyRotateLight = !manuallyRotateLight;
 
@@ -383,9 +411,10 @@ namespace ShaderExamples
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
 
                 string msg =
+                    $" \n The F2 toggle wireframe. F3 show normals. F4 mesh itself. F5 the texture used." +
+                    $" \n F6 switch techniques {spectypemsg}. Space toggle light controls." +
                     $" \n The keys WASD change the forward view direction (which is the major take away here). ZC allows for spin." +
                     $" \n The Arrow keys move the camera translation as strafing motion. " +
-                    $" \n The F2 toggle wireframe. F3 show normals. F4 mesh itself. F5 the texture used." +
                     $" \n  " +
                     $" \n In this example we make a shader that creates a diffuse light." +
                     $" \n The light rotates around the mesh illuminating faces depending on the triangle normals." +
@@ -394,10 +423,6 @@ namespace ShaderExamples
                     $" \n Simple diffuse lighting is achieved via a dot product on the light and normals aka NdotL ." +
                     $" \n this can be found in the shader" +
                     $" \n  " +
-                    $" \n { cam.cameraWorld.DisplayMatrix("cameraWorld") }" +
-                    $" \n { cam.view.DisplayMatrix("view") }" +
-                    $" \n { cam.projection.DisplayMatrix("projection") }" +
-                    $" \n" +
                     $" \n {lightPosition.VectorToString("LightPosition")}" +
                     $" \n"
                     ;
@@ -407,9 +432,9 @@ namespace ShaderExamples
             //spriteBatch.DrawCircleOutline(new Vector2(300, 300), 100, 25, 1, Color.Yellow);
 
             if (displayOnScreenText)
-                spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Blue);
+                spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Red);
             else
-                spriteBatch.DrawString(font, "Press F1 for information" , new Vector2(10, 10), Color.Blue);
+                spriteBatch.DrawString(font, $"Press F1 for information  \n{spectypemsg}", new Vector2(10, 10), Color.Red);
 
             if (Keys.End.IsKeyPressedWithDelay(gameTime))
                 Console.WriteLine( $"{cam.cameraWorld.DisplayMatrixForCopy("cameraWorld") }");
@@ -417,8 +442,5 @@ namespace ShaderExamples
             spriteBatch.End();
         }
 
-
     }
-
-
 }

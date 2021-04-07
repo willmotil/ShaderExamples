@@ -636,4 +636,397 @@ namespace Microsoft.Xna.Framework
         }
 
     }
+
+
+    /// <summary>
+    /// https://www.w3resource.com/csharp-exercises/
+    /// https://www.w3resource.com/csharp-exercises/searching-and-sorting-algorithm/searching-and-sorting-algorithm-exercise-10.php
+    /// https://www.codeindark.com/bucket-sort-radix-sort-and-binary-trees-c-programming/
+    /// 
+    /// </summary>
+    public static class Sorting
+    {
+
+        /// <summary>
+        /// Efficient for very small arrays to be sorted.
+        /// Insertion sort takes maximum time if the array is in the reverse order and minimum time when the array is already sorted. 
+        /// In worst case scenario every element is compared with all other elements.
+        /// for N elements there will be N² comparison hence the time complexity of insertion sort is Θ(N²).
+        /// </summary>
+        public static void Insertionsort(int[] Array)
+        {
+            int n = Array.Length;
+            for (int i = 0; i < n; i++)
+            {
+                int curr = Array[i];
+                int j = i - 1;
+                while (j >= 0 && curr < Array[j])
+                {
+                    Array[j + 1] = Array[j];
+                    Array[j] = curr;
+                    j = j - 1;
+                }
+            }
+        }
+
+        public static void RadixSort(int[] arr)
+        {
+            int i, j;
+            int[] tmp = new int[arr.Length];
+            for (int shift = 31; shift > -1; --shift)
+            {
+                j = 0;
+                for (i = 0; i < arr.Length; ++i)
+                {
+                    bool move = (arr[i] << shift) >= 0;
+                    if (shift == 0 ? !move : move)
+                        arr[i - j] = arr[i];
+                    else
+                        tmp[j++] = arr[i];
+                }
+                Array.Copy(tmp, 0, arr, arr.Length - j, j);
+            }
+        }
+
+
+        public static void HeapSort<T>(T[] array) where T : IComparable<T>
+        {
+            int heapSize = array.Length;
+
+            BuildMaxHeap(array);
+
+            for (int i = heapSize - 1; i >= 1; i--)
+            {
+                Swap(array, i, 0);
+                heapSize--;
+                Sink(array, heapSize, 0);
+            }
+        }
+
+        private static void BuildMaxHeap<T>(T[] array) where T : IComparable<T>
+        {
+            int heapSize = array.Length;
+
+            for (int i = (heapSize / 2) - 1; i >= 0; i--)
+            {
+                Sink(array, heapSize, i);
+            }
+        }
+
+        private static void Sink<T>(T[] array, int heapSize, int toSinkPos) where T : IComparable<T>
+        {
+            if (GetLeftKidPos(toSinkPos) >= heapSize)
+            {
+                // No left kid => no kid at all
+                return;
+            }
+
+
+            int largestKidPos;
+            bool leftIsLargest;
+
+            if (GetRightKidPos(toSinkPos) >= heapSize || array[GetRightKidPos(toSinkPos)].CompareTo(array[GetLeftKidPos(toSinkPos)]) < 0)
+            {
+                largestKidPos = GetLeftKidPos(toSinkPos);
+                leftIsLargest = true;
+            }
+            else
+            {
+                largestKidPos = GetRightKidPos(toSinkPos);
+                leftIsLargest = false;
+            }
+
+
+
+            if (array[largestKidPos].CompareTo(array[toSinkPos]) > 0)
+            {
+                Swap(array, toSinkPos, largestKidPos);
+
+                if (leftIsLargest)
+                {
+                    Sink(array, heapSize, GetLeftKidPos(toSinkPos));
+
+                }
+                else
+                {
+                    Sink(array, heapSize, GetRightKidPos(toSinkPos));
+                }
+            }
+
+        }
+
+        private static void Swap<T>(T[] array, int pos0, int pos1)
+        {
+            T tmpVal = array[pos0];
+            array[pos0] = array[pos1];
+            array[pos1] = tmpVal;
+        }
+
+        private static int GetLeftKidPos(int parentPos)
+        {
+            return (2 * (parentPos + 1)) - 1;
+        }
+
+        private static int GetRightKidPos(int parentPos)
+        {
+            return 2 * (parentPos + 1);
+        }
+
+        /// <summary>
+        /// 50 to 200 this and quick sort perform fairly well.
+        /// </summary>
+        public static void Shellsort(int[] Array)
+        {
+            int n = Array.Length;
+            int gap = n / 2;
+            int temp, i, j;
+            while (gap > 0)
+            {
+                for (i = gap; i < n; i++)
+                {
+                    temp = Array[i];
+                    j = i;
+                    while (j >= gap && Array[j - gap] > temp)
+                    {
+                        Array[j] = Array[j - gap];
+                        j = j - gap;
+                    }
+                    Array[j] = temp;
+                }
+                gap = gap / 2;
+            }
+        }
+
+        /// <summary>
+        /// The time complexity of quick sort is Θ(N²) in worst case and the time complexity in best and average cases are Θ(NlogN).
+        /// </summary>
+        public static void Quicksort(int[] Array, int left, int right)
+        {
+            if (left < right)
+            {
+                int pivot = Partition(Array, left, right);
+                Quicksort(Array, left, pivot - 1);
+                Quicksort(Array, pivot + 1, right);
+            }
+        }
+
+        // partition function arrange and split the list 
+        // into two list based on pivot element
+        // In this example, last element of list is chosen 
+        // as pivot element. one list contains all elements 
+        // less than the pivot element another list contains 
+        // all elements greater than the pivot element
+        static int Partition(int[] Array, int left, int right)
+        {
+            int i = left;
+            int pivot = Array[right];
+            int temp;
+
+            for (int j = left; j <= right; j++)
+            {
+                if (Array[j] < pivot)
+                {
+                    temp = Array[i];
+                    Array[i] = Array[j];
+                    Array[j] = temp;
+                    i++;
+                }
+            }
+
+            temp = Array[right];
+            Array[right] = Array[i];
+            Array[i] = temp;
+            return i;
+        }
+
+
+        public static void MergeSort(int[] Array, int left, int right)
+        {
+            if (left < right)
+            {
+                int mid = left + (right - left) / 2;
+                MergeSort(Array, left, mid);
+                MergeSort(Array, mid + 1, right);
+                Merge(Array, left, mid, right);
+            }
+        }
+
+        // merge function performs sort and merge operations
+        // for mergesort function
+        static void Merge(int[] Array, int left, int mid, int right)
+        {
+            // Create two temporary array to hold split 
+            // elements of main array 
+            int n1 = mid - left + 1; //no of elements in LeftArray
+            int n2 = right - mid;     //no of elements in RightArray    
+            int[] LeftArray = new int[n1];
+            int[] RightArray = new int[n2];
+
+            for (int i = 0; i < n1; i++)
+            {
+                LeftArray[i] = Array[left + i];
+            }
+
+            for (int i = 0; i < n2; i++)
+            {
+                RightArray[i] = Array[mid + i + 1];
+            }
+
+            // In below section x, y and z represents index number
+            // of LeftArray, RightArray and Array respectively
+            int x = 0, y = 0, z = left;
+            while (x < n1 && y < n2)
+            {
+                if (LeftArray[x] < RightArray[y])
+                {
+                    Array[z] = LeftArray[x];
+                    x++;
+                }
+                else
+                {
+                    Array[z] = RightArray[y];
+                    y++;
+                }
+                z++;
+            }
+
+            // Copying the remaining elements of LeftArray
+            while (x < n1)
+            {
+                Array[z] = LeftArray[x];
+                x++;
+                z++;
+            }
+
+            // Copying the remaining elements of RightArray
+            while (y < n2)
+            {
+                Array[z] = RightArray[y];
+                y++;
+                z++;
+            }
+        }
+
+        /// <summary>
+        /// The overall time complexity of counting sort is Θ(N+K) in all cases.
+        /// </summary>
+        public static void Countingsort(int[] Array)
+        {
+            int n = Array.Length;
+            int max = 0;
+            //find largest element in the Array
+            for (int i = 0; i < n; i++)
+            {
+                if (max < Array[i])
+                {
+                    max = Array[i];
+                }
+            }
+
+            //Create a freq array to store number of occurrences of 
+            //each unique elements in the given array 
+            int[] freq = new int[max + 1];
+            for (int i = 0; i < max + 1; i++)
+            {
+                freq[i] = 0;
+            }
+            for (int i = 0; i < n; i++)
+            {
+                freq[Array[i]]++;
+            }
+
+            //sort the given array using freq array
+            for (int i = 0, j = 0; i <= max; i++)
+            {
+                while (freq[i] > 0)
+                {
+                    Array[j] = i;
+                    j++;
+                    freq[i]--;
+                }
+            }
+        }
+
+        // The main function to that sorts arr[] of size n using
+        // Radix Sort
+        public static void RadixsortAlt(int[] arr, int n)
+        {
+            // Find the maximum number to know number of digits
+            int m = RadixAltGetMax(arr, n);
+
+            // Do counting sort for every digit. Note that
+            // instead of passing digit number, exp is passed.
+            // exp is 10^i where i is current digit number
+            for (int exp = 1; m / exp > 0; exp *= 10)
+                RadixAltCountSort(arr, n, exp);
+        }
+
+        static int RadixAltGetMax(int[] arr, int n)
+        {
+            int mx = arr[0];
+            for (int i = 1; i < n; i++)
+                if (arr[i] > mx)
+                    mx = arr[i];
+            return mx;
+        }
+
+        // A function to do counting sort of arr[] according to
+        // the digit represented by exp.
+        static void RadixAltCountSort(int[] arr, int n, int exp)
+        {
+            int[] output = new int[n]; // output array
+            int i;
+            int[] count = new int[10];
+
+            // initializing all elements of count to 0
+            for (i = 0; i < 10; i++)
+                count[i] = 0;
+
+            // Store count of occurrences in count[]
+            for (i = 0; i < n; i++)
+                count[(arr[i] / exp) % 10]++;
+
+            // Change count[i] so that count[i] now contains
+            // actual
+            //  position of this digit in output[]
+            for (i = 1; i < 10; i++)
+                count[i] += count[i - 1];
+
+            // Build the output array
+            for (i = n - 1; i >= 0; i--)
+            {
+                output[count[(arr[i] / exp) % 10] - 1] = arr[i];
+                count[(arr[i] / exp) % 10]--;
+            }
+
+            // Copy the output array to arr[], so that arr[] now
+            // contains sorted numbers according to current
+            // digit
+            for (i = 0; i < n; i++)
+                arr[i] = output[i];
+        }
+
+
+        /// <summary>
+        /// prolly the worst sort
+        /// </summary>
+        public static void Bubblesort(int[] Array)
+        {
+            int n = Array.Length;
+            int temp;
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n - i - 1; j++)
+                {
+                    if (Array[j] > Array[j + 1])
+                    {
+                        temp = Array[j];
+                        Array[j] = Array[j + 1];
+                        Array[j + 1] = temp;
+                    }
+                }
+            }
+        }
+
+    }
 }
