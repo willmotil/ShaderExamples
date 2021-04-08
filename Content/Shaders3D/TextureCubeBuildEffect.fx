@@ -76,27 +76,16 @@ FaceStruct UvFaceToCubeMapVector(float2 pos, int faceIndex)
     float v = pos.y;
     switch (abs(faceIndex))
     {
-    case 1: //FACE_LEFT: CubeMapFace.NegativeX
-        output.PositionNormal = float3(-1.0f, v, u);
-        output.FaceNormal = float3(-1.0f, 0, 0);
-        output.FaceUp = float3(0, 1, 0);
-        break;
-    case 5: // FACE_FORWARD: CubeMapFace.NegativeZ
-        output.PositionNormal = float3(-u, v, -1.0f);
-        output.FaceNormal = float3(0, 0, -1.0f);
-        output.FaceUp = float3(0, 1, 0);
-        break;
     case 0: //FACE_RIGHT: CubeMapFace.PositiveX
         output.PositionNormal = float3(1.0f, v, -u);
         output.FaceNormal = float3(1.0f, 0, 0);
         output.FaceUp = float3(0, 1, 0);
         break;
-    case 4: //FACE_BACK: CubeMapFace.PositiveZ
-        output.PositionNormal = float3(u, v, 1.0f);
-        output.FaceNormal = float3(0, 0, 1.0f);
+    case 1: //FACE_LEFT: CubeMapFace.NegativeX
+        output.PositionNormal = float3(-1.0f, v, u);
+        output.FaceNormal = float3(-1.0f, 0, 0);
         output.FaceUp = float3(0, 1, 0);
         break;
-
     case 2: //FACE_TOP: CubeMapFace.PositiveY
         output.PositionNormal = float3(u, 1.0f, -v);
         output.FaceNormal = float3(0, 1.0f, 0);
@@ -106,6 +95,16 @@ FaceStruct UvFaceToCubeMapVector(float2 pos, int faceIndex)
         output.PositionNormal = float3(u, -1.0f, v);   // dir = float3(v, -1.0f, u);
         output.FaceNormal = float3(0, -1.0f, 0);
         output.FaceUp = float3(0, 0, -1);
+        break;
+    case 4: //FACE_BACK: CubeMapFace.PositiveZ
+        output.PositionNormal = float3(u, v, 1.0f);
+        output.FaceNormal = float3(0, 0, 1.0f);
+        output.FaceUp = float3(0, 1, 0);
+        break;
+    case 5: // FACE_FORWARD: CubeMapFace.NegativeZ
+        output.PositionNormal = float3(-u, v, -1.0f);
+        output.FaceNormal = float3(0, 0, -1.0f);
+        output.FaceUp = float3(0, 1, 0);
         break;
 
     default:
@@ -126,19 +125,19 @@ float2 CubeMapVectorToUvFace(float3 v, out int faceIndex)
     float2 uv;
     if (vAbs.z >= vAbs.x && vAbs.z >= vAbs.y)
     {
-        faceIndex = v.z < 0.0 ? 5 : 4; // Right , left _  //FACE_FRONT : FACE_BACK;   // z major axis.  we designate negative z forward.
+        faceIndex = v.z < 0.0 ? 5 : 4;  //FACE_FRONT : FACE_BACK;   // z major axis.  we designate negative z forward.
         ma = 0.5f / vAbs.z;
         uv = float2(v.z < 0.0f ? -v.x : v.x, -v.y);
     }
     else if (vAbs.y >= vAbs.x)
     {
-        faceIndex = v.y < 0.0f ? 3 : 2; // bot , top  //FACE_BOTTOM : FACE_TOP;  // y major axis.
+        faceIndex = v.y < 0.0f ? 3 : 2;  //FACE_BOTTOM : FACE_TOP;  // y major axis.
         ma = 0.5f / vAbs.y;
         uv = float2(v.x, v.y < 0.0 ? -v.z : v.z);
     }
     else
     {
-        faceIndex = v.x < 0.0 ? 1 : 0; // back , front  //FACE_LEFT : FACE_RIGHT; // x major axis.
+        faceIndex = v.x < 0.0 ? 1 : 0;  //FACE_LEFT : FACE_RIGHT; // x major axis.
         ma = 0.5f / vAbs.x;
         uv = float2(v.x < 0.0 ? v.z : -v.z, -v.y);
     }
@@ -179,21 +178,10 @@ float4 GetIrradiance(float2 pixelpos, int faceToMap)
 {
     FaceStruct input = UvFaceToCubeMapVector(pixelpos, faceToMap);
 
-    //float3 normal = input.PositionNormal;
-    //float3 up = input.FaceUp;
-    //float3 right = normalize(cross(up, input.FaceNormal));
-    //up = cross(input.FaceNormal, right);
-
     float3 normal = input.PositionNormal;
     float3 up = input.FaceUp;
     float3 right = normalize(cross(up, input.PositionNormal));
     up = cross(input.PositionNormal, right);
-
-    //float3 normal = input.PositionNormal;
-    //float3 up = float3(0, -1, 0);
-    //float3 right = normalize(cross(up, input.PositionNormal));
-    //up = cross(input.PositionNormal, right);
-
 
     // the following values are in degrees
     float numberOfSamplesHemisphere = 30.0; // we want the smallest amount with good quality
@@ -225,24 +213,13 @@ float4 GetIrradiance(float2 pixelpos, int faceToMap)
             float3 sampledColor = texCUBElod(CubeMapSampler, sampleVector).rgb;
 
             // some possible weighting functions.
-
             float avg = (sampledColor.r + sampledColor.b + sampledColor.g) * 0.33333f;
             float NdotS = saturate(dot(normal, sampleVector.rgb));
             float phiMuliplier = 1.0f - (phi / (5.283f + 1.0f));
 
             // accumulate and weigh the geometrical sampled pattern ... here is the hard part.
-
             accumulatedColor += sampledColor;
             totalWeight++;
-
-            //accumulatedColor += sampledColor * NdotS;
-            //totalWeight += NdotS;
-
-            //accumulatedColor += sampledColor * (cos(theta) * sin(theta));
-            //totalWeight += cos(theta) * sin(theta);
-
-            //accumulatedColor += sampledColor * phiMuliplier;
-            //totalWeight += phiMuliplier;
         }
 
     }
@@ -256,10 +233,6 @@ float4 GetIrradiance(float2 pixelpos, int faceToMap)
 
     return final;
 }
-
-
-
-
 
 
 
@@ -282,8 +255,8 @@ float4 SphericalToCubeMapPS(HdrToCubeMapVertexShaderOutput input) : COLOR
     FaceStruct face = UvFaceToCubeMapVector(input.Position3D, FaceToMap);
     float3 v = face.PositionNormal;
     float2 uv = CubeMapNormalTo2dEquaRectangularMapUvCoordinates(v);
+    //uv = float2(uv.x, uv.y);
     uv = float2(uv.x, 1.0f - uv.y);  // raw dx transform ok in hind site this shortcut hack in was a bad idea.
-    //float2 texcoords = float2(uv.x, uv.y);  // i will have to perform this fix later on.
     float4 color = float4(tex2D(TextureSamplerDiffuse, uv).rgb, 1.0f);
     return color;
 }

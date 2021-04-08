@@ -117,10 +117,12 @@ namespace ShaderExamples
 
             Content.RootDirectory = @"Content/Images";
 
-            textureMonogameLogo = Content.Load<Texture2D>("TextureAlignmentTestImage2");  //MG_Logo_Modifyed
+            textureMonogameLogo = Content.Load<Texture2D>("QuarrySquare");  //MG_Logo_Modifyed TextureAlignmentTestImage2
 
-            // RefactionTexture with the opposite encoding    walltomap wallnormmap  Flower-normal , Flower-diffuse  Flower-bump  Flower-ambientocclusion Quarry TextureAlignmentTestImage2
-            textureSphere = Content.Load<Texture2D>("TextureAlignmentTestImage2");  
+            // RefactionTexture with the opposite encoding
+            // walltomap wallnormmap  Flower-normal , Flower-diffuse  Flower-bump  Flower-ambientocclusion
+            // Quarry TextureAlignmentTestImage2
+            textureSphere = Content.Load<Texture2D>("QuarrySquare");  
             textureNormalMapSphere = Content.Load<Texture2D>("wallnormmap"); 
             textureMesh = Content.Load<Texture2D>("Quarry");  // TestNormalMap
             textureMeshNormalMap = Content.Load<Texture2D>("TestNormalMap");
@@ -139,40 +141,52 @@ namespace ShaderExamples
 
 
             TextureTypeConverter.Load(Content);
-            //loadedOrAssignedArray = new Texture2D[6];
-            //loadedOrAssignedArray[(int)CubeMapFace.PositiveX] = textureMonogameLogo;
-            //loadedOrAssignedArray[(int)CubeMapFace.PositiveY] = textureMonogameLogo;
-            //loadedOrAssignedArray[(int)CubeMapFace.PositiveZ] = textureMonogameLogo;
-            //loadedOrAssignedArray[(int)CubeMapFace.NegativeX] = textureMonogameLogo;
-            //loadedOrAssignedArray[(int)CubeMapFace.NegativeY] = textureMonogameLogo;
-            //loadedOrAssignedArray[(int)CubeMapFace.NegativeZ] = textureMonogameLogo;
-            //TextureCube cubemap = new TextureCube(GraphicsDevice, 192, false, SurfaceFormat.Color);
-            //Color[] data = new Color[textureMonogameLogo.Width * textureMonogameLogo.Height];
-            //textureMonogameLogo.GetData(data);
-            //cubemap.SetData(CubeMapFace.PositiveX, data);
-            //cubemap.SetData(CubeMapFace.PositiveY, data);
-            //cubemap.SetData(CubeMapFace.PositiveZ, data);
-            //cubemap.SetData(CubeMapFace.NegativeX, data);
-            //cubemap.SetData(CubeMapFace.NegativeY, data);
-            //cubemap.SetData(CubeMapFace.NegativeZ, data);
+
+            // Exhaustive Test.
+
+            var temp = textureMonogameLogo; /*textureMonogameLogo*/; /*textureSphere*/
+            var cubemap = TextureTypeConverter.ConvertSphericalTexture2DToTextureCube(GraphicsDevice, temp /*textureSphere*/, false, false, temp.Width);
+            generatedTextureFaceArrayFromCubemap = TextureTypeConverter.ConvertTextureCubeToTexture2DArray(GraphicsDevice, cubemap, false, false, temp.Width);
+
+            // Prove that the faces are assigned specifically to were they belong ... expected result is that the bug will not change and continuty is maintained as well.
+
+            cubemap = new TextureCube(GraphicsDevice, temp.Width, false, SurfaceFormat.Color);
+            Color[] data = new Color[temp.Width * temp.Height];
+            loadedOrAssignedArray = new Texture2D[6];
+
+            loadedOrAssignedArray[(int)CubeMapFace.PositiveX] = generatedTextureFaceArrayFromCubemap[(int)CubeMapFace.PositiveX];
+            loadedOrAssignedArray[(int)CubeMapFace.PositiveX].GetData(data);
+            cubemap.SetData(CubeMapFace.PositiveX, data);
+            loadedOrAssignedArray[(int)CubeMapFace.PositiveY] = generatedTextureFaceArrayFromCubemap[(int)CubeMapFace.PositiveY];
+            loadedOrAssignedArray[(int)CubeMapFace.PositiveY].GetData(data);
+            cubemap.SetData(CubeMapFace.PositiveY, data);
+            loadedOrAssignedArray[(int)CubeMapFace.PositiveZ] = generatedTextureFaceArrayFromCubemap[(int)CubeMapFace.PositiveZ];
+            loadedOrAssignedArray[(int)CubeMapFace.PositiveZ].GetData(data);
+            cubemap.SetData(CubeMapFace.PositiveZ, data);
+            loadedOrAssignedArray[(int)CubeMapFace.NegativeX] = generatedTextureFaceArrayFromCubemap[(int)CubeMapFace.NegativeX];
+            loadedOrAssignedArray[(int)CubeMapFace.NegativeX].GetData(data);
+            cubemap.SetData(CubeMapFace.NegativeX, data);
+            loadedOrAssignedArray[(int)CubeMapFace.NegativeY] = generatedTextureFaceArrayFromCubemap[(int)CubeMapFace.NegativeY];
+            loadedOrAssignedArray[(int)CubeMapFace.NegativeY].GetData(data);
+            cubemap.SetData(CubeMapFace.NegativeY, data);
+            loadedOrAssignedArray[(int)CubeMapFace.NegativeZ] = generatedTextureFaceArrayFromCubemap[(int)CubeMapFace.NegativeZ];
+            loadedOrAssignedArray[(int)CubeMapFace.NegativeZ].GetData(data);
+            cubemap.SetData(CubeMapFace.NegativeZ, data);
 
             //var cubemap = TextureTypeConverter.ConvertTexture2DArrayToTextureCube(GraphicsDevice, loadedOrAssignedArray, false, false, 256);
 
-            var cubemap = TextureTypeConverter.ConvertSphericalTexture2DToTextureCube(GraphicsDevice, textureSphere, false, false, 256);
-            generatedTextureFaceArrayFromCubemap = TextureTypeConverter.ConvertTextureCubeToTexture2DArray(GraphicsDevice, cubemap, false, false, 256);
+
             generatedTextureFromSingleImages = TextureTypeConverter.ConvertTexture2DArrayToSphericalTexture2D(GraphicsDevice, generatedTextureFaceArrayFromCubemap, false, false, 256);
             generatedTextureFaceArrayFromHdrLdr = TextureTypeConverter.ConvertSphericalTexture2DToTexture2DArray(GraphicsDevice, textureSphere /*generatedTextureFromSingleImages*/, false, false, 256);
             generatedTextureFromCubeMap = TextureTypeConverter.ConvertTextureCubeToSphericalTexture2D(GraphicsDevice, cubemap, false, false, 256);
 
             
 
-
-
             float thickness = .1f; float scale = 10f;
 
             // sphere.
 
-            sphere = new PrimitiveSphere(2, 2, 5000, false, false, false);  //sphere = new PrimitiveSphere(2, 2, 50, false, false, false);
+            sphere = new PrimitiveSphere(2, 2, 50, false, false, false);  //sphere = new PrimitiveSphere(2, 2, 50, false, false, false);
             sphere.textureCube = cubemap;
             visualSphereNormals = CreateVisualNormalLines(sphere.vertices, sphere.indices, dotTextureGreen, thickness, scale, false);
             visualSphereTangents= CreateVisualNormalLines(sphere.vertices, sphere.indices, dotTextureYellow, thickness, scale, true);
@@ -378,14 +392,14 @@ namespace ShaderExamples
         public void DrawSphere()
         {
             EnviromentalMapEffectClass.Technique_PhongCubeMap();
-            EnviromentalMapEffectClass.TextureCubeDiffuse = sphere.textureCube;
-            EnviromentalMapEffectClass.TextureDiffuse = textureSphere;
-            EnviromentalMapEffectClass.TextureNormalMap = textureNormalMapSphere;
-            EnviromentalMapEffectClass.World = Matrix.CreateTranslation(sphereCenter);
+            EnviromentalMapEffectClass.World = Matrix.CreateTranslation(sphereCenter); //Matrix.Identity; // Matrix.CreateTranslation(sphereCenter);
             EnviromentalMapEffectClass.View = cam.view;
             EnviromentalMapEffectClass.Projection = cam.projection;
             EnviromentalMapEffectClass.LightPosition = lightPosition;
             EnviromentalMapEffectClass.CameraPosition = cam.cameraWorld.Translation;
+            EnviromentalMapEffectClass.TextureCubeDiffuse = sphere.textureCube;
+            EnviromentalMapEffectClass.TextureDiffuse = textureSphere;
+            EnviromentalMapEffectClass.TextureNormalMap = textureNormalMapSphere;
             sphere.DrawPrimitiveSphere(GraphicsDevice, EnviromentalMapEffectClass.effect);
         }
 

@@ -149,27 +149,28 @@ namespace Microsoft.Xna.Framework
             var renderTargetCube = new RenderTargetCube(gd, sizeSquarePerFace, generateMips, pixelformat, DepthFormat.None);
             _hdrEffect.CurrentTechnique = _hdrEffect.Techniques[Technique];
             _hdrEffect.Parameters["Texture"].SetValue(sourceTextureSpherical);
+            // https://docs.microsoft.com/en-us/previous-versions/ms859061(v=msdn.10)
             for (int i = 0; i < 6; i++)
             {
                 switch (i)
                 {
-                    case (int)CubeMapFace.NegativeX: // FACE_LEFT
-                        gd.SetRenderTarget(renderTargetCube, CubeMapFace.NegativeX);
-                        break;
-                    case (int)CubeMapFace.NegativeZ: // FACE_FORWARD
-                        gd.SetRenderTarget(renderTargetCube, CubeMapFace.NegativeZ);
-                        break;
                     case (int)CubeMapFace.PositiveX: // FACE_RIGHT
                         gd.SetRenderTarget(renderTargetCube, CubeMapFace.PositiveX);
                         break;
-                    case (int)CubeMapFace.PositiveZ: // FACE_BACK
-                        gd.SetRenderTarget(renderTargetCube, CubeMapFace.PositiveZ);
+                    case (int)CubeMapFace.NegativeX: // FACE_LEFT
+                        gd.SetRenderTarget(renderTargetCube, CubeMapFace.NegativeX);
                         break;
                     case (int)CubeMapFace.PositiveY: // FACE_TOP
                         gd.SetRenderTarget(renderTargetCube, CubeMapFace.PositiveY);
                         break;
                     case (int)CubeMapFace.NegativeY: // FACE_BOTTOM
                         gd.SetRenderTarget(renderTargetCube, CubeMapFace.NegativeY);
+                        break;
+                    case (int)CubeMapFace.PositiveZ: // FACE_BACK
+                        gd.SetRenderTarget(renderTargetCube, CubeMapFace.PositiveZ);
+                        break;
+                    case (int)CubeMapFace.NegativeZ: // FACE_FORWARD
+                        gd.SetRenderTarget(renderTargetCube, CubeMapFace.NegativeZ);
                         break;
                 }
                 _hdrEffect.Parameters["FaceToMap"].SetValue(i); // render screenquad to face.

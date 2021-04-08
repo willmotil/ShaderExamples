@@ -27,6 +27,8 @@
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/Nasa_DEM_Mars.jpg</File>
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/planet_stencil.png</File>
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/puppy03.jpeg</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/Quarry.jpg</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/QuarrySquare.jpg</File>
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/RefactionTexture.png</File>
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/Tanzania.jpg</File>
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/Terran02.png</File>
@@ -61,6 +63,8 @@
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/TextureCubeBuildEffect.fx</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

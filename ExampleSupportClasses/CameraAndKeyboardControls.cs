@@ -13,8 +13,8 @@ namespace ShaderExamples //.ExampleSupportClasses
         public Matrix view;
         public Matrix projection;
 
-        public float speed = .25f;
-        public float speed2 = .008f;
+        public float moveSpeed = .8f; //.25f;
+        public float lookatSpeed = .008f; //.008f;
         public float fov = 0.85f;
 
         public Matrix cameraWorld = Matrix.Identity;
@@ -56,30 +56,30 @@ namespace ShaderExamples //.ExampleSupportClasses
         {
             // Use the arrow keys to alter the camera position.
             if (Keyboard.GetState().IsKeyDown(Keys.Left))
-                cameraWorld.Translation += cameraWorld.Right * -speed;
+                cameraWorld.Translation += cameraWorld.Right * -moveSpeed;
             if (Keyboard.GetState().IsKeyDown(Keys.Right))
-                cameraWorld.Translation += cameraWorld.Right * +speed;
+                cameraWorld.Translation += cameraWorld.Right * +moveSpeed;
             if (Keyboard.GetState().IsKeyDown(Keys.Up))
-                cameraWorld.Translation += cameraWorld.Up * +speed;
+                cameraWorld.Translation += cameraWorld.Up * +moveSpeed;
             if (Keyboard.GetState().IsKeyDown(Keys.Down))
-                cameraWorld.Translation += cameraWorld.Up * -speed;
+                cameraWorld.Translation += cameraWorld.Up * -moveSpeed;
             if (Keyboard.GetState().IsKeyDown(Keys.E))
-                cameraWorld.Translation += cameraWorld.Forward * speed;
+                cameraWorld.Translation += cameraWorld.Forward * moveSpeed;
             if (Keyboard.GetState().IsKeyDown(Keys.Q))
-                cameraWorld.Translation += cameraWorld.Forward * -speed;
+                cameraWorld.Translation += cameraWorld.Forward * -moveSpeed;
 
             // Use wasd to alter the lookat direction.
             var t = cameraWorld.Translation;
             cameraWorld.Translation = Vector3.Zero;
             // 
             if (Keyboard.GetState().IsKeyDown(Keys.D))
-                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Up, -speed2);
+                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Up, -lookatSpeed);
             if (Keyboard.GetState().IsKeyDown(Keys.A))
-                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Up, speed2);
+                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Up, lookatSpeed);
             if (Keyboard.GetState().IsKeyDown(Keys.S))
-                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Right, -speed2);
+                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Right, -lookatSpeed);
             if (Keyboard.GetState().IsKeyDown(Keys.W))
-                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Right, speed2);
+                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Right, lookatSpeed);
             cameraWorld.Translation = t;
 
             //// Use the Z and C keys to rotate the camera.

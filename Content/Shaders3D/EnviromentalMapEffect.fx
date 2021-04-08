@@ -253,10 +253,33 @@ float4 PS_BlinnPhong(VertexShaderOutput input) : COLOR
 	return col;
 }
 
+
+// DX
+// inward skybox
+//float3x3 m = float3x3(  
+//     -1, 0, 0,
+//     0, -1, 0,
+//     0, 0, -1
+//    );
+//N = mul(N, m);
+//
+// outward cube
+//float3x3 m = float3x3 (
+//    -1, 0, 0,
+//    0, -1, 0,
+//    0, 0, +1
+//    );
+//N = mul(N, m);
+//
+//  This is with ccw  triangles outgoing normals and upward tangents in the negative u direction.
+//
 float4 PS_RenderCubeMap(VertexShaderOutput input) : COLOR
 {
 	float3 N = normalize(input.Normal.xyz);
-	float4 envMapColor = texCUBElod(CubeMapSampler, float4 ( N , 0) );
+	N = -N;   // inward skybox.
+	//N =  float3( -n.x, -n.y, n.z); // outward cube.
+
+	float4 envMapColor = texCUBElod(CubeMapSampler, float4 (N , 0));
 	//clip(envMapColor.a - .01f); // just straight clip super low alpha.
 	return float4(envMapColor.rgb, 1.0f);
 }

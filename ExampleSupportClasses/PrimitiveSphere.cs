@@ -21,13 +21,15 @@ namespace ShaderExamples //Microsoft.Xna.Framework
     public class PrimitiveSphere
     {
         public bool showOutput = false;
-        // ...
-        public static Matrix matrixNegativeX = Matrix.CreateWorld(Vector3.Zero, new Vector3(-1.0f, 0, 0), Vector3.Up);
-        public static Matrix matrixNegativeZ = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 0, -1.0f), Vector3.Up);
-        public static Matrix matrixPositiveX = Matrix.CreateWorld(Vector3.Zero, new Vector3(1.0f, 0, 0), Vector3.Up);
-        public static Matrix matrixPositiveZ = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 0, 1.0f), Vector3.Up);
-        public static Matrix matrixPositiveY = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 1.0f, 0), Vector3.Backward);
-        public static Matrix matrixNegativeY = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, -1.0f, 0), Vector3.Forward);
+        // This matches the definitions for cubefaces but ... it doesn't matter cause the uv data just comes from normal direction on the texture cube.
+        // i can in vert all these with negatives on the forward and up and it wont change anything.
+        public static Matrix matrixPositiveX = Matrix.CreateWorld(Vector3.Zero, new Vector3(1.0f, 0, 0), Vector3.Up);  // 0  
+        public static Matrix matrixNegativeX = Matrix.CreateWorld(Vector3.Zero, new Vector3(-1.0f, 0, 0), Vector3.Up);  // 1
+        public static Matrix matrixPositiveY = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 1.0f, 0), Vector3.Backward); //2
+        public static Matrix matrixNegativeY = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, -1.0f, 0), Vector3.Forward);  //3
+        public static Matrix matrixPositiveZ = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 0, 1.0f), Vector3.Up);   //4
+        public static Matrix matrixNegativeZ = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 0, -1.0f), Vector3.Up);   // 5
+
 
         public VertexPositionNormalTextureTangentWeights[] vertices;
         public int[] indices;
@@ -267,27 +269,6 @@ namespace ShaderExamples //Microsoft.Xna.Framework
 
         }
 
-        public static Matrix GetWorldFaceMatrix(int i)
-        {
-            switch (i)
-            {
-                case (int)CubeMapFace.PositiveX: // 0 FACE_RIGHT
-                    return matrixPositiveX;
-                case (int)CubeMapFace.NegativeX: // 1 FACE_LEFT
-                    return matrixNegativeX;
-                case (int)CubeMapFace.PositiveY: // 2 FACE_TOP
-                    return matrixPositiveY;
-                case (int)CubeMapFace.NegativeY: // 3 FACE_BOTTOM
-                    return matrixNegativeY;
-                case (int)CubeMapFace.PositiveZ: // 4 FACE_BACK
-                    return matrixPositiveZ;
-                case (int)CubeMapFace.NegativeZ: // 5 FACE_FORWARD
-                    return matrixNegativeZ;
-                default:
-                    return matrixNegativeZ;
-            }
-        }
-
         private float Interpolate(float A, float B, float t)
         {
             return ((B - A) * t) + A;
@@ -323,6 +304,26 @@ namespace ShaderExamples //Microsoft.Xna.Framework
 
             v2 = n * (depth + mapDepth);
             return new VertexPositionNormalTextureTangentWeights(v2, FlatFaceOrDirectional(v2, faceIndex, flatFaces, depth), uv, Vector3.Zero, Color.Transparent, new Color(1, 0, 0, 0));
+        }
+        public static Matrix GetWorldFaceMatrix(int faceIndex)
+        {
+            switch (faceIndex)
+            {
+                case (int)CubeMapFace.PositiveX: // 0 FACE_RIGHT
+                    return matrixPositiveX;
+                case (int)CubeMapFace.NegativeX: // 1 FACE_LEFT
+                    return matrixNegativeX;
+                case (int)CubeMapFace.PositiveY: // 2 FACE_TOP
+                    return matrixPositiveY;
+                case (int)CubeMapFace.NegativeY: // 3 FACE_BOTTOM
+                    return matrixNegativeY;
+                case (int)CubeMapFace.PositiveZ: // 4 FACE_BACK
+                    return matrixPositiveZ;
+                case (int)CubeMapFace.NegativeZ: // 5 FACE_FORWARD
+                    return matrixNegativeZ;
+                default:
+                    return matrixNegativeZ;
+            }
         }
 
         private Vector3 FlatFaceOrDirectional(Vector3 v, int faceIndex, bool flatFaces, float depth)

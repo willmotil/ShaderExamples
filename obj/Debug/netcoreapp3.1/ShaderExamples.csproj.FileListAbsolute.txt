@@ -135,6 +135,12 @@ C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExa
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.dll
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.pdb
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.genruntimeconfig.cache
+C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\EnviromentalMapEffect.xnb
+C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\TextureCubeBuildEffect.xnb
+C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Quarry.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.AssemblyInfoInputs.cache
+C:\Users\Owner\GithubPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.AssemblyInfo.cs
+C:\Users\Owner\GithubPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.csproj.CoreCompileInputs.cache
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Fonts\MgFont.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Fonts\MgFont2.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Fonts\MgFont3.xnb
@@ -158,6 +164,8 @@ C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Nasa_DEM_Mars.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\planet_stencil.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\puppy03.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Quarry.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\QuarrySquare.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\RefactionTexture.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Tanzania.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Terran02.xnb
@@ -167,6 +175,7 @@ C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\walltomap.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\water04.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\DiffuseLightEffect.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\EnviromentalMapEffect.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\ImprovedIndexMeshDrawing.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\ImprovedIndexMeshEffect.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\NormalMapEffect.xnb
@@ -174,6 +183,7 @@ C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\SimpleDrawingWithMatriceEffect.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\SimpleTriangleDrawingEffect.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\SpecularLightEffect.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\TextureCubeBuildEffect.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders\BarFillColorReplaceEffect.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders\BloomGlowEffect.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders\FadingEdgeEffect.xnb
@@ -220,16 +230,8 @@ C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\runtimes\rhel-x
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\runtimes\win7-arm\native\libuv.dll
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\runtimes\win7-x64\native\libuv.dll
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\runtimes\win7-x86\native\libuv.dll
-C:\Users\Owner\GithubPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.AssemblyInfoInputs.cache
-C:\Users\Owner\GithubPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.AssemblyInfo.cs
-C:\Users\Owner\GithubPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.csproj.CoreCompileInputs.cache
 C:\Users\Owner\GithubPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.csproj.CopyComplete
 C:\Users\Owner\GithubPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.dll
 C:\Users\Owner\GithubPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.pdb
 C:\Users\Owner\GithubPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.genruntimeconfig.cache
-C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\EnviromentalMapEffect.xnb
-C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\TextureCubeBuildEffect.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.csprojAssemblyReference.cache
-C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\EnviromentalMapEffect.xnb
-C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\TextureCubeBuildEffect.xnb
-C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Quarry.xnb
