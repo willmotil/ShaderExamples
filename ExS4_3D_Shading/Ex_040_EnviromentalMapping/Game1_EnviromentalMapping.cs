@@ -12,7 +12,7 @@ namespace ShaderExamples
         bool manuallyRotateLight = false;
         bool displayMesh = true;
         bool displayWireframe = false;
-        bool displayNormals = false;
+        bool displayNormals = true;
         bool displayWhiteDiffuse = false;
         bool displayOnScreenText = false;
         int whichTechnique = 0;
@@ -120,16 +120,16 @@ namespace ShaderExamples
             textureMonogameLogo = Content.Load<Texture2D>("QuarrySquare");  //MG_Logo_Modifyed TextureAlignmentTestImage2
 
             // RefactionTexture with the opposite encoding
-            // walltomap wallnormmap  Flower-normal , Flower-diffuse  Flower-bump  Flower-ambientocclusion
-            // Quarry TextureAlignmentTestImage2
-            textureSphere = Content.Load<Texture2D>("QuarrySquare");  
-            textureNormalMapSphere = Content.Load<Texture2D>("wallnormmap"); 
+            // walltomap wallnormmap  Flower-normal , Flower-diffuse  Flower-bump  Flower-ambientocclusion  Quarry  QuarrySquare TextureAlignmentTestImage2
+            textureSphere = Content.Load<Texture2D>("QuarrySquare");
+            textureNormalMapSphere = Content.Load<Texture2D>("wallnormmap");
             textureMesh = Content.Load<Texture2D>("Quarry");  // TestNormalMap
             textureMeshNormalMap = Content.Load<Texture2D>("TestNormalMap");
 
             textureMesh = textureMonogameLogo;
 
-            cam.InitialView(GraphicsDevice, new Vector3(89.500f, +157.642f, -381.373f), -new Vector3(0.000f, +0.165f, -0.986f), Vector3.Down);
+            cam.InitialView(GraphicsDevice, new Vector3(+0f, +0f, -381.373f), Vector3.UnitZ, -Vector3.UnitY);
+            //cam.InitialView(GraphicsDevice, new Vector3(89.500f, +157.642f, -381.373f), -new Vector3(0.000f, +0.165f, -0.986f), Vector3.Down);
             //cam.InitialView(GraphicsDevice, new Matrix
             //        (
             //         -1.000f, +0.000f, +0.000f, +0.000f,
@@ -141,62 +141,28 @@ namespace ShaderExamples
 
 
             TextureTypeConverter.Load(Content);
-
-            // Exhaustive Test.
-
-            var temp = textureMonogameLogo; /*textureMonogameLogo*/; /*textureSphere*/
-            var cubemap = TextureTypeConverter.ConvertSphericalTexture2DToTextureCube(GraphicsDevice, temp /*textureSphere*/, false, false, temp.Width);
-            generatedTextureFaceArrayFromCubemap = TextureTypeConverter.ConvertTextureCubeToTexture2DArray(GraphicsDevice, cubemap, false, false, temp.Width);
-
-            // Prove that the faces are assigned specifically to were they belong ... expected result is that the bug will not change and continuty is maintained as well.
-
-            cubemap = new TextureCube(GraphicsDevice, temp.Width, false, SurfaceFormat.Color);
-            Color[] data = new Color[temp.Width * temp.Height];
-            loadedOrAssignedArray = new Texture2D[6];
-
-            loadedOrAssignedArray[(int)CubeMapFace.PositiveX] = generatedTextureFaceArrayFromCubemap[(int)CubeMapFace.PositiveX];
-            loadedOrAssignedArray[(int)CubeMapFace.PositiveX].GetData(data);
-            cubemap.SetData(CubeMapFace.PositiveX, data);
-            loadedOrAssignedArray[(int)CubeMapFace.PositiveY] = generatedTextureFaceArrayFromCubemap[(int)CubeMapFace.PositiveY];
-            loadedOrAssignedArray[(int)CubeMapFace.PositiveY].GetData(data);
-            cubemap.SetData(CubeMapFace.PositiveY, data);
-            loadedOrAssignedArray[(int)CubeMapFace.PositiveZ] = generatedTextureFaceArrayFromCubemap[(int)CubeMapFace.PositiveZ];
-            loadedOrAssignedArray[(int)CubeMapFace.PositiveZ].GetData(data);
-            cubemap.SetData(CubeMapFace.PositiveZ, data);
-            loadedOrAssignedArray[(int)CubeMapFace.NegativeX] = generatedTextureFaceArrayFromCubemap[(int)CubeMapFace.NegativeX];
-            loadedOrAssignedArray[(int)CubeMapFace.NegativeX].GetData(data);
-            cubemap.SetData(CubeMapFace.NegativeX, data);
-            loadedOrAssignedArray[(int)CubeMapFace.NegativeY] = generatedTextureFaceArrayFromCubemap[(int)CubeMapFace.NegativeY];
-            loadedOrAssignedArray[(int)CubeMapFace.NegativeY].GetData(data);
-            cubemap.SetData(CubeMapFace.NegativeY, data);
-            loadedOrAssignedArray[(int)CubeMapFace.NegativeZ] = generatedTextureFaceArrayFromCubemap[(int)CubeMapFace.NegativeZ];
-            loadedOrAssignedArray[(int)CubeMapFace.NegativeZ].GetData(data);
-            cubemap.SetData(CubeMapFace.NegativeZ, data);
-
-            //var cubemap = TextureTypeConverter.ConvertTexture2DArrayToTextureCube(GraphicsDevice, loadedOrAssignedArray, false, false, 256);
-
-
-            generatedTextureFromSingleImages = TextureTypeConverter.ConvertTexture2DArrayToSphericalTexture2D(GraphicsDevice, generatedTextureFaceArrayFromCubemap, false, false, 256);
-            generatedTextureFaceArrayFromHdrLdr = TextureTypeConverter.ConvertSphericalTexture2DToTexture2DArray(GraphicsDevice, textureSphere /*generatedTextureFromSingleImages*/, false, false, 256);
+            var cubemap = TextureTypeConverter.ConvertSphericalTexture2DToTextureCube(GraphicsDevice, textureSphere, false, false, textureSphere.Width);
             generatedTextureFromCubeMap = TextureTypeConverter.ConvertTextureCubeToSphericalTexture2D(GraphicsDevice, cubemap, false, false, 256);
+            generatedTextureFaceArrayFromCubemap = TextureTypeConverter.ConvertTextureCubeToTexture2DArray(GraphicsDevice, cubemap, false, false, 256);
+            generatedTextureFromSingleImages = TextureTypeConverter.ConvertTexture2DArrayToSphericalTexture2D(GraphicsDevice, generatedTextureFaceArrayFromCubemap, false, false, 256);
+            generatedTextureFaceArrayFromHdrLdr = TextureTypeConverter.ConvertSphericalTexture2DToTexture2DArray(GraphicsDevice, textureSphere, false, false, 256);
 
-            
 
-            float thickness = .1f; float scale = 10f;
 
             // sphere.
 
-            sphere = new PrimitiveSphere(2, 2, 50, false, false, false);  //sphere = new PrimitiveSphere(2, 2, 50, false, false, false);
+            sphere = new PrimitiveSphere(2, 2, 50, false, false, false);
             sphere.textureCube = cubemap;
+            float thickness = .1f; float scale = 10f;
             visualSphereNormals = CreateVisualNormalLines(sphere.vertices, sphere.indices, dotTextureGreen, thickness, scale, false);
-            visualSphereTangents= CreateVisualNormalLines(sphere.vertices, sphere.indices, dotTextureYellow, thickness, scale, true);
+            visualSphereTangents = CreateVisualNormalLines(sphere.vertices, sphere.indices, dotTextureYellow, thickness, scale, true);
             visualLightLineToSphere = CreateVisualLine(dotTextureWhite, sphereCenter, lightStartPosition, 1, Color.White);
 
 
             // mesh.
 
             PrimitiveIndexedMesh.ShowOutput = false;
-            PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_HIGHEST; //PrimitiveIndexedMesh.AVERAGING_OPTION_USE_RED;
+            PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_HIGHEST;
 
             mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(300f, 250, 0f), false, false);
             thickness = .1f; scale = 10f;
@@ -207,7 +173,7 @@ namespace ShaderExamples
             //mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), false, false);
             //thickness = .01f; scale = 1f;
 
-            mesh.DiffuseTexture = textureMesh; 
+            mesh.DiffuseTexture = textureMesh;
             mesh.NormalMapTexture = textureMeshNormalMap;
             visualMeshNormals = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureGreen, thickness, scale, false);
             visualMeshTangents = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureYellow, thickness, scale, true);
@@ -339,30 +305,30 @@ namespace ShaderExamples
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
-            GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
+            //GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
+            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
 
             if (displayMesh)
+            {
                 DrawMesh();
+                DrawSphere();
+            }
 
+            EnviromentalMapEffectClass.Technique_Lighting_Phong();
+
+            if (displayWireframe)
+                DrawWireFrameMesh();
+
+            GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
             if (displayNormals)
             {
                 DrawNormalsForMesh();
                 DrawTangentsForMesh();
-            }
-            DrawLightLineToMesh();
-
-            
-            if (displayWireframe)
-                DrawWireFrameMesh();
-
-
-            DrawSphere();
-            if (displayNormals)
-            {
                 DrawNormalsForSphere();
                 DrawTangentsForSphere();
             }
+            DrawLightLineToMesh();
             DrawLightLineToSphere();
 
 
@@ -391,7 +357,7 @@ namespace ShaderExamples
 
         public void DrawSphere()
         {
-            EnviromentalMapEffectClass.Technique_PhongCubeMap();
+            EnviromentalMapEffectClass.Technique_Render_CcwCube();
             EnviromentalMapEffectClass.World = Matrix.CreateTranslation(sphereCenter); //Matrix.Identity; // Matrix.CreateTranslation(sphereCenter);
             EnviromentalMapEffectClass.View = cam.view;
             EnviromentalMapEffectClass.Projection = cam.projection;
@@ -403,10 +369,25 @@ namespace ShaderExamples
             sphere.DrawPrimitiveSphere(GraphicsDevice, EnviromentalMapEffectClass.effect);
         }
 
+        public void DrawWireFrameMesh()
+        {
+            GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_WIREFRAME;
+            EnviromentalMapEffectClass.World = Matrix.Identity;
+            EnviromentalMapEffectClass.View = cam.view;
+            EnviromentalMapEffectClass.Projection = cam.projection;
+            EnviromentalMapEffectClass.LightPosition = lightPosition;
+            EnviromentalMapEffectClass.CameraPosition = cam.cameraWorld.Translation;
+            EnviromentalMapEffectClass.TextureDiffuse = dotTextureRed;
+            EnviromentalMapEffectClass.TextureNormalMap = dotTextureRed;
+            mesh.DrawPrimitive(GraphicsDevice, EnviromentalMapEffectClass.effect);
+        }
+
         public void DrawNormalsForMesh()
         {
+            // these all use basic effect internally so we must set the world view projection up for them again seperately.
             visualMeshNormals.World = Matrix.Identity;
             visualMeshNormals.View = cam.view;
+            visualMeshNormals.Projection = cam.projection;
             visualMeshNormals.Draw(GraphicsDevice);
         }
 
@@ -422,6 +403,7 @@ namespace ShaderExamples
         {
             visualMeshTangents.World = Matrix.Identity;
             visualMeshTangents.View = cam.view;
+            visualMeshTangents.Projection = cam.projection;
             visualMeshTangents.Draw(GraphicsDevice);
         }
 
@@ -437,6 +419,7 @@ namespace ShaderExamples
         {
             visualLightLineToMesh.World = Matrix.Identity; //lightTransform;
             visualLightLineToMesh.View = cam.view;
+            visualLightLineToMesh.Projection = cam.projection;
             visualLightLineToMesh.Draw(GraphicsDevice);
         }
 
@@ -447,14 +430,7 @@ namespace ShaderExamples
             visualLightLineToSphere.Draw(GraphicsDevice);
         }
 
-        public void DrawWireFrameMesh()
-        {
-            GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_WIREFRAME;
-            visualMeshNormals.World = Matrix.Identity;
-            visualMeshNormals.View = cam.view;
-            EnviromentalMapEffectClass.TextureDiffuse = dotTextureRed;
-            mesh.DrawPrimitive(GraphicsDevice, EnviromentalMapEffectClass.effect);
-        }
+
 
 
         public void DrawSpriteBatches(GameTime gameTime)
@@ -464,7 +440,16 @@ namespace ShaderExamples
             // Draw all the regular stuff
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
 
-                string msg =
+            spriteBatch.Draw(textureSphere, new Rectangle(0, 10, 100, 120), Color.White);
+            for (int i = 0; i < generatedTextureFaceArrayFromCubemap.Length; i++)
+            {
+                spriteBatch.Draw(generatedTextureFaceArrayFromCubemap[i], new Rectangle((i + 1) * 140, 10, 100, 100), Color.White);
+                spriteBatch.Draw(generatedTextureFaceArrayFromHdrLdr[i], new Rectangle((i + 1) * 140 + 35, 10 + 15, 100, 100), Color.White);
+            }
+            spriteBatch.Draw(generatedTextureFromSingleImages, new Rectangle(0, 180, 100, 120), Color.White);
+            spriteBatch.Draw(generatedTextureFromCubeMap, new Rectangle(150, 190, 100, 120), Color.White);
+
+            string msg =
                     $" \n The F2 toggle wireframe. F3 show normals. F4 mesh itself. F5 the texture used." +
                     $" \n F6 switch techniques {spectypemsg}. Space toggle light controls." +
                     $" \n The keys WASD change the forward view direction (which is the major take away here). ZC allows for spin." +
@@ -491,16 +476,6 @@ namespace ShaderExamples
                 spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Red);
             else
                 spriteBatch.DrawString(font, $"Press F1 for information  \n{spectypemsg}", new Vector2(10, 10), Color.Red);
-
-            
-            spriteBatch.Draw(textureSphere, new Rectangle(0, 10, 100, 120), Color.White);
-            for (int i =0; i <  generatedTextureFaceArrayFromCubemap.Length; i++)
-            {
-                spriteBatch.Draw(generatedTextureFaceArrayFromCubemap[i], new Rectangle((i+1) * 140 , 10, 100, 100), Color.White);
-                spriteBatch.Draw(generatedTextureFaceArrayFromHdrLdr[i], new Rectangle((i + 1) * 140 +35, 10 +15, 100, 100), Color.White);
-            }
-            spriteBatch.Draw(generatedTextureFromSingleImages, new Rectangle(0, 180, 100, 120), Color.White);
-            spriteBatch.Draw(generatedTextureFromCubeMap, new Rectangle(150, 190, 100, 120), Color.White);
 
 
             if (Keys.End.IsKeyPressedWithDelay(gameTime))

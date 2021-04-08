@@ -21,6 +21,8 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
         public const int AVERAGING_OPTION_USE_AVERAGE = 1;
         public const int AVERAGING_OPTION_USE_RED = 0;
 
+        public bool Clockwise = false;
+
         public VertexPositionNormalTextureTangentWeights[] vertices;
         public int[] indices;
 
@@ -201,25 +203,55 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
         /// </summary>
         public void AddQuadIndexes(int tl, int tr, int bl, int br, ref List<int> IndexLists)
         {
-            // tl > bl > tr   0,1,2
-            IndexLists.Add(tl);
-            IndexLists.Add(bl);
-            IndexLists.Add(tr);
+            if (Clockwise)
+            {
+                // tl > bl > tr   0,1,2
+                IndexLists.Add(tl);
+                IndexLists.Add(bl);
+                IndexLists.Add(tr);
 
-            // br > tr > bl   3,2,1
-            IndexLists.Add(br);
-            IndexLists.Add(tr);
-            IndexLists.Add(bl);
+                // br > tr > bl   3,2,1
+                IndexLists.Add(br);
+                IndexLists.Add(tr);
+                IndexLists.Add(bl);
+            }else
+            {
+                //IndexLists.Add(tr);
+                //IndexLists.Add(bl);
+                //IndexLists.Add(tl);
+
+                //IndexLists.Add(bl);
+                //IndexLists.Add(tr);
+                //IndexLists.Add(br);
+
+                IndexLists.Add(bl);
+                IndexLists.Add(tr);
+                IndexLists.Add(br);
+
+                IndexLists.Add(tr);
+                IndexLists.Add(bl);
+                IndexLists.Add(tl);
+            }
         }
 
         public void CalcululateNormalsAddToVertices(int startIndice, ref List<VertexPositionNormalTextureTangentWeights> VertexLists, ref List<int> IndexLists)
         {
             // tl[0] > bl[1] > tr[2] > br[3]
-
-            var tl = IndexLists[startIndice + 0];
-            var bl = IndexLists[startIndice + 1];
-            var tr = IndexLists[startIndice + 2];
-            var br = IndexLists[startIndice + 3];
+            int tl, bl, tr, br;
+            if (Clockwise)
+            {
+                tl = IndexLists[startIndice + 0];
+                bl = IndexLists[startIndice + 1];
+                tr = IndexLists[startIndice + 2];
+                br = IndexLists[startIndice + 3];
+            }
+            else
+            {
+                tl = IndexLists[startIndice + 5];
+                bl = IndexLists[startIndice + 4];
+                tr = IndexLists[startIndice + 3];
+                br = IndexLists[startIndice + 2];
+            }
 
             var TL = VertexLists[tl];
             var BL = VertexLists[bl];
@@ -248,11 +280,21 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
 
         public void CalcululateTangentsAddToVertices(int startIndice, ref List<VertexPositionNormalTextureTangentWeights> VertexLists, ref List<int> IndexLists)
         {
-            // tl[0] > bl[1] > tr[2] > br[3]
-            var tl = IndexLists[startIndice + 0];
-            var bl = IndexLists[startIndice + 1];
-            var tr = IndexLists[startIndice + 2];
-            var br = IndexLists[startIndice + 3];
+            int tl, bl, tr, br;
+            if (Clockwise)
+            {
+                tl = IndexLists[startIndice + 0];
+                bl = IndexLists[startIndice + 1];
+                tr = IndexLists[startIndice + 2];
+                br = IndexLists[startIndice + 3];
+            }
+            else
+            {
+                tl = IndexLists[startIndice + 5];
+                bl = IndexLists[startIndice + 4];
+                tr = IndexLists[startIndice + 3];
+                br = IndexLists[startIndice + 2];
+            }
 
             var TL = VertexLists[tl];
             var BL = VertexLists[bl];

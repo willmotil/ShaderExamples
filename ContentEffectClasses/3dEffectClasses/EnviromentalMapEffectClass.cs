@@ -47,9 +47,14 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
         {
             effect.CurrentTechnique = effect.Techniques["Lighting_Blinn"];
         }
-        public static void Technique_PhongCubeMap()
+        public static void Technique_Render_CcwSkybox()
         {
-            effect.CurrentTechnique = effect.Techniques["PhongCubeMap"];
+            effect.CurrentTechnique = effect.Techniques["Render_CcwSkybox"];
+        }
+
+        public static void Technique_Render_CcwCube()
+        {
+            effect.CurrentTechnique = effect.Techniques["Render_CcwCube"];
         }
 
 
@@ -100,8 +105,8 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
 
         public static float AmbientStrength
         {
-            set 
-            { 
+            set
+            {
                 ambientStrength = value;
                 totalStrength = ambientStrength + diffuseStrength + specularStrength;
                 effect.Parameters["AmbientStrength"].SetValue(ambientStrength / totalStrength);
@@ -109,7 +114,7 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
         }
         public static float SpecularStrength
         {
-            set 
+            set
             {
                 diffuseStrength = value;
                 totalStrength = ambientStrength + diffuseStrength + specularStrength;
@@ -118,7 +123,7 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
         }
         public static float DiffuseStrength
         {
-            set 
+            set
             {
                 specularStrength = value;
                 totalStrength = ambientStrength + diffuseStrength + specularStrength;

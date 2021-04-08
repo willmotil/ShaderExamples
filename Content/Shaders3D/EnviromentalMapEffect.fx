@@ -121,7 +121,8 @@ float SpecularPhong(float3 toViewer, float3 toLight, float3 normal, float shinin
 	float3 viewDir = normalize(-toViewer);
 	float3 reflectDir = reflect(toLight, normal);
 	float b = max(dot(reflectDir, viewDir), 0.0f);
-	return pow(b, shininess / 4.0f); // note that the exponent is different here
+	float backfaceRemoval = saturate( sign( dot(toLight, normal) ) );
+	return pow(b, shininess / 4.0f) * backfaceRemoval; // note that the exponent is different here
 }
 
 float SpecularBlinnPhong(float3 toViewer, float3 toLight, float3 normal, float shininess)
@@ -129,7 +130,8 @@ float SpecularBlinnPhong(float3 toViewer, float3 toLight, float3 normal, float s
 	toViewer = normalize(toViewer);
 	float3 halfnorm = normalize(toLight + toViewer);
 	float cosb = max(dot(normal, halfnorm), 0.0f);
-	return pow(cosb, shininess);
+	float backfaceRemoval = saturate(sign(dot(toLight, normal)));
+	return pow(cosb, shininess) * backfaceRemoval;
 }
 
 float SpecularSharpener(float specular, float scalar)
@@ -145,7 +147,7 @@ float SpecularCurveFit(float3 V, float3 L, float3 N, float sharpness)
 	float a = sharpness / (sharpness + 0.1f); // infinite sliding limit.
 	float ndotl = saturate(dot(L, N));
 	float r = (dot(V, reflect(-L, N)) + ndoth * 0.07f) / 1.07f;  // *ndotl;
-	float result = saturate(r - a) * ( 1.0f / ( 1.0f - a) );
+	float result = saturate(r - a) * (1.0f / (1.0f - a));
 
 	return result;
 }
@@ -225,9 +227,9 @@ float4 PS_Phong(VertexShaderOutput input) : COLOR
 	float NdotH = MaxDot(N, H);
 	float NdotL = MaxDot(N, L);
 
-	float spec= SpecularPhong(V, L, N, 100.0f);
+	float spec = SpecularPhong(V, L, N, 100.0f);
 	float3 speccol = col.rgb * LightColor;
-	col.rgb =  (speccol.rgb * spec * SpecularStrength) +(col.rgb * NdotL * NdotL * DiffuseStrength) + (col.rgb * AmbientStrength);
+	col.rgb = (speccol.rgb * spec * SpecularStrength) + (col.rgb * NdotL * NdotL * DiffuseStrength) + (col.rgb * AmbientStrength);
 	//col.rgb = (speccol.rgb * spec * (SpecularStrength + DiffuseStrength));
 	return col;
 }
@@ -254,30 +256,28 @@ float4 PS_BlinnPhong(VertexShaderOutput input) : COLOR
 }
 
 
-// DX
-// inward skybox
-//float3x3 m = float3x3(  
-//     -1, 0, 0,
-//     0, -1, 0,
-//     0, 0, -1
-//    );
-//N = mul(N, m);
-//
-// outward cube
-//float3x3 m = float3x3 (
-//    -1, 0, 0,
-//    0, -1, 0,
-//    0, 0, +1
-//    );
-//N = mul(N, m);
-//
-//  This is with ccw  triangles outgoing normals and upward tangents in the negative u direction.
-//
-float4 PS_RenderCubeMap(VertexShaderOutput input) : COLOR
+// DX This is with ccw  triangles outgoing normals and upward tangents in the negative u direction.
+//// outward cube
+////float3x3 m = float3x3 (
+////    -1, 0, 0,
+////    0, -1, 0,
+////    0, 0, +1
+////    );
+float4 PS_RenderOutwardCube(VertexShaderOutput input) : COLOR
+{
+	float3 N = normalize(input.Normal.xyz);
+	N = float3(-N.x, -N.y, N.z); // outward cube.
+
+	float4 envMapColor = texCUBElod(CubeMapSampler, float4 (N , 0));
+	//clip(envMapColor.a - .01f); // just straight clip super low alpha.
+	return float4(envMapColor.rgb, 1.0f);
+}
+
+// DX This is with ccw  triangles outgoing normals and upward tangents in the negative u direction.
+float4 PS_RenderInwardSkybox(VertexShaderOutput input) : COLOR
 {
 	float3 N = normalize(input.Normal.xyz);
 	N = -N;   // inward skybox.
-	//N =  float3( -n.x, -n.y, n.z); // outward cube.
 
 	float4 envMapColor = texCUBElod(CubeMapSampler, float4 (N , 0));
 	//clip(envMapColor.a - .01f); // just straight clip super low alpha.
@@ -310,15 +310,27 @@ technique Lighting_Blinn
 	}
 };
 
-technique PhongCubeMap
+technique Render_CcwCube
 {
 	pass P0
 	{
 		VertexShader = compile VS_SHADERMODEL
 			VS();
 		PixelShader = compile PS_SHADERMODEL
-			PS_RenderCubeMap();
+			PS_RenderOutwardCube();
 	}
 };
+
+technique Render_CcwSkybox
+{
+	pass P0
+	{
+		VertexShader = compile VS_SHADERMODEL
+			VS();
+		PixelShader = compile PS_SHADERMODEL
+			PS_RenderInwardSkybox();
+	}
+};
+
 
 
