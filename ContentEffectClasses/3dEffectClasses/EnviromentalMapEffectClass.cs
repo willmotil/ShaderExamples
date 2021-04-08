@@ -52,14 +52,15 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
             effect.CurrentTechnique = effect.Techniques["PhongCubeMap"];
         }
 
+
+        public static TextureCube TextureCubeDiffuse
+        {
+            set { effect.Parameters["TextureCubeDiffuse"].SetValue(value); }
+        }
+
         public static Texture2D TextureDiffuse
         {
             set { effect.Parameters["TextureDiffuse"].SetValue(value); }
-        }
-
-        public static TextureCube CubeMapDiffuse
-        {
-            set { effect.Parameters["CubeMapDiffuse"].SetValue(value); }
         }
 
         public static Texture2D TextureNormalMap

@@ -58,10 +58,10 @@ sampler TextureSamplerNormalMap = sampler_state
 	AddressV = clamp;
 };
 
-TextureCube CubeMapDiffuse;
+TextureCube TextureCubeDiffuse;
 samplerCUBE CubeMapSampler = sampler_state
 {
-	texture = <CubeMapDiffuse>;
+	texture = <TextureCubeDiffuse>;
 	AddressU = clamp;
 	AddressV = clamp;
 	//magfilter = Linear;//minfilter = Linear;//mipfilter = Linear;
@@ -207,20 +207,6 @@ VertexShaderOutput VS(in VertexShaderInput input)
 	return output;
 }
 
-
-VertexShaderOutput RenderCubeMapVS(in VertexShaderInput input)
-{
-	VertexShaderOutput output;
-	float4x4 vp = mul(View, Projection);
-	float4 pos = mul(input.Position, World);
-	float4 norm = mul(input.Normal, World);
-	output.Position = mul(pos, vp);
-	output.Position3D = pos.xyz;
-	output.Normal = norm.xyz;
-	output.TextureCoordinates = input.TextureCoordinates;
-	return output;
-}
-
 //++++++++++++++++++++++++++++++++++++++++
 // P I X E L  S H A D E R S
 //++++++++++++++++++++++++++++++++++++++++
@@ -267,21 +253,10 @@ float4 PS_BlinnPhong(VertexShaderOutput input) : COLOR
 	return col;
 }
 
-float4 RenderCubeMapPS(VertexShaderOutput input) : COLOR
+float4 PS_RenderCubeMap(VertexShaderOutput input) : COLOR
 {
-	//float4 baseColor = tex2D(TextureSamplerDiffuse, input.TextureCoordinate); 
-	////clip(baseColor.a - .01f); // just straight clip super low alpha.
-	//float3 P = input.Position3D;
-	//float3 N = normalize(input.Normal3D.xyz);
-	//float3 V = normalize(CameraPosition - input.Position3D);
-	//float NdotV = max(0.0, dot(N, V));
-	//float3 R = 2.0 * NdotV * N - V;
-
-	//float4 envMapColor = texCUBElod(CubeMapSampler, float4(R, testValue1));
-	//return float4(envMapColor.rgb, 1.0f);
-
 	float3 N = normalize(input.Normal.xyz);
-	float4 envMapColor = texCUBElod(CubeMapSampler, float4(N, 0));
+	float4 envMapColor = texCUBElod(CubeMapSampler, float4 ( N , 0) );
 	//clip(envMapColor.a - .01f); // just straight clip super low alpha.
 	return float4(envMapColor.rgb, 1.0f);
 }
@@ -317,9 +292,9 @@ technique PhongCubeMap
 	pass P0
 	{
 		VertexShader = compile VS_SHADERMODEL
-			RenderCubeMapVS();
+			VS();
 		PixelShader = compile PS_SHADERMODEL
-			RenderCubeMapPS();
+			PS_RenderCubeMap();
 	}
 };
 

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/SimpleDrawingWithMatriceEffect.fx</SourceFile>
-  <SourceTime>2021-04-02T23:58:19.3887684-04:00</SourceTime>
-  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Content/Shaders3D/SimpleDrawingWithMatriceEffect.xnb</DestFile>
-  <DestTime>2021-04-07T00:25:25.1980118-04:00</DestTime>
+  <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/SimpleDrawingWithMatriceEffect.fx</SourceFile>
+  <SourceTime>2021-03-21T18:24:46.6208031-04:00</SourceTime>
+  <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Content/Shaders3D/SimpleDrawingWithMatriceEffect.xnb</DestFile>
+  <DestTime>2021-04-07T08:17:52.8735704-04:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2020-08-10T16:17:54-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>

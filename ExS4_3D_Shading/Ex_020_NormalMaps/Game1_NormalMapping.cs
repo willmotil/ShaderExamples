@@ -115,7 +115,13 @@ Finally the B channel in the image ranges from 128 to 255
             font2 = Content.Load<SpriteFont>("MgFont2");
             font3 = Content.Load<SpriteFont>("MgFont3");
 
-            cam.InitialView(GraphicsDevice);
+            cam.InitialView(GraphicsDevice, new Matrix
+                    (
+                     -1.000f, +0.000f, +0.000f, +0.000f,
+                     +0.000f, +0.999f, +0.032f, +0.000f,
+                     +0.000f, +0.032f, -0.999f, +0.000f,
+                     +204.500f, +204.527f, -620.156f, +1.000f
+                    ));
             cam.UpdateProjection(GraphicsDevice);
 
             NormalMapEffectClass.Load(Content);

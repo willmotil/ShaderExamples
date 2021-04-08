@@ -83,7 +83,14 @@ namespace ShaderExamples
             font2 = Content.Load<SpriteFont>("MgFont2");
             font3 = Content.Load<SpriteFont>("MgFont3");
 
-            cam.InitialView(GraphicsDevice);
+            cam.InitialView(GraphicsDevice, new Matrix
+            (
+            +1.000f, +0.000f, +0.000f, +0.000f,
+            +0.000f, -0.986f, -0.165f, +0.000f,
+            +0.000f, +0.165f, -0.986f, +0.000f,
+            +89.500f, +157.642f, -381.373f, +1.000f
+           ));
+
             cam.UpdateProjection(GraphicsDevice);
 
             DiffuseLightEffectClass.Load(Content);

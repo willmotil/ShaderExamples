@@ -34,11 +34,13 @@ namespace ShaderExamples
             //using (var game = new Game1_BloomGlow()) game.Run();
 
 
-            //3D basic shader examples
+            //3D Basics
             //using (var game = new Game1_TriangleDirectlyToTheGpu()) game.Run();
             //using (var game = new Game1_QuadWithMatrices()) game.Run();
             //using (var game = new Game1_ManipulatingTheMatrices()) game.Run();
             //using (var game = new Game1_ViewPerspectiveProjection()) game.Run();
+            
+            // 3D Primitives
             //using (var game = new Game1_IndexedMesh()) game.Run();
             //using (var game = new Game1_ImprovedIndexedMesh()) game.Run();
 

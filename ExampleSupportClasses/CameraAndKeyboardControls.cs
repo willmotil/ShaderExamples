@@ -16,29 +16,30 @@ namespace ShaderExamples //.ExampleSupportClasses
         public float speed = .25f;
         public float speed2 = .008f;
         public float fov = 0.85f;
+
         public Matrix cameraWorld = Matrix.Identity;
         public Vector3 cameraWorldPosition = new Vector3(0, 0, 500f);
         public Vector3 cameraForwardVector = Vector3.Forward;
-        public Vector3 cameraUpVector = Vector3.Down;
+        public Vector3 cameraUpVector = Vector3.Up;
 
-
-        public Vector3 quadWorldPosition = Vector3.Zero;
-        public Vector3 quadUpVector = Vector3.Up;
-        public Vector3 quadForwardVector = Vector3.Forward;
-        public float quadRotation = 0;
-
+        public void InitialView(GraphicsDevice device, Vector3 pos, Vector3 forward, Vector3 up)
+        {
+            cameraWorld = Matrix.CreateWorld(pos, forward, up);
+            view = Matrix.Invert(cameraWorld);
+            if (DiffuseLightEffectClass.effect != null)
+                DiffuseLightEffectClass.View = view;
+        }
+        public void InitialView(GraphicsDevice device, Matrix camWorld)
+        {
+            cameraWorld = camWorld;
+            view = Matrix.Invert(cameraWorld);
+            if (DiffuseLightEffectClass.effect != null)
+                DiffuseLightEffectClass.View = view;
+        }
         public void InitialView(GraphicsDevice device)
         {
             cameraWorldPosition.Z = MgMathExtras.GetRequisitePerspectiveSpriteBatchAlignmentZdistance(device, fov);
             cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Zero - cameraWorldPosition, cameraUpVector);
-            // well make it specific.
-            cameraWorld= new Matrix
-                (
-                +1.000f, +0.000f, +0.000f, +0.000f,
-                +0.000f, -0.986f, -0.165f, +0.000f,
-                +0.000f, +0.165f, -0.986f, +0.000f,
-                +89.500f, +157.642f, -381.373f, +1.000f
-               );
             view = Matrix.Invert(cameraWorld);
             if (DiffuseLightEffectClass.effect != null)
                 DiffuseLightEffectClass.View = view;
@@ -81,17 +82,11 @@ namespace ShaderExamples //.ExampleSupportClasses
                 cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Right, speed2);
             cameraWorld.Translation = t;
 
-            // Use the Z and C keys to rotate the camera.
-            if (Keyboard.GetState().IsKeyDown(Keys.Z))
-                quadRotation += speed * .01f;
-            if (Keyboard.GetState().IsKeyDown(Keys.C))
-                quadRotation -= speed * .01f;
-            if (quadRotation > 6.28)
-                quadRotation = 0;
-            if (quadRotation < 0)
-                quadRotation = 6.28f;
-            quadUpVector = new Vector3(MathF.Sin(quadRotation), MathF.Cos(quadRotation), 0);
-            //cameraWorld.Up = quadUpVector;
+            //// Use the Z and C keys to rotate the camera.
+            //if (Keyboard.GetState().IsKeyDown(Keys.Z))
+            //    ____ += speed * .01f;
+            //if (Keyboard.GetState().IsKeyDown(Keys.C))
+            //    ____ -= speed * .01f;
 
             // Set the view matrix.
             cameraWorld = Matrix.CreateWorld(cameraWorld.Translation, cameraWorld.Forward, cameraWorld.Up);
