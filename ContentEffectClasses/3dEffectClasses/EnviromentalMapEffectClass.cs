@@ -47,14 +47,14 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
         {
             effect.CurrentTechnique = effect.Techniques["Lighting_Blinn"];
         }
-        public static void Technique_Render_CcwSkybox()
+        public static void Technique_Render_CubeSkyboxWithNormalMap()
         {
-            effect.CurrentTechnique = effect.Techniques["Render_CcwSkybox"];
+            effect.CurrentTechnique = effect.Techniques["Render_CubeSkyboxWithNormalMap"];
         }
 
-        public static void Technique_Render_CcwCube()
+        public static void Technique_Render_CubeSkybox()
         {
-            effect.CurrentTechnique = effect.Techniques["Render_CcwCube"];
+            effect.CurrentTechnique = effect.Techniques["Render_CubeSkybox"];
         }
 
 

@@ -118,6 +118,66 @@ FaceStruct UvFaceToCubeMapVector(float2 pos, int faceIndex)
     return output;
 }
 
+// Alt
+
+//____________________________________
+// functions
+//____________________________________
+
+// I made this up to do this tranform because i couldn't find the code to do it anywere.
+// Ok so what people in a couple examples are doing regularly is like a matrix view transform, im not sure that is actually any better 
+// since i do have to calculate the extrude the normal from the piexel anyways but i should test it later down the road.
+
+FaceStruct UvFaceToCubeMapVectorAlt(float2 pos, int faceIndex)
+{
+    FaceStruct output = (FaceStruct)0;
+    float u = pos.x;
+    float v = pos.y;
+    switch (abs(faceIndex))
+    {
+    case 1: //FACE_LEFT: CubeMapFace.NegativeX
+        output.PositionNormal = float3(-1.0f, v, u);
+        output.FaceNormal = float3(-1.0f, 0, 0);
+        output.FaceUp = float3(0, 1, 0);
+        break;
+    case 5: // FACE_FORWARD: CubeMapFace.NegativeZ
+        output.PositionNormal = float3(-u, v, -1.0f);
+        output.FaceNormal = float3(0, 0, -1.0f);
+        output.FaceUp = float3(0, 1, 0);
+        break;
+    case 0: //FACE_RIGHT: CubeMapFace.PositiveX
+        output.PositionNormal = float3(1.0f, v, -u);
+        output.FaceNormal = float3(1.0f, 0, 0);
+        output.FaceUp = float3(0, 1, 0);
+        break;
+    case 4: //FACE_BACK: CubeMapFace.PositiveZ
+        output.PositionNormal = float3(u, v, 1.0f);
+        output.FaceNormal = float3(0, 0, 1.0f);
+        output.FaceUp = float3(0, 1, 0);
+        break;
+
+    case 2: //FACE_TOP: CubeMapFace.PositiveY
+        output.PositionNormal = float3(u, 1.0f, -v);
+        output.FaceNormal = float3(0, 1.0f, 0);
+        output.FaceUp = float3(0, 0, 1);
+        break;
+    case 3: //FACE_BOTTOM : CubeMapFace.NegativeY
+        output.PositionNormal = float3(u, -1.0f, v);   // dir = float3(v, -1.0f, u);
+        output.FaceNormal = float3(0, -1.0f, 0);
+        output.FaceUp = float3(0, 0, -1);
+        break;
+
+    default:
+        output.PositionNormal = float3(-1.0f, v, u); // na
+        output.FaceNormal = float3(-1.0f, 0, 0);
+        output.FaceUp = float3(0, 1, 0);
+        break;
+    }
+    //output.PositionNormal = new Vector3(output.PositionNormal.z, -output.PositionNormal.y, output.PositionNormal.x); // invert
+    output.PositionNormal = normalize(output.PositionNormal);
+    return output;
+}
+
 float2 CubeMapVectorToUvFace(float3 v, out int faceIndex)
 {
     float3 vAbs = abs(v);
@@ -252,7 +312,9 @@ HdrToCubeMapVertexShaderOutput HdrToEnvCubeMapVS(in HdrToCubeMapVertexShaderInpu
 
 float4 SphericalToCubeMapPS(HdrToCubeMapVertexShaderOutput input) : COLOR
 {
-    FaceStruct face = UvFaceToCubeMapVector(input.Position3D, FaceToMap);
+    
+    FaceStruct face = UvFaceToCubeMapVectorAlt(input.Position3D, FaceToMap);
+    //FaceStruct face = UvFaceToCubeMapVector(input.Position3D, FaceToMap);
     float3 v = face.PositionNormal;
     float2 uv = CubeMapNormalTo2dEquaRectangularMapUvCoordinates(v);
     //uv = float2(uv.x, uv.y);

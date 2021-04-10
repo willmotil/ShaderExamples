@@ -256,32 +256,38 @@ float4 PS_BlinnPhong(VertexShaderOutput input) : COLOR
 }
 
 
-// DX This is with ccw  triangles outgoing normals and upward tangents in the negative u direction.
-//// outward cube
-////float3x3 m = float3x3 (
-////    -1, 0, 0,
-////    0, -1, 0,
-////    0, 0, +1
-////    );
-float4 PS_RenderOutwardCube(VertexShaderOutput input) : COLOR
+// DX the texture cube stores data inverted most of this is handled in the class file so we just get one shader
+float4 PS_CubeSkyboxWithNormalMap(VertexShaderOutput input) : COLOR
 {
-	float3 N = normalize(input.Normal.xyz);
-	N = float3(-N.x, -N.y, N.z); // outward cube.
+	float3 N = FunctionNormalMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);
+	float4 col = texCUBElod(CubeMapSampler, float4 (N, 0));
+	float3 P = input.Position3D;
+	float3 C = CameraPosition;
+	float3 V = normalize(C - P);
+	float NdotV = MaxDot(N, V);
+	float3 R = 2.0f * NdotV * N - V;
+	float3 L = normalize(LightPosition - P);
+	float3 H = HalfNormal(L, V);
+	float NdotH = MaxDot(N, H);
+	float NdotL = MaxDot(N, L);
 
-	float4 envMapColor = texCUBElod(CubeMapSampler, float4 (N , 0));
-	//clip(envMapColor.a - .01f); // just straight clip super low alpha.
-	return float4(envMapColor.rgb, 1.0f);
+	float spec = SpecularBlinnPhong(V, L, N, 100.0f);
+	float3 speccol = col.rgb * LightColor;
+	col.rgb = (speccol.rgb * spec * SpecularStrength) + (col.rgb * NdotL * NdotL * DiffuseStrength) + (col.rgb * AmbientStrength);
+	//col.rgb = (speccol.rgb * spec * (SpecularStrength + DiffuseStrength));
+
+	clip(col.a - .01f); // just straight clip super low alpha.
+	return col;
 }
 
-// DX This is with ccw  triangles outgoing normals and upward tangents in the negative u direction.
-float4 PS_RenderInwardSkybox(VertexShaderOutput input) : COLOR
+// DX the texture cube stores data inverted most of this is handled in the class file so we just get one shader
+float4 PS_RenderCubeSkybox(VertexShaderOutput input) : COLOR
 {
 	float3 N = normalize(input.Normal.xyz);
-	N = -N;   // inward skybox.
 
 	float4 envMapColor = texCUBElod(CubeMapSampler, float4 (N , 0));
-	//clip(envMapColor.a - .01f); // just straight clip super low alpha.
-	return float4(envMapColor.rgb, 1.0f);
+	clip(envMapColor.a - .01f); // just straight clip super low alpha.
+	return envMapColor;   //float4(envMapColor.rgb, 1.0f);
 }
 
 //++++++++++++++++++++++++++++++++++++++++
@@ -310,27 +316,55 @@ technique Lighting_Blinn
 	}
 };
 
-technique Render_CcwCube
+technique Render_CubeSkyboxWithNormalMap
 {
 	pass P0
 	{
 		VertexShader = compile VS_SHADERMODEL
 			VS();
 		PixelShader = compile PS_SHADERMODEL
-			PS_RenderOutwardCube();
+			PS_CubeSkyboxWithNormalMap();
 	}
 };
 
-technique Render_CcwSkybox
+technique Render_CubeSkybox
 {
 	pass P0
 	{
 		VertexShader = compile VS_SHADERMODEL
 			VS();
 		PixelShader = compile PS_SHADERMODEL
-			PS_RenderInwardSkybox();
+			PS_RenderCubeSkybox();
 	}
 };
 
 
 
+//// DX This is with ccw  triangles outgoing normals and upward tangents in the negative u direction.
+////// outward cube
+//////float3x3 m = float3x3 (
+//////    -1, 0, 0,
+//////    0, -1, 0,
+//////    0, 0, +1
+//////    );
+//float4 PS_RenderCcwCube(VertexShaderOutput input) : COLOR
+//{
+//	float3 N = normalize(input.Normal.xyz);
+//	//N = float3(-N.x, -N.y, N.z); // outward cube.
+//	N = float3(N.x, N.y, -N.z);
+//
+//	float4 envMapColor = texCUBElod(CubeMapSampler, float4 (N , 0));
+//	//clip(envMapColor.a - .01f); // just straight clip super low alpha.
+//	return float4(envMapColor.rgb, 1.0f);
+//}
+//
+//// DX This is with ccw  triangles outgoing normals and upward tangents in the negative u direction.
+//float4 PS_RenderCcwSkybox(VertexShaderOutput input) : COLOR
+//{
+//	float3 N = normalize(input.Normal.xyz);
+//	//N = -N;   // inward skybox.
+//
+//	float4 envMapColor = texCUBElod(CubeMapSampler, float4 (N , 0));
+//	//clip(envMapColor.a - .01f); // just straight clip super low alpha.
+//	return float4(envMapColor.rgb, 1.0f);
+//}

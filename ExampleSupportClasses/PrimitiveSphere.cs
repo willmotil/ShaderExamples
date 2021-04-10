@@ -30,36 +30,61 @@ namespace ShaderExamples //Microsoft.Xna.Framework
         public static Matrix matrixPositiveZ = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 0, 1.0f), Vector3.Up);   //4
         public static Matrix matrixNegativeZ = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 0, -1.0f), Vector3.Up);   // 5
 
+        //public static Matrix matrixPositiveX = Matrix.CreateWorld(Vector3.Zero, -new Vector3(1.0f, 0, 0), -Vector3.Up);  // 0  
+        //public static Matrix matrixNegativeX = Matrix.CreateWorld(Vector3.Zero, -new Vector3(-1.0f, 0, 0), -Vector3.Up);  // 1
+        //public static Matrix matrixPositiveY = Matrix.CreateWorld(Vector3.Zero, -new Vector3(0, 1.0f, 0), -Vector3.Backward); //2
+        //public static Matrix matrixNegativeY = Matrix.CreateWorld(Vector3.Zero, -new Vector3(0, -1.0f, 0), -Vector3.Forward);  //3
+        //public static Matrix matrixPositiveZ = Matrix.CreateWorld(Vector3.Zero, -new Vector3(0, 0, 1.0f), -Vector3.Up);   //4
+        //public static Matrix matrixNegativeZ = Matrix.CreateWorld(Vector3.Zero, -new Vector3(0, 0, -1.0f), -Vector3.Up);   // 5
+
+
+        private int usage = 0;
+        public const int USAGE_CUBE_UNDER_CCW = 0;
+        public const int USAGE_CUBE_UNDER_CW = 1;
+        public const int USAGE_SKYSPHERE_UNDER_CCW = 2;
+        public const int USAGE_SKYSPHERE_UNDER_CW = 3;
+
+        private bool windVerticesClockwise = false;
+        private bool invert = false;
 
         public VertexPositionNormalTextureTangentWeights[] vertices;
         public int[] indices;
 
         public TextureCube textureCube;
 
-        public PrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces)
+        public PrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, int Usage_Options, bool invert, bool flatFaces)
         {
-            CreatePrimitiveSphere(subdivisionWidth, subdividsionHeight, scale, clockwise, invert, flatFaces, null, 1f, false, false);
+            CreatePrimitiveSphere(subdivisionWidth, subdividsionHeight, scale, Usage_Options, invert, flatFaces, null, 1f);
         }
 
-        public PrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces, Texture2D heightMap, float dataScalar)
+        public PrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, int Usage_Options, bool invert, bool flatFaces, Texture2D heightMap, float dataScalar)
         {
-            CreatePrimitiveSphere(subdivisionWidth, subdividsionHeight, scale, clockwise, invert, flatFaces, heightMap, dataScalar, false, false);
+            CreatePrimitiveSphere(subdivisionWidth, subdividsionHeight, scale, Usage_Options, invert, flatFaces, heightMap, dataScalar);
         }
 
-        public PrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces, bool negateNormalDirection, bool negateTangentDirection)
-        {
-            CreatePrimitiveSphere(subdivisionWidth, subdividsionHeight, scale, clockwise, invert, flatFaces, null, 1f, negateNormalDirection, negateTangentDirection);
-        }
-
-        public PrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces, Texture2D heightMap, float dataScalar, bool negateNormalDirection, bool negateTangentDirection)
-        {
-            CreatePrimitiveSphere(subdivisionWidth, subdividsionHeight, scale, clockwise, invert, flatFaces, heightMap, dataScalar, negateNormalDirection, negateTangentDirection);
-        }
-
-        public void CreatePrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces, Texture2D heightMap, float dataScalar, bool negateNormalDirection, bool negateTangentDirection)
+        public void CreatePrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float scale, int Usage_Options, bool invert, bool flatFaces, Texture2D heightMap, float dataScalar)
         {
             List<VertexPositionNormalTextureTangentWeights> cubesFaceMeshVertList = new List<VertexPositionNormalTextureTangentWeights>();
             List<int> cubeFaceMeshIndexList = new List<int>();
+
+            this.usage = Usage_Options;
+            this.invert = invert;
+
+            switch (usage)
+            {
+                case USAGE_CUBE_UNDER_CCW:
+                    windVerticesClockwise = false;
+                    break;
+                case USAGE_CUBE_UNDER_CW:
+                    windVerticesClockwise = true;
+                    break;
+                case USAGE_SKYSPHERE_UNDER_CCW:
+                    windVerticesClockwise = false;
+                    break;
+                case USAGE_SKYSPHERE_UNDER_CW:
+                    windVerticesClockwise = true;
+                    break;
+            }
 
             if (subdivisionWidth < 2)
                 subdivisionWidth = 2;
@@ -70,39 +95,17 @@ namespace ShaderExamples //Microsoft.Xna.Framework
             var quadsTotal = quadsPerFace * 6;
             System.Console.WriteLine($"\n Expected ...   quads per face {quadsPerFace}   quadsTotal {quadsTotal} ");
 
-            CreateInitialVertices( cubesFaceMeshVertList, subdivisionWidth, subdividsionHeight, scale, clockwise, invert, flatFaces, heightMap, dataScalar);
+            CreateInitialVertices( cubesFaceMeshVertList, subdivisionWidth, subdividsionHeight, scale, flatFaces, heightMap, dataScalar);
 
             CreateIndices( cubeFaceMeshIndexList, subdivisionWidth, subdividsionHeight);
 
-            CreateTangents( cubesFaceMeshVertList, cubeFaceMeshIndexList, subdivisionWidth, subdividsionHeight, negateNormalDirection, negateTangentDirection);
+            CreateTangents( cubesFaceMeshVertList, cubeFaceMeshIndexList, subdivisionWidth, subdividsionHeight);
 
             vertices = cubesFaceMeshVertList.ToArray();
             indices = cubeFaceMeshIndexList.ToArray();
         }
 
-        bool HasInvalidValues(Vector3 v)
-        {
-            return IsNan(v) || IsInfinity(v);
-        }
-        bool IsNan(Vector3 v)
-        {
-            return float.IsNaN(v.X) || float.IsNaN(v.Y) || float.IsNaN(v.Z);
-        }
-        bool IsInfinity(Vector3 v)
-        {
-            return float.IsInfinity(v.X) || float.IsInfinity(v.Y) || float.IsInfinity(v.Z);
-        }
-
-        float NormalIdentity(Vector3 v)
-        {
-            var d = v.X * v.X + v.Y * v.Y + v.Z * v.Z;
-            if (d > .9999f && d < 1.0001f)
-                return 1.0f;
-            else
-                return d;
-        }
-
-        private void CreateInitialVertices(List<VertexPositionNormalTextureTangentWeights> cubesFaceMeshVertsLists, int subdivisionWidth, int subdividsionHeight, float scale, bool clockwise, bool invert, bool flatFaces, Texture2D heightMap, float dataScalar)
+        private void CreateInitialVertices(List<VertexPositionNormalTextureTangentWeights> cubesFaceMeshVertsLists, int subdivisionWidth, int subdividsionHeight, float scale, bool flatFaces, Texture2D heightMap, float dataScalar)
         {
             bool hasHeightMapdata = false;
             Color[] heightdata = new Color[0];
@@ -113,8 +116,6 @@ namespace ShaderExamples //Microsoft.Xna.Framework
             }
 
             float depth = scale;
-            if (invert)
-                depth = -depth;
 
             float left = -1f;
             float right = +1f;
@@ -123,8 +124,6 @@ namespace ShaderExamples //Microsoft.Xna.Framework
 
             for (int faceIndex = 0; faceIndex < 6; faceIndex++)
             {
-                //if (showOutput)
-                //    System.Console.WriteLine("\n  faceIndex: " + faceIndex);
                 for (int y = 0; y < subdividsionHeight; y++)
                 {
                     float perY = (float)(y) / (float)(subdividsionHeight - 1);
@@ -137,6 +136,7 @@ namespace ShaderExamples //Microsoft.Xna.Framework
 
                         var p0 = new Vector3(X * scale, Y * scale, depth);
                         var uv0 = new Vector2(perX, perY);
+
                         VertexPositionNormalTextureTangentWeights v0;
                         if (hasHeightMapdata)
                             v0 = GetVertice(p0, faceIndex, flatFaces, depth, uv0, heightdata, dataScalar, heightMap.Width, heightMap.Height);
@@ -150,7 +150,6 @@ namespace ShaderExamples //Microsoft.Xna.Framework
                     }
                 }
             }
-            //System.Console.WriteLine($"\n  totalVertices.Count: {cubesFaceMeshVertsLists.Count} ");
         }
 
         private void CreateIndices(List<int> cubeFaceMeshIndexLists, int subdivisionWidth, int subdividsionHeight)
@@ -158,8 +157,6 @@ namespace ShaderExamples //Microsoft.Xna.Framework
             int faceOffset = 0;
             for (int faceIndex = 0; faceIndex < 6; faceIndex++)
             {
-                //if (showOutput)
-                //    System.Console.WriteLine("\n  faceIndex: " + faceIndex);
                 faceOffset = faceIndex * (subdividsionHeight * subdivisionWidth);
                 for (int y = 0; y < subdividsionHeight - 1; y++)
                 {
@@ -172,50 +169,60 @@ namespace ShaderExamples //Microsoft.Xna.Framework
                         var br = faceVerticeOffset + stride + 1;
                         var tr = faceVerticeOffset + 1;
 
-                        cubeFaceMeshIndexLists.Add(tl);
-                        cubeFaceMeshIndexLists.Add(bl);
-                        cubeFaceMeshIndexLists.Add(br);
+                        if (windVerticesClockwise)
+                        {
+                            cubeFaceMeshIndexLists.Add(tl);
+                            cubeFaceMeshIndexLists.Add(tr);
+                            cubeFaceMeshIndexLists.Add(br);
 
-                        cubeFaceMeshIndexLists.Add(br);
-                        cubeFaceMeshIndexLists.Add(tr);
-                        cubeFaceMeshIndexLists.Add(tl);
+                            cubeFaceMeshIndexLists.Add(br);
+                            cubeFaceMeshIndexLists.Add(bl);
+                            cubeFaceMeshIndexLists.Add(tl);
+                        }
+                        else
+                        {
+                            cubeFaceMeshIndexLists.Add(tl);
+                            cubeFaceMeshIndexLists.Add(bl);
+                            cubeFaceMeshIndexLists.Add(br);
+
+                            cubeFaceMeshIndexLists.Add(br);
+                            cubeFaceMeshIndexLists.Add(tr);
+                            cubeFaceMeshIndexLists.Add(tl);
+                        }
 
                         if (showOutput)
                             Output(faceIndex, cubeFaceMeshIndexLists, tl, bl, br, tr);
                     }
                 }
             }
-            //System.Console.WriteLine($"\n  cubeFaceMeshIndexLists: {cubeFaceMeshIndexLists.Count}    count/6: {cubeFaceMeshIndexLists.Count/6}");
         }
 
-        private void CreateTangents( List<VertexPositionNormalTextureTangentWeights> cubesFaceMeshVertLists, List<int> cubeFaceMeshIndexLists, int subdivisionWidth, int subdividsionHeight, bool negateNormalDirection, bool negateTangentDirection)
+        private void CreateTangents( List<VertexPositionNormalTextureTangentWeights> cubesFaceMeshVertLists, List<int> cubeFaceMeshIndexLists, int subdivisionWidth, int subdividsionHeight)
         {
             int faceOffset = 0;
             for (int faceIndex = 0; faceIndex < 6; faceIndex++)
             {
-                //Console.WriteLine($"faceIndex {faceIndex}");
                 faceOffset = faceIndex * (subdividsionHeight * subdivisionWidth);
                 for (int y = 0; y < subdividsionHeight-1; y++)
                 {
-                    //Console.WriteLine($"faceIndex {faceIndex} Y index {y}");
                     for (int x = 0; x < subdivisionWidth; x++)
                     {
                         var faceVerticeOffset = subdivisionWidth * y + x + faceOffset;
-                        var tl = faceVerticeOffset;
-                        var bl = faceVerticeOffset + subdivisionWidth;
+
+
+                        int tl = faceVerticeOffset;
+                        int bl = faceVerticeOffset + subdivisionWidth;
 
                         var vTL = cubesFaceMeshVertLists[tl];
                         var vBL = cubesFaceMeshVertLists[bl];
 
-                        var t = Vector3.Normalize(vBL.Position - vTL.Position);
+                        Vector3 t = Vector3.Normalize(vBL.Position - vTL.Position);
 
                         vTL.Tangent += t;
                         vBL.Tangent += t;
 
                         cubesFaceMeshVertLists[tl] = vTL;
                         cubesFaceMeshVertLists[bl] = vBL;
-
-                        //Console.WriteLine($"OO y [{y}] x [{x}]  faceOffset {faceOffset}  faceVerticeOffset {faceVerticeOffset}   tl {tl} bl {bl}    tangent    vTL{cubesFaceMeshVertLists[tl].Tangent} {NormalIdentity(cubesFaceMeshVertLists[tl].Tangent)}       vBL{cubesFaceMeshVertLists[bl].Tangent}  {NormalIdentity(cubesFaceMeshVertLists[bl].Tangent)}   ");
                     }
                 }
             }
@@ -226,59 +233,68 @@ namespace ShaderExamples //Microsoft.Xna.Framework
             {
                 var v = cubesFaceMeshVertLists[curvert];
 
-                if (negateNormalDirection)
-                    v.Normal = -(Vector3.Normalize(v.Normal));
-                else
-                    v.Normal = Vector3.Normalize(v.Normal);
+                //  Negating here due to a bug in monogames storage of texel data in DX for TextureCubes.
+                v.Normal = -Vector3.Normalize(v.Normal);
+                v.Tangent = -Vector3.Normalize(v.Tangent);
 
-                if (negateTangentDirection)
-                    v.Tangent = -(Vector3.Normalize(v.Tangent));
-                else
-                    v.Tangent = (Vector3.Normalize(v.Tangent));
-
-                //var bitan = Vector3.Cross(v.Normal, v.Tangent);
-                //v.Tangent = Vector3.Cross(v.Normal, bitan);
-
-                if (HasInvalidValues(v.Tangent) || v.Tangent == Vector3.Zero)
-                    System.Diagnostics.Debug.Assert(HasInvalidValues(v.Tangent), $"Tnagent Inf or Nan  PrimitiveSphere.CreateTangents() vertice {curvert}");
+                // further the z must also be adjusted as the data is stored across faces inverted.
+                switch (usage)
+                {
+                    case USAGE_CUBE_UNDER_CCW:
+                        if (invert)
+                        { }
+                        else
+                        {
+                            //v.Normal = -v.Normal;
+                            //v.Normal.Z = -v.Normal.Z; v.Tangent.Z = -v.Tangent.Z; 
+                        }
+                        break;
+                    case USAGE_SKYSPHERE_UNDER_CCW:
+                        if (invert)
+                        { 
+                            //v.Normal.Z = -v.Normal.Z; v.Tangent.Z = -v.Tangent.Z; 
+                        }
+                        else
+                        { }
+                        break;
+                    case USAGE_CUBE_UNDER_CW:
+                        if (invert)
+                        { }
+                        else
+                        { 
+                            //v.Normal.Z = -v.Normal.Z; v.Tangent.Z = -v.Tangent.Z; 
+                        }
+                        break;
+                    case USAGE_SKYSPHERE_UNDER_CW:
+                        if (invert)
+                        { 
+                            //v.Normal.Z = -v.Normal.Z; v.Tangent.Z = -v.Tangent.Z; 
+                        }
+                        else
+                        { }
+                        break;
+                }
 
                 cubesFaceMeshVertLists[curvert] = v;
             }
+                    // could put this in above.
+                    //var bitan = Vector3.Cross(v.Normal, v.Tangent);
+                    //v.Tangent = Vector3.Cross(v.Normal, bitan);
 
-            faceOffset = 0;
+                    faceOffset = 0;
             for (int faceIndex = 0; faceIndex < 6; faceIndex++)
             {
-                //Console.WriteLine($"faceIndex {faceIndex}");
                 faceOffset = faceIndex * (subdividsionHeight * subdivisionWidth);
                 for (int y = 0; y < subdividsionHeight; y++)
                 {
-                    //Console.WriteLine($"faceIndex {faceIndex} Y {y}");
                     for (int x = 0; x < subdivisionWidth; x++)
                     {
                         var faceVerticeOffset = subdivisionWidth * y + x + faceOffset;
 
                         var v = cubesFaceMeshVertLists[faceVerticeOffset];
-
-                        //if (HasInvalidValues(v.Tangent) || v.Tangent == Vector3.Zero)
-                        //    Console.WriteLine($"XXXXX  y [{y}] x [{x}]  current vert {faceVerticeOffset}      v.tan  {v.Tangent}  {NormalIdentity(v.Tangent)} ");
-                        //else
-                        //    Console.WriteLine($">>       y [{y}] x [{x}]  current vert {faceVerticeOffset}     v.tan  {v.Tangent}  {NormalIdentity(v.Tangent)}");
                     }
                 }
             }
-
-        }
-
-        private float Interpolate(float A, float B, float t)
-        {
-            return ((B - A) * t) + A;
-        }
-        private float Interpolate(float A, float B, float t, bool reverse)
-        {
-            if (reverse)
-                return ((A - B) * t) + B;
-            else
-                return ((B - A) * t) + A;
         }
 
         private VertexPositionNormalTextureTangentWeights GetVertice(Vector3 v, int faceIndex, bool flatFaces, float depth, Vector2 uv)
@@ -305,6 +321,17 @@ namespace ShaderExamples //Microsoft.Xna.Framework
             v2 = n * (depth + mapDepth);
             return new VertexPositionNormalTextureTangentWeights(v2, FlatFaceOrDirectional(v2, faceIndex, flatFaces, depth), uv, Vector3.Zero, Color.Transparent, new Color(1, 0, 0, 0));
         }
+
+
+        // TODO maybe getting rid of this will help simplify things  besides i already called the get world face matrix why am i doing it again here ?  copy pasting my old code and then adding crap on.
+        private Vector3 FlatFaceOrDirectional(Vector3 v, int faceIndex, bool flatFaces, float depth)
+        {
+            if (flatFaces)
+                v = new Vector3(0, 0, depth);
+            v = Vector3.Normalize(v);
+            return Vector3.Transform(v, GetWorldFaceMatrix(faceIndex));
+        }
+
         public static Matrix GetWorldFaceMatrix(int faceIndex)
         {
             switch (faceIndex)
@@ -326,12 +353,16 @@ namespace ShaderExamples //Microsoft.Xna.Framework
             }
         }
 
-        private Vector3 FlatFaceOrDirectional(Vector3 v, int faceIndex, bool flatFaces, float depth)
+        private float Interpolate(float A, float B, float t)
         {
-            if (flatFaces)
-                v = new Vector3(0, 0, depth);
-            v = Vector3.Normalize(v);
-            return Vector3.Transform(v, GetWorldFaceMatrix(faceIndex));
+            return ((B - A) * t) + A;
+        }
+        private float Interpolate(float A, float B, float t, bool reverse)
+        {
+            if (reverse)
+                return ((A - B) * t) + B;
+            else
+                return ((B - A) * t) + A;
         }
 
         private Color[] GetSphericalTextureHeightMapData(Texture2D texturemap)
@@ -369,6 +400,28 @@ namespace ShaderExamples //Microsoft.Xna.Framework
                 return (float)System.Math.Atan2(difx, dify);
         }
 
+        bool HasInvalidValues(Vector3 v)
+        {
+            //    System.Diagnostics.Debug.Assert(HasInvalidValues(v.Tangent), $"Tangent Inf or Nan  PrimitiveSphere.CreateTangents() vertice {curvert}");
+            return IsNan(v) || IsInfinity(v);
+        }
+        bool IsNan(Vector3 v)
+        {
+            return float.IsNaN(v.X) || float.IsNaN(v.Y) || float.IsNaN(v.Z);
+        }
+        bool IsInfinity(Vector3 v)
+        {
+            return float.IsInfinity(v.X) || float.IsInfinity(v.Y) || float.IsInfinity(v.Z);
+        }
+
+        float NormalIdentity(Vector3 v)
+        {
+            var d = v.X * v.X + v.Y * v.Y + v.Z * v.Z;
+            if (d > .9999f && d < 1.0001f)
+                return 1.0f;
+            else
+                return d;
+        }
         public void Output(int faceIndex, List<int> meshIndexes, int tl, int bl, int br, int tr)
         {
             System.Console.WriteLine();
@@ -402,3 +455,38 @@ namespace ShaderExamples //Microsoft.Xna.Framework
 
     }
 }
+
+
+
+/*
+
+// DX This is with ccw  triangles outgoing normals and upward tangents in the negative u direction.
+//// outward cube
+////float3x3 m = float3x3 (
+////    -1, 0, 0,
+////    0, -1, 0,
+////    0, 0, +1
+////    );
+float4 PS_RenderCcwCube(VertexShaderOutput input) : COLOR
+{
+	float3 N = normalize(input.Normal.xyz);
+	//N = float3(-N.x, -N.y, N.z); // outward cube.
+	N = float3(N.x, N.y, -N.z);
+
+	float4 envMapColor = texCUBElod(CubeMapSampler, float4 (N , 0));
+	//clip(envMapColor.a - .01f); // just straight clip super low alpha.
+	return float4(envMapColor.rgb, 1.0f);
+}
+
+// DX This is with ccw  triangles outgoing normals and upward tangents in the negative u direction.
+float4 PS_RenderCcwSkybox(VertexShaderOutput input) : COLOR
+{
+	float3 N = normalize(input.Normal.xyz);
+	//N = -N;   // inward skybox.
+
+	float4 envMapColor = texCUBElod(CubeMapSampler, float4 (N , 0));
+	//clip(envMapColor.a - .01f); // just straight clip super low alpha.
+	return float4(envMapColor.rgb, 1.0f);
+}
+
+*/
