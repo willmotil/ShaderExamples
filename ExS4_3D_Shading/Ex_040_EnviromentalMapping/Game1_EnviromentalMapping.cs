@@ -35,8 +35,8 @@ namespace ShaderExamples
         Texture2D
             generatedTextureHdrLdrFromSingleImages, generatedTextureHdrLdrFromCubeMap
             ;
-        Texture2D[] 
-            generatedTextureFaceArrayFromCubemap, generatedTextureFaceArrayFromHdrLdr, loadedOrAssignedArray
+        Texture2D[]
+            generatedTextureFaceArrayFromCubemap, generatedTextureFaceArrayFromHdrLdr //, loadedOrAssignedArray
             ;
         RenderTarget2D rtScene;
         CameraAndKeyboardControls cam = new CameraAndKeyboardControls();
@@ -52,7 +52,7 @@ namespace ShaderExamples
         VisualizationNormals[] visualSphereNormals = new VisualizationNormals[4];
         VisualizationNormals[] visualSphereTangents = new VisualizationNormals[4];
         VisualizationLine[] visualLightLineToSpheres = new VisualizationLine[4];
-        Vector3[] sphereCenters = new Vector3[] { new Vector3(0, 0, -50), new Vector3(100, 0, -50), new Vector3(200, 0, -50), new Vector3(300, 0, -50) };
+        Vector3[] sphereCenters = new Vector3[] { new Vector3(0, 0, -50), new Vector3(150, 0, -50), new Vector3(0, 150, -50), new Vector3(150, 150, -50) };
 
         float[] heightMap = new float[]
         {
@@ -127,7 +127,8 @@ namespace ShaderExamples
             PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_HIGHEST;
 
             mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(300f, 250, 0f), false, false);
-            float thickness = .1f; float scale = 10f;
+            float thickness = .1f; 
+            float normtanLinescale = 7;
 
             //mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3( 300f, 250, 70f ), false, false);
             //float thickness = .1f; floatscale = 10f;
@@ -137,8 +138,8 @@ namespace ShaderExamples
 
             mesh.DiffuseTexture = textureMesh;
             mesh.NormalMapTexture = textureMeshNormalMap;
-            visualMeshNormals = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureGreen, thickness, scale, false);
-            visualMeshTangents = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureYellow, thickness, scale, true);
+            visualMeshNormals = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureGreen, thickness, normtanLinescale, false);
+            visualMeshTangents = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureYellow, thickness, normtanLinescale, true);
             visualLightLineToMesh = CreateVisualLine(dotTextureWhite, meshCenter, lightStartPosition, 1, Color.White);
 
         }
@@ -147,16 +148,31 @@ namespace ShaderExamples
         {
             for (int index = 0; index < 4; index++)
             {
-                int usage = index;
-                while(usage > 3) 
+                int snum = index;
+                while(snum > 3) 
+                    snum = snum - 4; 
+                int usage = 0;
+                float scale = 50;
+                switch (snum)
                 {
-                    // PrimitiveSphere.USAGE_CUBE_UNDER_CCW; // = 0
-                    // PrimitiveSphere.USAGE_CUBE_UNDER_CW; // 1
-                    // PrimitiveSphere.USAGE_SKYSPHERE_UNDER_CCW; // 2
-                    // PrimitiveSphere.USAGE_SKYSPHERE_UNDER_CW; // 3
-                    usage = usage - 4; 
-                }  
-                CreateSphere(ref spheres[index], ref visualSphereNormals[index], ref visualSphereTangents[index], ref visualLightLineToSpheres[index], sphereCenters[index], 50f, usage, false, false);
+                    case 0:
+                        usage = PrimitiveSphere.USAGE_CUBE_UNDER_CCW; // = 0
+                        scale = 40;
+                        break;
+                    case 1:
+                        usage = PrimitiveSphere.USAGE_SKYSPHERE_UNDER_CCW; // 2
+                        scale = 50;
+                        break;
+                    case 2:
+                        usage = PrimitiveSphere.USAGE_CUBE_UNDER_CW; // 1
+                        scale = 40;
+                        break;
+                    case 3:
+                        usage = PrimitiveSphere.USAGE_SKYSPHERE_UNDER_CW; // 3
+                        scale = 50;
+                        break;
+                }
+                CreateSphere(ref spheres[index], ref visualSphereNormals[index], ref visualSphereTangents[index], ref visualLightLineToSpheres[index], sphereCenters[index], scale, usage, false, false);
             }
         }
 
@@ -165,9 +181,9 @@ namespace ShaderExamples
             asphere = new PrimitiveSphere(5, 5, spherescale, primUsage, invert, flatfaces);
             asphere.textureCube = cubemap;
             float thickness = .1f; 
-            float scale = 10f;
-            visnorm = CreateVisualNormalLines(asphere.vertices, asphere.indices, dotTextureGreen, thickness, scale, false);
-            vistan = CreateVisualNormalLines(asphere.vertices, asphere.indices, dotTextureYellow, thickness, scale, true);
+            float normtanLinescale = 7f;
+            visnorm = CreateVisualNormalLines(asphere.vertices, asphere.indices, dotTextureGreen, thickness, normtanLinescale, false);
+            vistan = CreateVisualNormalLines(asphere.vertices, asphere.indices, dotTextureYellow, thickness, normtanLinescale, true);
             vline = CreateVisualLine(dotTextureWhite, sphereCenter, lightStartPosition, 1, Color.White);
         }
 
@@ -178,7 +194,9 @@ namespace ShaderExamples
             EnviromentalMapEffectClass.TextureCubeDiffuse = cubemap;
             EnviromentalMapEffectClass.TextureDiffuse = mesh.DiffuseTexture;
             EnviromentalMapEffectClass.TextureNormalMap = mesh.NormalMapTexture;
-            EnviromentalMapEffectClass.AmbientStrength = .10f;
+            EnviromentalMapEffectClass.AmbientStrength = 1.0f;
+            EnviromentalMapEffectClass.DiffuseStrength = 1f;
+            EnviromentalMapEffectClass.SpecularStrength = .8f;
             EnviromentalMapEffectClass.View = cam.view;
             EnviromentalMapEffectClass.Projection = cam.projection;
             EnviromentalMapEffectClass.CameraPosition = cam.cameraWorld.Translation;
@@ -383,11 +401,14 @@ namespace ShaderExamples
                 GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
 
-            EnviromentalMapEffectClass.Technique_Render_CubeSkybox();
             //EnviromentalMapEffectClass.Technique_Render_CubeSkyboxWithNormalMap();
 
             for (int index = 0; index < 4; index++)
             {
+                if(spheres[index].IsSkyBox)
+                    EnviromentalMapEffectClass.Technique_Render_Skybox();
+                else
+                    EnviromentalMapEffectClass.Technique_Render_Cube();
                 EnviromentalMapEffectClass.World = Matrix.CreateTranslation(sphereCenters[index]); //  Matrix.CreateScale(50) * Matrix.CreateTranslation(sphereCenter); 
                 EnviromentalMapEffectClass.TextureCubeDiffuse = spheres[index].textureCube;
                 EnviromentalMapEffectClass.TextureDiffuse = textureHdrLdrSphere;

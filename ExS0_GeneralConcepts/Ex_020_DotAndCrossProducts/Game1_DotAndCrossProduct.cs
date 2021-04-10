@@ -16,9 +16,9 @@ namespace ShaderExamples
         SpriteFont font;
         SpriteFont font2;
         Texture2D texture;
-        Texture2D texture2;
-        Texture2D texture3;
-        Effect effect;
+        //Texture2D texture2;
+        //Texture2D texture3;
+        //Effect effect;
 
         List<string> timedMsg = new List<string>();
         float elapsed = 0;
@@ -26,7 +26,7 @@ namespace ShaderExamples
         float msgDuration = 260;
         int index = 0;
         bool respectMsgTimer = true;
-        float percent = 1.0f;
+        //float percent = 1.0f;
 
         float elapsedCycleTime = 0;
         Vector2 directionToCompare = new Vector2(0, -100);

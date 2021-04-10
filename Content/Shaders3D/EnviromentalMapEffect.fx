@@ -281,13 +281,52 @@ float4 PS_CubeSkyboxWithNormalMap(VertexShaderOutput input) : COLOR
 }
 
 // DX the texture cube stores data inverted most of this is handled in the class file so we just get one shader
-float4 PS_RenderCubeSkybox(VertexShaderOutput input) : COLOR
+float4 PS_RenderCube(VertexShaderOutput input) : COLOR
 {
 	float3 N = normalize(input.Normal.xyz);
+	float3 ntex = float3(N.x, N.y, -N.z);
+	float4 col = texCUBElod(CubeMapSampler, float4 (ntex, 0));
+	//clip(col.a - .01f); // just straight clip super low alpha.
 
-	float4 envMapColor = texCUBElod(CubeMapSampler, float4 (N , 0));
-	clip(envMapColor.a - .01f); // just straight clip super low alpha.
-	return envMapColor;   //float4(envMapColor.rgb, 1.0f);
+	float3 P = input.Position3D;
+	float3 C = CameraPosition;
+	float3 V = normalize(C - P);
+	float NdotV = MaxDot(N, V);
+	float3 R = 2.0f * NdotV * N - V;
+	float3 L = normalize(LightPosition - P);
+	float3 H = HalfNormal(L, V);
+	float NdotH = MaxDot(N, H);
+	float NdotL = MaxDot(N, L);
+
+	float spec = SpecularBlinnPhong(V, L, N, 100.0f);
+	float3 speccol = col.rgb * LightColor;
+	col.rgb = saturate( (speccol.rgb * spec * SpecularStrength) + (col.rgb * NdotL * DiffuseStrength) + (col.rgb * AmbientStrength) );
+
+	return col;   //float4(envMapColor.rgb, 1.0f);
+}
+
+// DX the texture cube stores data inverted most of this is handled in the class file so we just get one shader
+float4 PS_RenderSkybox(VertexShaderOutput input) : COLOR
+{
+	float3 N = normalize(input.Normal.xyz);
+	float4 col = texCUBElod(CubeMapSampler, float4 (float3(N.x, N.y, N.z), 0));
+	//clip(col.a - .01f); // just straight clip super low alpha.
+
+	float3 P = input.Position3D;
+	float3 C = CameraPosition;
+	float3 V = normalize(C - P);
+	float NdotV = MaxDot(N, V);
+	float3 R = 2.0f * NdotV * N - V;
+	float3 L = normalize(LightPosition - P);
+	float3 H = HalfNormal(L, V);
+	float NdotH = MaxDot(N, H);
+	float NdotL = MaxDot(N, L);
+
+	float spec = SpecularBlinnPhong(V, L, N, 100.0f);
+	float3 speccol = col.rgb * LightColor;
+	col.rgb = saturate( (speccol.rgb * spec * SpecularStrength) + (col.rgb * NdotL * DiffuseStrength) + (col.rgb * AmbientStrength) );
+
+	return col;   //float4(envMapColor.rgb, 1.0f);
 }
 
 //++++++++++++++++++++++++++++++++++++++++
@@ -327,17 +366,27 @@ technique Render_CubeSkyboxWithNormalMap
 	}
 };
 
-technique Render_CubeSkybox
+technique Render_Skybox
 {
 	pass P0
 	{
 		VertexShader = compile VS_SHADERMODEL
 			VS();
 		PixelShader = compile PS_SHADERMODEL
-			PS_RenderCubeSkybox();
+			PS_RenderSkybox();
 	}
 };
 
+technique Render_Cube
+{
+	pass P0
+	{
+		VertexShader = compile VS_SHADERMODEL
+			VS();
+		PixelShader = compile PS_SHADERMODEL
+			PS_RenderCube();
+	}
+};
 
 
 //// DX This is with ccw  triangles outgoing normals and upward tangents in the negative u direction.

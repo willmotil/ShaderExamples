@@ -34,9 +34,9 @@ namespace ShaderExamples
         GridPlanes3D gridPlanes3d;
         NavOrientation3d navGuide;
 
-        Matrix proj;
-        Matrix view;
-        Matrix world;
+        //Matrix proj;
+        //Matrix view;
+        //Matrix world;
 
         private CinematicCamera cinematicCamera;
         private SimpleFps fps = new SimpleFps();
@@ -44,7 +44,7 @@ namespace ShaderExamples
         private bool useDesignatedTarget = false;
         private Vector3 _targetLookAt = new Vector3(0, 0, 0);
         private static float weight = 1.5f;
-        private static float camHeight = -30f;
+        //private static float camHeight = -30f;
         private static float Range = CinematicCamera.GetRequisitePerspectiveSpriteBatchAlignmentZdistance(STARTprefScrWidth, STARTprefScrHeight, 1f);
         //private Vector4[] cameraWayPoints = new Vector4[]
         //{
@@ -385,7 +385,7 @@ namespace ShaderExamples
                 }
             }
 
-            float g = 0f;
+            //float g = 0f;
 
             msg =
            $"\n Camera.World.Translation: \n  { cinematicCamera.World.Translation.X.ToString("N3") } { cinematicCamera.World.Translation.Y.ToString("N3") } { cinematicCamera.World.Translation.Z.ToString("N3") }" +

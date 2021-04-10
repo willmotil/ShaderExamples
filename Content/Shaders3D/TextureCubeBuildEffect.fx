@@ -313,8 +313,8 @@ HdrToCubeMapVertexShaderOutput HdrToEnvCubeMapVS(in HdrToCubeMapVertexShaderInpu
 float4 SphericalToCubeMapPS(HdrToCubeMapVertexShaderOutput input) : COLOR
 {
     
-    FaceStruct face = UvFaceToCubeMapVectorAlt(input.Position3D, FaceToMap);
-    //FaceStruct face = UvFaceToCubeMapVector(input.Position3D, FaceToMap);
+    //FaceStruct face = UvFaceToCubeMapVectorAlt(input.Position3D, FaceToMap);
+    FaceStruct face = UvFaceToCubeMapVector(input.Position3D, FaceToMap);
     float3 v = face.PositionNormal;
     float2 uv = CubeMapNormalTo2dEquaRectangularMapUvCoordinates(v);
     //uv = float2(uv.x, uv.y);

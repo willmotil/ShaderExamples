@@ -36,9 +36,9 @@ namespace ShaderExamples
         };
 
         Vector3 lightPosition = new Vector3(0, 0, 500f);
-        float lightRotationRadians = 0f;
+        //float lightRotationRadians = 0f;
 
-        bool rotateLight = true;
+        //bool rotateLight = true;
         bool displayWireframe = false;
         bool displayNormals = false;
 

@@ -12,13 +12,13 @@ namespace ShaderExamples
         private SpriteBatch spriteBatch;
         Texture2D texture;
         Effect effect;
-        SpriteFont font;
-        SpriteFont font2;
-        SpriteFont font3;
+        //SpriteFont font;
+        //SpriteFont font2;
+        //SpriteFont font3;
         RenderTarget2D rtScene;
 
         float percentageOfFill = 0;
-        float heightBias = .02f;
+        //float heightBias = .02f;
         float blueReplaceThreshold = .6f;
 
         public Game1_BarFillColorReplace()

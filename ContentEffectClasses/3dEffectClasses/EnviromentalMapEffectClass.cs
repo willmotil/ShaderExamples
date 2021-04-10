@@ -14,7 +14,6 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
 
         public static string DirectoryForEffect = @"Content/Shaders3D";
 
-        private static float totalStrength = 1f;
         private static float ambientStrength = .1f;
         private static float diffuseStrength = .6f;
         private static float specularStrength = .4f;
@@ -24,7 +23,7 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
             Content.RootDirectory = DirectoryForEffect;
             effect = Content.Load<Effect>("EnviromentalMapEffect");
             Technique_Lighting_Phong();
-            AmbientStrength = .1f;
+            AmbientStrength = .3f;
             DiffuseStrength = .6f;
             SpecularStrength = .4f;
             World = Matrix.Identity;
@@ -52,11 +51,14 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
             effect.CurrentTechnique = effect.Techniques["Render_CubeSkyboxWithNormalMap"];
         }
 
-        public static void Technique_Render_CubeSkybox()
+        public static void Technique_Render_Cube()
         {
-            effect.CurrentTechnique = effect.Techniques["Render_CubeSkybox"];
+            effect.CurrentTechnique = effect.Techniques["Render_Cube"];
         }
-
+        public static void Technique_Render_Skybox()
+        {
+            effect.CurrentTechnique = effect.Techniques["Render_Skybox"];
+        }
 
         public static TextureCube TextureCubeDiffuse
         {
@@ -108,26 +110,23 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
             set
             {
                 ambientStrength = value;
-                totalStrength = ambientStrength + diffuseStrength + specularStrength;
-                effect.Parameters["AmbientStrength"].SetValue(ambientStrength / totalStrength);
-            }
-        }
-        public static float SpecularStrength
-        {
-            set
-            {
-                diffuseStrength = value;
-                totalStrength = ambientStrength + diffuseStrength + specularStrength;
-                effect.Parameters["DiffuseStrength"].SetValue(diffuseStrength / totalStrength);
+                effect.Parameters["AmbientStrength"].SetValue(ambientStrength);
             }
         }
         public static float DiffuseStrength
         {
             set
             {
+                diffuseStrength = value;
+                effect.Parameters["DiffuseStrength"].SetValue(diffuseStrength);
+            }
+        }
+        public static float SpecularStrength
+        {
+            set
+            {
                 specularStrength = value;
-                totalStrength = ambientStrength + diffuseStrength + specularStrength;
-                effect.Parameters["SpecularStrength"].SetValue(specularStrength / totalStrength);
+                effect.Parameters["SpecularStrength"].SetValue(specularStrength);
             }
         }
 

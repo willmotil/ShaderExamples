@@ -622,7 +622,6 @@ namespace Microsoft.Xna.Framework
             string f1 = "{1,12:+######0.000;-######0.000;+######0.000}f ,";
             string f2 = "{2,12:+######0.000;-######0.000;+######0.000}f ,";
             string f3 = "{3,12:+######0.000;-######0.000;+######0.000}f ";
-            string s = ",";
             return 
                 name + " = new Matrix" +
                 "\n (" +

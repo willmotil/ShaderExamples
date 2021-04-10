@@ -25,10 +25,10 @@ namespace Microsoft.Xna.Framework
         public bool invertTexAddressV = false;
 
         private VertexBuffer vertexBuffer;
-        private IndexBuffer indexBuffer;
+        //private IndexBuffer indexBuffer;
 
         private int triangleCount = 0;
-        private int indiceCount = 0;
+        //private int indiceCount = 0;
 
         /// <summary>
         /// This method takes the R value for height data mapping it to the range of 0 to 1 for the z value.
@@ -1511,7 +1511,7 @@ namespace Microsoft.Xna.Framework
         {
             VertexPositionNormalTexture[] result = new VertexPositionNormalTexture[(int)(nPositions) + 2];
 
-            float degrees = 0;
+            //float degrees = 0;
             float radians = 0f;
             float x;
             float z;

@@ -15,9 +15,9 @@ namespace ShaderExamples
         SpriteFont font2;
         SpriteFont font3;
         Texture2D texture;
-        Effect effect;
+        //Effect effect;
         RenderTarget2D rtScene;
-        MouseState mouse;
+        //MouseState mouse;
 
         QuadModel quad = new QuadModel();
 

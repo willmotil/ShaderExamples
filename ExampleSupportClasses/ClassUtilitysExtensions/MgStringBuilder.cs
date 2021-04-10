@@ -51,7 +51,7 @@ namespace Microsoft.Xna.Framework
     {
         private static char decimalseperator = '.';
         private static char minus = '-';
-        private static char plus = '+';
+        //private static char plus = '+';
         private StringBuilder stringbuilder;
 
         /// <summary>

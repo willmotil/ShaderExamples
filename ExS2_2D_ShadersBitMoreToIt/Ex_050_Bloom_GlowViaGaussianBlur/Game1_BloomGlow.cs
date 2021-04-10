@@ -25,12 +25,12 @@ namespace ShaderExamples
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         SpriteFont font;
-        SpriteFont font2;
+        //SpriteFont font2;
         Texture2D texture;
         Texture2D texture1;
         Texture2D texture2;
         Texture2D texture3;
-        Texture2D textureDisplacementTexture;
+        //Texture2D textureDisplacementTexture;
         Effect effect;
         MouseState mouseState;
 
@@ -43,7 +43,7 @@ namespace ShaderExamples
         RenderTarget2D rtReduced0;
         RenderTarget2D rtReduced1;
 
-        RenderTargetBinding[] renderTargetBinding;
+        //RenderTargetBinding[] renderTargetBinding;
 
         bool useWeightBalance = true;
         bool useHorizontal = true;
