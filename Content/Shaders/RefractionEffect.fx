@@ -29,11 +29,11 @@ float4 RefractPS(float4 position : SV_Position, float4 color : COLOR0, float2 Te
     // sample the displacement maps color
     float4 offset = DisplacementTexture.Sample(Sampler, TextureCoordinates + scrolldir);
     float4 col = SpriteTexture.Sample(Sampler, TextureCoordinates + float2(offset.x - 0.5f, offset.y - 0.5f) * refractionRange) * color;
-
+    float alpha = col.a;
     // well fade things out as before just for fun.
     float2 dif = abs(TextureCoordinates - float2(0.5f, 0.5f)) * 2.0f;
     float dis = ((percent)-length(dif) / 1.579f) * strength;
-    col.a = saturate(dis);
+    col.a = saturate(dis) * alpha;
 
     return col;
 }
@@ -56,10 +56,11 @@ technique RefractionSimple
 float4 MultiBlendPS(float4 position : SV_Position, float4 color : COLOR0, float2 TextureCoordinates : TEXCOORD0) : COLOR0
 {
     float4 colDis = DisplacementTexture.Sample(Sampler, TextureCoordinates + scrolldir);
-    float4 col = SpriteTexture.Sample(Sampler, TextureCoordinates) * color;
-    float a = col.a;
-    col = (col * .6f + colDis * 0.4f);
-    col.a = a;
+    float4 col = SpriteTexture.Sample(Sampler, TextureCoordinates);
+    col = col * color;
+    float alpha = col.a;
+    col = saturate(col * .6f + colDis * 0.4f);
+    col.a = alpha;
     return col;
 }
 

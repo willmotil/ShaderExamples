@@ -33,7 +33,7 @@ namespace ShaderExamples
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
             Content.RootDirectory = "Content";
             Window.AllowUserResizing = true;
-            Window.Title = " ex Refraction via Texel Displacement.";
+            Window.Title = " ex RefractionEffect.fx   via Texel Displacement.";
             IsMouseVisible = true;
         }
         protected override void Initialize()

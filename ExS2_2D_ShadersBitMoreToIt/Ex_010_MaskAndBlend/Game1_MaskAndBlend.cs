@@ -34,9 +34,10 @@ namespace ShaderExamples
 
             Content.RootDirectory = @"Content/Images";
 
-            texture = Content.Load<Texture2D>("Terran02");
-            shadingMultiTexture = Content.Load<Texture2D>("clouds-heavy");
-            stenciledTexture = Content.Load<Texture2D>("planet_stencil");
+            //planet-terran02 planet-clouds-heavy planet_stencil
+            texture = Content.Load<Texture2D>("planet-terran02");
+            shadingMultiTexture = Content.Load<Texture2D>("planet-clouds-heavy"); 
+            stenciledTexture = Content.Load<Texture2D>("planet-blue-atmosphere"); 
 
             Content.RootDirectory = @"Content/Shaders";
             effect = Content.Load<Effect>("MaskBlend");

@@ -51,7 +51,7 @@ namespace ShaderExamples
 
             Content.RootDirectory = @"Content/Images";
             texture = Content.Load<Texture2D>("MG_Logo_Med_exCanvs");
-            texture2 = Content.Load<Texture2D>("Tanzania");
+            texture2 = Content.Load<Texture2D>("QuarrySquare");
             texture3 = Content.Load<Texture2D>("gamma_correction_brightness");
 
             Content.RootDirectory = @"Content/Fonts";

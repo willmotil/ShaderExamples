@@ -26,9 +26,6 @@ namespace ShaderExamples
         SpriteFont font3;
         Texture2D textureMesh; 
         Texture2D textureMeshNormalMap;
-        Texture2D textureSphere;
-        Texture2D textureNormalMapSphere;
-        Texture2D textureMonogameLogo;
         Texture2D dotTextureRed;
         Texture2D dotTextureBlue;
         Texture2D dotTextureGreen;
@@ -37,14 +34,9 @@ namespace ShaderExamples
         RenderTarget2D rtScene;
         CameraAndKeyboardControls cam = new CameraAndKeyboardControls();
         PrimitiveIndexedMesh mesh;
-        VisualizationNormals visualNormals = new VisualizationNormals();
-        VisualizationNormals visualTangents = new VisualizationNormals();
+        VisualizationNormals visualMeshNormals = new VisualizationNormals();
+        VisualizationNormals visualMeshTangents = new VisualizationNormals();
         VisualizationLine visualLightLineToMesh;
-        VisualizationLine visualLightLineToSphere;
-
-        ProtoTypePrimitiveSphere sphere;
-        VisualizationNormals visualSphereNormals = new VisualizationNormals();
-        VisualizationNormals visualSphereTangents = new VisualizationNormals();
 
         float[] heightMap = new float[]
         {
@@ -60,18 +52,16 @@ namespace ShaderExamples
         };
 
         Vector3 lightStartPosition = new Vector3(150, 1, 300); // new Vector3(1, 800, 300)
-        Vector3 lightPosition = new Vector3(0, 0, 0);
+        Vector3 lightPosition = new Vector3(150, 1, 300);
         Matrix lightTransform = Matrix.Identity;
         float lightRotationRadians = 0f;
         Vector3 meshDimensions = new Vector3(300f, 250,0);
-        Vector3 meshCenter = new Vector3(150,125,0);
-        Vector3 sphereCenter = new Vector3(0, 0, -50);
+        Vector3 meshCenter = new Vector3(150f,125f, 0.0f);
 
         string spectypemsg = "";
 
         RasterizerState rasterizerState_CULLNONE_WIREFRAME = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
         RasterizerState rasterizerState_CULLNONE_SOLID = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.Solid };
-
 
 
         public Game1_SpecularLighting()
@@ -107,9 +97,6 @@ namespace ShaderExamples
             dotTextureYellow = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Yellow);
 
             Content.RootDirectory = @"Content/Images";
-            textureMonogameLogo = Content.Load<Texture2D>("MG_Logo_Modifyed");
-            textureSphere = Content.Load<Texture2D>("walltomap");
-            textureNormalMapSphere = Content.Load<Texture2D>("wallnormmap");
             textureMesh = dotTextureWhite;
             textureMeshNormalMap = Content.Load<Texture2D>("TestNormalMap");
 
@@ -129,7 +116,7 @@ namespace ShaderExamples
 
 
             PrimitiveIndexedMesh.ShowOutput = false;
-            PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_HIGHEST; //PrimitiveIndexedMesh.AVERAGING_OPTION_USE_RED;
+            PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_HIGHEST;
 
             float thickness = .1f; 
             float scale = 10f;
@@ -156,15 +143,11 @@ namespace ShaderExamples
             else
                 mesh.DiffuseTexture = textureMesh; 
 
-            visualNormals = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureGreen, thickness, scale, false);
-            visualTangents = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureYellow, thickness, scale, true);
-            visualLightLineToMesh = CreateVisualLine(dotTextureWhite, meshCenter, lightStartPosition, 1, Color.White);
-
-            sphere = new ProtoTypePrimitiveSphere(10, 10, 50, false, false, false);
-            visualSphereNormals = CreateVisualNormalLines(sphere.vertices, sphere.indices, dotTextureGreen, thickness, scale, false);
-            visualSphereTangents = CreateVisualNormalLines(sphere.vertices, sphere.indices, dotTextureYellow, thickness, scale/5, true);
-            visualLightLineToSphere = CreateVisualLine(dotTextureWhite, sphereCenter, lightStartPosition, 1, Color.White);
-
+            visualMeshNormals = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureGreen, thickness, scale, false);
+            visualMeshTangents = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureYellow, thickness, scale, true);
+            //visualLightLineToMesh = CreateVisualLine(dotTextureWhite, meshCenter, lightStartPosition, 1.2f, Color.White);
+            visualLightLineToMesh = new VisualizationLine(dotTextureWhite, meshCenter, lightStartPosition, 1.0f, Color.White);
+            visualLightLineToMesh.SetUpBasicEffect(GraphicsDevice, dotTextureWhite, cam.view, cam.projection);
 
             SpecularLightEffectClass.Load(Content);
             SpecularLightEffectClass.Technique_Lighting_Phong();
@@ -199,8 +182,6 @@ namespace ShaderExamples
 
         public VisualizationLine CreateVisualLine(Texture2D texture, Vector3 startPosition, Vector3 endPosition, float thickness, Color color)
         {
-            //var vln = new VisualizationLine();
-            //vln.CreateVisualLine(texture, startPosition, endPosition, thickness, color);
             var vln = new VisualizationLine(texture, startPosition, endPosition, thickness, color);
             vln.SetUpBasicEffect(GraphicsDevice, texture, cam.view, cam.projection);
             return vln;
@@ -216,8 +197,6 @@ namespace ShaderExamples
                 Exit();
 
             cam.Update(gameTime);
-
-            ReusedUpdateCode(gameTime);
 
             if (Keys.F1.IsKeyPressedWithDelay(gameTime))
                 displayOnScreenText = !displayOnScreenText;
@@ -251,7 +230,51 @@ namespace ShaderExamples
                 }
             }
 
+
+            //ReusedUpdateCode(gameTime);
+
+
+            if (Keys.End.IsKeyPressedWithDelay(gameTime))
+                Console.WriteLine($"{cam.cameraWorld.DisplayMatrixForCopy("cameraWorld") }");
+
+            if (Keys.Home.IsKeyPressedWithDelay(gameTime))
+                cam.InitialView(GraphicsDevice);
+            if (Keys.Space.IsKeyPressedWithDelay(gameTime))
+                manuallyRotateLight = !manuallyRotateLight;
+
+            if (manuallyRotateLight)
+            {
+                if (Keys.OemPlus.IsKeyDown())
+                    lightRotationRadians += .05f;
+                if (Keys.OemMinus.IsKeyDown())
+                    lightRotationRadians -= .05f;
+                if (Keys.OemCloseBrackets.IsKeyDown())
+                    lightStartPosition.Z += 5f;
+                if (Keys.OemOpenBrackets.IsKeyDown())
+                    lightStartPosition.Z -= 5f;
+            }
+            else
+            {
+                lightRotationRadians += .005f;
+            }
+            if (lightRotationRadians > 6.28318f)
+                lightRotationRadians = 0;
+            if (lightRotationRadians < 0)
+                lightRotationRadians = 6.283f;
+
+            var axisOfRotation = new Vector3(1, 0, 0);
+            lightTransform = Matrix.CreateFromAxisAngle(axisOfRotation, lightRotationRadians);
+            lightPosition = Vector3.Transform(lightStartPosition, lightTransform);
+
+            visualLightLineToMesh.ReCreateVisualLine(dotTextureWhite, meshCenter, lightPosition, 1, Color.White);
+
             base.Update(gameTime);
+        }
+
+        // well move this down here as it's just going to stay the same pretty much.
+        public void ReusedUpdateCode(GameTime gameTime)
+        {
+
         }
 
         protected override void Draw(GameTime gameTime)
@@ -263,10 +286,7 @@ namespace ShaderExamples
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
 
             if (displayMesh)
-            {
                 DrawMesh();
-                DrawSphere();
-            }
 
             if (displayNormals)
                 DrawNormalsAndTangents();
@@ -293,52 +313,33 @@ namespace ShaderExamples
             if (displayWireframe)
             {
                 GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_WIREFRAME;
-                visualNormals.World = Matrix.Identity;
-                visualNormals.View = cam.view;
+                visualMeshNormals.World = Matrix.Identity;
+                visualMeshNormals.View = cam.view;
                 SpecularLightEffectClass.TextureDiffuse = dotTextureRed;
                 mesh.DrawPrimitive(GraphicsDevice, SpecularLightEffectClass.effect);
             }
         }
 
-        public void DrawSphere()
-        {
-            GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
-            SpecularLightEffectClass.TextureDiffuse = textureSphere;
-            SpecularLightEffectClass.TextureNormalMap = textureNormalMapSphere;
-            SpecularLightEffectClass.World = Matrix.CreateTranslation(sphereCenter);
-            sphere.DrawPrimitiveSphere(GraphicsDevice, SpecularLightEffectClass.effect);
-        }
-
         public void DrawNormalsAndTangents()
         {
-            visualNormals.World = Matrix.Identity;
-            visualNormals.View = cam.view;
-            visualNormals.Draw(GraphicsDevice);
+            visualMeshNormals.World = Matrix.Identity;
+            visualMeshNormals.View = cam.view;
+            visualMeshNormals.Projection = cam.projection;
+            visualMeshNormals.Draw(GraphicsDevice);
 
-            visualTangents.World = Matrix.Identity;
-            visualTangents.View = cam.view;
-            visualTangents.Draw(GraphicsDevice);
-
-            visualSphereNormals.World = Matrix.CreateTranslation(sphereCenter);
-            visualSphereNormals.View = cam.view;
-            visualSphereNormals.Projection = cam.projection;
-            visualSphereNormals.Draw(GraphicsDevice);
-
-            visualSphereTangents.World = Matrix.CreateTranslation(sphereCenter);
-            visualSphereTangents.View = cam.view;
-            visualSphereTangents.Projection = cam.projection;
-            visualSphereTangents.Draw(GraphicsDevice);
+            visualMeshTangents.World = Matrix.Identity;
+            visualMeshTangents.View = cam.view;
+            visualMeshTangents.Projection = cam.projection;
+            visualMeshTangents.Draw(GraphicsDevice);
         }
 
         public void DrawLightLines()
         {
-            visualLightLineToMesh.World = Matrix.Identity; //lightTransform;
-            visualLightLineToMesh.View = cam.view;
-            visualLightLineToMesh.Draw(GraphicsDevice);
 
-            visualLightLineToSphere.World = Matrix.Identity;
-            visualLightLineToSphere.View = cam.view;
-            visualLightLineToSphere.Draw(GraphicsDevice);
+            visualLightLineToMesh.World = Matrix.Identity;
+            visualLightLineToMesh.View = cam.view;
+            visualLightLineToMesh.Projection = cam.projection;
+            visualLightLineToMesh.Draw(GraphicsDevice);
         }
 
         public void DrawSpriteBatches(GameTime gameTime)
@@ -368,51 +369,10 @@ namespace ShaderExamples
             if (displayOnScreenText)
                 spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Red);
             else
-                spriteBatch.DrawString(font, $"Press F1 for information  \n{spectypemsg}", new Vector2(10, 10), Color.Red);
+                spriteBatch.DrawString(font, $"Press F1 for information  {lightPosition.VectorToString("LightPosition")}  \n{spectypemsg}", new Vector2(10, 10), Color.Red);
 
             spriteBatch.End();
         }
-
-
-
-        // well move this down here as it's just going to stay the same pretty much.
-        public void ReusedUpdateCode(GameTime gameTime)
-        {
-            if (Keys.Home.IsKeyPressedWithDelay(gameTime))
-                cam.InitialView(GraphicsDevice);
-            if (Keys.Space.IsKeyPressedWithDelay(gameTime))
-                manuallyRotateLight = !manuallyRotateLight;
-
-            if (Keys.End.IsKeyPressedWithDelay(gameTime))
-                Console.WriteLine($"{cam.cameraWorld.DisplayMatrixForCopy("cameraWorld") }");
-
-            if (manuallyRotateLight)
-            {
-                if (Keys.OemPlus.IsKeyDown())
-                    lightRotationRadians += .005f;
-                if (Keys.OemMinus.IsKeyDown())
-                    lightRotationRadians -= .005f;
-                if (Keys.OemCloseBrackets.IsKeyDown())
-                    lightStartPosition.Z += 5f;
-                if (Keys.OemOpenBrackets.IsKeyDown())
-                    lightStartPosition.Z -= 5f;
-            }
-            else
-            {
-                lightRotationRadians += .005f;
-            }
-            if (lightRotationRadians > 6.28318f)
-                lightRotationRadians = 0;
-            if (lightRotationRadians < 0)
-                lightRotationRadians = 6.283f;
-
-            var axisOfRotation = new Vector3(1, 0, 0);
-            lightTransform = Matrix.CreateFromAxisAngle(axisOfRotation, lightRotationRadians);
-            lightPosition = Vector3.Transform(lightStartPosition, lightTransform);
-            visualLightLineToMesh.ReCreateVisualLine(dotTextureWhite, meshCenter, lightPosition, 1, Color.White);
-            visualLightLineToSphere.ReCreateVisualLine(dotTextureWhite, sphereCenter, lightPosition, 1, Color.White);
-        }
-
 
     }
 }

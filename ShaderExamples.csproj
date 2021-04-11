@@ -37,6 +37,6 @@
   <ItemGroup>
     <Folder Include="ExS0_GeneralConcepts\Ex_040_TODO_UsingTheMouseAndKeyboard\" />
     <Folder Include="ExS4_3D_Shading\Ex_030_SpecularLighting\" />
-    <Folder Include="ExS4_3D_Shading\Ex_050_Mirroring3dSurfaces\" />
+    <Folder Include="ExS4_3D_Shading\Ex_060_Mirroring3dSurfaces\" />
   </ItemGroup>
 </Project>

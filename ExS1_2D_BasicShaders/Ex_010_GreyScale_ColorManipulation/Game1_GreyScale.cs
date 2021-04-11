@@ -54,9 +54,15 @@ namespace ShaderExamples
 
             if (IsPressedWithDelay(Keys.Space, gameTime)  || Keyboard.GetState().IsKeyDown(Keys.Left))
             {
-                percent -= .005f;
+                percent -= .01f;
                 if (percent <= 0)
                     percent = 1.0f;
+            }
+            if (Keyboard.GetState().IsKeyDown(Keys.Right))
+            {
+                percent += .01f;
+                if (percent >= 1f)
+                    percent = 0.0f;
             }
             effect.Parameters["percent"].SetValue(percent);
 
@@ -72,7 +78,7 @@ namespace ShaderExamples
             spriteBatch.End();
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
-            spriteBatch.DrawString(font, $" press space to alter image  \n Percent: {percent.ToString("##0.000")}", new Vector2(10, 10), Color.Black);
+            spriteBatch.DrawString(font, $" Press space or left right arrows to alter the image.  \n Percent: {percent.ToString("##0.000")}", new Vector2(10, 10), Color.Black);
             spriteBatch.End();
 
             base.Draw(gameTime);

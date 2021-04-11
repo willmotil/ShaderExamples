@@ -55,21 +55,18 @@ namespace Microsoft.Xna.Framework
             int lineVerts = sides * 2; // the number of vertices per line
             int lineIndices = sides * 6; // the number of indices per line
             var dir = end - start;
-            var scale = Vector3.Distance(end, start);
-            var p = start;
-            var n = Vector3.Normalize(dir);
-            var p2 = n * scale + p;
-            float radMult = 6.28f / sides;
+            var dist = Vector3.Distance(end, start);
+            var axis = Vector3.Normalize(dir);
+            float radMult = 6.28318f / (sides + .02f);
             int currentVert = 0;
             for (int k = 0; k < sides; k++)
             {
-                float rads = (float)(k) * radMult;
-                var m = Matrix.CreateFromAxisAngle(n, rads);
-                var mright = m.Right;
-                var np = p + m.Right * thickness;
-                var np2 = p2 + m.Right * thickness;
-                vertices[currentVert + 0] = new VertexPositionNormalTexture() { Position = np, Normal = n, TextureCoordinate = new Vector2((float)(k) / (float)(sides - 1), 0f) };
-                vertices[currentVert + 1] = new VertexPositionNormalTexture() { Position = np2, Normal = n, TextureCoordinate = new Vector2((float)(k) / (float)(sides - 1), 1f) };
+                float angleInRadians = (float)(k) * radMult;
+                var m = Matrix.CreateFromAxisAngle(axis, angleInRadians);
+                var srpos =  m.Right * thickness + start;
+                var erpos = m.Right * thickness + end;
+                vertices[currentVert + 0] = new VertexPositionNormalTexture() { Position = srpos, Normal = axis, TextureCoordinate = new Vector2((float)(k) / (float)(sides - 1), 0f) };
+                vertices[currentVert + 1] = new VertexPositionNormalTexture() { Position = erpos, Normal = axis, TextureCoordinate = new Vector2((float)(k) / (float)(sides - 1), 1f) };
                 currentVert += 2;
             }
 

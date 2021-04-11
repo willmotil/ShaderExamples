@@ -17,13 +17,17 @@ sampler2D TextureSampler : register(s0)
 
 float4 MainPS(float4 position : SV_Position, float4 color : COLOR0, float2 TextureCoordinates : TEXCOORD0) : COLOR0
 {
-    float4 col = tex2D(TextureSampler, TextureCoordinates) * color;
+    float4 col = tex2D(TextureSampler, TextureCoordinates);
+
+    float alpha = col.a;
+
+    col = col * color;
 
     float2 dif = abs(TextureCoordinates - float2(0.5f, 0.5f)) * 2.0f;
 
     float dis = ((percent) - length(dif) / 1.579f) * strength;
 
-    col.a = saturate(dis);
+    col.a = saturate(dis) * alpha;
 
     return col;
 }

@@ -31,7 +31,7 @@ namespace ShaderExamples
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
             Content.RootDirectory = "Content";
             Window.AllowUserResizing = true;
-            Window.Title = " ex Quad with shader and Matrices ";
+            Window.Title = " ex Quad with shader and Matrices ,  SimpleDrawingWithMatriceEffect.fx";
             IsMouseVisible = true;
             Window.ClientSizeChanged += OnResize;
         }

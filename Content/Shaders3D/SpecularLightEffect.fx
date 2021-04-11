@@ -221,7 +221,6 @@ float4 PS_Phong(VertexShaderOutput input) : COLOR
 	float spec= SpecularPhong(V, L, N, 100.0f);
 	float3 speccol = col.rgb * LightColor;
 	col.rgb =  (speccol.rgb * spec * SpecularStrength) +(col.rgb * NdotL * NdotL * DiffuseStrength) + (col.rgb * AmbientStrength);
-	//col.rgb = (speccol.rgb * spec * (SpecularStrength + DiffuseStrength));
 	return col;
 }
 
@@ -242,7 +241,6 @@ float4 PS_BlinnPhong(VertexShaderOutput input) : COLOR
 	float spec = SpecularBlinnPhong(V, L, N, 100.0f);
 	float3 speccol = col.rgb * LightColor;
 	col.rgb = (speccol.rgb * spec * SpecularStrength) + (col.rgb * NdotL * NdotL * DiffuseStrength) + (col.rgb * AmbientStrength);
-	//col.rgb = (speccol.rgb * spec * (SpecularStrength + DiffuseStrength));
 	return col;
 }
 
@@ -263,7 +261,6 @@ float4 PS_Wills(VertexShaderOutput input) : COLOR
 	float spec = SpecularCurveFit(V, L, N, 1.50f);
 	float3 speccol = col.rgb * LightColor;
 	col.rgb = (speccol.rgb * spec * SpecularStrength) + (col.rgb * NdotL * NdotL * DiffuseStrength) + (col.rgb * AmbientStrength);
-	//col.rgb = (speccol.rgb * spec * (SpecularStrength + DiffuseStrength)) ;
 	return col;
 }
 
