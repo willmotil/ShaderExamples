@@ -29,8 +29,8 @@ namespace ShaderExamples //Microsoft.Xna.Framework
         public static Matrix matrixPositiveY = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 1.0f, 0), Vector3.Backward);
         public static Matrix matrixNegativeY = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, -1.0f, 0), Vector3.Forward);
 
-        public VertexPositionNormalTextureTangentWeights[] cubesFaceVertices;
-        public int[] cubesFacesIndices;
+        public VertexPositionNormalTextureTangentWeights[] vertices;
+        public int[] indices;
 
         //public PrimitiveSphere()
         //{
@@ -77,8 +77,8 @@ namespace ShaderExamples //Microsoft.Xna.Framework
 
             CreateTangents( cubesFaceMeshVertList, cubeFaceMeshIndexList, subdivisionWidth, subdividsionHeight, negateNormalDirection, negateTangentDirection);
 
-            cubesFaceVertices = cubesFaceMeshVertList.ToArray();
-            cubesFacesIndices = cubeFaceMeshIndexList.ToArray();
+            vertices = cubesFaceMeshVertList.ToArray();
+            indices = cubeFaceMeshIndexList.ToArray();
         }
 
         bool HasInvalidValues(Vector3 v)
@@ -395,7 +395,7 @@ namespace ShaderExamples //Microsoft.Xna.Framework
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
-                gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, cubesFaceVertices, 0, cubesFaceVertices.Length, cubesFacesIndices, 0, cubesFacesIndices.Length / 3, VertexPositionNormalTextureTangentWeights.VertexDeclaration);
+                gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, indices.Length / 3, VertexPositionNormalTextureTangentWeights.VertexDeclaration);
             }
         }
 
@@ -405,7 +405,7 @@ namespace ShaderExamples //Microsoft.Xna.Framework
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
-                gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, cubesFaceVertices, 0, cubesFaceVertices.Length, cubesFacesIndices, 0, cubesFacesIndices.Length / 3, VertexPositionNormalTextureTangentWeights.VertexDeclaration);
+                gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, indices.Length / 3, VertexPositionNormalTextureTangentWeights.VertexDeclaration);
             }
         }
 
@@ -415,7 +415,7 @@ namespace ShaderExamples //Microsoft.Xna.Framework
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
-                gd.DrawUserPrimitives(PrimitiveType.TriangleList, cubesFaceVertices, cubeFaceToRender * 6, 2, VertexPositionNormalTextureTangentWeights.VertexDeclaration);
+                gd.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, cubeFaceToRender * 6, 2, VertexPositionNormalTextureTangentWeights.VertexDeclaration);
             }
         }
 

@@ -18,6 +18,37 @@ namespace ShaderExamples //.ExampleSupportClasses.ClassUtilitysExtensions
 
         public BasicEffect basicEffect;
 
+        #region added matrix scaling instead of set scaling.
+
+        private Matrix transform = Matrix.Identity;
+        private Matrix orientation = Matrix.Identity;
+        private float worldscale = 1f;
+        public Matrix SetWorldTransformation(Vector3 position, Vector3 forward, Vector3 up, float scale)
+        {
+            worldscale = scale;
+            orientation = Matrix.CreateWorld(position, forward, up);
+            Transform();
+            return transform;
+        }
+        /// <summary>
+        /// Sets the World in such a way as that you don't have to worry about the scaling  via srt order.
+        /// </summary>
+        public Matrix WorldTransformation { get { return transform; } }
+        public float Scale { get { return worldscale; } set { worldscale = value; Transform();  } }
+        public Vector3 Position { get { return orientation.Translation; } set { orientation.Translation = value; Transform(); } }
+        private void Transform()
+        {
+            transform = Matrix.Identity * Matrix.CreateScale(worldscale) * orientation;
+            basicEffect.World = transform;
+        }
+
+        #endregion
+
+        public Matrix World { set { basicEffect.World = value; } get { return basicEffect.World; } }
+        public Matrix View { set { basicEffect.View = value; } get { return basicEffect.View; } }
+        public Matrix Projection { set { basicEffect.Projection = value; } get { return basicEffect.Projection; } }
+        public Texture2D Texture { set { basicEffect.Texture = value; } get { return basicEffect.Texture; } }
+
         public VisualizationNormals() { }
 
         public void SetUpBasicEffect(GraphicsDevice device, Texture2D texture, Matrix view, Matrix proj)
@@ -29,17 +60,13 @@ namespace ShaderExamples //.ExampleSupportClasses.ClassUtilitysExtensions
             //basicEffect.EnableDefaultLighting();
             //basicEffect.AmbientLightColor = new Vector3(1.0f,1.0f,1.0f);
             World = Matrix.Identity;
+            basicEffect.World = World;
             basicEffect.View = view;
             basicEffect.Projection = proj;
             basicEffect.Texture = texture;
         }
 
-        public Matrix World { set { basicEffect.World = value; } get { return basicEffect.World; } }
-        public Matrix View { set { basicEffect.View = value; } get { return basicEffect.View; } }
-        public Matrix Projection { set { basicEffect.Projection = value; } get { return basicEffect.Projection; } }
-        public Texture2D Texture { set { basicEffect.Texture = value; } get { return basicEffect.Texture; } }
-
-        public void CreateVisualNormalsForPrimitiveMesh(VertexPositionNormalTexture[] inVertices, int[] inIndices, Texture2D t, float thickness, float scale)
+        public void CreateVisualNormalsForPrimitiveMesh(VertexPositionNormalTexture[] inVertices, int[] inIndices, Texture2D t, float thickness, float lineLength)
         {
             texture = t;
             int len = inVertices.Length;
@@ -61,9 +88,9 @@ namespace ShaderExamples //.ExampleSupportClasses.ClassUtilitysExtensions
                 int startvert = j * lineVerts;
                 int startindices = j * lineIndices;
 
-                var p = inVertices[j].Position;
+                var startPos = inVertices[j].Position;
                 var n = inVertices[j].Normal;
-                var p2 = n * scale + p;
+                var endPos = n * lineLength + startPos;
 
                 int index = 0;
                 float radMult = 6.28f / sides;
@@ -72,11 +99,11 @@ namespace ShaderExamples //.ExampleSupportClasses.ClassUtilitysExtensions
                     float rads = (float)(k) * radMult;
                     var m = Matrix.CreateFromAxisAngle(n, rads);
                     var mright = m.Right;
-                    var np = p + m.Right * thickness;
-                    var np2 = p2 + m.Right * thickness;
+                    var sideStartPos = startPos + m.Right * thickness;
+                    var sideEndPos = endPos + m.Right * thickness;
 
-                    var v0 = new VertexPositionNormalTexture() { Position = np, Normal = n, TextureCoordinate = new Vector2((float)(k) / (float)(sides - 1), 0f) };
-                    var v1 = new VertexPositionNormalTexture() { Position = np2, Normal = n, TextureCoordinate = new Vector2((float)(k) / (float)(sides - 1), 1f) };
+                    var v0 = new VertexPositionNormalTexture() { Position = sideStartPos, Normal = n, TextureCoordinate = new Vector2((float)(k) / (float)(sides - 1), 0f) };
+                    var v1 = new VertexPositionNormalTexture() { Position = sideEndPos, Normal = n, TextureCoordinate = new Vector2((float)(k) / (float)(sides - 1), 1f) };
                     nverts.Add(v0);
                     nverts.Add(v1);
 

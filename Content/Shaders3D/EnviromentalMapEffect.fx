@@ -284,7 +284,7 @@ float4 PS_CubeSkyboxWithNormalMap(VertexShaderOutput input) : COLOR
 float4 PS_RenderCube(VertexShaderOutput input) : COLOR
 {
 	float3 N = normalize(input.Normal.xyz);
-	float3 ntex = float3(N.x, N.y, -N.z);
+	float3 ntex = float3(N.x, -N.y, -N.z);
 	float4 col = texCUBElod(CubeMapSampler, float4 (ntex, 0));
 	//clip(col.a - .01f); // just straight clip super low alpha.
 
@@ -309,7 +309,8 @@ float4 PS_RenderCube(VertexShaderOutput input) : COLOR
 float4 PS_RenderSkybox(VertexShaderOutput input) : COLOR
 {
 	float3 N = normalize(input.Normal.xyz);
-	float4 col = texCUBElod(CubeMapSampler, float4 (float3(N.x, N.y, N.z), 0));
+	float3 ntex = float3(N.x, -N.y, N.z);
+	float4 col = texCUBElod(CubeMapSampler, float4 (ntex, 0));
 	//clip(col.a - .01f); // just straight clip super low alpha.
 
 	float3 P = input.Position3D;

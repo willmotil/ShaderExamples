@@ -10,8 +10,8 @@ namespace ShaderExamples
     public class Game1_DiffuseLighting : Game
     {
         bool rotateLight = true;
-        bool displayWireframe = true;
-        bool displayNormals = true;
+        bool displayWireframe = false;
+        bool displayNormals = false;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -109,21 +109,23 @@ namespace ShaderExamples
             CreateVisualLightNormal(dotTexture2, 2, 3000);
         }
 
-        public void CreateVisualMeshNormals(PrimitiveIndexedMesh mesh, Texture2D texture, float thickness, float scale)
+        public void CreateVisualMeshNormals(PrimitiveIndexedMesh mesh, Texture2D texture, float thickness, float lineLength)
         {
             VertexPositionNormalTexture[] tmp = new VertexPositionNormalTexture[mesh.vertices.Length];
             for (int i = 0; i < mesh.vertices.Length; i++)
                 tmp[i] = new VertexPositionNormalTexture() { Position = mesh.vertices[i].Position, Normal = mesh.vertices[i].Normal, TextureCoordinate = mesh.vertices[i].TextureCoordinate };
-            visualNormals.CreateVisualNormalsForPrimitiveMesh(tmp, mesh.indices, texture, thickness, scale);
+            visualNormals.CreateVisualNormalsForPrimitiveMesh(tmp, mesh.indices, texture, thickness, .1f);
+            //visualNormals.SetWorldTransformation(Vector3.Zero, Vector3.Forward, Vector3.Up, lineLength);
         }
 
-        public void CreateVisualLightNormal(Texture2D texture, float thickness, float scale)
+        public void CreateVisualLightNormal(Texture2D texture, float thickness, float lineLength)
         {
             VertexPositionNormalTexture[] tmp = new VertexPositionNormalTexture[1];
             tmp[0] = new VertexPositionNormalTexture() { Position = new Vector3(0, 0, 0), Normal = new Vector3(0, 0, 1), TextureCoordinate = new Vector2(0, 0) };
             int[] tmpindices = new int[1];
             tmpindices[0] = 0;
-            visualLightNormal.CreateVisualNormalsForPrimitiveMesh(tmp, tmpindices, texture, thickness, scale);
+            visualLightNormal.CreateVisualNormalsForPrimitiveMesh(tmp, tmpindices, texture, thickness, lineLength);
+            //visualLightNormal.SetWorldTransformation(Vector3.Zero, Vector3.Forward, Vector3.Up, scale);
         }
 
         protected override void UnloadContent()
