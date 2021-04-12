@@ -22,34 +22,54 @@ namespace ShaderExamples //.ExampleSupportClasses
         public Vector3 cameraForwardVector = Vector3.Forward;
         public Vector3 cameraUpVector = Vector3.Up;
 
+        public bool IsUpFixed = true;
+        public Vector3 FixedUpVector = Vector3.Down;
+
+        /// <summary>
+        /// the up vector will be overriden if IsUpFixed is on.
+        /// </summary>
         public void InitialView(GraphicsDevice device, Vector3 pos, Vector3 forward, Vector3 up)
         {
             cameraWorld = Matrix.CreateWorld(pos, forward, up);
+            cameraUpVector = cameraWorld.Up;
+            cameraForwardVector = cameraWorld.Forward;
+            cameraWorldPosition = cameraWorld.Translation;
             view = Matrix.Invert(cameraWorld);
-            if (DiffuseLightEffectClass.effect != null)
-                DiffuseLightEffectClass.View = view;
         }
+
+        /// <summary>
+        /// the up vector will be overriden if IsUpFixed is on.
+        /// </summary>
         public void InitialView(GraphicsDevice device, Matrix camWorld)
         {
             cameraWorld = camWorld;
+            cameraUpVector = cameraWorld.Up;
+            cameraForwardVector = cameraWorld.Forward;
+            cameraWorldPosition = cameraWorld.Translation;
             view = Matrix.Invert(cameraWorld);
-            if (DiffuseLightEffectClass.effect != null)
-                DiffuseLightEffectClass.View = view;
         }
+
+        /// <summary>
+        /// the up vector will be overriden if IsUpFixed is on.
+        /// </summary>
         public void InitialView(GraphicsDevice device)
         {
             cameraWorldPosition.Z = MgMathExtras.GetRequisitePerspectiveSpriteBatchAlignmentZdistance(device, fov);
             cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Zero - cameraWorldPosition, cameraUpVector);
+            cameraUpVector = cameraWorld.Up;
+            cameraForwardVector = cameraWorld.Forward;
+            cameraWorldPosition = cameraWorld.Translation;
             view = Matrix.Invert(cameraWorld);
-            if (DiffuseLightEffectClass.effect != null)
-                DiffuseLightEffectClass.View = view;
         }
 
+        public void UpdateProjection(GraphicsDevice device, float fieldOfView)
+        {
+            fov = fieldOfView;
+            projection = Matrix.CreatePerspectiveFieldOfView(fov, device.Viewport.AspectRatio, 1f, 10000f);
+        }
         public void UpdateProjection(GraphicsDevice device)
         {
             projection = Matrix.CreatePerspectiveFieldOfView(fov, device.Viewport.AspectRatio, 1f, 10000f);
-            if (DiffuseLightEffectClass.effect != null)
-                DiffuseLightEffectClass.Projection = projection;
         }
 
         public void Update(GameTime gameTime)
@@ -87,6 +107,9 @@ namespace ShaderExamples //.ExampleSupportClasses
             //    ____ += speed * .01f;
             //if (Keyboard.GetState().IsKeyDown(Keys.C))
             //    ____ -= speed * .01f;
+
+            if(IsUpFixed)
+               cameraWorld.Up = FixedUpVector;
 
             // Set the view matrix.
             cameraWorld = Matrix.CreateWorld(cameraWorld.Translation, cameraWorld.Forward, cameraWorld.Up);

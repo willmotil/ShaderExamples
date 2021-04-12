@@ -64,7 +64,14 @@ samplerCUBE CubeMapSampler = sampler_state
 	texture = <TextureCubeDiffuse>;
 	AddressU = clamp;
 	AddressV = clamp;
-	//magfilter = Linear;//minfilter = Linear;//mipfilter = Linear;
+};
+
+TextureCube TextureCubeEnviromental;
+samplerCUBE CubeMapEnviromentalSampler = sampler_state
+{
+	texture = <TextureCubeEnviromental>;
+	AddressU = clamp;
+	AddressV = clamp;
 };
 
 
@@ -94,6 +101,15 @@ struct VertexShaderOutput
 // F U N C T I O N S
 //++++++++++++++++++++++++++++++++++++++++
 
+float3 GammaToLinear(float3 gammaColor)
+{
+	return pow(gammaColor, 2.2f);
+}
+float3 LinearToGamma(float3 gammaColor)
+{
+	return pow(gammaColor, .454f);
+}
+
 float MaxDot(float3 a, float3 b)
 {
 	return max(0.0f, dot(a, b));
@@ -108,11 +124,6 @@ float3 HalfNormal(float3 pixelToLight, float3 pixelToCamera)
 float IsFrontFaceToLight(float3 L, float3 N)
 {
 	return sign(saturate(dot(L, N)));
-}
-
-float3 GammaToLinear(float3 gammaColor)
-{
-	return pow(gammaColor, 2.2f);
 }
 
 // to viewer can be   pos   or  v   aka  cam - pixel
@@ -138,20 +149,6 @@ float SpecularSharpener(float specular, float scalar)
 {
 	return saturate(specular - scalar) * (1.0f / (1.0f - scalar));
 }
-
-float SpecularCurveFit(float3 V, float3 L, float3 N, float sharpness)
-{
-	float3 h = normalize(L + V);
-	float ndoth = max(dot(N, h), 0.0f);
-
-	float a = sharpness / (sharpness + 0.1f); // infinite sliding limit.
-	float ndotl = saturate(dot(L, N));
-	float r = (dot(V, reflect(-L, N)) + ndoth * 0.07f) / 1.07f;  // *ndotl;
-	float result = saturate(r - a) * (1.0f / (1.0f - a));
-
-	return result;
-}
-
 
 float Falloff(float distance, float lightRadius)
 {
@@ -186,7 +183,14 @@ float3 FunctionNormalMapGeneratedBiTangent(float3 normal, float3 tangent, float2
 	return normalize(mul(NormalMap, mat)); // norm to ensure later scaling wont break it.
 }
 
-
+float4 TexEnvCubeLod(samplerCUBE samp, float3 normal, float miplevel) {
+	normal.y = -normal.y;
+	return texCUBElod(samp , float4 (normal, miplevel));
+}
+float4 TexCubeLod(samplerCUBE samp, float3 normal, float miplevel) {
+	normal.yz = -normal.yz;
+	return texCUBElod(samp, float4 (normal, miplevel));
+}
 
 
 //++++++++++++++++++++++++++++++++++++++++
@@ -213,105 +217,41 @@ VertexShaderOutput VS(in VertexShaderInput input)
 // P I X E L  S H A D E R S
 //++++++++++++++++++++++++++++++++++++++++
 
-float4 PS_Phong(VertexShaderOutput input) : COLOR
+// float3 N2 = float3(N.x, -N.y, N.z);
+float4 PS_PhongWithEnviromentalLight(VertexShaderOutput input) : COLOR
 {
+	float3 N = FunctionNormalMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);  	
 	float4 col = tex2D(TextureSamplerDiffuse, input.TextureCoordinates);
-	float3 N = FunctionNormalMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);
 	float3 P = input.Position3D;
 	float3 C = CameraPosition;
 	float3 V = normalize(C - P);
-	float NdotV = MaxDot(N, V);
-	float3 R = 2.0f * NdotV * N - V;
 	float3 L = normalize(LightPosition - P);
 	float3 H = HalfNormal(L, V);
 	float NdotH = MaxDot(N, H);
 	float NdotL = MaxDot(N, L);
-
-	float spec = SpecularPhong(V, L, N, 100.0f);
-	float3 speccol = col.rgb * LightColor;
-	col.rgb = (speccol.rgb * spec * SpecularStrength) + (col.rgb * NdotL * NdotL * DiffuseStrength) + (col.rgb * AmbientStrength);
-	//col.rgb = (speccol.rgb * spec * (SpecularStrength + DiffuseStrength));
-	return col;
-}
-
-float4 PS_BlinnPhong(VertexShaderOutput input) : COLOR
-{
-	float4 col = tex2D(TextureSamplerDiffuse, input.TextureCoordinates);
-	float3 N = FunctionNormalMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);
-	float3 P = input.Position3D;
-	float3 C = CameraPosition;
-	float3 V = normalize(C - P);
 	float NdotV = MaxDot(N, V);
 	float3 R = 2.0f * NdotV * N - V;
-	float3 L = normalize(LightPosition - P);
-	float3 H = HalfNormal(L, V);
-	float NdotH = MaxDot(N, H);
-	float NdotL = MaxDot(N, L);
+	float Stheta = SpecularPhong(V, L, N, 80.0f); // specularTheta
 
-	float spec = SpecularBlinnPhong(V, L, N, 100.0f);
-	float3 speccol = col.rgb * LightColor;
-	col.rgb = (speccol.rgb * spec * SpecularStrength) + (col.rgb * NdotL * NdotL * DiffuseStrength) + (col.rgb * AmbientStrength);
-	//col.rgb = (speccol.rgb * spec * (SpecularStrength + DiffuseStrength));
+	//float4 enviromentalTexCubeDifCol = TexEnvCubeLod(CubeMapEnviromentalSampler,N, 0); // diffuse env texel. 
+	float4 enviromentalTexCubeSpecCol = TexEnvCubeLod(CubeMapEnviromentalSampler,R, 0); // specular env texel.
+
+	float3 specularColor = col.rgb * LightColor * Stheta * SpecularStrength;
+	float3 diffuseColor = col.rgb * NdotL * DiffuseStrength;
+	float3 ambientColor = col.rgb * AmbientStrength;
+
+    col.rgb = ambientColor + (diffuseColor + specularColor) * enviromentalTexCubeSpecCol;
 	return col;
 }
 
 
-// DX the texture cube stores data inverted most of this is handled in the class file so we just get one shader
-float4 PS_CubeSkyboxWithNormalMap(VertexShaderOutput input) : COLOR
-{
-	float3 N = FunctionNormalMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);
-	float4 col = texCUBElod(CubeMapSampler, float4 (N, 0));
-	float3 P = input.Position3D;
-	float3 C = CameraPosition;
-	float3 V = normalize(C - P);
-	float NdotV = MaxDot(N, V);
-	float3 R = 2.0f * NdotV * N - V;
-	float3 L = normalize(LightPosition - P);
-	float3 H = HalfNormal(L, V);
-	float NdotH = MaxDot(N, H);
-	float NdotL = MaxDot(N, L);
-
-	float spec = SpecularBlinnPhong(V, L, N, 100.0f);
-	float3 speccol = col.rgb * LightColor;
-	col.rgb = (speccol.rgb * spec * SpecularStrength) + (col.rgb * NdotL * NdotL * DiffuseStrength) + (col.rgb * AmbientStrength);
-	//col.rgb = (speccol.rgb * spec * (SpecularStrength + DiffuseStrength));
-
-	clip(col.a - .01f); // just straight clip super low alpha.
-	return col;
-}
-
-// DX the texture cube stores data inverted most of this is handled in the class file so we just get one shader
-float4 PS_RenderCube(VertexShaderOutput input) : COLOR
-{
-	float3 N = normalize(input.Normal.xyz);
-	float3 ntex = float3(N.x, -N.y, -N.z);
-	float4 col = texCUBElod(CubeMapSampler, float4 (ntex, 0));
-	//clip(col.a - .01f); // just straight clip super low alpha.
-
-	float3 P = input.Position3D;
-	float3 C = CameraPosition;
-	float3 V = normalize(C - P);
-	float NdotV = MaxDot(N, V);
-	float3 R = 2.0f * NdotV * N - V;
-	float3 L = normalize(LightPosition - P);
-	float3 H = HalfNormal(L, V);
-	float NdotH = MaxDot(N, H);
-	float NdotL = MaxDot(N, L);
-
-	float spec = SpecularBlinnPhong(V, L, N, 100.0f);
-	float3 speccol = col.rgb * LightColor;
-	col.rgb = saturate( (speccol.rgb * spec * SpecularStrength) + (col.rgb * NdotL * DiffuseStrength) + (col.rgb * AmbientStrength) );
-
-	return col;   //float4(envMapColor.rgb, 1.0f);
-}
-
-// DX the texture cube stores data inverted most of this is handled in the class file so we just get one shader
+// DX the texture cube stores data inverted  float3(N.x, -N.y, N.z);
 float4 PS_RenderSkybox(VertexShaderOutput input) : COLOR
 {
 	float3 N = normalize(input.Normal.xyz);
-	float3 ntex = float3(N.x, -N.y, N.z);
-	float4 col = texCUBElod(CubeMapSampler, float4 (ntex, 0));
-	//clip(col.a - .01f); // just straight clip super low alpha.
+	//float3 ntex = float3(N.x, -N.y, N.z);
+	float4 col = TexEnvCubeLod(CubeMapEnviromentalSampler, N, 0);//texCUBElod(CubeMapSampler, float4 (ntex, 0));
+	//clip(col.a - .01f); // straight clip low alpha.
 
 	float3 P = input.Position3D;
 	float3 C = CameraPosition;
@@ -327,8 +267,70 @@ float4 PS_RenderSkybox(VertexShaderOutput input) : COLOR
 	float3 speccol = col.rgb * LightColor;
 	col.rgb = saturate( (speccol.rgb * spec * SpecularStrength) + (col.rgb * NdotL * DiffuseStrength) + (col.rgb * AmbientStrength) );
 
-	return col;   //float4(envMapColor.rgb, 1.0f);
+	return col;
 }
+
+
+// DX the texture cube stores data inverted  float3(N.x, -N.y, -N.z)
+float4 PS_RenderCube(VertexShaderOutput input) : COLOR
+{
+	float3 N = normalize(input.Normal.xyz);
+	//float3 N2 = float3(N.x, -N.y, -N.z);
+	float4 col = TexCubeLod(CubeMapSampler, N, 0); // texCUBElod(CubeMapSampler, float4 (N2, 0));
+	//clip(col.a - .01f); // straight clip low alpha.
+
+	float3 P = input.Position3D;
+	float3 C = CameraPosition;
+	float3 V = normalize(C - P);
+	float3 L = normalize(LightPosition - P);
+	float3 H = HalfNormal(L, V);
+	float NdotH = MaxDot(N, H);
+	float NdotL = MaxDot(N, L);
+	float NdotV = MaxDot(N, V);
+	float3 R = 2.0f * NdotV * N - V;
+
+	float spec = SpecularBlinnPhong(V, L, N, 100.0f);
+	float3 speccol = col.rgb * LightColor;
+	col.rgb = saturate((speccol.rgb * spec * SpecularStrength) + (col.rgb * NdotL * DiffuseStrength) + (col.rgb * AmbientStrength));
+
+	return col;
+}
+
+// DX now we are going to render the cube here but with the envirmental light of another cube.
+// this is probably something you wouldn't ever need to do but just to show it can be done.
+// float3(N.x, -N.y, N.z);  float3(N.x, -N.y, N.z)
+float4 PS_RenderCubeWithEnviromentalLight(VertexShaderOutput input) : COLOR
+{
+	float3 N = normalize(input.Normal.xyz);
+	float4 col = TexCubeLod(CubeMapSampler, N, 0);
+	//clip(col.a - 0.02f); // straight clip low alpha.
+
+	float3 P = input.Position3D;
+	float3 C = CameraPosition;
+	float3 V = normalize(C - P);
+	float3 L = normalize(LightPosition - P);
+	float3 H = HalfNormal(L, V);
+	float NdotH = MaxDot(N, H);
+	float NdotL = MaxDot(N, L);
+	float NdotV = MaxDot(N, V);
+	float3 R = 2.0f * NdotV * N - V;
+	//R.y = -R.y;
+    //float4 enviromentalTexCubeCol = texCUBElod(CubeMapEnviromentalSampler, float4 (R, 0));
+ 
+    //float4 enviromentalTexCubeDifCol = TexEnvCubeLod(CubeMapEnviromentalSampler,R, 0); // diffuse env texel. 
+	float4 enviromentalTexCubeSpecCol = TexEnvCubeLod(CubeMapEnviromentalSampler, R, 0); // specular env texel.
+
+
+	float specularTheta = SpecularPhong(V, L, N, 100.0f);
+
+	float3 specularColor = col.rgb * LightColor * specularTheta * enviromentalTexCubeSpecCol * SpecularStrength;
+	float3 diffuseColor = ((col.rgb * (1.0f - NdotL)) + (enviromentalTexCubeSpecCol * NdotL)) * NdotL * DiffuseStrength;
+	float3 ambientColor = col.rgb * AmbientStrength;
+
+	col.rgb = diffuseColor + specularColor + ambientColor;
+	return col;
+}
+
 
 //++++++++++++++++++++++++++++++++++++++++
 // T E C H N I Q U E S.
@@ -341,29 +343,7 @@ technique Lighting_Phong
 		VertexShader = compile VS_SHADERMODEL
 			VS();
 		PixelShader = compile PS_SHADERMODEL
-			PS_Phong();
-	}
-};
-
-technique Lighting_Blinn
-{
-	pass P0
-	{
-		VertexShader = compile VS_SHADERMODEL
-			VS();
-		PixelShader = compile PS_SHADERMODEL
-			PS_BlinnPhong();
-	}
-};
-
-technique Render_CubeSkyboxWithNormalMap
-{
-	pass P0
-	{
-		VertexShader = compile VS_SHADERMODEL
-			VS();
-		PixelShader = compile PS_SHADERMODEL
-			PS_CubeSkyboxWithNormalMap();
+			PS_PhongWithEnviromentalLight();
 	}
 };
 
@@ -389,32 +369,86 @@ technique Render_Cube
 	}
 };
 
+technique Render_CubeWithEnviromentalLight
+{
+	pass P0
+	{
+		VertexShader = compile VS_SHADERMODEL
+			VS();
+		PixelShader = compile PS_SHADERMODEL
+			PS_RenderCubeWithEnviromentalLight();
+	}
+};
 
-//// DX This is with ccw  triangles outgoing normals and upward tangents in the negative u direction.
-////// outward cube
-//////float3x3 m = float3x3 (
-//////    -1, 0, 0,
-//////    0, -1, 0,
-//////    0, 0, +1
-//////    );
-//float4 PS_RenderCcwCube(VertexShaderOutput input) : COLOR
-//{
-//	float3 N = normalize(input.Normal.xyz);
-//	//N = float3(-N.x, -N.y, N.z); // outward cube.
-//	N = float3(N.x, N.y, -N.z);
+
+
+
+
 //
-//	float4 envMapColor = texCUBElod(CubeMapSampler, float4 (N , 0));
-//	//clip(envMapColor.a - .01f); // just straight clip super low alpha.
-//	return float4(envMapColor.rgb, 1.0f);
+//float4 PS_BlinnPhong(VertexShaderOutput input) : COLOR
+//{
+//	float4 col = tex2D(TextureSamplerDiffuse, input.TextureCoordinates);
+//	float3 N = FunctionNormalMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);
+//	float3 P = input.Position3D;
+//	float3 C = CameraPosition;
+//	float3 V = normalize(C - P);
+//	float NdotV = MaxDot(N, V);
+//	float3 R = 2.0f * NdotV * N - V;
+//	float3 L = normalize(LightPosition - P);
+//	float3 H = HalfNormal(L, V);
+//	float NdotH = MaxDot(N, H);
+//	float NdotL = MaxDot(N, L);
+//
+//	float spec = SpecularBlinnPhong(V, L, N, 100.0f);
+//	float3 speccol = col.rgb * LightColor;
+//	col.rgb = (speccol.rgb * spec * SpecularStrength) + (col.rgb * NdotL * NdotL * DiffuseStrength) + (col.rgb * AmbientStrength);
+//	return col;
 //}
 //
-//// DX This is with ccw  triangles outgoing normals and upward tangents in the negative u direction.
-//float4 PS_RenderCcwSkybox(VertexShaderOutput input) : COLOR
+//technique Lighting_Blinn
 //{
-//	float3 N = normalize(input.Normal.xyz);
-//	//N = -N;   // inward skybox.
+//	pass P0
+//	{
+//		VertexShader = compile VS_SHADERMODEL
+//			VS();
+//		PixelShader = compile PS_SHADERMODEL
+//			PS_BlinnPhong();
+//	}
+//};
+
+
+// We don't typically normal map a skybox but we might want to for a cube and who knows maybe for a skybox.
+// Typically this is simple but with the mg bug ill have to double check and make sure works right first.
 //
-//	float4 envMapColor = texCUBElod(CubeMapSampler, float4 (N , 0));
-//	//clip(envMapColor.a - .01f); // just straight clip super low alpha.
-//	return float4(envMapColor.rgb, 1.0f);
+//// DX the texture cube stores data inverted most of this is handled in the class file so we just get one shader
+//float4 PS_CubeSkyboxWithNormalMap(VertexShaderOutput input) : COLOR
+//{
+//	float3 N = FunctionNormalMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);
+//	float4 col = texCUBElod(CubeMapSampler, float4 (N, 0));
+//	clip(col.a - .01f); // straight clip low alpha.
+//	float3 P = input.Position3D;
+//	float3 C = CameraPosition;
+//	float3 V = normalize(C - P);
+//	float NdotV = MaxDot(N, V);
+//	float3 R = 2.0f * NdotV * N - V;
+//	float3 L = normalize(LightPosition - P);
+//	float3 H = HalfNormal(L, V);
+//	float NdotH = MaxDot(N, H);
+//	float NdotL = MaxDot(N, L);
+//
+//	float spec = SpecularBlinnPhong(V, L, N, 100.0f);
+//	float3 speccol = col.rgb * LightColor;
+//	col.rgb = (speccol.rgb * spec * SpecularStrength) + (col.rgb * NdotL * NdotL * DiffuseStrength) + (col.rgb * AmbientStrength);
+//	return col;
 //}
+
+//technique Render_CubeSkyboxWithNormalMap
+//{
+//	pass P0
+//	{
+//		VertexShader = compile VS_SHADERMODEL
+//			VS();
+//		PixelShader = compile PS_SHADERMODEL
+//			PS_CubeSkyboxWithNormalMap();
+//	}
+//};

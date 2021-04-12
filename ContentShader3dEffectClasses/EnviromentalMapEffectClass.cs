@@ -42,14 +42,6 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
         {
             effect.CurrentTechnique = effect.Techniques["Lighting_Phong"];
         }
-        public static void Technique_Lighting_Blinn()
-        {
-            effect.CurrentTechnique = effect.Techniques["Lighting_Blinn"];
-        }
-        public static void Technique_Render_CubeSkyboxWithNormalMap()
-        {
-            effect.CurrentTechnique = effect.Techniques["Render_CubeSkyboxWithNormalMap"];
-        }
 
         public static void Technique_Render_Cube()
         {
@@ -60,9 +52,19 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
             effect.CurrentTechnique = effect.Techniques["Render_Skybox"];
         }
 
+        public static void Technique_Render_CubeWithEnviromentalLight()
+        {
+            effect.CurrentTechnique = effect.Techniques["Render_CubeWithEnviromentalLight"];
+        }
+
         public static TextureCube TextureCubeDiffuse
         {
             set { effect.Parameters["TextureCubeDiffuse"].SetValue(value); }
+        }
+
+        public static TextureCube TextureCubeEnviromental
+        {
+            set { effect.Parameters["TextureCubeEnviromental"].SetValue(value); }
         }
 
         public static Texture2D TextureDiffuse

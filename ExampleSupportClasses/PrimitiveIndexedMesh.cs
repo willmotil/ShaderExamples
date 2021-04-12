@@ -32,6 +32,27 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
         Color[] heightColorArray;
         Vector3 defaultNormal = new Vector3(0, 0, 1);
 
+
+        //private Matrix transform = Matrix.Identity;
+        //private Matrix orientation = Matrix.Identity;
+        //private float worldscale = 1f;
+        //public Matrix SetWorldTransformation(Vector3 position, Vector3 forward, Vector3 up, float scale)
+        //{
+        //    worldscale = scale;
+        //    orientation = Matrix.CreateWorld(position, forward, up);
+        //    transform = Matrix.Identity * Matrix.CreateScale(scale) * orientation;
+        //    return transform;
+        //}
+        //private void Transform()
+        //{
+        //    transform = Matrix.Identity * Matrix.CreateScale(worldscale) * orientation;
+        //}
+        //public Matrix WorldTransformation { get { return transform; } }
+        //public float Scale { get { return worldscale; } set { worldscale = value; Transform(); } }
+        //public Vector3 Position { get { return orientation.Translation; } set { orientation.Translation = value; Transform(); } }
+
+
+
         public PrimitiveIndexedMesh()
         {
             int w = 2;

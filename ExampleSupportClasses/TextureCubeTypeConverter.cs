@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Microsoft.Xna.Framework
 {
-    public static class TextureTypeConverter
+    public static class TextureCubeTypeConverter
     {
         private static PrimitiveScreenQuad screenQuad = new PrimitiveScreenQuad(false, 1);
         public static string DirectoryForEffect = @"Content/Shaders3D";
@@ -96,6 +96,17 @@ namespace Microsoft.Xna.Framework
             return destinationMap;
         }
 
+        public static Texture2D ConvertTexture2DsToEquaRectangularSphericalTexture2D(GraphicsDevice gd, Texture2D positiveX, Texture2D positiveY, Texture2D positiveZ, Texture2D negativeX, Texture2D negativeY, Texture2D negativeZ, bool generateMips, bool useHdrFormat, int sizeSquarePerFace)
+        {
+            Texture2D[] source = new Texture2D[6];
+            source[0] = positiveX;
+            source[1] = negativeX;
+            source[2] = positiveY;
+            source[3] = negativeY;
+            source[4] = positiveZ;
+            source[5] = negativeZ;
+            return ConvertTexture2DArrayToSphericalTexture2D(gd, source, generateMips, useHdrFormat, sizeSquarePerFace);
+        }
         public static Texture2D ConvertTexture2DArrayToSphericalTexture2D(GraphicsDevice gd, Texture2D[] source, bool generateMips, bool useHdrFormat, int sizeSquarePerFace)
         {
             var pixelformat = SurfaceFormat.Color;
@@ -106,6 +117,17 @@ namespace Microsoft.Xna.Framework
             return destinationMap;
         }
 
+        public static TextureCube ConvertTexture2DsToTextureCube(GraphicsDevice gd, Texture2D positiveX, Texture2D positiveY, Texture2D positiveZ, Texture2D negativeX, Texture2D negativeY, Texture2D negativeZ, bool generateMips, bool useHdrFormat, int sizeSquarePerFace)
+        {
+            Texture2D[] source = new Texture2D[6];
+            source[0] = positiveX;
+            source[1] = negativeX;
+            source[2] = positiveY;
+            source[3] = negativeY;
+            source[4] = positiveZ;
+            source[5] = negativeZ;
+            return ConvertTexture2DArrayToTextureCube(gd, source, generateMips, useHdrFormat, sizeSquarePerFace);
+        }
         public static TextureCube ConvertTexture2DArrayToTextureCube(GraphicsDevice gd, Texture2D[] source, bool generateMips, bool useHdrFormat, int sizeSquarePerFace)
         {
             var pixelformat = SurfaceFormat.Color;
@@ -330,23 +352,23 @@ namespace Microsoft.Xna.Framework
             {
                 switch (i)
                 {
-                    case (int)CubeMapFace.NegativeX: // FACE_LEFT
-                        gd.SetRenderTarget(renderTargetCube, CubeMapFace.NegativeX);
-                        break;
-                    case (int)CubeMapFace.NegativeZ: // FACE_FORWARD
-                        gd.SetRenderTarget(renderTargetCube, CubeMapFace.NegativeZ);
-                        break;
                     case (int)CubeMapFace.PositiveX: // FACE_RIGHT
                         gd.SetRenderTarget(renderTargetCube, CubeMapFace.PositiveX);
                         break;
-                    case (int)CubeMapFace.PositiveZ: // FACE_BACK
-                        gd.SetRenderTarget(renderTargetCube, CubeMapFace.PositiveZ);
+                    case (int)CubeMapFace.NegativeX: // FACE_LEFT
+                        gd.SetRenderTarget(renderTargetCube, CubeMapFace.NegativeX);
                         break;
                     case (int)CubeMapFace.PositiveY: // FACE_TOP
                         gd.SetRenderTarget(renderTargetCube, CubeMapFace.PositiveY);
                         break;
                     case (int)CubeMapFace.NegativeY: // FACE_BOTTOM
                         gd.SetRenderTarget(renderTargetCube, CubeMapFace.NegativeY);
+                        break;
+                    case (int)CubeMapFace.PositiveZ: // FACE_BACK
+                        gd.SetRenderTarget(renderTargetCube, CubeMapFace.PositiveZ);
+                        break;
+                    case (int)CubeMapFace.NegativeZ: // FACE_FORWARD
+                        gd.SetRenderTarget(renderTargetCube, CubeMapFace.NegativeZ);
                         break;
                 }
                 _hdrEffect.Parameters["FaceToMap"].SetValue(i);
@@ -372,6 +394,13 @@ namespace Microsoft.Xna.Framework
 
         #endregion
 
+        /// <summary>
+        /// Note the entirety of the data for the faces and uv's internally are transposed for DX meaning.  the cubes inside out.
+        ///  1- u   1- v    matrixs  left is right   up is down  and  forward is back
+        ///  everything is transposed faces and  u  v  's    what a nightmare.  
+        ///
+        /// now that i figured it out to account for it id have to re-write some of the matrixs calls to invert it the uv's here and probably some of the shader too.
+        /// </summary>
         private class PrimitiveScreenQuad
         {
             public VertexPositionTexture[] vertices;

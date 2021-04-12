@@ -11,8 +11,8 @@ namespace Microsoft.Xna.Framework
     {
         public VertexPositionNormalTexture[] vertices;
         public int[] indices;
-        public Texture2D texture;
 
+        public Texture2D texture;
         public BasicEffect basicEffect;
 
         public Matrix World { set { basicEffect.World = value; } get { return basicEffect.World; } }
@@ -36,45 +36,38 @@ namespace Microsoft.Xna.Framework
             List<VertexPositionNormalTexture> nverts = new List<VertexPositionNormalTexture>();
             List<int> nindices = new List<int>();
             texture = t;
-            int sides = 4; // well define the number of sides of the tube
-            int lineVerts = sides * 2; // the number of vertices per line
-            int lineIndices = sides * 6; // the number of indices per line
+            int sides = 4; // define the number of sides of the cylinder.
+            int lineVerts = sides * 2; // the number of vertices
+            int lineIndices = sides * 6; // the number of indices
             for (int k = 0; k < lineVerts; k++)
                 nverts.Add(new VertexPositionNormalTexture());
             for (int j = 0; j < lineIndices; j++)
                 nindices.Add(0);
-            this.vertices = nverts.ToArray();
-            this.indices = nindices.ToArray();
+            vertices = nverts.ToArray();
+            indices = nindices.ToArray();
             ReCreateVisualLine(t, start, end, thickness, c);
         }
 
         public void ReCreateVisualLine(Texture2D t, Vector3 start, Vector3 end, float thickness, Color c)
         {
+            // verts
             texture = t;
-            int sides = 4; // well define the number of sides of the tube       
-            int lineVerts = sides * 2; // the number of vertices per line
-            int lineIndices = sides * 6; // the number of indices per line
+            int sides = 4; // define the number of sides of the cylinder.       
             var dir = end - start;
-            var dist = Vector3.Distance(end, start);
             var axis = Vector3.Normalize(dir);
             float radMult = 6.28318f / (sides + .02f);
             int currentVert = 0;
             for (int k = 0; k < sides; k++)
             {
-                float angleInRadians = (float)(k) * radMult;
-                var m = Matrix.CreateFromAxisAngle(axis, angleInRadians);
-                var srpos =  m.Right * thickness + start;
-                var erpos = m.Right * thickness + end;
-                vertices[currentVert + 0] = new VertexPositionNormalTexture() { Position = srpos, Normal = axis, TextureCoordinate = new Vector2((float)(k) / (float)(sides - 1), 0f) };
-                vertices[currentVert + 1] = new VertexPositionNormalTexture() { Position = erpos, Normal = axis, TextureCoordinate = new Vector2((float)(k) / (float)(sides - 1), 1f) };
+                var m = Matrix.CreateFromAxisAngle(axis, (float)(k) * radMult);
+                vertices[currentVert + 0] = new VertexPositionNormalTexture() { Position = (m.Right * thickness + start), Normal = axis, TextureCoordinate = new Vector2((float)(k) / (float)(sides - 1), 0f) };
+                vertices[currentVert + 1] = new VertexPositionNormalTexture() { Position = (m.Right * thickness + end), Normal = axis, TextureCoordinate = new Vector2((float)(k) / (float)(sides - 1), 1f) };
                 currentVert += 2;
             }
-
-            int startvert = lineVerts;
-            int startindices = lineIndices;
+            // indices
             for (int quadindex = 0; quadindex < sides; quadindex++)
             {
-                int offsetVertice = quadindex * 2 + startvert;
+                int offsetVertice = quadindex * 2;
                 int offsetIndice = quadindex * 6;
                 if (quadindex != sides - 1)
                 {
@@ -89,10 +82,10 @@ namespace Microsoft.Xna.Framework
                 {
                     indices[offsetIndice + 0] = offsetVertice + 0;
                     indices[offsetIndice + 1] = offsetVertice + 1;
-                    indices[offsetIndice + 2] = startvert + 0;
-                    indices[offsetIndice + 3] = startvert + 0;
+                    indices[offsetIndice + 2] = 0;
+                    indices[offsetIndice + 3] = 0;
                     indices[offsetIndice + 4] = offsetVertice + 1;
-                    indices[offsetIndice + 5] = startvert + 1;
+                    indices[offsetIndice + 5] = 1;
                 }
             }
         }

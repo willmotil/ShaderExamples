@@ -394,6 +394,12 @@
 /processorParam:DebugMode=Auto
 /build:Shaders3D/SimpleDrawingWithMatriceEffect.fx
 
+#begin Shaders3D/SkyBoxDrawingEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders3D/SkyBoxDrawingEffect.fx
+
 #begin Shaders3D/SpecularLightEffect.fx
 /importer:EffectImporter
 /processor:EffectProcessor

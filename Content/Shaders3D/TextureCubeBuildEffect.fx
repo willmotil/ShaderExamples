@@ -4,6 +4,8 @@
 // http://eigen.tuxfamily.org/dox/classEigen_1_1AngleAxis.html
 
 
+// nameing this version 4 april 12 cause i got to many of this class file copied and modified all over.
+// this one doesn't have the other bug with the Y flip back to equarectangular.
 #if OPENGL
 #define SV_POSITION POSITION
 #define VS_SHADERMODEL vs_3_0
@@ -105,66 +107,6 @@ FaceStruct UvFaceToCubeMapVector(float2 pos, int faceIndex)
         output.PositionNormal = float3(-u, v, -1.0f);
         output.FaceNormal = float3(0, 0, -1.0f);
         output.FaceUp = float3(0, 1, 0);
-        break;
-
-    default:
-        output.PositionNormal = float3(-1.0f, v, u); // na
-        output.FaceNormal = float3(-1.0f, 0, 0);
-        output.FaceUp = float3(0, 1, 0);
-        break;
-    }
-    //output.PositionNormal = new Vector3(output.PositionNormal.z, -output.PositionNormal.y, output.PositionNormal.x); // invert
-    output.PositionNormal = normalize(output.PositionNormal);
-    return output;
-}
-
-// Alt
-
-//____________________________________
-// functions
-//____________________________________
-
-// I made this up to do this tranform because i couldn't find the code to do it anywere.
-// Ok so what people in a couple examples are doing regularly is like a matrix view transform, im not sure that is actually any better 
-// since i do have to calculate the extrude the normal from the piexel anyways but i should test it later down the road.
-
-FaceStruct UvFaceToCubeMapVectorAlt(float2 pos, int faceIndex)
-{
-    FaceStruct output = (FaceStruct)0;
-    float u = pos.x;
-    float v = pos.y;
-    switch (abs(faceIndex))
-    {
-    case 1: //FACE_LEFT: CubeMapFace.NegativeX
-        output.PositionNormal = float3(-1.0f, v, u);
-        output.FaceNormal = float3(-1.0f, 0, 0);
-        output.FaceUp = float3(0, 1, 0);
-        break;
-    case 5: // FACE_FORWARD: CubeMapFace.NegativeZ
-        output.PositionNormal = float3(-u, v, -1.0f);
-        output.FaceNormal = float3(0, 0, -1.0f);
-        output.FaceUp = float3(0, 1, 0);
-        break;
-    case 0: //FACE_RIGHT: CubeMapFace.PositiveX
-        output.PositionNormal = float3(1.0f, v, -u);
-        output.FaceNormal = float3(1.0f, 0, 0);
-        output.FaceUp = float3(0, 1, 0);
-        break;
-    case 4: //FACE_BACK: CubeMapFace.PositiveZ
-        output.PositionNormal = float3(u, v, 1.0f);
-        output.FaceNormal = float3(0, 0, 1.0f);
-        output.FaceUp = float3(0, 1, 0);
-        break;
-
-    case 2: //FACE_TOP: CubeMapFace.PositiveY
-        output.PositionNormal = float3(u, 1.0f, -v);
-        output.FaceNormal = float3(0, 1.0f, 0);
-        output.FaceUp = float3(0, 0, 1);
-        break;
-    case 3: //FACE_BOTTOM : CubeMapFace.NegativeY
-        output.PositionNormal = float3(u, -1.0f, v);   // dir = float3(v, -1.0f, u);
-        output.FaceNormal = float3(0, -1.0f, 0);
-        output.FaceUp = float3(0, 0, -1);
         break;
 
     default:
@@ -479,13 +421,16 @@ technique CubemapToDiffuseIlluminationCubeMap
 
 
 
-
-
-
-
-
-
 //
+//
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//
+//
+
+
+
+//  this ones not yet fixed.
 //
 //// https://www.geeks3d.com/20141201/how-to-rotate-a-vertex-by-a-quaternion-in-glsl/
 //// https://code.google.com/archive/p/kri/wikis/Quaternions.wiki
@@ -729,7 +674,7 @@ technique CubemapToDiffuseIlluminationCubeMap
 //
 //// http://www.codinglabs.net/article_physically_based_rendering.aspx
 ////
-//// F  needs work.
+//// F  needs work.  this is really hard to get right.  The more i fuxs with this the more i think just use mip maps but..... texcubelod mip call is busted on gl or was it dx arrg.
 ////
 //float4 GetCubeIrradiance(float2 pixelpos, int faceToMap)
 //{
@@ -743,7 +688,7 @@ technique CubemapToDiffuseIlluminationCubeMap
 //    // the following values are in degrees.
 //    float numberOfSamplesHemisphere = 10.0f; // we want the smallest amount with good quality
 //    float numberOfSamplesAround = 4.0f; // same as above
-//    float hemisphereMaxAngle = 10.0f; // we really want 90
+//    float hemisphereMaxAngle = 45.0f; // we really want at least 90 but yikes.  , 10 for point testing.
 //
 //    float minimumAdjustment = 2.1f; // this is to help control the sampling geometry.
 //    float mipSampleLevel = 0; // this is the sample or mipmap level from the enviromental map we take the current pixel from.
@@ -765,24 +710,21 @@ technique CubemapToDiffuseIlluminationCubeMap
 //            //float3 temp = normalize(rotatePointAboutYaxis(normal, theta));
 //            for (float phi = 0.01f; phi < 6.283f; phi += stepPhi) // z rot.
 //            {
+//                // OK To do i believe that this is actually a Y axis rotation rotating to the left and right which duhhhh is why im actually having all these problems its actually side to side rotation not a up down one  wtf.
+//                // i don't even know.
+//
 //                 // calculate the new vector around the normal to sample rotationally.
-//
-//                // OK To do i believe that this is actually a Y axis rotation rotating to the left and right which duhhhh is why im actually having all these problems its actually side to side rotation not a up down one.
-//
 //                 float3 temp = cos(phi) * right + sin(phi) * up;
 //                 float4 sampleVector = float4(cos(theta) * normal + sin(theta) * temp, mipSampleLevel);
 //                 sampleVector.rgb = normalize(sampleVector.rgb);
 //                 float3 sampledColor = texCUBElod(CubeMapSampler, sampleVector).rgb;
 //
-//                 //float avg = (sampledColor.r + sampledColor.b + sampledColor.g) * 0.33333f;
 //                 float NdotS = saturate(dot(normal, sampleVector.rgb));
 //                 float phiMuliplier = 1.0f - (phi / (5.283f + 1.0f));
 //
 //                accumulatedColor += sampledColor * NdotS;
 //                totalWeight += NdotS;
-//
 //        }
-//
 //    }
 //    float4 final = float4(accumulatedColor / totalWeight, 1.0f);
 //    return final;
@@ -800,13 +742,11 @@ technique CubemapToDiffuseIlluminationCubeMap
 //    output.Position3D = input.Position;
 //    return output;
 //}
-//
 //float4 SphericalToSphericalPS(HdrToCubeMapVertexShaderOutput input) : COLOR
 //{
 //    float4 color = GetSphericalIrradiance(input.Position3D);
 //    return color;
 //}
-//
 //technique SphericalToIlluminationSpherical
 //{
 //    pass P0
@@ -830,7 +770,6 @@ technique CubemapToDiffuseIlluminationCubeMap
 //    output.Position3D = input.Position;
 //    return output;
 //}
-//
 //float4 SphericalToCubeMapPS(HdrToCubeMapVertexShaderOutput input) : COLOR
 //{
 //    FaceStruct face = PosUvFaceToNormal(input.Position3D, FaceToMap);
@@ -841,7 +780,6 @@ technique CubemapToDiffuseIlluminationCubeMap
 //    float4 color = float4(tex2D(TextureSamplerDiffuse, uv).rgb, 1.0f);
 //    return color;
 //}
-//
 //technique SphericalToCubeMap
 //{
 //    pass P0
@@ -866,12 +804,10 @@ technique CubemapToDiffuseIlluminationCubeMap
 //    output.Position3D = input.Position;
 //    return output;
 //}
-//
 //float4 CubemapToDiffuseIlluminationCubeMapPS(HdrToCubeMapVertexShaderOutput input) : COLOR
 //{
 //    return GetCubeIrradiance(input.Position3D, FaceToMap);
 //}
-//
 //technique CubemapToDiffuseIlluminationCubeMap
 //{
 //    pass P0
@@ -896,7 +832,6 @@ technique CubemapToDiffuseIlluminationCubeMap
 //    float3 n = face.PositionNormal;
 //    return texCUBElod(CubeMapSampler, float4(n, 0.0f));
 //}
-//
 //technique CubeMapToTexture
 //{
 //    pass P0
@@ -923,7 +858,6 @@ technique CubemapToDiffuseIlluminationCubeMap
 //    uv = float2(uv.x, 1.0f - uv.y); 
 //    return float4(tex2D(TextureSamplerDiffuse, uv).rgb, 1.0f);
 //}
-//
 //technique TextureFacesToCubeFaces
 //{
 //    pass P0
@@ -948,7 +882,6 @@ technique CubemapToDiffuseIlluminationCubeMap
 //    float3 n = SphericalUvCoordinatesToNormal(uv);
 //    return texCUBElod(CubeMapSampler, float4(n, 0.0f) );
 //}
-//
 //technique CubeMapToSpherical
 //{
 //    pass P0
@@ -960,9 +893,10 @@ technique CubemapToDiffuseIlluminationCubeMap
 //    }
 //};
 //
-////____________________________________
+////____________________________________             Needs fixed i think
 //// shaders and technique TextureFacesToSpherical
 //// Copy enviromental Faces to 2d spherical
+////
 ////____________________________________
 //
 //float4 TextureFacesToSphericalPS(HdrToCubeMapVertexShaderOutput input) : COLOR
@@ -984,7 +918,6 @@ technique CubemapToDiffuseIlluminationCubeMap
 //        clip(-1);
 //    return color;
 //}
-//
 //technique TextureFacesToSpherical
 //{
 //    pass P0
