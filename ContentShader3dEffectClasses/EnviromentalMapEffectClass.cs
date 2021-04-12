@@ -22,7 +22,7 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
         {
             Content.RootDirectory = DirectoryForEffect;
             effect = Content.Load<Effect>("EnviromentalMapEffect");
-            Technique_Lighting_Phong();
+            Technique_Render_PhongWithEnviromentalLight();
             AmbientStrength = .3f;
             DiffuseStrength = .6f;
             SpecularStrength = .4f;
@@ -38,11 +38,10 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
             get { return effect; }
         }
 
-        public static void Technique_Lighting_Phong()
+        public static void Technique_Render_PhongWithEnviromentalLight()
         {
-            effect.CurrentTechnique = effect.Techniques["Lighting_Phong"];
+            effect.CurrentTechnique = effect.Techniques["Render_PhongWithEnviromentalLight"];
         }
-
         public static void Technique_Render_Cube()
         {
             effect.CurrentTechnique = effect.Techniques["Render_Cube"];
@@ -51,7 +50,6 @@ namespace ShaderExamples //.ContentEffectClasses._3dEffectClasses
         {
             effect.CurrentTechnique = effect.Techniques["Render_Skybox"];
         }
-
         public static void Technique_Render_CubeWithEnviromentalLight()
         {
             effect.CurrentTechnique = effect.Techniques["Render_CubeWithEnviromentalLight"];

@@ -46,7 +46,6 @@ namespace ShaderExamples
         CameraAndKeyboardControls cam = new CameraAndKeyboardControls();
 
         PrimitiveIndexedMesh mesh;
-        Vector3 meshScale = new Vector3(300f, 250, 0f);
         VisualizationNormals visualMeshNormals = new VisualizationNormals();
         VisualizationNormals visualMeshTangents = new VisualizationNormals();
         VisualizationLine visualLightLineToMesh;
@@ -74,8 +73,7 @@ namespace ShaderExamples
         Vector3 lightPosition = new Vector3(0, 0, 0);
         Matrix lightTransform = Matrix.Identity;
         float lightRotationRadians = 0f;
-        Vector3 meshDimensions = new Vector3(300f, 250,0);
-        Vector3 meshCenter = new Vector3(150,125,0);
+
 
         string spectypemsg = "";
 
@@ -148,8 +146,8 @@ namespace ShaderExamples
 
             TextureCubeTypeConverter.Load(Content);
             textureCubeDiffuse = TextureCubeTypeConverter.ConvertSphericalTexture2DToTextureCube(GraphicsDevice, miscTexture, false, false, miscTexture.Width);
-            textureCubeEnv2 = TextureCubeTypeConverter.ConvertSphericalTexture2DToTextureCube(GraphicsDevice, textureHdrLdrSphere, false, false, textureHdrLdrSphere.Width);
-            textureCubeEnv = TextureCubeTypeConverter.ConvertTexture2DsToTextureCube(
+            textureCubeEnv = TextureCubeTypeConverter.ConvertSphericalTexture2DToTextureCube(GraphicsDevice, textureHdrLdrSphere, false, false, textureHdrLdrSphere.Width);
+            textureCubeEnv2 = TextureCubeTypeConverter.ConvertTexture2DsToTextureCube(
                 GraphicsDevice,
                 textureMonogameLogo,
                 textureSphereNormalMap,
@@ -176,22 +174,23 @@ namespace ShaderExamples
 
             // different ways to create the mesh regular via a height array or a texture used as a height / displacement map 
 
-            mesh = new PrimitiveIndexedMesh(5, 5, meshScale, false, false);
+            //mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(300f, 250, 0f), false, false);
+            mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(1000f, 900, 0f), false, false);
             float thickness = .1f;
-            float normtanLinescale = .1f;
+            float normtanLinescale = 10f;
 
             //mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3( 300f, 250, 70f ), false, false);
             //float thickness = .1f; normtanLinescale = 10f;
 
             //mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), false, false);
-            //float thickness = .01f; float normtanLinescale = 1f;
+            //float thickness = .01f; float normtanLinescale = 10f;
 
-
+            mesh.SetWorldTransformation(new Vector3(-300, +150, -550), Vector3.Down, Vector3.Right , Vector3.One);
             mesh.DiffuseTexture = textureMesh;
             mesh.NormalMapTexture = textureMeshNormalMap;
             visualMeshNormals = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureGreen, thickness, normtanLinescale, false);
             visualMeshTangents = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureYellow, thickness, normtanLinescale, true);
-            visualLightLineToMesh = CreateVisualLine(dotTextureWhite, meshCenter, lightStartPosition, 1, Color.White);
+            visualLightLineToMesh = CreateVisualLine(dotTextureWhite, mesh.Center, lightStartPosition, 1, Color.White);
         }
 
         public void CreateSpheres()
@@ -272,7 +271,7 @@ namespace ShaderExamples
         public void LoadAndSetupInitialEnvEffect()
         {
             EnviromentalMapEffectClass.Load(Content);
-            EnviromentalMapEffectClass.Technique_Lighting_Phong();
+            EnviromentalMapEffectClass.Technique_Render_PhongWithEnviromentalLight();
             EnviromentalMapEffectClass.TextureCubeDiffuse = textureCubeDiffuse;
             EnviromentalMapEffectClass.TextureCubeEnviromental = textureCubeEnv;
             EnviromentalMapEffectClass.TextureDiffuse = textureMesh;
@@ -345,11 +344,11 @@ namespace ShaderExamples
             if (lightRotationRadians < 0)
                 lightRotationRadians = 6.283f;
 
-            var axisOfRotation = new Vector3(1, 1, 0);
+            var axisOfRotation = new Vector3(1, 0, 0);
             lightTransform = Matrix.CreateFromAxisAngle(axisOfRotation, lightRotationRadians);
             lightPosition = Vector3.Transform(lightStartPosition, lightTransform);
 
-            visualLightLineToMesh.ReCreateVisualLine(dotTextureRed, meshCenter, lightPosition, 1, Color.White);
+            visualLightLineToMesh.ReCreateVisualLine(dotTextureRed, mesh.Center, lightPosition, 1, Color.Green);
             for (int index = 0; index < spheres.Length; index++)
             {
                 visualLightLineToSpheres[index].ReCreateVisualLine(dotTextureWhite, spheres[index].Position, lightPosition, 1, Color.Blue);
@@ -423,8 +422,8 @@ namespace ShaderExamples
             else
                 mesh.DiffuseTexture = mesh.DiffuseTexture;
 
-            EnviromentalMapEffectClass.Technique_Lighting_Phong();
-            EnviromentalMapEffectClass.World = Matrix.Identity;
+            EnviromentalMapEffectClass.Technique_Render_PhongWithEnviromentalLight();
+            EnviromentalMapEffectClass.World = mesh.WorldTransformation;
             EnviromentalMapEffectClass.TextureDiffuse = mesh.DiffuseTexture;
             EnviromentalMapEffectClass.TextureNormalMap = mesh.NormalMapTexture;
             mesh.DrawPrimitive(GraphicsDevice, EnviromentalMapEffectClass.effect);
@@ -433,7 +432,7 @@ namespace ShaderExamples
             // W I R E F R A M E
 
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_WIREFRAME;
-            EnviromentalMapEffectClass.Technique_Lighting_Phong();
+            EnviromentalMapEffectClass.Technique_Render_PhongWithEnviromentalLight();
             EnviromentalMapEffectClass.TextureDiffuse = dotTextureRed;
             if (displayWireframe)
             {
@@ -443,7 +442,7 @@ namespace ShaderExamples
                     spheres[index].DrawPrimitiveSphere(GraphicsDevice, EnviromentalMapEffectClass.effect);
                 }
 
-                EnviromentalMapEffectClass.World = Matrix.Identity;
+                EnviromentalMapEffectClass.World = mesh.WorldTransformation;
                 mesh.DrawPrimitive(GraphicsDevice, EnviromentalMapEffectClass.effect);
             }
         }
@@ -451,7 +450,7 @@ namespace ShaderExamples
         public void DrawNormalsTangentsAndLightLines()
         {
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
-            EnviromentalMapEffectClass.Technique_Lighting_Phong();
+            EnviromentalMapEffectClass.Technique_Render_PhongWithEnviromentalLight();
 
             if (displayNormals)
             {
@@ -466,12 +465,12 @@ namespace ShaderExamples
         public void DrawNormalsAndTangentsForMesh()
         {
             // these all use basic effect internally so we must set the world view projection up for them again seperately.
-            visualMeshNormals.World = visualMeshNormals.WorldTransformation;
+            visualMeshNormals.World = mesh.WorldTransformation; //visualMeshNormals.WorldTransformation;
             visualMeshNormals.View = cam.view;
             visualMeshNormals.Projection = cam.projection;
             visualMeshNormals.Draw(GraphicsDevice);
 
-            visualMeshTangents.World = visualMeshTangents.WorldTransformation; //Matrix.Identity;
+            visualMeshTangents.World = mesh.WorldTransformation; //visualMeshTangents.WorldTransformation; //Matrix.Identity;
             visualMeshTangents.View = cam.view;
             visualMeshTangents.Projection = cam.projection;
             visualMeshTangents.Draw(GraphicsDevice);

@@ -336,7 +336,7 @@ float4 PS_RenderCubeWithEnviromentalLight(VertexShaderOutput input) : COLOR
 // T E C H N I Q U E S.
 //++++++++++++++++++++++++++++++++++++++++
 
-technique Lighting_Phong
+technique Render_PhongWithEnviromentalLight
 {
 	pass P0
 	{

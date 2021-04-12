@@ -33,23 +33,24 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
         Vector3 defaultNormal = new Vector3(0, 0, 1);
 
 
-        //private Matrix transform = Matrix.Identity;
-        //private Matrix orientation = Matrix.Identity;
-        //private float worldscale = 1f;
-        //public Matrix SetWorldTransformation(Vector3 position, Vector3 forward, Vector3 up, float scale)
-        //{
-        //    worldscale = scale;
-        //    orientation = Matrix.CreateWorld(position, forward, up);
-        //    transform = Matrix.Identity * Matrix.CreateScale(scale) * orientation;
-        //    return transform;
-        //}
-        //private void Transform()
-        //{
-        //    transform = Matrix.Identity * Matrix.CreateScale(worldscale) * orientation;
-        //}
-        //public Matrix WorldTransformation { get { return transform; } }
-        //public float Scale { get { return worldscale; } set { worldscale = value; Transform(); } }
-        //public Vector3 Position { get { return orientation.Translation; } set { orientation.Translation = value; Transform(); } }
+        private Matrix transform = Matrix.Identity;
+        private Matrix orientation = Matrix.Identity;
+        private Vector3 worldscale = new Vector3(1,1,1);
+        public Matrix WorldTransformation { get { return transform; } }
+        public Vector3 Scale { get { return worldscale; } set { worldscale = value; Transform(); } }
+        public Vector3 Position { get { return orientation.Translation; } set { orientation.Translation = value; Transform(); } }
+        public Vector3 Center { get { return Scale / 2f; } }
+        public Matrix SetWorldTransformation(Vector3 position, Vector3 forward, Vector3 up, Vector3 scale)
+        {
+            worldscale = scale;
+            orientation = Matrix.CreateWorld(position, forward, up);
+            transform = Matrix.Identity * Matrix.CreateScale(scale) * orientation;
+            return transform;
+        }
+        private void Transform()
+        {
+            transform = Matrix.Identity * Matrix.CreateScale(worldscale) * orientation;
+        }
 
 
 
@@ -66,6 +67,8 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
             CreatePrimitiveMesh(heightColorArray, 2, Vector3.Zero, false, false);
             heightColorArray = new Color[0];
         }
+
+        /// <param name="scale"> scale should either be 1 or the size of the mesh.</param>
         public PrimitiveIndexedMesh(int subdivisionWidth, int subdividsionHeight, Vector3 scale, bool negateNormalDirection, bool negateTangentDirection)
         {
             heightColorArray = new Color[subdivisionWidth * subdividsionHeight];
@@ -78,6 +81,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
             heightColorArray = new Color[0];
         }
 
+        /// <param name="scale">  scale should either be 1 or the size of the mesh.</param>
         public PrimitiveIndexedMesh(float[] heightArray, int strideWidth)
         {
             heightColorArray = new Color[heightArray.Length];
@@ -90,6 +94,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
             heightColorArray = new Color[0];
         }
 
+        /// <param name="scale">  scale should either be 1 or the size of the mesh.</param>
         public PrimitiveIndexedMesh(float[] heightArray, int strideWidth, Vector3 scale, bool negateNormalDirection, bool negateTangentDirection)
         {
             heightColorArray = new Color[heightArray.Length];
@@ -102,6 +107,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
             heightColorArray = new Color[0];
         }
 
+        /// <param name="scale">  scale should either be 1 or the size of the mesh.</param>
         public PrimitiveIndexedMesh(Texture2D heightTexture, Vector3 scale, bool negateNormalDirection, bool negateTangentDirection)
         {
             Color[] heightColorArray = new Color[heightTexture.Width * heightTexture.Height];
@@ -110,6 +116,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
             heightColorArray = new Color[0];
         }
 
+        /// <param name="scale"> id like to get rid of it and just use the transform scaling but... normals and stuff in these examples rely on it being set early. </param>
         public void CreatePrimitiveMesh(Color[] heighColorArray, int strideWidth, Vector3 scale, bool negateNormalDirection, bool negateTangentDirection)
         {
             List<VertexPositionNormalTextureTangentWeights> VertexLists = new List<VertexPositionNormalTextureTangentWeights>();
