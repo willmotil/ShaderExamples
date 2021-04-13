@@ -171,6 +171,22 @@ float3 FunctionNormalMapGeneratedBiTangent(float3 normal, float3 tangent, float2
 {
 	// Normal Map
 	float3 NormalMap = tex2D(TextureSamplerNormalMap, texCoords).rgb;
+	NormalMap.g = NormalMap.g;
+	NormalMap = NormalMap * 2.0f - 1.0f;
+	float3 bitangent = normalize(cross(normal, tangent));
+
+	float3x3 mat;
+	mat[0] = bitangent; // set right
+	mat[1] = tangent; // set up
+	mat[2] = normal; // set forward
+
+	return normalize(mul(NormalMap, mat)); // norm to ensure later scaling wont break it.
+}
+
+float3 FunctionBumpMapGeneratedBiTangent(float3 normal, float3 tangent, float2 texCoords)
+{
+	// Bump Map
+	float3 NormalMap = tex2D(TextureSamplerNormalMap, texCoords).rgb;
 	NormalMap.g = 1.0f - NormalMap.g;  // flips the y. the program i used fliped the green,  bump mapping is when you don't do this i guess.
 	NormalMap = NormalMap * 2.0f - 1.0f;
 	float3 bitangent = normalize(cross(normal, tangent));
@@ -218,7 +234,7 @@ VertexShaderOutput VS(in VertexShaderInput input)
 //++++++++++++++++++++++++++++++++++++++++
 
 // float3 N2 = float3(N.x, -N.y, N.z);
-float4 PS_PhongWithEnviromentalLight(VertexShaderOutput input) : COLOR
+float4 PS_PhongWithNormalMapEnviromentalMap(VertexShaderOutput input) : COLOR
 {
 	float3 N = FunctionNormalMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);  	
 	float4 col = tex2D(TextureSamplerDiffuse, input.TextureCoordinates);
@@ -235,6 +251,8 @@ float4 PS_PhongWithEnviromentalLight(VertexShaderOutput input) : COLOR
 
 	//float4 enviromentalTexCubeDifCol = TexEnvCubeLod(CubeMapEnviromentalSampler,N, 0); // diffuse env texel. 
 	float4 enviromentalTexCubeSpecCol = TexEnvCubeLod(CubeMapEnviromentalSampler,R, 0); // specular env texel.
+
+	//float4 enviromentalTexCubeSpecCol = texCUBElod(CubeMapEnviromentalSampler, float4 (R, 0));
 
 	float3 specularColor = col.rgb * LightColor * Stheta * SpecularStrength;
 	float3 diffuseColor = col.rgb * NdotL * DiffuseStrength;
@@ -343,7 +361,7 @@ technique Render_PhongWithEnviromentalLight
 		VertexShader = compile VS_SHADERMODEL
 			VS();
 		PixelShader = compile PS_SHADERMODEL
-			PS_PhongWithEnviromentalLight();
+			PS_PhongWithNormalMapEnviromentalMap();
 	}
 };
 

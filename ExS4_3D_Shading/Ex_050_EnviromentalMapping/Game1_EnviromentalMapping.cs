@@ -10,7 +10,7 @@ namespace ShaderExamples
     public class Game1_EnviromentalMapping : Game
     {
         bool manuallyRotateLight = false;
-        bool displayExtraVisualStuff = true;
+        bool displayExtraVisualStuff = false;
         bool displayMesh = true;
         bool displayWireframe = false;
         bool displayNormals = true;
@@ -86,6 +86,15 @@ namespace ShaderExamples
             Window.Title = " ex Envirmental Mapping Cubemaps Skyboxes ";
             IsMouseVisible = true;
             Window.ClientSizeChanged += OnResize;
+
+            var up = new Vector3(0, 1, 0);
+            var forward1 = new Vector3(0, 1, .1f);
+            var forward2 = new Vector3(0, 1, -.1f);
+            var n1 = Vector3.Normalize(Vector3.Cross(forward1, up));
+            var n2 = Vector3.Normalize(Vector3.Cross(forward2, up));
+            Console.WriteLine($"The problem with a fixed up vector.  the gimple point.");
+            Console.WriteLine($"var {n1} = Vector3.Normalize(Vector3.Cross({forward1}, {up}));");
+            Console.WriteLine($"var {n2} = Vector3.Normalize(Vector3.Cross({forward2}, {up}));");
         }
 
         protected override void Initialize()
@@ -116,7 +125,7 @@ namespace ShaderExamples
 
         public void SetCamera()
         {
-            cam.InitialView(GraphicsDevice, new Vector3(+0f, +0f, -381.373f), Vector3.UnitZ, -Vector3.UnitY);
+            cam.InitialView(GraphicsDevice, new Vector3(+0f, +0f, 381.373f), -Vector3.UnitZ, -Vector3.UnitY);
             cam.UpdateProjection(GraphicsDevice);
         }
 
@@ -174,10 +183,10 @@ namespace ShaderExamples
 
             // different ways to create the mesh regular via a height array or a texture used as a height / displacement map 
 
-            //mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(300f, 250, 0f), false, false);
             mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(1000f, 900, 0f), false, false);
-            float thickness = .1f;
-            float normtanLinescale = 10f;
+            //mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(300f, 250, 0f), false, false);
+            float thickness = .2f;
+            float normtanLinescale = 20f;
 
             //mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3( 300f, 250, 70f ), false, false);
             //float thickness = .1f; normtanLinescale = 10f;
@@ -185,7 +194,9 @@ namespace ShaderExamples
             //mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), false, false);
             //float thickness = .01f; float normtanLinescale = 10f;
 
-            mesh.SetWorldTransformation(new Vector3(-300, +150, -550), Vector3.Down, Vector3.Right , Vector3.One);
+
+            mesh.SetWorldTransformation(new Vector3(-300, +150, -350), Vector3.Up, Vector3.Backward, Vector3.One);
+            //mesh.SetWorldTransformation(new Vector3(0, 0, 0), Vector3.Forward, Vector3.Up , Vector3.One);
             mesh.DiffuseTexture = textureMesh;
             mesh.NormalMapTexture = textureMeshNormalMap;
             visualMeshNormals = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureGreen, thickness, normtanLinescale, false);
@@ -195,7 +206,7 @@ namespace ShaderExamples
 
         public void CreateSpheres()
         {
-            Vector3[] sphereCenters = new Vector3[] { new Vector3(0, 0, -50), new Vector3(150, 0, -50), new Vector3(0, 150, -50), new Vector3(150, 150, -50) };
+            Vector3[] sphereCenters = new Vector3[] { new Vector3(0, 0, 50), new Vector3(150, 0, 50), new Vector3(0, 150, 50), new Vector3(150, 150, 50) };
 
             for (int index = 0; index < spheres.Length; index++)
             {
@@ -331,13 +342,21 @@ namespace ShaderExamples
                 if (Keys.OemMinus.IsKeyDown())
                     lightRotationRadians -= .05f;
                 if (Keys.OemCloseBrackets.IsKeyDown())
-                    lightStartPosition.Z += 5f;
-                if (Keys.OemOpenBrackets.IsKeyDown())
-                    lightStartPosition.Z -= 5f;
+                {
+                    mesh.Position = mesh.Position + new Vector3(.1f, .1f, .1f);
+                    spheres[0].Position = spheres[0].Position + new Vector3(.1f, .1f, .1f);
+                }
+                if (Keys.F12.IsKeyDown())
+                {
+                    mesh.Position = new Vector3(0f, 0f, 0);
+                    spheres[0].Position = new Vector3(0f, 0f, 0);
+                }
             }
             else 
             {
-                lightRotationRadians += .005f;
+                lightRotationRadians += .01f;
+                if (lightRotationRadians > 6.28318f)
+                    lightAutoAxisFlip = ! lightAutoAxisFlip;
             }
             if (lightRotationRadians > 6.28318f)
                 lightRotationRadians = 0;
@@ -345,6 +364,8 @@ namespace ShaderExamples
                 lightRotationRadians = 6.283f;
 
             var axisOfRotation = new Vector3(1, 0, 0);
+            if(lightAutoAxisFlip)
+                axisOfRotation = new Vector3(0, 1, 0);
             lightTransform = Matrix.CreateFromAxisAngle(axisOfRotation, lightRotationRadians);
             lightPosition = Vector3.Transform(lightStartPosition, lightTransform);
 
@@ -356,6 +377,8 @@ namespace ShaderExamples
 
             base.Update(gameTime);
         }
+
+        bool lightAutoAxisFlip = false;
 
 
 

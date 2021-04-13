@@ -21,7 +21,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
         public const int AVERAGING_OPTION_USE_AVERAGE = 1;
         public const int AVERAGING_OPTION_USE_RED = 0;
 
-        public bool Clockwise = false;
+        public bool windClockwise = false;
 
         public VertexPositionNormalTextureTangentWeights[] vertices;
         public int[] indices;
@@ -35,7 +35,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
 
         private Matrix transform = Matrix.Identity;
         private Matrix orientation = Matrix.Identity;
-        private Vector3 worldscale = new Vector3(1,1,1);
+        private Vector3 worldscale = new Vector3(1, 1, 1);
         public Matrix WorldTransformation { get { return transform; } }
         public Vector3 Scale { get { return worldscale; } set { worldscale = value; Transform(); } }
         public Vector3 Position { get { return orientation.Translation; } set { orientation.Translation = value; Transform(); } }
@@ -158,7 +158,27 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                 }
             }
 
-            // add indices
+            // add indices.
+            DetermineIndices(IndexLists, subdivisionWidth, subdividsionHeight);
+
+            // calculate normals.
+            NormalsAddToVertices(ref VertexLists, ref IndexLists);
+
+            // calculate tangents.
+            TangentsAddToVertices(ref VertexLists, ref IndexLists);
+
+            // normalize vectors.
+            SmoothNormalsAndTangents(VertexLists, negateNormalDirection, negateTangentDirection);
+
+            if (ShowOutput)
+                ConsoleOutput(VertexLists, IndexLists);
+
+            vertices = VertexLists.ToArray();
+            indices = IndexLists.ToArray();
+        }
+
+        public void DetermineIndices(List<int> IndexLists, int subdivisionWidth, int subdividsionHeight)
+        {
             int quadIndice = 0;
             for (int y = 0; y < subdividsionHeight - 1; y++)
             {
@@ -169,22 +189,142 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
 
                     var tl = verticeOffset;
                     var tr = verticeOffset + 1;
-                    var bl = verticeOffset + stride;
                     var br = verticeOffset + stride + 1;
+                    var bl = verticeOffset + stride;
 
-                    AddQuadIndexes(tl, tr, bl, br, ref IndexLists);
+                    AddQuadIndexes(tl, tr, br, bl, ref IndexLists);
 
                     quadIndice += 6;
                 }
             }
+        }
 
-            // calculate normals and tangents
-            for (int n = 0; n < IndexLists.Count; n += 6)
+        /// <summary>
+        /// CCW
+        /// 
+        /// tl[0] > bl[1] > tr[2] > br[3]
+        /// 
+        /// 0        2
+        /// tl        tr
+        /// ______
+        /// |\        |
+        /// | t0     |
+        /// |    t1  |
+        /// |       \ |
+        /// ----------
+        /// bl      br
+        /// 1        3
+        /// 
+        /// </summary>
+        public void AddQuadIndexes(int tl, int tr, int br, int bl, ref List<int> IndexLists)
+        {
+            if (windClockwise == false)
             {
-                CalcululateNormalsAddToVertices(n, ref VertexLists, ref IndexLists);
-                CalcululateTangentsAddToVertices(n, ref VertexLists, ref IndexLists);
+                IndexLists.Add(tl);
+                IndexLists.Add(bl);
+                IndexLists.Add(br);
+                IndexLists.Add(br);
+                IndexLists.Add(tr);
+                IndexLists.Add(tl);
             }
+            else
+            {
+                IndexLists.Add(tl);
+                IndexLists.Add(tr);
+                IndexLists.Add(br);
+                IndexLists.Add(br);
+                IndexLists.Add(bl);
+                IndexLists.Add(tl);
+            }
+        }
 
+        /// <summary>
+        /// aligns with the order that the function AddQuadIndexes adds vertexs to the index list depending on the winding built with.
+        /// </summary>
+        public void GetVerticeIndex(int startIndice, List<int> IndexLists, out int TL_index, out int TR_index, out int BR_index, out int BL_index)
+        {
+            if (windClockwise == false)
+            {
+                TL_index = IndexLists[startIndice + 0];
+                TR_index = IndexLists[startIndice + 4];
+                BR_index = IndexLists[startIndice + 2];
+                BL_index = IndexLists[startIndice + 1];
+            }
+            else
+            {
+                TL_index = IndexLists[startIndice + 0];
+                TR_index = IndexLists[startIndice + 1];
+                BR_index = IndexLists[startIndice + 2];
+                BL_index = IndexLists[startIndice + 4];
+            }
+        }
+
+        public void NormalsAddToVertices(ref List<VertexPositionNormalTextureTangentWeights> VertexLists, ref List<int> IndexLists)
+        {
+            for (int k = 0; k < IndexLists.Count; k += 6)
+            {
+                int startIndice = k;
+
+                int tl, bl, tr, br;
+                GetVerticeIndex(startIndice, IndexLists, out tl, out tr, out br, out bl);
+
+                var TL = VertexLists[tl];
+                var BL = VertexLists[bl];
+                var TR = VertexLists[tr];
+                var BR = VertexLists[br];
+
+                var d0 = BL.Position - TL.Position;
+                var d1 = TR.Position - TL.Position;
+                var n = Vector3.Cross(d1, d0);
+                TL.Normal += n;
+                BL.Normal += n;
+                BR.Normal += n;
+
+                d0 = TR.Position - BR.Position;
+                d1 = BL.Position - BR.Position;
+                n = Vector3.Cross(d1, d0);
+                TL.Normal += n;
+                TR.Normal += n;
+                BR.Normal += n;
+
+                VertexLists[tl] = TL;
+                VertexLists[bl] = BL;
+                VertexLists[tr] = TR;
+                VertexLists[br] = BR;
+            }
+        }
+
+        public void TangentsAddToVertices(ref List<VertexPositionNormalTextureTangentWeights> VertexLists, ref List<int> IndexLists)
+        {
+            for (int k = 0; k < IndexLists.Count; k += 6)
+            {
+                int startIndice = k;
+
+                int tl, bl, tr, br;
+                GetVerticeIndex(startIndice, IndexLists, out tl, out tr, out br, out bl);
+
+                var TL = VertexLists[tl];
+                var BL = VertexLists[bl];
+                var TR = VertexLists[tr];
+                var BR = VertexLists[br];
+
+                // bottom to top direction for tangent ?
+                var t0 = (TL.Position - BL.Position);  
+                var t1 = (TR.Position - BR.Position);
+                TL.Tangent += t0;
+                BL.Tangent += t0;
+                TR.Tangent += t1;
+                BR.Tangent += t1;
+
+                VertexLists[tl] = TL;
+                VertexLists[bl] = BL;
+                VertexLists[tr] = TR;
+                VertexLists[br] = BR;
+            }
+        }
+
+        public void SmoothNormalsAndTangents(List<VertexPositionNormalTextureTangentWeights> VertexLists, bool negateNormalDirection, bool negateTangentDirection)
+        {
             // vector addition normals and tangents normalized.
             for (int i = 0; i < VertexLists.Count; i++)
             {
@@ -200,174 +340,6 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                     v.Tangent = (Vector3.Normalize(v.Tangent));
                 VertexLists[i] = v;
             }
-
-            for (int n = 0; n < IndexLists.Count; n += 6)
-                if (ShowOutput)
-                    ConsoleOutput(n, VertexLists, IndexLists);
-
-            vertices = VertexLists.ToArray();
-            indices = IndexLists.ToArray();
-        }
-
-        /// <summary>
-        /// CCW
-        /// 
-        /// tl[0] > bl[1] > tr[2] > br[3]
-        /// 
-        /// 0        2
-        /// tl        tr
-        /// |      /  |
-        /// | t0/    |
-        /// |  /  t1 |
-        /// |/        |
-        /// bl      br
-        /// 1        3
-        /// 
-        /// triangle 0:   
-        /// tl > bl > tr   0,1,2
-        /// 
-        /// triangle 1:    
-        /// br > tr > bl   3,2,1
-        /// </summary>
-        public void AddQuadIndexes(int tl, int tr, int bl, int br, ref List<int> IndexLists)
-        {
-            if (Clockwise)
-            {
-                // tl > bl > tr   0,1,2
-                IndexLists.Add(tl);
-                IndexLists.Add(bl);
-                IndexLists.Add(tr);
-
-                // br > tr > bl   3,2,1
-                IndexLists.Add(br);
-                IndexLists.Add(tr);
-                IndexLists.Add(bl);
-            }else
-            {
-                //IndexLists.Add(tr);
-                //IndexLists.Add(bl);
-                //IndexLists.Add(tl);
-
-                //IndexLists.Add(bl);
-                //IndexLists.Add(tr);
-                //IndexLists.Add(br);
-
-                IndexLists.Add(bl);
-                IndexLists.Add(tr);
-                IndexLists.Add(br);
-
-                IndexLists.Add(tr);
-                IndexLists.Add(bl);
-                IndexLists.Add(tl);
-            }
-        }
-
-        public void CalcululateNormalsAddToVertices(int startIndice, ref List<VertexPositionNormalTextureTangentWeights> VertexLists, ref List<int> IndexLists)
-        {
-            // tl[0] > bl[1] > tr[2] > br[3]
-            int tl, bl, tr, br;
-            if (Clockwise)
-            {
-                tl = IndexLists[startIndice + 0];
-                bl = IndexLists[startIndice + 1];
-                tr = IndexLists[startIndice + 2];
-                br = IndexLists[startIndice + 3];
-            }
-            else
-            {
-                tl = IndexLists[startIndice + 5];
-                bl = IndexLists[startIndice + 4];
-                tr = IndexLists[startIndice + 3];
-                br = IndexLists[startIndice + 2];
-            }
-
-            var TL = VertexLists[tl];
-            var BL = VertexLists[bl];
-            var TR = VertexLists[tr];
-            var BR = VertexLists[br];
-
-            var d0 = BL.Position - TL.Position;
-            var d1 = TR.Position - TL.Position;
-            var n = Vector3.Cross(d0, d1);
-            TL.Normal += n;
-            BL.Normal += n;
-            BR.Normal += n;
-
-            d0 = TR.Position - BR.Position;
-            d1 = BL.Position - BR.Position;
-            n = Vector3.Cross(d0, d1);
-            TL.Normal += n;
-            TR.Normal += n;
-            BR.Normal += n;
-
-            VertexLists[tl] = TL;
-            VertexLists[bl] = BL;
-            VertexLists[tr] = TR;
-            VertexLists[br] = BR;
-        }
-
-        public void CalcululateTangentsAddToVertices(int startIndice, ref List<VertexPositionNormalTextureTangentWeights> VertexLists, ref List<int> IndexLists)
-        {
-            int tl, bl, tr, br;
-            if (Clockwise)
-            {
-                tl = IndexLists[startIndice + 0];
-                bl = IndexLists[startIndice + 1];
-                tr = IndexLists[startIndice + 2];
-                br = IndexLists[startIndice + 3];
-            }
-            else
-            {
-                tl = IndexLists[startIndice + 5];
-                bl = IndexLists[startIndice + 4];
-                tr = IndexLists[startIndice + 3];
-                br = IndexLists[startIndice + 2];
-            }
-
-            var TL = VertexLists[tl];
-            var BL = VertexLists[bl];
-            var TR = VertexLists[tr];
-            var BR = VertexLists[br];
-
-            var t0 = (BL.Position - TL.Position);
-            var t1 = (BR.Position - TR.Position);
-            TL.Tangent += t0;
-            BL.Tangent += t0;
-            TR.Tangent += t1;
-            BR.Tangent += t1;
-
-            VertexLists[tl] = TL;
-            VertexLists[bl] = BL;
-            VertexLists[tr] = TR;
-            VertexLists[br] = BR;
-        }
-
-        public void ConsoleOutput(int k, List<VertexPositionNormalTextureTangentWeights> MeshLists, List<int> IndexLists)
-        {
-            System.Console.WriteLine();
-            int T0_Index_0 = k + 0;
-            int T0_Index_1 = k + 1;
-            int T0_Index_2 = k + 2;
-            int T1_Index_0 = k + 3;
-            int T1_Index_1 = k + 4;
-            int T1_Index_2 = k + 5;
-
-            int T0_VIndex_0 = IndexLists[T0_Index_0];
-            int T0_VIndex_1 = IndexLists[T0_Index_1];
-            int T0_VIndex_2 = IndexLists[T0_Index_2];
-            int T1_VIndex_0 = IndexLists[T1_Index_0];
-            int T1_VIndex_1 = IndexLists[T1_Index_1];
-            int T1_VIndex_2 = IndexLists[T1_Index_2];
-
-            System.Console.WriteLine("quad " + k / 6);
-            System.Console.WriteLine("t0   TL  IndexLists [" + T0_Index_0 + "] " + "  vert  [" + T0_VIndex_0 + "] Pos: " + MeshLists[T0_VIndex_0].Position + " Norm: " + MeshLists[T0_VIndex_0].Normal + " Tangent: " + MeshLists[T0_VIndex_0].Tangent);
-            System.Console.WriteLine("t0   BL  IndexLists [" + T0_Index_1 + "] " + "  vert  [" + T0_VIndex_1 + "] Pos: " + MeshLists[T0_VIndex_1].Position + " Norm: " + MeshLists[T0_VIndex_1].Normal + " Tangent: " + MeshLists[T0_VIndex_1].Tangent);
-            System.Console.WriteLine("t0   BR  IndexLists [" + T0_Index_2 + "] " + "  vert  [" + T0_VIndex_2 + "] Pos: " + MeshLists[T0_VIndex_2].Position + " Norm: " + MeshLists[T0_VIndex_2].Normal + " Tangent: " + MeshLists[T0_VIndex_2].Tangent);
-
-            System.Console.WriteLine();
-            System.Console.WriteLine("t1   BR  IndexLists [" + T1_Index_0 + "] " + "  vert  [" + T1_VIndex_0 + "] Pos: " + MeshLists[T1_VIndex_0].Position + " Norm: " + MeshLists[T1_VIndex_0].Normal + " Tangent: " + MeshLists[T1_VIndex_0].Tangent);
-            System.Console.WriteLine("t1   TR  IndexLists [" + T1_Index_1 + "] " + "  vert  [" + T1_VIndex_1 + "] Pos: " + MeshLists[T1_VIndex_1].Position + " Norm: " + MeshLists[T1_VIndex_1].Normal + " Tangent: " + MeshLists[T1_VIndex_1].Tangent);
-            System.Console.WriteLine("t1   TL  IndexLists [" + T1_Index_2 + "] " + "  vert  [" + T1_VIndex_2 + "] Pos: " + MeshLists[T1_VIndex_2].Position + " Norm: " + MeshLists[T1_VIndex_2].Normal + " Tangent: " + MeshLists[T1_VIndex_2].Tangent);
         }
 
         public int GetIndex(int x, int y, int stride)
@@ -424,6 +396,36 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
             return result;
         }
 
+        public void ConsoleOutput(List<VertexPositionNormalTextureTangentWeights> MeshLists, List<int> IndexLists)
+        {
+            for (int k = 0; k < IndexLists.Count; k += 6)
+            {
+                System.Console.WriteLine();
+                int T0_Index_0 = k + 0;
+                int T0_Index_1 = k + 1;
+                int T0_Index_2 = k + 2;
+                int T1_Index_0 = k + 3;
+                int T1_Index_1 = k + 4;
+                int T1_Index_2 = k + 5;
+
+                int T0_VIndex_0 = IndexLists[T0_Index_0];
+                int T0_VIndex_1 = IndexLists[T0_Index_1];
+                int T0_VIndex_2 = IndexLists[T0_Index_2];
+                int T1_VIndex_0 = IndexLists[T1_Index_0];
+                int T1_VIndex_1 = IndexLists[T1_Index_1];
+                int T1_VIndex_2 = IndexLists[T1_Index_2];
+
+                System.Console.WriteLine("quad " + k / 6);
+                System.Console.WriteLine("t0   TL  IndexLists [" + T0_Index_0 + "] " + "  vert  [" + T0_VIndex_0 + "] Pos: " + MeshLists[T0_VIndex_0].Position + " Norm: " + MeshLists[T0_VIndex_0].Normal + " Tangent: " + MeshLists[T0_VIndex_0].Tangent);
+                System.Console.WriteLine("t0   BL  IndexLists [" + T0_Index_1 + "] " + "  vert  [" + T0_VIndex_1 + "] Pos: " + MeshLists[T0_VIndex_1].Position + " Norm: " + MeshLists[T0_VIndex_1].Normal + " Tangent: " + MeshLists[T0_VIndex_1].Tangent);
+                System.Console.WriteLine("t0   BR  IndexLists [" + T0_Index_2 + "] " + "  vert  [" + T0_VIndex_2 + "] Pos: " + MeshLists[T0_VIndex_2].Position + " Norm: " + MeshLists[T0_VIndex_2].Normal + " Tangent: " + MeshLists[T0_VIndex_2].Tangent);
+
+                System.Console.WriteLine();
+                System.Console.WriteLine("t1   BR  IndexLists [" + T1_Index_0 + "] " + "  vert  [" + T1_VIndex_0 + "] Pos: " + MeshLists[T1_VIndex_0].Position + " Norm: " + MeshLists[T1_VIndex_0].Normal + " Tangent: " + MeshLists[T1_VIndex_0].Tangent);
+                System.Console.WriteLine("t1   TR  IndexLists [" + T1_Index_1 + "] " + "  vert  [" + T1_VIndex_1 + "] Pos: " + MeshLists[T1_VIndex_1].Position + " Norm: " + MeshLists[T1_VIndex_1].Normal + " Tangent: " + MeshLists[T1_VIndex_1].Tangent);
+                System.Console.WriteLine("t1   TL  IndexLists [" + T1_Index_2 + "] " + "  vert  [" + T1_VIndex_2 + "] Pos: " + MeshLists[T1_VIndex_2].Position + " Norm: " + MeshLists[T1_VIndex_2].Normal + " Tangent: " + MeshLists[T1_VIndex_2].Tangent);
+            }
+        }
 
         public void DrawPrimitive(GraphicsDevice gd, Effect effect)
         {

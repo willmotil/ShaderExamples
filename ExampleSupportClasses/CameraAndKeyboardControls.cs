@@ -91,16 +91,16 @@ namespace ShaderExamples //.ExampleSupportClasses
             // Use wasd to alter the lookat direction.
             var t = cameraWorld.Translation;
             cameraWorld.Translation = Vector3.Zero;
+            var temp = cameraWorld;
             // 
             if (Keyboard.GetState().IsKeyDown(Keys.D))
-                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Up, -lookatSpeed);
+                temp *= Matrix.CreateFromAxisAngle(cameraWorld.Up, -lookatSpeed);
             if (Keyboard.GetState().IsKeyDown(Keys.A))
-                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Up, lookatSpeed);
+                temp *= Matrix.CreateFromAxisAngle(cameraWorld.Up, lookatSpeed);
             if (Keyboard.GetState().IsKeyDown(Keys.S))
-                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Right, -lookatSpeed);
+                temp *= Matrix.CreateFromAxisAngle(cameraWorld.Right, -lookatSpeed);
             if (Keyboard.GetState().IsKeyDown(Keys.W))
-                cameraWorld *= Matrix.CreateFromAxisAngle(cameraWorld.Right, lookatSpeed);
-            cameraWorld.Translation = t;
+                temp *= Matrix.CreateFromAxisAngle(cameraWorld.Right, lookatSpeed);
 
             //// Use the Z and C keys to rotate the camera.
             //if (Keyboard.GetState().IsKeyDown(Keys.Z))
@@ -108,12 +108,59 @@ namespace ShaderExamples //.ExampleSupportClasses
             //if (Keyboard.GetState().IsKeyDown(Keys.C))
             //    ____ -= speed * .01f;
 
-            if(IsUpFixed)
-               cameraWorld.Up = FixedUpVector;
+            if (IsUpFixed)
+            {
+                temp.Up = FixedUpVector;
+                if (IsApproachingGimble(temp.Forward, Vector3.Up) == false)
+                    cameraWorld = temp;
+            }
+            else
+                cameraWorld = temp;
+            cameraWorld.Translation = t;
 
             // Set the view matrix.
             cameraWorld = Matrix.CreateWorld(cameraWorld.Translation, cameraWorld.Forward, cameraWorld.Up);
             view = Matrix.Invert(cameraWorld);
         }
+
+        public bool IsApproachingGimble(Vector3 forward, Vector3 up)
+        {
+            return Vector3.Dot(up, forward) > .98f || Vector3.Dot(up, forward) < -.98f;
+        }
+
+
+        public static Matrix CreateWorldFixedUp(Vector3 position, Vector3 forward)
+        {
+            Matrix ret;
+            CreateWorldFixedUp(ref position, ref forward, out ret);
+            return ret;
+        }
+
+        public static void CreateWorldFixedUp(ref Vector3 position, ref Vector3 forward, out Matrix result)
+        {
+            var up = Vector3.Up;
+
+
+
+            Vector3 x, y, z;
+            Vector3.Normalize(ref forward, out z);
+            Vector3.Cross(ref forward, ref up, out x);
+            Vector3.Cross(ref x, ref forward, out y);
+            x.Normalize();
+            y.Normalize();
+
+            result = new Matrix();
+            result.Right = x;
+            result.Up = y;
+            result.Forward = z;
+            result.Translation = position;
+            result.M44 = 1f;
+        }
+
+
+        string msg = "";
+
+
+
     }
 }
