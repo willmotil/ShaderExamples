@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/FadingEdgeEffect.fx</SourceFile>
-  <SourceTime>2021-04-11T06:15:51.5864408-04:00</SourceTime>
-  <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Shaders/FadingEdgeEffect.xnb</DestFile>
-  <DestTime>2021-04-11T19:26:16.4492533-04:00</DestTime>
+<PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/FadingEdgeEffect.fx</SourceFile>
+  <SourceTime>2021-04-13T00:54:21.4811279-04:00</SourceTime>
+  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Shaders/FadingEdgeEffect.xnb</DestFile>
+  <DestTime>2021-04-13T05:25:11.2785344-04:00</DestTime>
   <Importer>EffectImporter</Importer>
-  <ImporterTime>2020-05-27T15:15:40-04:00</ImporterTime>
+  <ImporterTime>2018-09-23T17:55:52-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>
-  <ProcessorTime>2020-05-27T15:15:40-04:00</ProcessorTime>
+  <ProcessorTime>2018-09-23T17:55:52-04:00</ProcessorTime>
   <Parameters>
     <Key>DebugMode</Key>
     <Value>Auto</Value>

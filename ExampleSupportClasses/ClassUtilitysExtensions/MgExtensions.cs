@@ -595,6 +595,14 @@ namespace Microsoft.Xna.Framework
             return " " + "  " + v.X.ToString(f) + "  " + v.Y.ToString(f);
         }
 
+        public static string Trimed(this Vector3 v)
+        {
+            string f0 = "{0,12:+######0.000;-######0.000;+######0.000}";
+            string f1 = "{1,12:+######0.000;-######0.000;+######0.000}";
+            string f2 = "{2,12:+######0.000;-######0.000;+######0.000}";
+            return String.Format(f0 + f1 + f2, v.X, v.Y, v.Z) ;
+        }
+
         ///// <summary>
         ///// Display matrix.
         ///// </summary>

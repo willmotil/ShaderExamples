@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/GeneratedSphereBlue.png</SourceFile>
-  <SourceTime>2021-04-13T00:54:21.4468143-04:00</SourceTime>
-  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Images/GeneratedSphereBlue.xnb</DestFile>
-  <DestTime>2021-04-13T05:25:04.7905579-04:00</DestTime>
+  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/prbStyleColors.jpg</SourceFile>
+  <SourceTime>2020-05-28T04:24:39.365328-04:00</SourceTime>
+  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Images/prbStyleColors.xnb</DestFile>
+  <DestTime>2021-04-13T05:25:06.5793758-04:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2018-09-23T17:55:52-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

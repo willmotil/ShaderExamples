@@ -21,7 +21,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
         public const int AVERAGING_OPTION_USE_AVERAGE = 1;
         public const int AVERAGING_OPTION_USE_RED = 0;
 
-        public bool windClockwise = false;
+        private bool isWindingCcw = false;
 
         public VertexPositionNormalTextureTangentWeights[] vertices;
         public int[] indices;
@@ -53,7 +53,6 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
         }
 
 
-
         public PrimitiveIndexedMesh()
         {
             int w = 2;
@@ -64,12 +63,12 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                 heightColorArray[i].R = 0;
                 heightColorArray[i].A = 0;
             }
-            CreatePrimitiveMesh(heightColorArray, 2, Vector3.Zero, false, false);
+            CreatePrimitiveMesh(heightColorArray, 2, Vector3.Zero, false, false, false);
             heightColorArray = new Color[0];
         }
 
         /// <param name="scale"> scale should either be 1 or the size of the mesh.</param>
-        public PrimitiveIndexedMesh(int subdivisionWidth, int subdividsionHeight, Vector3 scale, bool negateNormalDirection, bool negateTangentDirection)
+        public PrimitiveIndexedMesh(int subdivisionWidth, int subdividsionHeight, Vector3 scale, bool windingCounterClockwise, bool negateNormalDirection, bool negateTangentDirection)
         {
             heightColorArray = new Color[subdivisionWidth * subdividsionHeight];
             for (int i = 0; i < subdivisionWidth * subdividsionHeight; i++)
@@ -77,12 +76,12 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                 heightColorArray[i].R = 0;
                 heightColorArray[i].A = 0;
             }
-            CreatePrimitiveMesh(heightColorArray, subdivisionWidth, scale, negateNormalDirection, negateTangentDirection);
+            CreatePrimitiveMesh(heightColorArray, subdivisionWidth, scale, windingCounterClockwise, negateNormalDirection, negateTangentDirection);
             heightColorArray = new Color[0];
         }
 
         /// <param name="scale">  scale should either be 1 or the size of the mesh.</param>
-        public PrimitiveIndexedMesh(float[] heightArray, int strideWidth)
+        public PrimitiveIndexedMesh(float[] heightArray, int strideWidth, bool windingCounterClockwise)
         {
             heightColorArray = new Color[heightArray.Length];
             for (int i = 0; i < heightArray.Length; i++)
@@ -90,12 +89,12 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                 heightColorArray[i].R = GetAvgHeightFromFloatAsByte(heightArray[i]);
                 heightColorArray[i].A = GetAvgHeightFromFloatAsByte(heightArray[i]);
             }
-            CreatePrimitiveMesh(heightColorArray, strideWidth, Vector3.Zero, false, false);
+            CreatePrimitiveMesh(heightColorArray, strideWidth, Vector3.Zero, windingCounterClockwise, false, false);
             heightColorArray = new Color[0];
         }
 
         /// <param name="scale">  scale should either be 1 or the size of the mesh.</param>
-        public PrimitiveIndexedMesh(float[] heightArray, int strideWidth, Vector3 scale, bool negateNormalDirection, bool negateTangentDirection)
+        public PrimitiveIndexedMesh(float[] heightArray, int strideWidth, Vector3 scale, bool windingCounterClockwise, bool negateNormalDirection, bool negateTangentDirection)
         {
             heightColorArray = new Color[heightArray.Length];
             for (int i = 0; i < heightArray.Length; i++)
@@ -103,24 +102,26 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                 heightColorArray[i].R = GetAvgHeightFromFloatAsByte(heightArray[i]);
                 heightColorArray[i].A = GetAvgHeightFromFloatAsByte(heightArray[i]);
             }
-            CreatePrimitiveMesh(heightColorArray, strideWidth, scale, negateNormalDirection, negateTangentDirection);
+            CreatePrimitiveMesh(heightColorArray, strideWidth, scale, windingCounterClockwise, negateNormalDirection, negateTangentDirection);
             heightColorArray = new Color[0];
         }
 
         /// <param name="scale">  scale should either be 1 or the size of the mesh.</param>
-        public PrimitiveIndexedMesh(Texture2D heightTexture, Vector3 scale, bool negateNormalDirection, bool negateTangentDirection)
+        public PrimitiveIndexedMesh(Texture2D heightTexture, Vector3 scale, bool windingCounterClockwise, bool negateNormalDirection, bool negateTangentDirection)
         {
             Color[] heightColorArray = new Color[heightTexture.Width * heightTexture.Height];
             heightTexture.GetData<Color>(heightColorArray);
-            CreatePrimitiveMesh(heightColorArray, heightTexture.Width, scale, negateNormalDirection, negateTangentDirection);
+            CreatePrimitiveMesh(heightColorArray, heightTexture.Width, scale, windingCounterClockwise, negateNormalDirection, negateTangentDirection);
             heightColorArray = new Color[0];
         }
 
         /// <param name="scale"> id like to get rid of it and just use the transform scaling but... normals and stuff in these examples rely on it being set early. </param>
-        public void CreatePrimitiveMesh(Color[] heighColorArray, int strideWidth, Vector3 scale, bool negateNormalDirection, bool negateTangentDirection)
+        public void CreatePrimitiveMesh(Color[] heighColorArray, int strideWidth, Vector3 scale, bool windingCounterClockwise, bool negateNormalDirection, bool negateTangentDirection)
         {
             List<VertexPositionNormalTextureTangentWeights> VertexLists = new List<VertexPositionNormalTextureTangentWeights>();
             List<int> IndexLists = new List<int>();
+
+            isWindingCcw = windingCounterClockwise;
 
             int subdivisionWidth = strideWidth;
             int subdividsionHeight = (int)(heighColorArray.Length / strideWidth);
@@ -193,7 +194,6 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                     var bl = verticeOffset + stride;
 
                     AddQuadIndexes(tl, tr, br, bl, ref IndexLists);
-
                     quadIndice += 6;
                 }
             }
@@ -218,8 +218,9 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
         /// </summary>
         public void AddQuadIndexes(int tl, int tr, int br, int bl, ref List<int> IndexLists)
         {
-            if (windClockwise == false)
+            if (isWindingCcw)
             {
+                // ccw
                 IndexLists.Add(tl);
                 IndexLists.Add(bl);
                 IndexLists.Add(br);
@@ -229,6 +230,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
             }
             else
             {
+                //cw
                 IndexLists.Add(tl);
                 IndexLists.Add(tr);
                 IndexLists.Add(br);
@@ -243,8 +245,9 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
         /// </summary>
         public void GetVerticeIndex(int startIndice, List<int> IndexLists, out int TL_index, out int TR_index, out int BR_index, out int BL_index)
         {
-            if (windClockwise == false)
+            if (isWindingCcw)
             {
+                //ccw
                 TL_index = IndexLists[startIndice + 0];
                 TR_index = IndexLists[startIndice + 4];
                 BR_index = IndexLists[startIndice + 2];
@@ -252,6 +255,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
             }
             else
             {
+                //cw
                 TL_index = IndexLists[startIndice + 0];
                 TR_index = IndexLists[startIndice + 1];
                 BR_index = IndexLists[startIndice + 2];
@@ -275,14 +279,16 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
 
                 var d0 = BL.Position - TL.Position;
                 var d1 = TR.Position - TL.Position;
-                var n = Vector3.Cross(d1, d0);
+                var n = Vector3.Cross(d0, d1);
+
                 TL.Normal += n;
                 BL.Normal += n;
                 BR.Normal += n;
 
                 d0 = TR.Position - BR.Position;
                 d1 = BL.Position - BR.Position;
-                n = Vector3.Cross(d1, d0);
+                n = Vector3.Cross(d0, d1);
+
                 TL.Normal += n;
                 TR.Normal += n;
                 BR.Normal += n;
@@ -309,7 +315,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                 var BR = VertexLists[br];
 
                 // bottom to top direction for tangent ?
-                var t0 = (TL.Position - BL.Position);  
+                var t0 = (TL.Position - BL.Position);
                 var t1 = (TR.Position - BR.Position);
                 TL.Tangent += t0;
                 BL.Tangent += t0;
@@ -329,19 +335,30 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
             for (int i = 0; i < VertexLists.Count; i++)
             {
                 var v = VertexLists[i];
-                if (negateNormalDirection)
-                    v.Normal = -(Vector3.Normalize(v.Normal));
-                else
-                    v.Normal = Vector3.Normalize(v.Normal);
 
+                v.Normal = Vector3.Normalize(v.Normal);
+                v.Tangent = (Vector3.Normalize(v.Tangent));
+
+                if (isWindingCcw == false)
+                {
+                    v.Normal = -v.Normal;
+                }
+
+                if (negateNormalDirection)
+                    v.Normal = -v.Normal;
                 if (negateTangentDirection)
-                    v.Tangent = -(Vector3.Normalize(v.Tangent));
-                else
-                    v.Tangent = (Vector3.Normalize(v.Tangent));
+                    v.Tangent = -v.Tangent;
+
+                //if (isWindingCcw)
+                //{
+                //    v.Normal = -v.Normal;
+                //    v.Tangent = -v.Tangent;
+                //}
+
                 VertexLists[i] = v;
             }
         }
-
+    
         public int GetIndex(int x, int y, int stride)
         {
             return x + y * stride;

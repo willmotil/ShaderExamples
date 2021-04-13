@@ -123,15 +123,15 @@ namespace ShaderExamples
             switch (switchCreateMeshId)
             {
                 case "Simple":
-                    mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(300f, 250, 0f), false, false);
+                    mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(300f, 250, 0f), false, false, false);
                     thickness = .1f; scale = 10f;
                     break;
                 case "HeightArrayMap":
-                    mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3(300f, 250, 70f), false, false);
+                    mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3(300f, 250, 70f), false, false, false);
                     thickness = .1f; scale = 10f;
                     break;
                 case "HeightTextureMap":
-                    mesh = new PrimitiveIndexedMesh(textureMesh, new Vector3(300f, 250, 5f), false, false);
+                    mesh = new PrimitiveIndexedMesh(textureMesh, new Vector3(300f, 250, 5f), false, false, false);
                     thickness = .01f; scale = 1f;
                     break;
             };
@@ -145,7 +145,6 @@ namespace ShaderExamples
 
             visualMeshNormals = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureGreen, thickness, scale, false);
             visualMeshTangents = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureYellow, thickness, scale, true);
-            //visualLightLineToMesh = CreateVisualLine(dotTextureWhite, meshCenter, lightStartPosition, 1.2f, Color.White);
             visualLightLineToMesh = new VisualizationLine(dotTextureWhite, meshCenter, lightStartPosition, 1.0f, Color.White);
             visualLightLineToMesh.SetUpBasicEffect(GraphicsDevice, dotTextureWhite, cam.view, cam.projection);
 

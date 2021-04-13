@@ -17,6 +17,7 @@ namespace ShaderExamples //Microsoft.Xna.Framework
     // http://graphics.cs.cmu.edu/nsp/course/15-462/Spring04/slides/09-texture.pdf
     // https://www.katjaas.nl/transpose/transpose.html more matrix stuff waves complexs and fouriers.
     // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-13-normal-mapping/
+    //
 
     public class PrimitiveSphere
     {
@@ -37,6 +38,13 @@ namespace ShaderExamples //Microsoft.Xna.Framework
         private Matrix transform = Matrix.Identity;
         private Matrix orientation = Matrix.Identity;
         private float worldscale = 1f;
+        public Matrix WorldTransformation { get { return transform; } }
+        public float Scale { get { return worldscale; } set { worldscale = value; Transform(); } }
+        public Vector3 Position { get { return orientation.Translation; } set { orientation.Translation = value; Transform(); } }
+        private void Transform()
+        {
+            transform = Matrix.Identity * Matrix.CreateScale(worldscale) * orientation;
+        }
         public Matrix SetWorldTransformation(Vector3 position, Vector3 forward, Vector3 up, float scale)
         {
             worldscale = scale;
@@ -44,13 +52,7 @@ namespace ShaderExamples //Microsoft.Xna.Framework
             transform = Matrix.Identity * Matrix.CreateScale(scale) * orientation;
             return transform;
         }
-        private void Transform()
-        {
-            transform = Matrix.Identity * Matrix.CreateScale(worldscale) * orientation;
-        }
-        public Matrix WorldTransformation { get { return transform; } }
-        public float Scale { get { return worldscale; } set { worldscale = value; Transform(); } }
-        public Vector3 Position { get { return orientation.Translation; } set { orientation.Translation = value; Transform(); } }
+
 
         #region private stuff
 

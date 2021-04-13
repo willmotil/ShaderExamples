@@ -244,3 +244,5 @@ C:\Users\will\MainFiles\GitPrjs\zTemp\ShaderExamples\obj\Debug\netcoreapp3.1\Sha
 C:\Users\will\MainFiles\GitPrjs\zTemp\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.pdb
 C:\Users\will\MainFiles\GitPrjs\zTemp\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.genruntimeconfig.cache
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.csprojAssemblyReference.cache
+C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\SkyBoxDrawingEffect.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.csprojAssemblyReference.cache

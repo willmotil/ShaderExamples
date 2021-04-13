@@ -16,7 +16,7 @@ namespace ShaderExamples
         bool displayNormals = true;
         bool displayWhiteDiffuse = false;
         bool displayOnScreenText = false;
-        bool flipCullToClockWise = false;
+        bool flipCullToClockWise = true;
         int whichTechnique = 0;
 
         RasterizerState rasterizerState_CULLNONE_WIREFRAME = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
@@ -87,14 +87,14 @@ namespace ShaderExamples
             IsMouseVisible = true;
             Window.ClientSizeChanged += OnResize;
 
-            var up = new Vector3(0, 1, 0);
-            var forward1 = new Vector3(0, 1, .1f);
-            var forward2 = new Vector3(0, 1, -.1f);
-            var n1 = Vector3.Normalize(Vector3.Cross(forward1, up));
-            var n2 = Vector3.Normalize(Vector3.Cross(forward2, up));
-            Console.WriteLine($"The problem with a fixed up vector.  the gimple point.");
-            Console.WriteLine($"var {n1} = Vector3.Normalize(Vector3.Cross({forward1}, {up}));");
-            Console.WriteLine($"var {n2} = Vector3.Normalize(Vector3.Cross({forward2}, {up}));");
+            //var up = new Vector3(0, 1, 0);
+            //var forward1 = new Vector3(0, 1, .1f);
+            //var forward2 = new Vector3(0, 1, -.1f);
+            //var n1 = Vector3.Normalize(Vector3.Cross(forward1, up));
+            //var n2 = Vector3.Normalize(Vector3.Cross(forward2, up));
+            //Console.WriteLine($"The problem with a fixed up vector.  the gimple point.");
+            //Console.WriteLine($"var {n1} = Vector3.Normalize(Vector3.Cross({forward1}, {up}));");
+            //Console.WriteLine($"var {n2} = Vector3.Normalize(Vector3.Cross({forward2}, {up}));");
         }
 
         protected override void Initialize()
@@ -183,20 +183,20 @@ namespace ShaderExamples
 
             // different ways to create the mesh regular via a height array or a texture used as a height / displacement map 
 
-            mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(1000f, 900, 0f), false, false);
-            //mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(300f, 250, 0f), false, false);
+            //mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(1000f, 900, 0f), false, false, false);
+            mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(300f, 250, 0f), false, false, false);
             float thickness = .2f;
             float normtanLinescale = 20f;
 
-            //mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3( 300f, 250, 70f ), false, false);
+            //mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3( 300f, 250, 70f ), false, false, false);
             //float thickness = .1f; normtanLinescale = 10f;
 
-            //mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), false, false);
+            //mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), false, false, false);
             //float thickness = .01f; float normtanLinescale = 10f;
 
 
-            mesh.SetWorldTransformation(new Vector3(-300, +150, -350), Vector3.Up, Vector3.Backward, Vector3.One);
-            //mesh.SetWorldTransformation(new Vector3(0, 0, 0), Vector3.Forward, Vector3.Up , Vector3.One);
+            //mesh.SetWorldTransformation(new Vector3(-300, +150, -350), Vector3.Up, Vector3.Backward, Vector3.One);
+            mesh.SetWorldTransformation(new Vector3(0, 0, 0), Vector3.Forward, Vector3.Up , Vector3.One);
             mesh.DiffuseTexture = textureMesh;
             mesh.NormalMapTexture = textureMeshNormalMap;
             visualMeshNormals = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureGreen, thickness, normtanLinescale, false);
@@ -218,22 +218,22 @@ namespace ShaderExamples
                 switch (snum)
                 {
                     case 0:
-                        usage = PrimitiveSphere.USAGE_CUBE_UNDER_CCW; // = 0
+                        usage = PrimitiveSphere.USAGE_CUBE_UNDER_CW; 
                         scale = 40;
                         CreateSphere( textureCubeDiffuse, ref spheres[index], ref visualSphereNormals[index], ref visualSphereTangents[index], ref visualLightLineToSpheres[index], sphereCenters[index], scale, usage, false, false);
                         break;
                     case 1:
-                        usage = PrimitiveSphere.USAGE_SKYSPHERE_UNDER_CCW; // 2
+                        usage = PrimitiveSphere.USAGE_SKYSPHERE_UNDER_CW; 
                         scale = 500;
                         CreateSphere(textureCubeEnv, ref spheres[index], ref visualSphereNormals[index], ref visualSphereTangents[index], ref visualLightLineToSpheres[index], sphereCenters[index], scale, usage, false, false);
                         break;
                     case 2:
-                        usage = PrimitiveSphere.USAGE_CUBE_UNDER_CW; // 1
+                        usage = PrimitiveSphere.USAGE_CUBE_UNDER_CCW; 
                         scale = 40;
                         CreateSphere(textureCubeDiffuse, ref spheres[index], ref visualSphereNormals[index], ref visualSphereTangents[index], ref visualLightLineToSpheres[index], sphereCenters[index], scale, usage, false, false);
                         break;
                     case 3:
-                        usage = PrimitiveSphere.USAGE_SKYSPHERE_UNDER_CW; // 3
+                        usage = PrimitiveSphere.USAGE_SKYSPHERE_UNDER_CCW; 
                         scale = 500;
                         CreateSphere(textureCubeEnv, ref spheres[index], ref visualSphereNormals[index], ref visualSphereTangents[index], ref visualLightLineToSpheres[index], sphereCenters[index], scale, usage, false, false);
                         break;
@@ -326,31 +326,58 @@ namespace ShaderExamples
             if (Keys.F6.IsKeyPressedWithDelay(gameTime))
                 displayWhiteDiffuse = !displayWhiteDiffuse;
 
-
             if (Keys.F7.IsKeyPressedWithDelay(gameTime))
                 flipCullToClockWise = !flipCullToClockWise;
-
             if (Keys.Home.IsKeyPressedWithDelay(gameTime))
                 cam.InitialView(GraphicsDevice);
+
+            // move objects.
+
+            if (Keys.U.IsKeyDown())
+            {
+                mesh.Position = mesh.Position + new Vector3(.1f, 0, 0);
+                spheres[0].Position = spheres[0].Position + new Vector3(.1f, 0f, 0f);
+            }
+            if (Keys.J.IsKeyDown())
+            {
+                mesh.Position = mesh.Position + new Vector3(-.1f, 0f, 0f);
+                spheres[0].Position = spheres[0].Position + new Vector3(-.1f, 0f, 0f);
+            }
+            if (Keys.H.IsKeyDown())
+            {
+                mesh.Position = mesh.Position + new Vector3(0f, .1f, 0);
+                spheres[0].Position = spheres[0].Position + new Vector3(0f, .1f, 0f);
+            }
+            if (Keys.K.IsKeyDown())
+            {
+                mesh.Position = mesh.Position + new Vector3(0f, -.1f, 0f);
+                spheres[0].Position = spheres[0].Position + new Vector3(0f, -.1f, 0f);
+            }
+            if (Keys.Y.IsKeyDown())
+            {
+                mesh.Position = mesh.Position + new Vector3(0f, 0f, .1f);
+                spheres[0].Position = spheres[0].Position + new Vector3(0f, 0f, .1f);
+            }
+            if (Keys.I.IsKeyDown())
+            {
+                mesh.Position = mesh.Position + new Vector3(0f, 0f, -.1f);
+                spheres[0].Position = spheres[0].Position + new Vector3(0f, 0f, -.1f);
+            }
+            if (Keys.F12.IsKeyDown())
+            {
+                mesh.Position = new Vector3(0f, 0f, 0);
+                spheres[0].Position = new Vector3(0f, 0f, 0);
+            }
+
+
             if (Keys.Space.IsKeyPressedWithDelay(gameTime))
                 manuallyRotateLight = !manuallyRotateLight;
-
             if (manuallyRotateLight)
             {
                 if (Keys.OemPlus.IsKeyDown())
                     lightRotationRadians += .05f;
                 if (Keys.OemMinus.IsKeyDown())
                     lightRotationRadians -= .05f;
-                if (Keys.OemCloseBrackets.IsKeyDown())
-                {
-                    mesh.Position = mesh.Position + new Vector3(.1f, .1f, .1f);
-                    spheres[0].Position = spheres[0].Position + new Vector3(.1f, .1f, .1f);
-                }
-                if (Keys.F12.IsKeyDown())
-                {
-                    mesh.Position = new Vector3(0f, 0f, 0);
-                    spheres[0].Position = new Vector3(0f, 0f, 0);
-                }
             }
             else 
             {
@@ -585,12 +612,22 @@ namespace ShaderExamples
                     $"Press F1 for information  " +
                     $"\n{spectypemsg} " +
                     $"\nIs GraphicsDevice CullClockwise : { flipCullToClockWise}" +
-                    $"" +
+                    $"\ncam position : { cam.cameraWorld.Translation.Trimed() }" +
+                    $"\ncam forward : { cam.cameraWorld.Forward.Trimed() }" +
+                    $"\ncam up :        { cam.cameraWorld.Up.Trimed() }" +
+                    $"\n" +
+                    $"\nmesh Translation : { mesh.WorldTransformation.Translation.Trimed() }" +
+                    $"\nmesh Forward :     { mesh.WorldTransformation.Forward.Trimed() }" +
+                    $"\nmesh Up :             { mesh.WorldTransformation.Up.Trimed() }" +
+                    $"\n" +
+                    $"\nsphere0 Translation : { spheres[0].WorldTransformation.Translation.Trimed() }" +
+                    $"\nsphere0 Forward :     { spheres[0].WorldTransformation.Forward.Trimed() }" +
+                    $"\nsphere0 Up :             { spheres[0].WorldTransformation.Up.Trimed() }" +
+                    $"\n" +
                     $"" , 
                     new Vector2(10, 10), 
                     Color.Red
                     );
-
 
             if (Keys.End.IsKeyPressedWithDelay(gameTime))
                 Console.WriteLine( $"{cam.cameraWorld.DisplayMatrixForCopy("cameraWorld") } ");

@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace ShaderExamples //.ExampleSupportClasses
+namespace ShaderExamples
 {
 
     public class CameraAndKeyboardControls
@@ -18,9 +18,9 @@ namespace ShaderExamples //.ExampleSupportClasses
         public float fov = 0.85f;
 
         public Matrix cameraWorld = Matrix.Identity;
-        public Vector3 cameraWorldPosition = new Vector3(0, 0, 500f);
-        public Vector3 cameraForwardVector = Vector3.Forward;
-        public Vector3 cameraUpVector = Vector3.Up;
+        private Vector3 cameraWorldPosition = new Vector3(0, 0, 500f);
+        private Vector3 cameraForwardVector = Vector3.Forward;
+        private Vector3 cameraUpVector = Vector3.Up;
 
         public bool IsUpFixed = true;
         public Vector3 FixedUpVector = Vector3.Down;
@@ -31,9 +31,6 @@ namespace ShaderExamples //.ExampleSupportClasses
         public void InitialView(GraphicsDevice device, Vector3 pos, Vector3 forward, Vector3 up)
         {
             cameraWorld = Matrix.CreateWorld(pos, forward, up);
-            cameraUpVector = cameraWorld.Up;
-            cameraForwardVector = cameraWorld.Forward;
-            cameraWorldPosition = cameraWorld.Translation;
             view = Matrix.Invert(cameraWorld);
         }
 
@@ -43,9 +40,6 @@ namespace ShaderExamples //.ExampleSupportClasses
         public void InitialView(GraphicsDevice device, Matrix camWorld)
         {
             cameraWorld = camWorld;
-            cameraUpVector = cameraWorld.Up;
-            cameraForwardVector = cameraWorld.Forward;
-            cameraWorldPosition = cameraWorld.Translation;
             view = Matrix.Invert(cameraWorld);
         }
 
@@ -56,9 +50,6 @@ namespace ShaderExamples //.ExampleSupportClasses
         {
             cameraWorldPosition.Z = MgMathExtras.GetRequisitePerspectiveSpriteBatchAlignmentZdistance(device, fov);
             cameraWorld = Matrix.CreateWorld(cameraWorldPosition, Vector3.Zero - cameraWorldPosition, cameraUpVector);
-            cameraUpVector = cameraWorld.Up;
-            cameraForwardVector = cameraWorld.Forward;
-            cameraWorldPosition = cameraWorld.Translation;
             view = Matrix.Invert(cameraWorld);
         }
 
@@ -128,7 +119,6 @@ namespace ShaderExamples //.ExampleSupportClasses
             return Vector3.Dot(up, forward) > .98f || Vector3.Dot(up, forward) < -.98f;
         }
 
-
         public static Matrix CreateWorldFixedUp(Vector3 position, Vector3 forward)
         {
             Matrix ret;
@@ -139,8 +129,6 @@ namespace ShaderExamples //.ExampleSupportClasses
         public static void CreateWorldFixedUp(ref Vector3 position, ref Vector3 forward, out Matrix result)
         {
             var up = Vector3.Up;
-
-
 
             Vector3 x, y, z;
             Vector3.Normalize(ref forward, out z);
@@ -157,10 +145,6 @@ namespace ShaderExamples //.ExampleSupportClasses
             result.M44 = 1f;
         }
 
-
         string msg = "";
-
-
-
     }
 }
