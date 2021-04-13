@@ -9,9 +9,15 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Microsoft.Xna.Framework
 {
+
+    /// <summary>
+    /// Converts sphereical ldr hdr images , textureCubes arrays of face textures between each other.
+    /// Aka this class can convert 6 images into a sphereical map or into a cubemap and vice versa.
+    /// will motill  ver 2021 april 11th
+    /// </summary>
     public static class TextureCubeTypeConverter
     {
-        private static PrimitiveScreenQuad screenQuad = new PrimitiveScreenQuad(false, 1);
+        private static PrimitiveScreenQuad screenQuad = new PrimitiveScreenQuad( 1);
         public static string DirectoryForEffect = @"Content/Shaders3D";
         public static Effect _textureCubeBuildEffect;
 
@@ -395,56 +401,50 @@ namespace Microsoft.Xna.Framework
         #endregion
 
         /// <summary>
-        /// Note the entirety of the data for the faces and uv's internally are transposed for DX meaning.  the cubes inside out.
+        /// Note from tons of testing it seems...
+        /// The entirety of the data for the faces and uv's internally are transposed for DX texture cubes meaning.  the cubes inside out.
         ///  1- u   1- v    matrixs  left is right   up is down  and  forward is back
         ///  everything is transposed faces and  u  v  's    what a nightmare.  
         ///
         /// now that i figured it out to account for it id have to re-write some of the matrixs calls to invert it the uv's here and probably some of the shader too.
+        /// It's probably easier to account for it on the shader.
         /// </summary>
         private class PrimitiveScreenQuad
         {
             public VertexPositionTexture[] vertices;
 
-            public PrimitiveScreenQuad(bool clockwise, float depth)
+            public PrimitiveScreenQuad( float depth)
             {
                 float left = -1;
                 float right = 1;
                 float top = -1;
                 float bottom = 1;
-
-                bool flipY = false; // this really has very little effect on anything as this is only used for the rendertarget duh.
-
                 vertices = new VertexPositionTexture[6];
-                //
-                if (clockwise)
-                {
-                    vertices[0] = GetVertex(new Vector3(left, top, depth), flipY);  // p1
-                    vertices[1] = GetVertex(new Vector3(left, bottom, depth), flipY); // p0
-                    vertices[2] = GetVertex(new Vector3(right, bottom, depth), flipY); // p3
+                //bool ccw = true;
+                //if (ccw)
+                //{
+                    vertices[0] = GetVertex(new Vector3(left, top, depth));  // p1
+                    vertices[1] = GetVertex(new Vector3(left, bottom, depth)); // p0
+                    vertices[2] = GetVertex(new Vector3(right, bottom, depth)); // p3
 
-                    vertices[3] = GetVertex(new Vector3(right, bottom, depth), flipY); // p3
-                    vertices[4] = GetVertex(new Vector3(right, top, depth), flipY); // p2
-                    vertices[5] = GetVertex(new Vector3(left, top, depth), flipY); // p1
-                }
-                else
-                {
-                    vertices[0] = GetVertex(new Vector3(left, top, depth), flipY);  // p1
-                    vertices[1] = GetVertex(new Vector3(right, bottom, depth), flipY); // p3
-                    vertices[2] = GetVertex(new Vector3(left, bottom, depth), flipY); // p0
-
-                    vertices[3] = GetVertex(new Vector3(right, top, depth), flipY); // p2
-                    vertices[4] = GetVertex(new Vector3(right, bottom, depth), flipY); // p3
-                    vertices[5] = GetVertex(new Vector3(left, top, depth), flipY); // p1
-                }
+                    vertices[3] = GetVertex(new Vector3(right, bottom, depth)); // p3
+                    vertices[4] = GetVertex(new Vector3(right, top, depth)); // p2
+                    vertices[5] = GetVertex(new Vector3(left, top, depth)); // p1
+                //}
+                //else
+                //{
+                //    vertices[0] = GetVertex(new Vector3(left, top, depth)); // p1
+                //    vertices[1] = GetVertex(new Vector3(right, top, depth)); // p2
+                //    vertices[2] = GetVertex(new Vector3(right, bottom, depth)); // p3
+                //    vertices[3] = GetVertex(new Vector3(right, bottom, depth)); // p3
+                //    vertices[4] = GetVertex(new Vector3(left, bottom, depth)); // p0
+                //    vertices[5] = GetVertex(new Vector3(left, top, depth));  // p1
+                //}
             }
         }
-        public static VertexPositionTexture GetVertex(Vector3 p, bool flipY)
+        public static VertexPositionTexture GetVertex(Vector3 p)
         {
             var uv = (new Vector2(p.X, p.Y) + Vector2.One) / 2f;
-            if (flipY)
-            {
-                uv.Y = 1.0f - uv.Y;
-            }
             return new VertexPositionTexture(p, uv);
         }
     }

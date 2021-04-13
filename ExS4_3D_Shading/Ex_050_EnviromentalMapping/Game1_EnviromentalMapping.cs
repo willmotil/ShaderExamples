@@ -174,10 +174,10 @@ namespace ShaderExamples
 
             // different ways to create the mesh regular via a height array or a texture used as a height / displacement map 
 
-            //mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(300f, 250, 0f), false, false);
-            mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(1000f, 900, 0f), false, false);
-            float thickness = .1f;
-            float normtanLinescale = 10f;
+            mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(300f, 250, 0f), false, false);
+            //mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(1000f, 900, 0f), false, false);
+            float thickness = .2f;
+            float normtanLinescale = 20f;
 
             //mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3( 300f, 250, 70f ), false, false);
             //float thickness = .1f; normtanLinescale = 10f;
@@ -185,7 +185,8 @@ namespace ShaderExamples
             //mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), false, false);
             //float thickness = .01f; float normtanLinescale = 10f;
 
-            mesh.SetWorldTransformation(new Vector3(-300, +150, -550), Vector3.Down, Vector3.Right , Vector3.One);
+            mesh.SetWorldTransformation(new Vector3(0, 0, 0), Vector3.Forward, Vector3.Up , Vector3.One);
+            //mesh.SetWorldTransformation(new Vector3(-300, +150, -550), Vector3.Up, Vector3.Backward, Vector3.One);
             mesh.DiffuseTexture = textureMesh;
             mesh.NormalMapTexture = textureMeshNormalMap;
             visualMeshNormals = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureGreen, thickness, normtanLinescale, false);

@@ -21,7 +21,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
         public const int AVERAGING_OPTION_USE_AVERAGE = 1;
         public const int AVERAGING_OPTION_USE_RED = 0;
 
-        public bool Clockwise = false;
+        public bool windClockwise = false;
 
         public VertexPositionNormalTextureTangentWeights[] vertices;
         public int[] indices;
@@ -172,7 +172,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                     var bl = verticeOffset + stride;
                     var br = verticeOffset + stride + 1;
 
-                    AddQuadIndexes(tl, tr, bl, br, ref IndexLists);
+                    AddQuadIndexes(tl, tr, br, bl, ref IndexLists);
 
                     quadIndice += 6;
                 }
@@ -223,39 +223,23 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
         /// bl      br
         /// 1        3
         /// 
-        /// triangle 0:   
-        /// tl > bl > tr   0,1,2
-        /// 
-        /// triangle 1:    
-        /// br > tr > bl   3,2,1
         /// </summary>
-        public void AddQuadIndexes(int tl, int tr, int bl, int br, ref List<int> IndexLists)
+        public void AddQuadIndexes(int tl, int tr, int br, int bl, ref List<int> IndexLists)
         {
-            if (Clockwise)
+            if (windClockwise == true)  // this is backwards.
             {
-                // tl > bl > tr   0,1,2
                 IndexLists.Add(tl);
                 IndexLists.Add(bl);
                 IndexLists.Add(tr);
-
-                // br > tr > bl   3,2,1
                 IndexLists.Add(br);
                 IndexLists.Add(tr);
                 IndexLists.Add(bl);
-            }else
+            }
+            if (windClockwise == false)
             {
-                //IndexLists.Add(tr);
-                //IndexLists.Add(bl);
-                //IndexLists.Add(tl);
-
-                //IndexLists.Add(bl);
-                //IndexLists.Add(tr);
-                //IndexLists.Add(br);
-
                 IndexLists.Add(bl);
                 IndexLists.Add(tr);
                 IndexLists.Add(br);
-
                 IndexLists.Add(tr);
                 IndexLists.Add(bl);
                 IndexLists.Add(tl);
@@ -264,9 +248,8 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
 
         public void CalcululateNormalsAddToVertices(int startIndice, ref List<VertexPositionNormalTextureTangentWeights> VertexLists, ref List<int> IndexLists)
         {
-            // tl[0] > bl[1] > tr[2] > br[3]
             int tl, bl, tr, br;
-            if (Clockwise)
+            if (windClockwise)
             {
                 tl = IndexLists[startIndice + 0];
                 bl = IndexLists[startIndice + 1];
@@ -309,7 +292,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
         public void CalcululateTangentsAddToVertices(int startIndice, ref List<VertexPositionNormalTextureTangentWeights> VertexLists, ref List<int> IndexLists)
         {
             int tl, bl, tr, br;
-            if (Clockwise)
+            if (windClockwise)
             {
                 tl = IndexLists[startIndice + 0];
                 bl = IndexLists[startIndice + 1];
