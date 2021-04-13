@@ -7381,11 +7381,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\will\\MainFiles\\GitPrjs\\zTemp\\ShaderExamples\\ShaderExamples.csproj",
+      "projectUniqueName": "C:\\Users\\will\\MainFiles\\GitPrjs\\ShaderExamples\\ShaderExamples.csproj",
       "projectName": "ShaderExamples",
-      "projectPath": "C:\\Users\\will\\MainFiles\\GitPrjs\\zTemp\\ShaderExamples\\ShaderExamples.csproj",
+      "projectPath": "C:\\Users\\will\\MainFiles\\GitPrjs\\ShaderExamples\\ShaderExamples.csproj",
       "packagesPath": "C:\\Users\\will\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\will\\MainFiles\\GitPrjs\\zTemp\\ShaderExamples\\obj\\",
+      "outputPath": "C:\\Users\\will\\MainFiles\\GitPrjs\\ShaderExamples\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
