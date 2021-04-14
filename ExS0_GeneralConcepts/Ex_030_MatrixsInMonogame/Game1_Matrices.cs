@@ -226,18 +226,18 @@ namespace ShaderExamples
             int yoffset = 150;
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
 
-            spriteBatch.DrawString(font2, Matrix.Identity.DisplayMatrix(" model / local space,\n Identity matrix"), new Vector2(950, yoffset * 0), Color.Black, 0, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0);
+            spriteBatch.DrawString(font2, Matrix.Identity.ToWellFormatedString(" model / local space,\n Identity matrix"), new Vector2(950, yoffset * 0), Color.Black, 0, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0);
 
-            spriteBatch.DrawString(font2, world.DisplayMatrix("vertices world transform \n into the world space") , new Vector2(950, yoffset * 1), Color.Black, 0, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0);
+            spriteBatch.DrawString(font2, world.ToWellFormatedString("vertices world transform \n into the world space") , new Vector2(950, yoffset * 1), Color.Black, 0, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0);
 
-            spriteBatch.DrawString(font2, cameraWorld.DisplayMatrix("cameras world transform \n our camera in the world"), new Vector2(950, yoffset * 2), Color.Black, 0, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0);
+            spriteBatch.DrawString(font2, cameraWorld.ToWellFormatedString("cameras world transform \n our camera in the world"), new Vector2(950, yoffset * 2), Color.Black, 0, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0);
 
             view = Matrix.Invert(cameraWorld);
             Matrix worldView = world * view;
 
-            spriteBatch.DrawString(font2, view.DisplayMatrix("Inverted(camera) view transform \n for the math."), new Vector2(950, yoffset * 3), Color.Black, 0, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0);
+            spriteBatch.DrawString(font2, view.ToWellFormatedString("Inverted(camera) view transform \n for the math."), new Vector2(950, yoffset * 3), Color.Black, 0, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0);
 
-            spriteBatch.DrawString(font2, worldView.DisplayMatrix(" in actuality vertices are transfromed \n by world * view \n into view space."), new Vector2(950, yoffset * 4), Color.Black, 0, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0);
+            spriteBatch.DrawString(font2, worldView.ToWellFormatedString(" in actuality vertices are transfromed \n by world * view \n into view space."), new Vector2(950, yoffset * 4), Color.Black, 0, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0);
 
             if (showMatrixOrientationLines)
             {

@@ -564,38 +564,38 @@ namespace Microsoft.Xna.Framework
             return msg;
         }
 
-        public static string VectorToString(this Vector4 v, string message)
+        public static string ToTrimmedString(this Vector4 v, string message)
         {
             string f = "+####0.000;-####0.000";
             return "\n " + message + "  " + v.X.ToString(f) + "  " + v.Y.ToString(f) + "  " + v.Z.ToString(f) + "  " + v.W.ToString(f);
         }
-        public static string VectorToString(this Vector3 v, string message)
+        public static string ToTrimmedString(this Vector3 v, string message)
         {
             string f = "+####0.000;-####0.000";
             return "\n " + message + "  " + v.X.ToString(f) + "  " + v.Y.ToString(f) + "  " + v.Z.ToString(f);
         }
-        public static string VectorToString(this Vector2 v, string message)
+        public static string ToTrimmedString(this Vector2 v, string message)
         {
             string f = "+####0.000;-####0.000";
             return "\n " + message + "  " + v.X.ToString(f) + "  " + v.Y.ToString(f);
         }
-        public static string VectorToString(this Vector4 v)
+        public static string ToTrimmedString(this Vector4 v)
         {
             string f = "+####0.000;-####0.000";
             return " " + "  " + v.X.ToString(f) + "  " + v.Y.ToString(f) + "  " + v.Z.ToString(f) + "  " + v.W.ToString(f);
         }
-        public static string VectorToString(this Vector3 v)
+        public static string ToTrimmedString(this Vector3 v)
         {
             string f = "+####0.000;-####0.000";
             return " " + "  " + v.X.ToString(f) + "  " + v.Y.ToString(f) + "  " + v.Z.ToString(f);
         }
-        public static string VectorToString(this Vector2 v)
+        public static string ToTrimmedString(this Vector2 v)
         {
             string f = "+####0.000;-####0.000";
             return " " + "  " + v.X.ToString(f) + "  " + v.Y.ToString(f);
         }
 
-        public static string Trimed(this Vector3 v)
+        public static string ToWellFormatedString(this Vector3 v)
         {
             string f0 = "{0,12:+######0.000;-######0.000;+######0.000}";
             string f1 = "{1,12:+######0.000;-######0.000;+######0.000}";
@@ -606,17 +606,17 @@ namespace Microsoft.Xna.Framework
         ///// <summary>
         ///// Display matrix.
         ///// </summary>
-        public static string DisplayMatrix(this Matrix m, string name)
+        public static string ToWellFormatedString(this Matrix m, string name)
         {
             string f0 = "{0,12:+######0.000;-######0.000;+######0.000}";
             string f1 = "{1,12:+######0.000;-######0.000;+######0.000}";
             string f2 = "{2,12:+######0.000;-######0.000;+######0.000}";
             string f3 = "{3,12:+######0.000;-######0.000;+######0.000}";
             return name +=
-                "\n " + String.Format(f0 + f1 + f2 + f3, m.M11, m.M12, m.M13, m.M14) + " " +
-                "\n " + String.Format(f0 + f1 + f2 + f3, m.M21, m.M22, m.M23, m.M24) + " " +
-                "\n " + String.Format(f0 + f1 + f2 + f3, m.M31, m.M32, m.M33, m.M34) + " " +
-                "\n " + String.Format(f0 + f1 + f2 + f3, m.M41, m.M42, m.M43, m.M44) + " " +
+                "\n " + String.Format(f0 + f1 + f2 + f3, m.M11, m.M12, m.M13, m.M14) + "    Right " +
+                "\n " + String.Format(f0 + f1 + f2 + f3, m.M21, m.M22, m.M23, m.M24) + "    Up" +
+                "\n " + String.Format(f0 + f1 + f2 + f3, m.M31, m.M32, m.M33, m.M34) + "    Forward" +
+                "\n " + String.Format(f0 + f1 + f2 + f3, m.M41, m.M42, m.M43, m.M44) + "    Position" +
                 ""
                 ;
         }
@@ -624,7 +624,7 @@ namespace Microsoft.Xna.Framework
         ///// <summary>
         ///// Display matrix.
         ///// </summary>
-        public static string DisplayMatrixForCopy(this Matrix m, string name)
+        public static string ToDisplayMatrixForCopy(this Matrix m, string name)
         {
             string f0 = "{0,12:+######0.000;-######0.000;+######0.000}f ,";
             string f1 = "{1,12:+######0.000;-######0.000;+######0.000}f ,";

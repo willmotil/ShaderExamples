@@ -198,9 +198,9 @@ namespace ShaderExamples
                 $" \n Typically there is no reason to line up a perspective projection with a orthographic spritebatch." +
                 $" \n In fact it's simpler not to and later we probably wont for expedience." +
                 $" \n " +
-                $" \n { cameraWorld.DisplayMatrix("cameraWorld") }" +
-                $" \n { view.DisplayMatrix("view") }" +
-                $" \n { projection.DisplayMatrix("projection") }" +
+                $" \n { cameraWorld.ToWellFormatedString("cameraWorld") }" +
+                $" \n { view.ToWellFormatedString("view") }" +
+                $" \n { projection.ToWellFormatedString("projection") }" +
                 $" \n" +
                 $" \n" 
                 ;

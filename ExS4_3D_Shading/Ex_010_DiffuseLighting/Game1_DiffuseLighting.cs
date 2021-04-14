@@ -233,11 +233,11 @@ namespace ShaderExamples
                 $" \n Simple diffuse lighting is achieved via a dot product on the light and normals aka NdotL ." +
                 $" \n this can be found in the shader" +
                 $" \n  " +
-                $" \n { cam.cameraWorld.DisplayMatrix("cameraWorld") }" +
-                $" \n { cam.view.DisplayMatrix("view") }" +
-                $" \n { cam.projection.DisplayMatrix("projection") }" +
+                $" \n { cam.cameraWorld.ToWellFormatedString("cameraWorld") }" +
+                $" \n { cam.view.ToWellFormatedString("view") }" +
+                $" \n { cam.projection.ToWellFormatedString("projection") }" +
                 $" \n" +
-                $" \n {lightPosition.VectorToString("LightPosition")}" +
+                $" \n {lightPosition.ToTrimmedString("LightPosition")}" +
                 $" \n"
                 ;
             spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Blue);

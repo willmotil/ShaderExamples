@@ -234,7 +234,7 @@ namespace ShaderExamples
 
 
             if (Keys.End.IsKeyPressedWithDelay(gameTime))
-                Console.WriteLine($"{cam.cameraWorld.DisplayMatrixForCopy("cameraWorld") }");
+                Console.WriteLine($"{cam.cameraWorld.ToDisplayMatrixForCopy("cameraWorld") }");
 
             if (Keys.Home.IsKeyPressedWithDelay(gameTime))
                 cam.InitialView(GraphicsDevice);
@@ -361,14 +361,14 @@ namespace ShaderExamples
                     $" \n Simple diffuse lighting is achieved via a dot product on the light and normals aka NdotL ." +
                     $" \n this can be found in the shader" +
                     $" \n  " +
-                    $" \n {lightPosition.VectorToString("LightPosition")}" +
+                    $" \n {lightPosition.ToTrimmedString("LightPosition")}" +
                     $" \n"
                     ;
 
             if (displayOnScreenText)
                 spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Red);
             else
-                spriteBatch.DrawString(font, $"Press F1 for information  {lightPosition.VectorToString("LightPosition")}  \n{spectypemsg}", new Vector2(10, 10), Color.Red);
+                spriteBatch.DrawString(font, $"Press F1 for information  {lightPosition.ToTrimmedString("LightPosition")}  \n{spectypemsg}", new Vector2(10, 10), Color.Red);
 
             spriteBatch.End();
         }

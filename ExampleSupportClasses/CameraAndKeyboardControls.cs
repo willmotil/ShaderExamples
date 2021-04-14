@@ -22,8 +22,8 @@ namespace ShaderExamples
         private Vector3 cameraForwardVector = Vector3.Forward;
         private Vector3 cameraUpVector = Vector3.Up;
 
-        public bool IsUpFixed = true;
-        public Vector3 FixedUpVector = Vector3.Down;
+        public bool IsUpFixed = false;
+        public Vector3 FixedUpVector = Vector3.Up;
 
         /// <summary>
         /// the up vector will be overriden if IsUpFixed is on.

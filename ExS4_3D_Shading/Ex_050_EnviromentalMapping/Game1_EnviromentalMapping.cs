@@ -15,8 +15,8 @@ namespace ShaderExamples
         bool displayWireframe = false;
         bool displayNormals = true;
         bool displayWhiteDiffuse = false;
-        bool displayOnScreenText = false;
-        bool flipCullToClockWise = true;
+        bool displayOnScreenTextInfo = true;
+        bool CullOutCounterClockWiseTriangles = true;
         int whichTechnique = 0;
 
         RasterizerState rasterizerState_CULLNONE_WIREFRAME = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
@@ -69,10 +69,11 @@ namespace ShaderExamples
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
         };
 
-        Vector3 lightStartPosition = new Vector3(1, 125, 500); // new Vector3(1, 800, 300)
+        Vector3 lightStartPosition = new Vector3(1, 125, 3000); // new Vector3(1, 800, 300)
         Vector3 lightPosition = new Vector3(0, 0, 0);
         Matrix lightTransform = Matrix.Identity;
-        float lightRotationRadians = 0f;
+        float lightRotationRadiansX = 0f;
+        float lightRotationRadiansY = 0f;
 
 
         string spectypemsg = "";
@@ -123,12 +124,6 @@ namespace ShaderExamples
             CreateSpheres();
         }
 
-        public void SetCamera()
-        {
-            cam.InitialView(GraphicsDevice, new Vector3(+0f, +0f, 381.373f), -Vector3.UnitZ, -Vector3.UnitY);
-            cam.UpdateProjection(GraphicsDevice);
-        }
-
         public void LoadFontsTextures()
         {
             Content.RootDirectory = @"Content/Fonts";
@@ -147,16 +142,28 @@ namespace ShaderExamples
             miscTexture = Content.Load<Texture2D>("Nasa_DEM_Earth");
             textureMonogameLogo = Content.Load<Texture2D>("MG_Logo_Modifyed");
 
+            //
             // RefactionTexture has the opposite encoding walltomap wallnormmap TestNormalMap  Flower-normal , Flower-diffuse  Flower-bump  Flower-ambientocclusion  Quarry  QuarrySquare MG_Logo_Modifyed TextureAlignmentTestImage2
+            // Brick_em , Brick_Nmap_en , Brick_Nmap_en_yfliped  ,  Brick_Nmap_noyflip_em  ,  walltomap wallnormmap  wallnormmapGimp
+            //
+
             textureHdrLdrSphere = Content.Load<Texture2D>("QuarrySquare");
             textureSphereNormalMap = Content.Load<Texture2D>("wallnormmap");
-            textureMesh = dotTextureWhite; //Content.Load<Texture2D>("QuarrySquare");  // TestNormalMap
-            textureMeshNormalMap = Content.Load<Texture2D>("TestNormalMap");
+
+
+            //textureMesh = Content.Load<Texture2D>("Brick_em");
+            textureMesh = Content.Load<Texture2D>("walltomap");
+            //textureMesh = dotTextureWhite;
+
+            //textureMeshNormalMap = Content.Load<Texture2D>("Brick_Nmap_en_yfliped");  // argg Brick_Nmap_noyflip_em   Brick_Nmap_en_yfliped
+            textureMeshNormalMap = Content.Load<Texture2D>("wallnormmapGimp");  // wallnormmap
+            //textureMeshNormalMap = Content.Load<Texture2D>("TestNormalMap");
 
             TextureCubeTypeConverter.Load(Content);
             textureCubeDiffuse = TextureCubeTypeConverter.ConvertSphericalTexture2DToTextureCube(GraphicsDevice, miscTexture, false, false, miscTexture.Width);
             textureCubeEnv = TextureCubeTypeConverter.ConvertSphericalTexture2DToTextureCube(GraphicsDevice, textureHdrLdrSphere, false, false, textureHdrLdrSphere.Width);
-            textureCubeEnv2 = TextureCubeTypeConverter.ConvertTexture2DsToTextureCube(
+            textureCubeEnv2 = TextureCubeTypeConverter.ConvertTexture2DsToTextureCube
+            (
                 GraphicsDevice,
                 textureMonogameLogo,
                 textureSphereNormalMap,
@@ -170,6 +177,13 @@ namespace ShaderExamples
             generatedTextureFaceArrayFromCubemap = TextureCubeTypeConverter.ConvertTextureCubeToTexture2DArray(GraphicsDevice, textureCubeDiffuse, false, false, 256);
             generatedTextureHdrLdrFromSingleImages = TextureCubeTypeConverter.ConvertTexture2DArrayToSphericalTexture2D(GraphicsDevice, generatedTextureFaceArrayFromCubemap, false, false, 256);
             generatedTextureFaceArrayFromHdrLdr = TextureCubeTypeConverter.ConvertSphericalTexture2DToTexture2DArray(GraphicsDevice, textureHdrLdrSphere, false, false, 256);
+        }
+
+        public void SetCamera()
+        {
+            //cam.InitialView(GraphicsDevice, new Vector3(+0f, +0f, 381.373f), -Vector3.UnitZ, -Vector3.UnitY);
+            cam.InitialView(GraphicsDevice, new Vector3(+0f, +0f, -381.373f), Vector3.Backward, Vector3.Down);
+            cam.UpdateProjection(GraphicsDevice);
         }
 
         //++++++++++++++++++++++++++++++++++
@@ -218,22 +232,22 @@ namespace ShaderExamples
                 switch (snum)
                 {
                     case 0:
-                        usage = PrimitiveSphere.USAGE_CUBE_UNDER_CW; 
+                        usage = PrimitiveSphere.USAGE_CUBE_UNDER_CCW; 
                         scale = 40;
                         CreateSphere( textureCubeDiffuse, ref spheres[index], ref visualSphereNormals[index], ref visualSphereTangents[index], ref visualLightLineToSpheres[index], sphereCenters[index], scale, usage, false, false);
                         break;
                     case 1:
-                        usage = PrimitiveSphere.USAGE_SKYSPHERE_UNDER_CW; 
+                        usage = PrimitiveSphere.USAGE_SKYSPHERE_UNDER_CCW; 
                         scale = 500;
                         CreateSphere(textureCubeEnv, ref spheres[index], ref visualSphereNormals[index], ref visualSphereTangents[index], ref visualLightLineToSpheres[index], sphereCenters[index], scale, usage, false, false);
                         break;
                     case 2:
-                        usage = PrimitiveSphere.USAGE_CUBE_UNDER_CCW; 
+                        usage = PrimitiveSphere.USAGE_CUBE_UNDER_CW; 
                         scale = 40;
                         CreateSphere(textureCubeDiffuse, ref spheres[index], ref visualSphereNormals[index], ref visualSphereTangents[index], ref visualLightLineToSpheres[index], sphereCenters[index], scale, usage, false, false);
                         break;
                     case 3:
-                        usage = PrimitiveSphere.USAGE_SKYSPHERE_UNDER_CCW; 
+                        usage = PrimitiveSphere.USAGE_SKYSPHERE_UNDER_CW; 
                         scale = 500;
                         CreateSphere(textureCubeEnv, ref spheres[index], ref visualSphereNormals[index], ref visualSphereTangents[index], ref visualLightLineToSpheres[index], sphereCenters[index], scale, usage, false, false);
                         break;
@@ -287,9 +301,9 @@ namespace ShaderExamples
             EnviromentalMapEffectClass.TextureCubeEnviromental = textureCubeEnv;
             EnviromentalMapEffectClass.TextureDiffuse = textureMesh;
             EnviromentalMapEffectClass.TextureNormalMap = textureMeshNormalMap;
-            EnviromentalMapEffectClass.AmbientStrength = 0.2f;
-            EnviromentalMapEffectClass.DiffuseStrength = .3f;
-            EnviromentalMapEffectClass.SpecularStrength = .9f;
+            EnviromentalMapEffectClass.AmbientStrength = 0.35f;
+            EnviromentalMapEffectClass.DiffuseStrength = .35f;
+            EnviromentalMapEffectClass.SpecularStrength = .35f;
             EnviromentalMapEffectClass.View = cam.view;
             EnviromentalMapEffectClass.Projection = cam.projection;
             EnviromentalMapEffectClass.CameraPosition = cam.cameraWorld.Translation;
@@ -314,7 +328,7 @@ namespace ShaderExamples
             cam.Update(gameTime);
 
             if (Keys.F1.IsKeyPressedWithDelay(gameTime))
-                displayOnScreenText = !displayOnScreenText;
+                displayOnScreenTextInfo = !displayOnScreenTextInfo;
             if (Keys.F2.IsKeyPressedWithDelay(gameTime))
                 displayWireframe = !displayWireframe;
             if (Keys.F3.IsKeyPressedWithDelay(gameTime))
@@ -327,7 +341,7 @@ namespace ShaderExamples
                 displayWhiteDiffuse = !displayWhiteDiffuse;
 
             if (Keys.F7.IsKeyPressedWithDelay(gameTime))
-                flipCullToClockWise = !flipCullToClockWise;
+                CullOutCounterClockWiseTriangles = !CullOutCounterClockWiseTriangles;
             if (Keys.Home.IsKeyPressedWithDelay(gameTime))
                 cam.InitialView(GraphicsDevice);
 
@@ -375,26 +389,36 @@ namespace ShaderExamples
             if (manuallyRotateLight)
             {
                 if (Keys.OemPlus.IsKeyDown())
-                    lightRotationRadians += .05f;
+                    lightRotationRadiansX += .05f;
                 if (Keys.OemMinus.IsKeyDown())
-                    lightRotationRadians -= .05f;
+                    lightRotationRadiansX -= .05f;
+                if (Keys.OemOpenBrackets.IsKeyDown())
+                    lightRotationRadiansY += .05f;
+                if (Keys.OemCloseBrackets.IsKeyDown())
+                    lightRotationRadiansY -= .05f;
+
+                lightTransform = Matrix.CreateRotationX( lightRotationRadiansX) * Matrix.CreateRotationY(lightRotationRadiansY);
+                lightPosition = Vector3.Transform(lightStartPosition, lightTransform);
             }
             else 
             {
-                lightRotationRadians += .01f;
-                if (lightRotationRadians > 6.28318f)
+                lightRotationRadiansX += .01f;
+                if (lightRotationRadiansX > 6.28318f)
                     lightAutoAxisFlip = ! lightAutoAxisFlip;
+                var axisOfRotation = new Vector3(1, 0, 0);
+                if (lightAutoAxisFlip)
+                    axisOfRotation = new Vector3(0, 1, 0);
+                lightTransform = Matrix.CreateFromAxisAngle(axisOfRotation, lightRotationRadiansX);
+                lightPosition = Vector3.Transform(lightStartPosition, lightTransform);
             }
-            if (lightRotationRadians > 6.28318f)
-                lightRotationRadians = 0;
-            if (lightRotationRadians < 0)
-                lightRotationRadians = 6.283f;
-
-            var axisOfRotation = new Vector3(1, 0, 0);
-            if(lightAutoAxisFlip)
-                axisOfRotation = new Vector3(0, 1, 0);
-            lightTransform = Matrix.CreateFromAxisAngle(axisOfRotation, lightRotationRadians);
-            lightPosition = Vector3.Transform(lightStartPosition, lightTransform);
+            if (lightRotationRadiansX > 6.28318f)
+                lightRotationRadiansX = 0;
+            if (lightRotationRadiansX < 0)
+                lightRotationRadiansX = 6.283f;
+            if (lightRotationRadiansY > 6.28318f)
+                lightRotationRadiansY = 0;
+            if (lightRotationRadiansY < 0)
+                lightRotationRadiansY = 6.283f;
 
             visualLightLineToMesh.ReCreateVisualLine(dotTextureRed, mesh.Center, lightPosition, 1, Color.Green);
             for (int index = 0; index < spheres.Length; index++)
@@ -421,7 +445,10 @@ namespace ShaderExamples
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
 
-            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            if (CullOutCounterClockWiseTriangles)
+                GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            else
+                GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;
 
             if (displayMesh)
                 DrawMeshAndSphere();
@@ -439,11 +466,6 @@ namespace ShaderExamples
             EnviromentalMapEffectClass.Projection = cam.projection;
             EnviromentalMapEffectClass.LightPosition = lightPosition;
             EnviromentalMapEffectClass.CameraPosition = cam.cameraWorld.Translation;
-
-            if (flipCullToClockWise)
-                GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;
-            else
-                GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
 
             // S P H E R E S   S K Y    
@@ -581,21 +603,30 @@ namespace ShaderExamples
                 spriteBatch.Draw(generatedTextureHdrLdrFromCubeMap, new Rectangle(150, 190, 100, 120), Color.White);
             }
 
+            var whatIdrewWithCullWise = (CullOutCounterClockWiseTriangles == true) ? "CounterClockwise" : "ClockWise";
+            var whatIMadeTheMeshWithCullWise = (mesh.IsWindingCcw == true) ? "CounterClockwise" : "ClockWise";
+            var whatIMadeTheSphereWithCullWise = (mesh.IsWindingCcw == true) ? "CounterClockwise" : "ClockWise";
+
             string msg =
                     $" \n The F2 toggle wireframe. F3 show normals. F4 mesh itself. F5 the texture used." +
                     $" \n F6 switch techniques {spectypemsg}. Space toggle light controls." +
                     $" \n The keys WASD change the forward view direction (which is the major take away here). ZC allows for spin." +
                     $" \n The Arrow keys move the camera translation as strafing motion. " +
                     $" \n  " +
+                    $"\n{spectypemsg} " +
                     $" \n  " +
-                    $" \n  " +
-                    $" \n  " +
-                    $" \n  " +
-                    $" \n  " +
-                    $" \n  " +
-                    $" \n  " +
-                    $" \n  " +
-                    $" \n  " +
+                    $"\nDefault Begin has been called. I am in SpriteBatch.DrawString." +
+                    $"\nSpritebatch draws with ClockWise Triangles. " +
+                    $"\nGraphicsDevice CullMode : {GraphicsDevice.RasterizerState.CullMode}" +
+                    $"\n" +
+                    $"\nI am Culling : { whatIdrewWithCullWise } triangles so i draw with the opposite winding.   " +
+                    $"\nmesh Winding: {whatIMadeTheMeshWithCullWise}   sphere[0] Winding: {whatIMadeTheSphereWithCullWise}" +
+                    $"\n" +
+                    $"\n cam : {cam.cameraWorld.ToWellFormatedString("cameraWorld")}" +
+                    $"\n" +
+                    $"\n mesh : {mesh.WorldTransformation.ToWellFormatedString("World")}" +
+                    $"\n" +
+                    $"\n spheres[0] : {spheres[0].WorldTransformation.ToWellFormatedString("World")}" +
                     $" \n  " +
                     $" \n  " +
                     $" \n  " +
@@ -604,25 +635,13 @@ namespace ShaderExamples
                     $" \n"
                     ;
 
-            if (displayOnScreenText)
+
+            if (displayOnScreenTextInfo)
                 spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Red);
             else
                 spriteBatch.DrawString(
                     font, 
                     $"Press F1 for information  " +
-                    $"\n{spectypemsg} " +
-                    $"\nIs GraphicsDevice CullClockwise : { flipCullToClockWise}" +
-                    $"\ncam position : { cam.cameraWorld.Translation.Trimed() }" +
-                    $"\ncam forward : { cam.cameraWorld.Forward.Trimed() }" +
-                    $"\ncam up :        { cam.cameraWorld.Up.Trimed() }" +
-                    $"\n" +
-                    $"\nmesh Translation : { mesh.WorldTransformation.Translation.Trimed() }" +
-                    $"\nmesh Forward :     { mesh.WorldTransformation.Forward.Trimed() }" +
-                    $"\nmesh Up :             { mesh.WorldTransformation.Up.Trimed() }" +
-                    $"\n" +
-                    $"\nsphere0 Translation : { spheres[0].WorldTransformation.Translation.Trimed() }" +
-                    $"\nsphere0 Forward :     { spheres[0].WorldTransformation.Forward.Trimed() }" +
-                    $"\nsphere0 Up :             { spheres[0].WorldTransformation.Up.Trimed() }" +
                     $"\n" +
                     $"" , 
                     new Vector2(10, 10), 
@@ -630,7 +649,7 @@ namespace ShaderExamples
                     );
 
             if (Keys.End.IsKeyPressedWithDelay(gameTime))
-                Console.WriteLine( $"{cam.cameraWorld.DisplayMatrixForCopy("cameraWorld") } ");
+                Console.WriteLine( $"{cam.cameraWorld.ToDisplayMatrixForCopy("cameraWorld") } ");
 
             spriteBatch.End();
         }

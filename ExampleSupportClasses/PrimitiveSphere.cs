@@ -82,8 +82,8 @@ namespace ShaderExamples //Microsoft.Xna.Framework
 
         public void CreatePrimitiveSphere(int subdivisionWidth, int subdividsionHeight, float worldscale, int Usage_Options, bool invert, bool flatFaces, Texture2D heightMap, float dataScalar)
         {
-            List<VertexPositionNormalTextureTangentWeights> cubesFaceMeshVertList = new List<VertexPositionNormalTextureTangentWeights>();
-            List<int> cubeFaceMeshIndexList = new List<int>();
+            List<VertexPositionNormalTextureTangentWeights> VertexList = new List<VertexPositionNormalTextureTangentWeights>();
+            List<int> IndexList = new List<int>();
 
             this.usage = Usage_Options;
             this.invert = invert;
@@ -112,16 +112,18 @@ namespace ShaderExamples //Microsoft.Xna.Framework
 
             var quadsPerFace = ((subdivisionWidth - 1) * (subdividsionHeight - 1));
             var quadsTotal = quadsPerFace * 6;
-            System.Console.WriteLine($"\n Expected ...   quads per face {quadsPerFace}   quadsTotal {quadsTotal} ");
 
-            CreateIndices(cubeFaceMeshIndexList, subdivisionWidth, subdividsionHeight);
+            CreateIndices(IndexList, subdivisionWidth, subdividsionHeight);
 
-            CreateInitialVertices( cubesFaceMeshVertList, subdivisionWidth, subdividsionHeight, flatFaces, heightMap, dataScalar);
+            CreateInitialVertices( VertexList, subdivisionWidth, subdividsionHeight, flatFaces, heightMap, dataScalar);
 
-            CreateTangents( cubesFaceMeshVertList, cubeFaceMeshIndexList, subdivisionWidth, subdividsionHeight);
+            CreateTangents( VertexList, IndexList, subdivisionWidth, subdividsionHeight);
 
-            vertices = cubesFaceMeshVertList.ToArray();
-            indices = cubeFaceMeshIndexList.ToArray();
+
+            System.Console.WriteLine($"\n new PrimitiveSphere();  Usage: {usage}    Winding CCW: {IsWindingCcw}   Vertices: {VertexList.Count}  Indices: {IndexList.Count}    Quads: {(IndexList.Count / 6)}   Quads per face: {(IndexList.Count / 6 / 6)}   Triangles: { (IndexList.Count / 3)} ");
+
+            vertices = VertexList.ToArray();
+            indices = IndexList.ToArray();
         }
 
         private void CreateIndices(List<int> cubeFaceMeshIndexLists, int subdivisionWidth, int subdividsionHeight)

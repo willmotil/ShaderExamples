@@ -476,7 +476,7 @@ namespace ShaderExamples
 
 
             if (Keys.End.IsKeyPressedWithDelay(gameTime))
-                Console.WriteLine( $"{cam.cameraWorld.DisplayMatrixForCopy("cameraWorld") } ");
+                Console.WriteLine( $"{cam.cameraWorld.ToDisplayMatrixForCopy("cameraWorld") } ");
 
             spriteBatch.End();
         }

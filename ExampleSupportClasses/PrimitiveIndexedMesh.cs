@@ -12,16 +12,16 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
     /// </summary>
     public class PrimitiveIndexedMesh
     {
+        public static bool ShowMinimalBasicOutput { get; set; } = true;
         public static bool ShowOutput { get; set; } = false;
 
+        public bool IsWindingCcw { get; private set; } = false;
         public static int AveragingOption { get; set; } = AVERAGING_OPTION_USE_NONALPHACONSISTANTLY;
 
         public const int AVERAGING_OPTION_USE_NONALPHACONSISTANTLY = 3;
         public const int AVERAGING_OPTION_USE_HIGHEST = 2;
         public const int AVERAGING_OPTION_USE_AVERAGE = 1;
         public const int AVERAGING_OPTION_USE_RED = 0;
-
-        private bool isWindingCcw = false;
 
         public VertexPositionNormalTextureTangentWeights[] vertices;
         public int[] indices;
@@ -40,6 +40,12 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
         public Vector3 Scale { get { return worldscale; } set { worldscale = value; Transform(); } }
         public Vector3 Position { get { return orientation.Translation; } set { orientation.Translation = value; Transform(); } }
         public Vector3 Center { get { return Scale / 2f; } }
+        public Matrix SetWorldTransformation(Vector3 position, Vector3 forward, Vector3 up)
+        {
+            orientation = Matrix.CreateWorld(position, forward, up);
+            Transform();
+            return transform;
+        }
         public Matrix SetWorldTransformation(Vector3 position, Vector3 forward, Vector3 up, Vector3 scale)
         {
             worldscale = scale;
@@ -115,16 +121,16 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
             heightColorArray = new Color[0];
         }
 
-        /// <param name="scale"> id like to get rid of it and just use the transform scaling but... normals and stuff in these examples rely on it being set early. </param>
-        public void CreatePrimitiveMesh(Color[] heighColorArray, int strideWidth, Vector3 scale, bool windingCounterClockwise, bool negateNormalDirection, bool negateTangentDirection)
+        /// <param name="scale"> scale id like to get rid of it and just use the transform scaling but... normals and stuff in these examples rely on it being set early. </param>
+        public void CreatePrimitiveMesh(Color[] heightColorArray, int strideWidth, Vector3 scale, bool windingCounterClockwise, bool negateNormalDirection, bool negateTangentDirection)
         {
             List<VertexPositionNormalTextureTangentWeights> VertexLists = new List<VertexPositionNormalTextureTangentWeights>();
             List<int> IndexLists = new List<int>();
 
-            isWindingCcw = windingCounterClockwise;
+            IsWindingCcw = windingCounterClockwise;
 
             int subdivisionWidth = strideWidth;
-            int subdividsionHeight = (int)(heighColorArray.Length / strideWidth);
+            int subdividsionHeight = (int)(heightColorArray.Length / strideWidth);
 
             if (subdivisionWidth < 2)
                 subdivisionWidth = 2;
@@ -145,7 +151,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                 {
                     float stepU = (float)(x) / (float)(subdivisionWidth - 1);
 
-                    float val = GetAvgHeightFromColorAsUnitLengthValue(heighColorArray[GetIndex(x, y, strideWidth)], AveragingOption);
+                    float val = GetAvgHeightFromColorAsUnitLengthValue(heightColorArray[GetIndex(x, y, strideWidth)], AveragingOption);
                     float hval = -val;
 
                     float X = Interpolate(left, right, stepU);
@@ -171,6 +177,8 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
             // normalize vectors.
             SmoothNormalsAndTangents(VertexLists, negateNormalDirection, negateTangentDirection);
 
+            if (ShowMinimalBasicOutput)
+                Console.WriteLine($"\n new PrimitiveIndexedMesh(...);  strideWidth: {strideWidth}   Winding CCW: {IsWindingCcw}   Vertices: {VertexLists.Count}  Indices: {IndexLists.Count}    Quads: {(IndexLists.Count / 6)}    Triangles: { (IndexLists.Count / 3) }");
             if (ShowOutput)
                 ConsoleOutput(VertexLists, IndexLists);
 
@@ -200,25 +208,32 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
         }
 
         /// <summary>
-        /// CCW
+        /// CW
         /// 
-        /// tl[0] > bl[1] > tr[2] > br[3]
+        /// triangle 0
+        /// tl[0] > tr[1] > br[2]   
         /// 
-        /// 0        2
+        /// triangle 1
+        /// br[3] >  bl[4]  >  tl[5]
+        /// 
+        /// left u=0   top v=0
+        ///      -x            -y
+        /// 
+        /// 0        1
         /// tl        tr
         /// ______
         /// |\        |
-        /// | t0     |
-        /// |    t1  |
-        /// |       \ |
-        /// ----------
+        /// |   \t0  |      n +z
+        /// | t1 \   |    /
+        /// |       \ |  /
+        /// ----------/
         /// bl      br
-        /// 1        3
+        /// 3        2
         /// 
         /// </summary>
         public void AddQuadIndexes(int tl, int tr, int br, int bl, ref List<int> IndexLists)
         {
-            if (isWindingCcw)
+            if (IsWindingCcw)
             {
                 // ccw
                 IndexLists.Add(tl);
@@ -243,9 +258,9 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
         /// <summary>
         /// aligns with the order that the function AddQuadIndexes adds vertexs to the index list depending on the winding built with.
         /// </summary>
-        public void GetVerticeIndex(int startIndice, List<int> IndexLists, out int TL_index, out int TR_index, out int BR_index, out int BL_index)
+        public void GetQuadVerticeIndexes(int startIndice, List<int> IndexLists, out int TL_index, out int TR_index, out int BR_index, out int BL_index)
         {
-            if (isWindingCcw)
+            if (IsWindingCcw)
             {
                 //ccw
                 TL_index = IndexLists[startIndice + 0];
@@ -270,7 +285,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                 int startIndice = k;
 
                 int tl, bl, tr, br;
-                GetVerticeIndex(startIndice, IndexLists, out tl, out tr, out br, out bl);
+                GetQuadVerticeIndexes(startIndice, IndexLists, out tl, out tr, out br, out bl);
 
                 var TL = VertexLists[tl];
                 var BL = VertexLists[bl];
@@ -307,7 +322,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                 int startIndice = k;
 
                 int tl, bl, tr, br;
-                GetVerticeIndex(startIndice, IndexLists, out tl, out tr, out br, out bl);
+                GetQuadVerticeIndexes(startIndice, IndexLists, out tl, out tr, out br, out bl);
 
                 var TL = VertexLists[tl];
                 var BL = VertexLists[bl];
@@ -315,8 +330,8 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                 var BR = VertexLists[br];
 
                 // bottom to top direction for tangent ?
-                var t0 = (TL.Position - BL.Position);
-                var t1 = (TR.Position - BR.Position);
+                var t0 = (BL.Position - TL.Position);
+                var t1 = (BR.Position - TR.Position);
                 TL.Tangent += t0;
                 BL.Tangent += t0;
                 TR.Tangent += t1;
@@ -337,23 +352,21 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                 var v = VertexLists[i];
 
                 v.Normal = Vector3.Normalize(v.Normal);
-                v.Tangent = (Vector3.Normalize(v.Tangent));
+                v.Tangent = Vector3.Normalize(v.Tangent);
 
-                if (isWindingCcw == false)
-                {
-                    v.Normal = -v.Normal;
-                }
+                var bitan = Vector3.Cross(v.Normal, v.Tangent);
+                v.Tangent = Vector3.Cross(bitan, v.Normal);
 
-                if (negateNormalDirection)
-                    v.Normal = -v.Normal;
-                if (negateTangentDirection)
-                    v.Tangent = -v.Tangent;
-
-                //if (isWindingCcw)
+                //if (IsWindingCcw)
                 //{
                 //    v.Normal = -v.Normal;
                 //    v.Tangent = -v.Tangent;
                 //}
+
+                //if (negateNormalDirection)
+                //    v.Normal = -v.Normal;
+                //if (negateTangentDirection)
+                //    v.Tangent = -v.Tangent;
 
                 VertexLists[i] = v;
             }

@@ -208,9 +208,9 @@ namespace ShaderExamples
                 $" \n In addition we create a new VertexDefinition that allows us to pass our own vertice structure to the shader." +
                 $" \n In this way we prepare to add the ability to do more complex shader effects with the extra information." +
                 $" \n " +
-                $" \n { cam.cameraWorld.DisplayMatrix("cameraWorld") }" +
-                $" \n { cam.view.DisplayMatrix("view") }" +
-                $" \n { cam.projection.DisplayMatrix("projection") }" +
+                $" \n { cam.cameraWorld.ToWellFormatedString("cameraWorld") }" +
+                $" \n { cam.view.ToWellFormatedString("view") }" +
+                $" \n { cam.projection.ToWellFormatedString("projection") }" +
                 $" \n" +
                 $" \n" +
                 $" \n"

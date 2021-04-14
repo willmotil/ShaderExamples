@@ -131,9 +131,9 @@ namespace ShaderExamples
                 $" \n This will now reside in the ExamplSupportClasses folder were most of our stuff we reuse will go. " +
                 $" \n We'll start to do this a bit more in the next example as we will add quite a bit as prep to 3d shading." +
                 $" \n " +
-                $" \n { cam.cameraWorld.DisplayMatrix("cameraWorld") }" +
-                $" \n { cam.view.DisplayMatrix("view") }" +
-                $" \n { cam.projection.DisplayMatrix("projection") }" +
+                $" \n { cam.cameraWorld.ToWellFormatedString("cameraWorld") }" +
+                $" \n { cam.view.ToWellFormatedString("view") }" +
+                $" \n { cam.projection.ToWellFormatedString("projection") }" +
                 $" \n" +
                 $" \n"
                 ;

@@ -121,28 +121,14 @@ float3 HalfNormal(float3 pixelToLight, float3 pixelToCamera)
 	return normalize(pixelToLight + pixelToCamera);
 }
 
+float ReflectionTheta(float3 L, float3 N, float3 V)
+{
+	return dot(V, reflect(-L, N));
+}
+
 float IsFrontFaceToLight(float3 L, float3 N)
 {
 	return sign(saturate(dot(L, N)));
-}
-
-// to viewer can be   pos   or  v   aka  cam - pixel
-float SpecularPhong(float3 toViewer, float3 toLight, float3 normal, float shininess)
-{
-	float3 viewDir = normalize(-toViewer);
-	float3 reflectDir = reflect(toLight, normal);
-	float b = max(dot(reflectDir, viewDir), 0.0f);
-	float backfaceRemoval = saturate( sign( dot(toLight, normal) ) );
-	return pow(b, shininess / 4.0f) * backfaceRemoval; // note that the exponent is different here
-}
-
-float SpecularBlinnPhong(float3 toViewer, float3 toLight, float3 normal, float shininess)
-{
-	toViewer = normalize(toViewer);
-	float3 halfnorm = normalize(toLight + toViewer);
-	float cosb = max(dot(normal, halfnorm), 0.0f);
-	float backfaceRemoval = saturate(sign(dot(toLight, normal)));
-	return pow(cosb, shininess) * backfaceRemoval;
 }
 
 float SpecularSharpener(float specular, float scalar)
@@ -162,9 +148,23 @@ float3 InflectionPositionFromPlane(float3 anyPositionOnPlaneP, float3 theSurface
 	return theCameraPostionC - theSurfaceNormalN * camToPlaneDist * 2;
 }
 
-float ReflectionTheta(float3 L, float3 N, float3 V)
+// to viewer can be   pos   or  v   aka  cam - pixel
+float SpecularPhong(float3 toViewer, float3 toLight, float3 normal, float shininess)
 {
-	return dot(V, reflect(-L, N));
+	float3 viewDir = normalize(-toViewer);
+	float3 reflectDir = reflect(toLight, normal);
+	float b = max(dot(reflectDir, viewDir), 0.0f);
+	float backfaceRemoval = saturate(sign(dot(toLight, normal))); // should ndot v the dot result too to ensure its both light to surface backface and normal to camera color removed.
+	return pow(b, shininess / 4.0f) * backfaceRemoval; // note that the exponent is different here
+}
+
+float SpecularBlinnPhong(float3 toViewer, float3 toLight, float3 normal, float shininess)
+{
+	toViewer = normalize(toViewer);
+	float3 halfnorm = normalize(toLight + toViewer);
+	float cosb = max(dot(normal, halfnorm), 0.0f);
+	float backfaceRemoval = saturate(sign(dot(toLight, normal)));
+	return pow(cosb, shininess) * backfaceRemoval;
 }
 
 float3 FunctionNormalMapGeneratedBiTangent(float3 normal, float3 tangent, float2 texCoords)
@@ -189,13 +189,12 @@ float3 FunctionBumpMapGeneratedBiTangent(float3 normal, float3 tangent, float2 t
 	float3 NormalMap = tex2D(TextureSamplerNormalMap, texCoords).rgb;
 	NormalMap.g = 1.0f - NormalMap.g;  // flips the y. the program i used fliped the green,  bump mapping is when you don't do this i guess.
 	NormalMap = NormalMap * 2.0f - 1.0f;
-	float3 bitangent = normalize(cross(normal, tangent));
 
+	float3 bitangent = normalize(cross(normal, tangent));
 	float3x3 mat;
 	mat[0] = bitangent; // set right
 	mat[1] = tangent; // set up
 	mat[2] = normal; // set forward
-
 	return normalize(mul(NormalMap, mat)); // norm to ensure later scaling wont break it.
 }
 
@@ -236,7 +235,8 @@ VertexShaderOutput VS(in VertexShaderInput input)
 // float3 N2 = float3(N.x, -N.y, N.z);
 float4 PS_PhongWithNormalMapEnviromentalMap(VertexShaderOutput input) : COLOR
 {
-	float3 N = FunctionNormalMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);  	
+	//float3 N = FunctionNormalMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);  	
+	float3 N = FunctionBumpMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);
 	float4 col = tex2D(TextureSamplerDiffuse, input.TextureCoordinates);
 	float3 P = input.Position3D;
 	float3 C = CameraPosition;
@@ -247,18 +247,37 @@ float4 PS_PhongWithNormalMapEnviromentalMap(VertexShaderOutput input) : COLOR
 	float NdotL = MaxDot(N, L);
 	float NdotV = MaxDot(N, V);
 	float3 R = 2.0f * NdotV * N - V;
-	float Stheta = SpecularPhong(V, L, N, 80.0f); // specularTheta
+	float Stheta = SpecularPhong(V, L, N, 150.0f); // specularTheta
 
 	//float4 enviromentalTexCubeDifCol = TexEnvCubeLod(CubeMapEnviromentalSampler,N, 0); // diffuse env texel. 
 	float4 enviromentalTexCubeSpecCol = TexEnvCubeLod(CubeMapEnviromentalSampler,R, 0); // specular env texel.
 
 	//float4 enviromentalTexCubeSpecCol = texCUBElod(CubeMapEnviromentalSampler, float4 (R, 0));
 
+	float killLightingAtribute = 0.01f;
+
+	float3 red = float3(1, 0, 0);
+	float3 green = float3(0, 1, 0);
+	float3 blue = float3(0, 0, 1);
+
 	float3 specularColor = col.rgb * LightColor * Stheta * SpecularStrength;
 	float3 diffuseColor = col.rgb * NdotL * DiffuseStrength;
 	float3 ambientColor = col.rgb * AmbientStrength;
 
-    col.rgb = ambientColor + (diffuseColor + specularColor) * enviromentalTexCubeSpecCol;
+	col.rgb = diffuseColor + specularColor + ambientColor +(ambientColor * enviromentalTexCubeSpecCol * killLightingAtribute);
+	return col;
+
+	//// ok lets just double check this shit
+	//float theta = ReflectionTheta(L ,N ,V);
+
+	////float3 specularColor = rspec * SpecularStrength;
+	////float3 diffuseColor = rdiff * DiffuseStrength;
+	////float3 ambientColor = ramb * AmbientStrength;
+
+	//col.rgb = 0.01f * enviromentalTexCubeSpecCol;
+	////col.rgb += green * theta;
+	//col.rgb += blue * R;
+	////col.rgb = red * theta + blue * R;//diffuseColor + specularColor + ambientColor; // +(ambientColor * enviromentalTexCubeSpecCol * killLightingAtribute);
 	return col;
 }
 
