@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Brick_Nmap_en_yfliped.png</SourceFile>
-  <SourceTime>2018-06-10T12:18:05.9627853-04:00</SourceTime>
-  <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Content/Images/Brick_Nmap_en_yfliped.xnb</DestFile>
-  <DestTime>2021-04-13T19:32:44.1927248-04:00</DestTime>
+  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/Brick_Nmap_en_yfliped.png</SourceFile>
+  <SourceTime>2021-04-13T23:54:08.3095415-04:00</SourceTime>
+  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Content/Images/Brick_Nmap_en_yfliped.xnb</DestFile>
+  <DestTime>2021-04-14T00:07:24.4426741-04:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2020-08-10T16:17:54-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

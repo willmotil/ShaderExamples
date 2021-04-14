@@ -260,11 +260,13 @@ float4 PS_PhongWithNormalMapEnviromentalMap(VertexShaderOutput input) : COLOR
 	float3 green = float3(0, 1, 0);
 	float3 blue = float3(0, 0, 1);
 
-	float3 specularColor = col.rgb * LightColor * Stheta * SpecularStrength;
-	float3 diffuseColor = col.rgb * NdotL * DiffuseStrength;
+	float3 specularColor = col.rgb * LightColor * Stheta * SpecularStrength; // *killLightingAtribute;
+	float3 diffuseColor = col.rgb * NdotL * DiffuseStrength; // normal mapping applys most directly to diffuse.
 	float3 ambientColor = col.rgb * AmbientStrength;
+	col.rgb = (diffuseColor + specularColor + ambientColor) * enviromentalTexCubeSpecCol;  // * enviromentalTexCubeSpecCol  * killLightingAtribute
 
-	col.rgb = diffuseColor + specularColor + ambientColor +(ambientColor * enviromentalTexCubeSpecCol * killLightingAtribute);
+	col.rgb *= NdotV;
+
 	return col;
 
 	//// ok lets just double check this shit

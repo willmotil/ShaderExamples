@@ -32,6 +32,7 @@ namespace ShaderExamples
         TextureCube textureCubeDiffuse, textureCubeEnv, textureCubeEnv2;
         Texture2D 
             textureMesh , textureMeshNormalMap,
+            textureMesh2, textureMeshNormalMap2,
             textureHdrLdrSphere, textureSphereNormalMap,
             textureMonogameLogo, miscTexture, 
             dotTextureRed, dotTextureBlue, dotTextureGreen, dotTextureYellow, dotTextureWhite
@@ -45,7 +46,7 @@ namespace ShaderExamples
         RenderTarget2D rtScene;
         CameraAndKeyboardControls cam = new CameraAndKeyboardControls();
 
-        PrimitiveIndexedMesh mesh;
+        PrimitiveIndexedMesh mesh, mesh2;
         VisualizationNormals visualMeshNormals = new VisualizationNormals();
         VisualizationNormals visualMeshTangents = new VisualizationNormals();
         VisualizationLine visualLightLineToMesh;
@@ -119,7 +120,7 @@ namespace ShaderExamples
 
             LoadAndSetupInitialEnvEffect();
 
-            CreateMesh();
+            CreateMeshGrids();
 
             CreateSpheres();
         }
@@ -151,13 +152,13 @@ namespace ShaderExamples
             textureSphereNormalMap = Content.Load<Texture2D>("wallnormmap");
 
 
-            //textureMesh = Content.Load<Texture2D>("Brick_em");
-            textureMesh = Content.Load<Texture2D>("walltomap");
-            //textureMesh = dotTextureWhite;
+            textureMesh = dotTextureWhite;
+            textureMesh2 = Content.Load<Texture2D>("walltomap");
+            //textureMesh2 = Content.Load<Texture2D>("Brick_em");
 
-            //textureMeshNormalMap = Content.Load<Texture2D>("Brick_Nmap_en_yfliped");  // argg Brick_Nmap_noyflip_em   Brick_Nmap_en_yfliped
-            textureMeshNormalMap = Content.Load<Texture2D>("wallnormmapGimp");  // wallnormmap
-            //textureMeshNormalMap = Content.Load<Texture2D>("TestNormalMap");
+            textureMeshNormalMap = Content.Load<Texture2D>("TestNormalMap");
+            textureMeshNormalMap2 = Content.Load<Texture2D>("wallnormmapGimp");  // wallnormmap
+            //textureMeshNormalMap2 = Content.Load<Texture2D>("Brick_Nmap_en_yfliped");  // argg Brick_Nmap_noyflip_em   Brick_Nmap_en_yfliped
 
             TextureCubeTypeConverter.Load(Content);
             textureCubeDiffuse = TextureCubeTypeConverter.ConvertSphericalTexture2DToTextureCube(GraphicsDevice, miscTexture, false, false, miscTexture.Width);
@@ -190,32 +191,59 @@ namespace ShaderExamples
         // Create
         //++++++++++++++++++++++++++++++++++
 
-        public void CreateMesh()
+        public void CreateMeshGrids()
         {
-            PrimitiveIndexedMesh.ShowOutput = false;
-            PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_HIGHEST;
-
             // different ways to create the mesh regular via a height array or a texture used as a height / displacement map 
-
-            //mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(1000f, 900, 0f), false, false, false);
-            mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(300f, 250, 0f), false, false, false);
-            float thickness = .2f;
+            float thickness = .2f; 
             float normtanLinescale = 20f;
 
-            //mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3( 300f, 250, 70f ), false, false, false);
-            //float thickness = .1f; normtanLinescale = 10f;
+            // mesh1
 
-            //mesh = new PrimitiveIndexedMesh(texture, new Vector3(300f, 250, 5f), false, false, false);
-            //float thickness = .01f; float normtanLinescale = 10f;
-
-
-            //mesh.SetWorldTransformation(new Vector3(-300, +150, -350), Vector3.Up, Vector3.Backward, Vector3.One);
+            string option = "regularGrid";
+            switch (option)
+            {
+                case "regularGrid":
+                    mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(300f, 250, 0f), false, false, false);
+                    thickness = .2f; normtanLinescale = 20f;
+                    break;
+                case "heightMap":
+                    mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3(300f, 250, 70f), false, false, false);
+                    thickness = .1f; normtanLinescale = 10f;
+                    break;
+                case "textureAsHeightMap":
+                    PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_HIGHEST;
+                    mesh = new PrimitiveIndexedMesh(textureMesh, new Vector3(300f, 250, 5f), false, false, false);
+                    thickness = .01f; normtanLinescale = 10f;
+                    break;
+            }
             mesh.SetWorldTransformation(new Vector3(0, 0, 0), Vector3.Forward, Vector3.Up , Vector3.One);
             mesh.DiffuseTexture = textureMesh;
             mesh.NormalMapTexture = textureMeshNormalMap;
+
             visualMeshNormals = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureGreen, thickness, normtanLinescale, false);
             visualMeshTangents = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureYellow, thickness, normtanLinescale, true);
             visualLightLineToMesh = CreateVisualLine(dotTextureWhite, mesh.Center, lightStartPosition, 1, Color.White);
+
+
+            // mesh 2
+
+            option = "textureAsHeightMap";
+            switch (option)
+            {
+                case "regularGrid":
+                    mesh2 = new PrimitiveIndexedMesh(5, 5, new Vector3(1000f, 1000, 0f), false, false, false);
+                    break;
+                case "heightMap":
+                    mesh2 = new PrimitiveIndexedMesh(heightMap, 9, new Vector3(1000f, 1000, 70f), false, false, false);
+                    break;
+                case "textureAsHeightMap":
+                    PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_HIGHEST;
+                    mesh2 = new PrimitiveIndexedMesh(textureMeshNormalMap2, new Vector3(1000f, 1000, 20f), false, false, false);
+                    break;
+            }
+            mesh2.SetWorldTransformation(new Vector3(-300, +300, 550), Vector3.Down, Vector3.Forward, Vector3.One);
+            mesh2.DiffuseTexture = textureMesh2;
+            mesh2.NormalMapTexture = textureMeshNormalMap2;
         }
 
         public void CreateSpheres()
@@ -301,9 +329,9 @@ namespace ShaderExamples
             EnviromentalMapEffectClass.TextureCubeEnviromental = textureCubeEnv;
             EnviromentalMapEffectClass.TextureDiffuse = textureMesh;
             EnviromentalMapEffectClass.TextureNormalMap = textureMeshNormalMap;
-            EnviromentalMapEffectClass.AmbientStrength = 0.35f;
-            EnviromentalMapEffectClass.DiffuseStrength = .35f;
-            EnviromentalMapEffectClass.SpecularStrength = .35f;
+            EnviromentalMapEffectClass.AmbientStrength = 0.25f;
+            EnviromentalMapEffectClass.DiffuseStrength = .75f;
+            EnviromentalMapEffectClass.SpecularStrength = .25f;
             EnviromentalMapEffectClass.View = cam.view;
             EnviromentalMapEffectClass.Projection = cam.projection;
             EnviromentalMapEffectClass.CameraPosition = cam.cameraWorld.Translation;
@@ -494,12 +522,18 @@ namespace ShaderExamples
             else
                 mesh.DiffuseTexture = mesh.DiffuseTexture;
 
+            // mesh 1
             EnviromentalMapEffectClass.Technique_Render_PhongWithEnviromentalLight();
             EnviromentalMapEffectClass.World = mesh.WorldTransformation;
             EnviromentalMapEffectClass.TextureDiffuse = mesh.DiffuseTexture;
             EnviromentalMapEffectClass.TextureNormalMap = mesh.NormalMapTexture;
             mesh.DrawPrimitive(GraphicsDevice, EnviromentalMapEffectClass.effect);
 
+            // mesh 2
+            EnviromentalMapEffectClass.World = mesh2.WorldTransformation;
+            EnviromentalMapEffectClass.TextureDiffuse = mesh2.DiffuseTexture;
+            EnviromentalMapEffectClass.TextureNormalMap = mesh2.NormalMapTexture;
+            mesh2.DrawPrimitive(GraphicsDevice, EnviromentalMapEffectClass.effect);
 
             // W I R E F R A M E
 
@@ -516,6 +550,8 @@ namespace ShaderExamples
 
                 EnviromentalMapEffectClass.World = mesh.WorldTransformation;
                 mesh.DrawPrimitive(GraphicsDevice, EnviromentalMapEffectClass.effect);
+                EnviromentalMapEffectClass.World = mesh2.WorldTransformation;
+                mesh2.DrawPrimitive(GraphicsDevice, EnviromentalMapEffectClass.effect);
             }
         }
 

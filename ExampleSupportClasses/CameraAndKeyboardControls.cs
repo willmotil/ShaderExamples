@@ -13,8 +13,8 @@ namespace ShaderExamples
         public Matrix view;
         public Matrix projection;
 
-        public float moveSpeed = .8f; //.25f;
-        public float lookatSpeed = .008f; //.008f;
+        public float moveSpeed = 1.6f; //.25f;
+        public float lookatSpeed = .024f; //.008f;
         public float fov = 0.85f;
 
         public Matrix cameraWorld = Matrix.Identity;
