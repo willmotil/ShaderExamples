@@ -312,7 +312,7 @@ float4 PS_PhongWithNormalMapEnviromentalMap(VertexShaderOutput input) : COLOR
 
 	col.rgb *= 0.01f;
 	col.rgb =  R;
-	col.rgb += Stheta * 0.5f;
+	//col.rgb += Stheta * 0.5f;
 	return col;
 }
 

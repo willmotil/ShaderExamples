@@ -31,7 +31,7 @@ Finally the B channel in the image ranges from 128 to 255
         bool rotateLight = true;
         bool displayMesh = true;
         bool displayWireframe = false;
-        bool displayNormals = true;
+        bool displayNormals = false;
         bool displayWhiteDiffuse = false;
         bool displayOnScreenText = false;
 
@@ -115,12 +115,12 @@ Finally the B channel in the image ranges from 128 to 255
             font3 = Content.Load<SpriteFont>("MgFont3");
 
             cam.InitialView(GraphicsDevice, new Matrix
-                    (
-                     -1.000f, +0.000f, +0.000f, +0.000f,
-                     +0.000f, +0.999f, +0.032f, +0.000f,
-                     +0.000f, +0.032f, -0.999f, +0.000f,
-                     +204.500f, +204.527f, -620.156f, +1.000f
-                    ));
+             (
+                   -1.000f, +0.000f, +0.000f, +0.000f,
+                   +0.000f, +0.816f, -0.578f, +0.000f,
+                   +0.000f, -0.578f, -0.816f, +0.000f,
+                 +162.900f, -105.732f, -270.110f, +1.000f
+             ));
             cam.UpdateProjection(GraphicsDevice);
 
             NormalMapEffectClass.Load(Content);
@@ -321,9 +321,9 @@ Finally the B channel in the image ranges from 128 to 255
             $" \n"
             ;
 
-            // quik test
-            //MgDrawExt.Initialize(GraphicsDevice, spriteBatch);
-            //spriteBatch.DrawCircleOutline(new Vector2(300, 300), 100, 25, 1, Color.Yellow);
+
+            if (Keys.End.IsKeyPressedWithDelay(gameTime))
+                Console.WriteLine($"{cam.cameraWorld.ToDisplayMatrixForCopy("cameraWorld") } ");
 
             if (displayOnScreenText)
                 spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Blue);

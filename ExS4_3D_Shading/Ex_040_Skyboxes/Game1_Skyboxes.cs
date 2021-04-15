@@ -52,6 +52,7 @@ namespace ShaderExamples
         VisualizationLine[] visualLightLineToSpheres = new VisualizationLine[numberOfSpheres];
         Vector3[] sphereCenters = new Vector3[] { new Vector3(0, 0, -50), new Vector3(150, 0, -50), new Vector3(0, 150, -50), new Vector3(150, 150, -50) };
 
+
         float[] heightMap = new float[]
         {
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -144,6 +145,7 @@ namespace ShaderExamples
             generatedTextureFaceArrayFromCubemap = TextureCubeTypeConverter.ConvertTextureCubeToTexture2DArray(GraphicsDevice, cubemap, false, false, 256);
             generatedTextureHdrLdrFromSingleImages = TextureCubeTypeConverter.ConvertTexture2DArrayToSphericalTexture2D(GraphicsDevice, generatedTextureFaceArrayFromCubemap, false, false, 256);
             generatedTextureFaceArrayFromHdrLdr = TextureCubeTypeConverter.ConvertSphericalTexture2DToTexture2DArray(GraphicsDevice, textureSphereHdrLdr, false, false, 256);
+
         }
 
         //++++++++++++++++++++++++++++++++++

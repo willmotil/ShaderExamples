@@ -775,6 +775,50 @@ namespace Microsoft.Xna.Framework
         VertexPositionColor[] vertices;
         int[] indices;
 
+        public BasicEffect basicEffect;
+
+        #region added matrix scaling instead of set scaling.
+
+        private Matrix transform = Matrix.Identity;
+        private Matrix orientation = Matrix.Identity;
+        private float worldscale = 1f;
+        public Matrix SetWorldTransformation(Vector3 position, Vector3 forward, Vector3 up, float scale)
+        {
+            worldscale = scale;
+            orientation = Matrix.CreateWorld(position, forward, up);
+            Transform();
+            return transform;
+        }
+        /// <summary>
+        /// Sets the World in such a way as that you don't have to worry about the scaling  via srt order.
+        /// </summary>
+        public Matrix WorldTransformation { get { return transform; } }
+        public float Scale { get { return worldscale; } set { worldscale = value; Transform(); } }
+        public Vector3 Position { get { return orientation.Translation; } set { orientation.Translation = value; Transform(); } }
+        private void Transform()
+        {
+            transform = Matrix.Identity * Matrix.CreateScale(worldscale) * orientation;
+            basicEffect.World = transform;
+        }
+
+        #endregion
+
+        public Matrix World { set { basicEffect.World = value; } get { return basicEffect.World; } }
+        public Matrix View { set { basicEffect.View = value; } get { return basicEffect.View; } }
+        public Matrix Projection { set { basicEffect.Projection = value; } get { return basicEffect.Projection; } }
+        public Texture2D Texture { set { basicEffect.Texture = value; } get { return basicEffect.Texture; } }
+
+
+        public void SetUpBasicEffect(GraphicsDevice device, Matrix view, Matrix proj)
+        {
+            basicEffect = new BasicEffect(device);
+            basicEffect.VertexColorEnabled = true;
+            basicEffect.TextureEnabled = false;
+            World = Matrix.Identity;
+            basicEffect.View = view;
+            basicEffect.Projection = proj;
+        }
+
         public OrientationLines()
         {
             CreateOrientationLines(.1f, 1.0f);
@@ -797,7 +841,7 @@ namespace Microsoft.Xna.Framework
             var g = new Color(0.0f, 1.0f, 0.0f, .8f);
             var b = new Color(0.0f, 0.0f, 1.0f, .8f);
 
-            vertices = new VertexPositionColor[9];
+            vertices = new VertexPositionColor[11];
             indices = new int[18];
 
             // forward
@@ -824,12 +868,93 @@ namespace Microsoft.Xna.Framework
             indices[12] = 6; indices[13] = 7; indices[14] = 8;
             indices[15] = 6; indices[16] = 8; indices[17] = 7;
         }
+
+        public void Draw(GraphicsDevice gd)
+        {
+            foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, (indices.Length / 3), VertexPositionColor.VertexDeclaration);
+            }
+        }
+
         public void Draw(GraphicsDevice gd, Effect effect)
         {
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
                 gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, (indices.Length / 3), VertexPositionColor.VertexDeclaration);
+            }
+        }
+    }
+
+    public class OrientationArrows
+    {
+        VertexPositionColorTexture[] vertices;
+        int[] indices;
+
+        public OrientationArrows()
+        {
+            CreateOrientationArrows();
+        }
+
+        private void CreateOrientationArrows()
+        {
+            //float z = 0.0f;
+
+            Vector3 center = new Vector3(0, 0, 0);
+            //
+            Vector3 endForward_fromcenter = new Vector3(0, 0, -1f);
+            Vector3 endUp_fromcenter = new Vector3(0, 1f, 0);
+            Vector3 endRight_fromcenter = new Vector3(1f, 0, 0);
+            //
+            Vector3 offCenterForward = new Vector3(0, 0, -.2f);
+            Vector3 offCenterRight = new Vector3(.2f, 0, 0);
+            Vector3 offCenterUp = new Vector3(0, .2f, 0);
+            //
+            Vector3 endForward_fromoffcenter = offCenterRight + endForward_fromcenter;
+            Vector3 endUp_fromoffcenter = offCenterRight + endUp_fromcenter;
+            Vector3 endRight_fromoffcenter = offCenterUp + endRight_fromcenter;
+
+
+            // order is  0,1,2 ,2,1,3  of vertices 0,1,2,3   0 will always be center
+
+            vertices = new VertexPositionColorTexture[12];
+
+            // forward
+            vertices[0].Position = center; vertices[0].Color = Color.White; vertices[0].TextureCoordinate = new Vector2(0f, 0f);
+            vertices[1].Position = endForward_fromcenter; vertices[1].Color = Color.White; vertices[1].TextureCoordinate = new Vector2(1f, 0f);
+            vertices[2].Position = offCenterRight; vertices[2].Color = Color.White; vertices[2].TextureCoordinate = new Vector2(0f, .33f);
+            vertices[3].Position = endForward_fromoffcenter; vertices[3].Color = Color.White; vertices[3].TextureCoordinate = new Vector2(1f, .33f);
+
+            // right
+            vertices[4].Position = center; vertices[4].Color = Color.White; vertices[4].TextureCoordinate = new Vector2(0f, .66f);
+            vertices[5].Position = endRight_fromcenter; vertices[5].Color = Color.White; vertices[5].TextureCoordinate = new Vector2(1f, .66f);
+            vertices[6].Position = offCenterUp; vertices[6].Color = Color.White; vertices[6].TextureCoordinate = new Vector2(0f, .33f);
+            vertices[7].Position = endRight_fromoffcenter; vertices[7].Color = Color.White; vertices[7].TextureCoordinate = new Vector2(1f, .33f);
+
+            // up square
+            vertices[8].Position = center; vertices[8].Color = Color.White; vertices[8].TextureCoordinate = new Vector2(0f, .66f);
+            vertices[9].Position = endUp_fromcenter; vertices[9].Color = Color.White; vertices[9].TextureCoordinate = new Vector2(1f, .66f);
+            vertices[10].Position = offCenterRight; vertices[10].Color = Color.White; vertices[10].TextureCoordinate = new Vector2(0f, 1f);
+            vertices[11].Position = endUp_fromoffcenter; vertices[11].Color = Color.White; vertices[11].TextureCoordinate = new Vector2(1f, 1f);
+
+            indices = new int[18];
+            indices[0] = 0; indices[1] = 1; indices[2] = 2;
+            indices[3] = 2; indices[4] = 1; indices[5] = 3;
+
+            indices[6] = 4; indices[7] = 5; indices[8] = 6;
+            indices[9] = 6; indices[10] = 5; indices[11] = 7;
+
+            indices[12] = 8; indices[13] = 9; indices[14] = 10;
+            indices[15] = 10; indices[16] = 9; indices[17] = 11;
+        }
+        public void Draw(GraphicsDevice gd, Effect effect)
+        {
+            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, (indices.Length / 3), VertexPositionColorTexture.VertexDeclaration);
             }
         }
     }

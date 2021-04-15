@@ -58,54 +58,6 @@
 /processorParam:TextureFormat=Color
 /build:Images/BloomTestImage.png
 
-#begin Images/Brick_em.jpg
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Images/Brick_em.jpg
-
-#begin Images/Brick_Nmap_en.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Images/Brick_Nmap_en.png
-
-#begin Images/Brick_Nmap_en_yfliped.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Images/Brick_Nmap_en_yfliped.png
-
-#begin Images/Brick_Nmap_noyflip_em.jpg
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Images/Brick_Nmap_noyflip_em.jpg
-
 #begin Images/gamma_correction_brightness.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -465,6 +417,12 @@
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
 /build:Shaders3D/NormalMapEffect.fx
+
+#begin Shaders3D/ReflectionsEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders3D/ReflectionsEffect.fx
 
 #begin Shaders3D/SimpleDirectDrawEffect.fx
 /importer:EffectImporter

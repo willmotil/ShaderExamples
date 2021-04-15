@@ -13,10 +13,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="ExS3_3D_Basics\Ex_070_Skybox\**" />
+    <Compile Remove="ExS4_3D_Shading\Ex_060_Mirroring3dSurfaces\**" />
     <Compile Remove="ExS4_3D_Shading\Ex_40_CubemapsSkyBoxes\**" />
     <EmbeddedResource Remove="ExS3_3D_Basics\Ex_070_Skybox\**" />
+    <EmbeddedResource Remove="ExS4_3D_Shading\Ex_060_Mirroring3dSurfaces\**" />
     <EmbeddedResource Remove="ExS4_3D_Shading\Ex_40_CubemapsSkyBoxes\**" />
     <None Remove="ExS3_3D_Basics\Ex_070_Skybox\**" />
+    <None Remove="ExS4_3D_Shading\Ex_060_Mirroring3dSurfaces\**" />
     <None Remove="ExS4_3D_Shading\Ex_40_CubemapsSkyBoxes\**" />
   </ItemGroup>
   <ItemGroup>
@@ -37,6 +40,6 @@
   <ItemGroup>
     <Folder Include="ExS0_GeneralConcepts\Ex_040_TODO_UsingTheMouseAndKeyboard\" />
     <Folder Include="ExS4_3D_Shading\Ex_030_SpecularLighting\" />
-    <Folder Include="ExS4_3D_Shading\Ex_060_Mirroring3dSurfaces\" />
+    <Folder Include="ExS4_3D_Shading\Ex_050_Reflections\" />
   </ItemGroup>
 </Project>

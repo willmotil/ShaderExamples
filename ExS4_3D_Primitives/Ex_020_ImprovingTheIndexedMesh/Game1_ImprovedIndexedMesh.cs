@@ -80,12 +80,12 @@ namespace ShaderExamples
 
             //cam.InitialView(GraphicsDevice);
             cam.InitialView(GraphicsDevice, new Matrix
-            (
-            +1.000f, +0.000f, +0.000f, +0.000f,
-            +0.000f, -0.986f, -0.165f, +0.000f,
-            +0.000f, +0.165f, -0.986f, +0.000f,
-            +89.500f, +157.642f, -381.373f, +1.000f
-            ));
+             (
+                   +1.000f, +0.000f, +0.000f, +0.000f,
+                   +0.000f, -0.085f, -0.996f, +0.000f,
+                   +0.000f, +0.996f, -0.085f, +0.000f,
+                 +147.100f, +398.045f, -68.235f, +1.000f
+             ));
             cam.UpdateProjection(GraphicsDevice);
 
             ImprovedIndexMeshEffectClass.Load(Content);
@@ -215,6 +215,10 @@ namespace ShaderExamples
                 $" \n" +
                 $" \n"
                 ;
+
+            if (Keys.End.IsKeyPressedWithDelay(gameTime))
+                Console.WriteLine($"{cam.cameraWorld.ToDisplayMatrixForCopy("cameraWorld") } ");
+
             spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Blue);
             spriteBatch.End();
         }

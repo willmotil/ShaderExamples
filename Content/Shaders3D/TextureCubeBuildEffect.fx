@@ -69,7 +69,7 @@ struct FaceStruct
 
 // I made this up to do this tranform because i couldn't find the code to do it anywere.
 // Ok so what people in a couple examples are doing regularly is like a matrix view transform, im not sure that is actually any better 
-// since i do have to calculate the extrude the normal from the piexel anyways but i should test it later down the road.
+// since i do have to calculate or extrude the normal from the piexel anyways but i should test it later down the road.
 
 FaceStruct UvFaceToCubeMapVector(float2 pos, int faceIndex)
 {
@@ -173,6 +173,8 @@ float3 EquaRectangularMapUvCoordinatesTo3dCubeMapNormal(float2 uvCoords)
 
 
 // http://www.codinglabs.net/article_physically_based_rendering.aspx
+// 
+// https://en.wikipedia.org/wiki/Rendering_equation
 //
 // F  needs work.
 //
@@ -417,7 +419,34 @@ technique CubemapToDiffuseIlluminationCubeMap
 
 
 
+// another guys solution to the irradiance map that i keep having problems with.
 
+//float4 ColorPixelShader(PixelInputType input) : SV_TARGET
+//{
+//    float3 normal = normalize(input.position.xyz);
+//
+//    float3 irradiance = float3(0.0f, 0.0f, 0.0f);
+//
+//    float3 up = g_upVectorVal;
+//    float3 right = cross(up, normal);
+//    up = cross(normal, right);
+//
+//    float sampleDelta = 0.025f;
+//    float nrSamples = 0.0f;
+//    for (float phi = 0.0f; phi < 2.0 * PI; phi += sampleDelta)
+//    {
+//        for (float theta = 0.0f; theta < 0.5 * PI; theta += sampleDelta)
+//        {
+//            float3 tangentSample = float3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
+//            float3 sampleVec = (tangentSample.x * right) + (tangentSample.y * up) + (tangentSample.z * normal);
+//
+//            irradiance += shaderTexture.Sample(SampleType, sampleVec).rgb * cos(theta) * sin(theta);
+//            nrSamples++;
+//        }
+//    }
+//    irradiance = PI * irradiance * (1.0f / nrSamples);
+//    return float4(irradiance, 1.0f);
+//}
 
 
 

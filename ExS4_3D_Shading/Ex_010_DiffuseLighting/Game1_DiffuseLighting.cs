@@ -85,12 +85,13 @@ namespace ShaderExamples
             font3 = Content.Load<SpriteFont>("MgFont3");
 
             cam.InitialView(GraphicsDevice, new Matrix
-            (
-            +1.000f, +0.000f, +0.000f, +0.000f,
-            +0.000f, -0.986f, -0.165f, +0.000f,
-            +0.000f, +0.165f, -0.986f, +0.000f,
-            +89.500f, +157.642f, -381.373f, +1.000f
-           ));
+             (
+                   +1.000f, +0.000f, +0.000f, +0.000f,
+                   +0.000f, -0.877f, -0.481f, +0.000f,
+                   +0.000f, +0.481f, -0.877f, +0.000f,
+                 +156.700f, +305.124f, -265.448f, +1.000f
+             ));
+
 
             cam.UpdateProjection(GraphicsDevice);
 
@@ -240,6 +241,11 @@ namespace ShaderExamples
                 $" \n {lightPosition.ToTrimmedString("LightPosition")}" +
                 $" \n"
                 ;
+
+
+            if (Keys.End.IsKeyPressedWithDelay(gameTime))
+                Console.WriteLine($"{cam.cameraWorld.ToDisplayMatrixForCopy("cameraWorld") } ");
+
             spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Blue);
             spriteBatch.End();
         }
