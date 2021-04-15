@@ -1,4 +1,5 @@
-﻿// Reference
+﻿// References
+// 
 //
 // struct semantics
 //     float2 TexureCoordinate : TEXCOORD0; //float4 Color : COLOR0; //float3 Normal : NORMAL0; //float3 Tangent : NORMAL1; //float4 BoneIds : BLENDINDICES; //float4 BoneWeights : BLENDWEIGHT;
@@ -305,13 +306,13 @@ float4 PS_PhongWithNormalMapEnviromentalMap(VertexShaderOutput input) : COLOR
 	float3 green = float3(0, 1, 0);
 	float3 blue = float3(0, 0, 1);
 
-	//float3 specularColor = col.rgb * envSpecularReflectiveCol * Stheta * SpecularStrength;
-	//float3 diffuseColor = col.rgb * NdotL * DiffuseStrength; // normal mapping applys most directly to diffuse.
-	//float3 ambientColor = col.rgb * AmbientStrength;
-	//col.rgb = (diffuseColor + specularColor + ambientColor);  // * envSpecularReflectiveCol
+	float3 specularColor = col.rgb * envSpecularReflectiveCol * Stheta * SpecularStrength;
+	float3 diffuseColor = col.rgb * NdotL * DiffuseStrength; // normal mapping applys most directly to diffuse.
+	float3 ambientColor = col.rgb * AmbientStrength;
+	col.rgb = (diffuseColor + specularColor + ambientColor);  // * envSpecularReflectiveCol
 
-	col.rgb *= 0.01f;
-	col.rgb =  R;
+	//col.rgb *= 0.01f;
+	//col.rgb =  R;
 	//col.rgb += Stheta * 0.5f;
 	return col;
 }
@@ -487,6 +488,285 @@ technique Render_CubeWithEnviromentalLight
 			PS_RenderCubeWithEnviromentalLight();
 	}
 };
+
+
+
+//
+
+////_______________________________________________________________
+//// technique
+//// Render shadow depth
+////_______________________________________________________________/
+//struct VsInputCalcSceneDepth
+//{
+//	float4 Position : POSITION0;
+//};
+//struct VsOutputCalcSceneDepth
+//{
+//	float4 Position     : SV_Position;
+//	float4 Position3D    : TEXCOORD0;
+//};
+//// Shader.
+//VsOutputCalcSceneDepth CreateDepthMapVertexShader(VsInputCalcSceneDepth input)//(float4 inPos : POSITION)
+//{
+//	VsOutputCalcSceneDepth output;
+//	output.Position3D = mul(input.Position, World);
+//	float4x4 vp = mul(View, Projection);
+//	output.Position = mul(output.Position3D, vp);
+//
+//	return output;
+//}
+//float4 CreateDepthMapPixelShader(VsOutputCalcSceneDepth input) : COLOR
+//{
+//	//float4 depth = EncodeFloatRGBA(length(WorldLightPosition - input.Position3D));
+//	//return depth; //distance(WorldLightPosition, input.Position3D);
+//	//return Square(WorldLightPosition - input.Position3D); // might even be a little worse
+//	return length(LightPosition - input.Position3D);
+//}
+//
+//technique RenderShadowDepth
+//{
+//	pass Pass0
+//	{
+//		VertexShader = compile VS_SHADERMODEL CreateDepthMapVertexShader();
+//		PixelShader = compile PS_SHADERMODEL CreateDepthMapPixelShader();
+//	}
+//}
+//
+////_______________________________________________________________
+//// technique 
+//// ReflectionWaterShader.  
+////
+//// TextureCubeSampler InflectionOrReflectionVector ReflectiveTextureContribution, TransparencyOverride
+////_______________________________________________________________
+//// ToDo ....  
+////__________________________________________________________
+//
+//struct VsInReflectionWater
+//{
+//	float4 Position : POSITION0;
+//	float3 Normal : NORMAL0;
+//	float2 TexureCoordinateA : TEXCOORD0;
+//};
+//struct VsOutReflectionWater
+//{
+//	float4 Position : SV_Position;
+//	float2 TexureCoordinateA : TEXCOORD0;
+//	float4 Position3D    : TEXCOORD1;
+//	float3 Normal : TEXCOORD2;
+//	//float3 thisToPixel : TEXCOORD3;
+//};
+//// shaders
+//VsOutReflectionWater VsReflectionWater(VsInReflectionWater input)
+//{
+//	VsOutReflectionWater output;
+//	output.Position3D = mul(input.Position, World);
+//	//output.thisToPixel = output.Position3D - World._m30_m31_m32;
+//	float4x4 vp = mul(View, Projection);
+//	output.Position = mul(output.Position3D, vp);
+//	output.TexureCoordinateA = input.TexureCoordinateA;
+//	output.Normal = normalize(mul(input.Normal, World)); // Reminder, if we want to rotate a scaled world normal we need to renormalize it.
+//	return output;
+//}
+////// this one is more complicated it has to have regular attributes while drawn for reflection and different ones when drawn.
+//float4 PsReflectionWater(VsOutReflectionWater input) : Color
+//{
+//	float3 cubeDir = normalize(input.Position3D - InflectionOrReflectionVector);
+//	float4 reflectionCubeColor = texCUBE(TextureCubeSampler, cubeDir);
+//	float4 texelColor = tex2D(TextureSamplerA, input.TexureCoordinateA);
+//	//float4 resultColor = (0.9f * reflectionCubeColor) + (texelColor * 0.1f);
+//	//return float4(resultColor.xyz, 1.0f);
+//	float4 resultColor = ((1.0f - ReflectiveTextureContribution) * reflectionCubeColor) + (texelColor * ReflectiveTextureContribution);
+//	return float4(resultColor.xyz, (1.0f - TransparencyOverride));
+//}
+//technique ReflectionWaterShader
+//{
+//	pass
+//	{
+//		VertexShader = compile VS_SHADERMODEL 
+//			VsReflectionWater();
+//		PixelShader = compile PS_SHADERMODEL 
+//			PsReflectionWater();
+//	}
+//}
+//
+////_______
+//
+////_______________________________________________________________
+//// technique
+//// Tranparency.
+////
+////
+////_______________________________________________________________
+//struct VsInTranparency
+//{
+//	float4 Position : POSITION0;
+//	float2 TexureCoordinateA : TEXCOORD0;
+//};
+//struct VsOutTranparency
+//{
+//	float4 Position : SV_Position;
+//	float2 TexureCoordinateA : TEXCOORD0;
+//	//float2 Depth : TEXCOORD1;
+//};
+//
+//// shaders
+//VsOutTranparency VsTranparency(VsInTranparency input)
+//{
+//	VsOutTranparency output;
+//	float4 wpos = mul(input.Position, World);
+//	float4x4 vp = mul(View, Projection);
+//	output.Position = mul(wpos, vp);
+//	output.TexureCoordinateA = input.TexureCoordinateA;
+//	//output.Depth.x = output.Position.z;
+//	//output.Depth.y = output.Position.w;
+//	return output;
+//}
+//float4 PsTranparency(VsOutTranparency input) : COLOR
+//{
+//	float4 texelcolor = tex2D(TextureSamplerA, input.TexureCoordinateA);
+//	// AlphaDiscardThreshold)   // .02f if (output.Color.a < alphaTestValue)
+//	if (texelcolor.a < 0.0f)
+//	{
+//		clip(-1);
+//	}
+//	return texelcolor;
+//}
+//technique Transparency
+//{
+//	pass
+//	{
+//		VertexShader = compile VS_SHADERMODEL VsTranparency();
+//		PixelShader = compile PS_SHADERMODEL PsTranparency();
+//	}
+//}
+//
+////_______________________________________________________________
+//// technique
+//// LightShadowShader 
+////
+//// This uses a normal from the vertex structure it uses a depth map for shadows and makes light.
+////
+//// WorldLightPosition
+////_______________________________________________________________
+//struct VsInLightShadowNormal
+//{
+//	float4 Position : POSITION0;
+//	float3 Normal : NORMAL0;
+//	float2 TexureCoordinateA : TEXCOORD0;
+//};
+//struct VsOutLightShadowNormal
+//{
+//	float4 Position : SV_Position;
+//	float2 TexureCoordinateA : TEXCOORD0;
+//	float4 Position3D    : TEXCOORD1;
+//	float3 Normal : TEXCOORD2;
+//};
+//// shaders
+//VsOutLightShadowNormal VsLightShadowNormal(VsInLightShadowNormal input)
+//{
+//	VsOutLightShadowNormal output;
+//	output.Position3D = mul(input.Position, World);
+//	float4x4 vp = mul(View, Projection);
+//	output.Position = mul(output.Position3D, vp);
+//	output.TexureCoordinateA = input.TexureCoordinateA;
+//	output.Normal = normalize(mul(input.Normal, World)); // Reminder, if we want to rotate a scaled world normal we need to renormalize it.
+//	return output;
+//}
+//
+//float4 PsLightShadowNormal(VsOutLightShadowNormal input) : Color
+//{
+//	float3 temp = WorldLightPosition - input.Position3D;
+//	float distancePixelToLight = length(temp);
+//	//
+//	float3 surfaceToCamera = normalize(CameraPosition - input.Position3D);
+//	float3 surfaceToLight = temp / distancePixelToLight; // cheapen the normalize. normalize(pixelToLight);
+//	float3 lightToSurface = -surfaceToLight;
+//	//
+//	float shadowDepth = texCUBE(TextureDepthSampler, float4(lightToSurface, 0)).x;
+//	float4 TexelColor = tex2D(TextureSamplerA, input.TexureCoordinateA) * (1.0f - LightVsTexelRatio) + (LightColor * LightVsTexelRatio); // LightVsTexelRatio == .5 is normal
+//																																		 // shadow 
+//	float lightFalloff = (1.0f - saturate(distancePixelToLight / (IlluminationRange + 0.001f)));
+//	float LightDistanceIntensity = saturate(sign((shadowDepth + .2f) - distancePixelToLight)) * lightFalloff; // if else replacement.
+//	// lighting
+//	float3 normal = input.Normal;
+//	float diffuse = saturate((dot(lightToSurface, -normal) + DiffuseCresting) * (1.0f / (1.0f + DiffuseCresting))); // I've added over or underdraw to the diffuse.
+//	float3 reflectionTheta = dot(surfaceToCamera,  -reflect(surfaceToLight, normal));
+//	float specular = saturate(reflectionTheta - SpecularSharpness) * (1.0f / (1.0f - SpecularSharpness)); // this is for sharpness
+//	// finalize it.
+//	float3 additiveAmbient = AmbientStrength;
+//	float3 additiveDiffuse = diffuse * DiffuseStrength * LightDistanceIntensity;
+//	float3 additiveSpecular = specular * SpecularStrength * LightDistanceIntensity;
+//	float3 FinalColor = TexelColor * (additiveAmbient + additiveDiffuse + additiveSpecular);  //  *float4(1.0f, 0.0f, 0.0f, 0.0f);
+//	return float4(FinalColor, 1.0f);
+//}
+//
+//technique LightShadowShader
+//{
+//	pass
+//	{
+//		VertexShader = compile VS_SHADERMODEL VsLightShadowNormal();
+//		PixelShader = compile PS_SHADERMODEL PsLightShadowNormal();
+//	}
+//}
+//
+//
+//
+////___
+//
+//
+////_______________________________________________________________
+//// technique 
+//// DepthVisualization
+////_______________________________________________________________
+//// shaders
+//struct VsInDepthVisualization
+//{
+//	float4 Position : POSITION0;
+//	float3 Normal : NORMAL0;
+//	float2 TexureCoordinateA : TEXCOORD0;
+//};
+//struct VsOutDepthVisualization
+//{
+//	float4 Position : SV_Position;
+//	float3 Dir3D    : TEXCOORD1;
+//	float2 TexureCoordinateA : TEXCOORD0;
+//};
+//
+//VsOutDepthVisualization VsDepthVisualization(VsInDepthVisualization input)
+//{
+//	VsOutDepthVisualization output;
+//	float4 worldPos = float4(WorldLightPosition + input.Position, 1);
+//	float4x4 vp = mul(View, Projection);
+//	output.Position = mul(worldPos, vp);
+//	output.Dir3D = input.Position;
+//	output.TexureCoordinateA = input.TexureCoordinateA;
+//	return output;
+//}
+//
+//// regular
+//float4 PsDepthVisualization(VsOutDepthVisualization input) : COLOR
+//{
+//	float4 texelcolor = tex2D(TextureSamplerA, input.TexureCoordinateA);
+//	float shadowDepth = DecodeFloatRGB(texCUBE(TextureDepthSampler, float4(input.Dir3D, 0)).xyz);
+//
+//	float3 c = EncodeFloatRGB(shadowDepth);
+//	float4 shadowVisualColoring = shadowDepth * 0.01 * float4(c.z,c.y,c.x , 1.0f);
+//	return  saturate(shadowVisualColoring);
+//}
+//
+//technique DepthVisualization
+//{
+//	pass
+//	{
+//		VertexShader = compile VS_SHADERMODEL VsDepthVisualization();
+//		PixelShader = compile PS_SHADERMODEL PsDepthVisualization();
+//	}
+//}
+
+
+
+
 
 
 

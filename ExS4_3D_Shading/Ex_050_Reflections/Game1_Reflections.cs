@@ -10,7 +10,7 @@ namespace ShaderExamples
     public class Game1_Reflections : Game
     {
         bool manuallyRotateLight = false;
-        bool displayExtraVisualStuff = false;
+        bool displayExtraVisualStuff = true;
         bool displayMesh = true;
         bool displayWireframe = false;
         bool displayNormals = true;
@@ -148,7 +148,7 @@ namespace ShaderExamples
             // Brick_em , Brick_Nmap_en , Brick_Nmap_en_yfliped  ,  Brick_Nmap_noyflip_em  ,  walltomap wallnormmap  wallnormmapGimp
             //
 
-            textureHdrLdrSphere = Content.Load<Texture2D>("QuarrySquare");
+            textureHdrLdrSphere = Content.Load<Texture2D>("Eqr001_Diffuse");  // QuarrySquare  Eqr001_Diffuse  Eqr001_Diffuse_irradiance
             textureSphereNormalMap = Content.Load<Texture2D>("wallnormmap");
 
 
@@ -174,7 +174,8 @@ namespace ShaderExamples
                 dotTextureGreen,
                 false, false, textureMonogameLogo.Width
             );
-            generatedTextureHdrLdrFromCubeMap = TextureCubeTypeConverter.ConvertTextureCubeToSphericalTexture2D(GraphicsDevice, textureCubeDiffuse, false, false, 256);
+            
+            generatedTextureHdrLdrFromCubeMap = TextureCubeTypeConverter.ConvertTextureCubeToSphericalTexture2D(GraphicsDevice, textureCubeEnv2, false, false, 256); // textureCubeDiffuse
             generatedTextureFaceArrayFromCubemap = TextureCubeTypeConverter.ConvertTextureCubeToTexture2DArray(GraphicsDevice, textureCubeDiffuse, false, false, 256);
             generatedTextureHdrLdrFromSingleImages = TextureCubeTypeConverter.ConvertTexture2DArrayToSphericalTexture2D(GraphicsDevice, generatedTextureFaceArrayFromCubemap, false, false, 256);
             generatedTextureFaceArrayFromHdrLdr = TextureCubeTypeConverter.ConvertSphericalTexture2DToTexture2DArray(GraphicsDevice, textureHdrLdrSphere, false, false, 256);
@@ -670,7 +671,6 @@ namespace ShaderExamples
                     $" \n  " +
                     $" \n"
                     ;
-
 
             if (displayOnScreenTextInfo)
                 spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Red);

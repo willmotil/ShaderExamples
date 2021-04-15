@@ -58,6 +58,30 @@
 /processorParam:TextureFormat=Color
 /build:Images/BloomTestImage.png
 
+#begin Images/Eqr001_Diffuse.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Eqr001_Diffuse.png
+
+#begin Images/Eqr001_Diffuse_irradiance.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/Eqr001_Diffuse_irradiance.png
+
 #begin Images/gamma_correction_brightness.png
 /importer:TextureImporter
 /processor:TextureProcessor

@@ -2,6 +2,9 @@
 // https://www.geeks3d.com/20141201/how-to-rotate-a-vertex-by-a-quaternion-in-glsl/
 // https://code.google.com/archive/p/kri/wikis/Quaternions.wiki
 // http://eigen.tuxfamily.org/dox/classEigen_1_1AngleAxis.html
+// 
+// https://www.fatalerrors.org/a/physical-based-ambient-lighting-diffuse-irradiance.html
+// http://www.cse.chalmers.se/edu/course/TDA362/tutorials/lab4.html
 
 
 // nameing this version 4 april 12 cause i got to many of this class file copied and modified all over.
