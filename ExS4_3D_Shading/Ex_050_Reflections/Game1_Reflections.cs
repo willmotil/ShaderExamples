@@ -29,16 +29,18 @@ namespace ShaderExamples
             font2, 
             font3
             ;
-        TextureCube textureCubeDiffuse, textureCubeEnv, textureCubeEnv2;
+        TextureCube textureCubeDiffuse, textureCubeDiffuseIrradiance, textureCubeEnv2;
         Texture2D 
-            textureMesh , textureMeshNormalMap,
-            textureMesh2, textureMeshNormalMap2,
-            textureHdrLdrSphere, textureSphereNormalMap,
+            textureMesh1DemoQuad , textureMesh1NormalMapDemoQuad,
+            textureMesh2Terrain, textureMesh2NormalMapTerrain,
+            textureMesh3Water, textureMesh3NormalMapWater,
+            textureHdrLdrSphere, textureHdrLdrSphereIllumination, textureSphereNormalMap,
             textureMonogameLogo, miscTexture, 
             dotTextureRed, dotTextureBlue, dotTextureGreen, dotTextureYellow, dotTextureWhite
             ;
         Texture2D
-            generatedTextureHdrLdrFromSingleImages, generatedTextureHdrLdrFromCubeMap
+            generatedTextureHdrLdrFromSingleImages, generatedTextureHdrLdrFromCubeMap,
+            faceFront, faceBack, faceLeft, faceRight, faceTop, faceBottom
             ;
         Texture2D[]
             generatedTextureFaceArrayFromCubemap, generatedTextureFaceArrayFromHdrLdr //, loadedOrAssignedArray
@@ -46,10 +48,10 @@ namespace ShaderExamples
         RenderTarget2D rtScene;
         CameraAndKeyboardControls cam = new CameraAndKeyboardControls();
 
-        PrimitiveIndexedMesh mesh, mesh2;
-        VisualizationNormals visualMeshNormals = new VisualizationNormals();
-        VisualizationNormals visualMeshTangents = new VisualizationNormals();
-        VisualizationLine visualLightLineToMesh;
+        PrimitiveIndexedMesh mesh1DemoQuad, mesh2Terrain, mesh3Water;
+        VisualizationNormals visualMesh1Normals = new VisualizationNormals();
+        VisualizationNormals visualMesh1Tangents = new VisualizationNormals();
+        VisualizationLine visualLightLineToMesh1;
 
         public static int numberOfSpheres = 2;
         PrimitiveSphere[] spheres = new PrimitiveSphere[numberOfSpheres];
@@ -146,37 +148,45 @@ namespace ShaderExamples
             //
             // RefactionTexture has the opposite encoding walltomap wallnormmap TestNormalMap  Flower-normal , Flower-diffuse  Flower-bump  Flower-ambientocclusion  Quarry  QuarrySquare MG_Logo_Modifyed TextureAlignmentTestImage2
             // Brick_em , Brick_Nmap_en , Brick_Nmap_en_yfliped  ,  Brick_Nmap_noyflip_em  ,  walltomap wallnormmap  wallnormmapGimp
-            //
+            // QuarrySquare  Eqr001_Diffuse  Eqr001_Diffuse_irradiance    Content.Load<Texture2D>("");
 
-            textureHdrLdrSphere = Content.Load<Texture2D>("Eqr001_Diffuse");  // QuarrySquare  Eqr001_Diffuse  Eqr001_Diffuse_irradiance
+            faceFront = Content.Load<Texture2D>("Face_Front");
+            faceBack = Content.Load<Texture2D>("Face_Back");
+            faceLeft = Content.Load<Texture2D>("Face_Left");
+            faceRight = Content.Load<Texture2D>("Face_Right");
+            faceTop = Content.Load<Texture2D>("Face_Top");
+            faceBottom = Content.Load<Texture2D>("Face_Bottom");
+
+            textureHdrLdrSphere = Content.Load<Texture2D>("Eqr001_Diffuse");  
+            textureHdrLdrSphereIllumination = Content.Load<Texture2D>("Eqr001_Diffuse_irradiance");
             textureSphereNormalMap = Content.Load<Texture2D>("wallnormmap");
 
+            textureMesh1DemoQuad = dotTextureWhite;
+            textureMesh2Terrain = Content.Load<Texture2D>("MG_Logo_Modifyed"); 
+            textureMesh3Water = dotTextureWhite;   
 
-            textureMesh = dotTextureWhite;
-            textureMesh2 = Content.Load<Texture2D>("walltomap");
-            //textureMesh2 = Content.Load<Texture2D>("Brick_em");
-
-            textureMeshNormalMap = Content.Load<Texture2D>("TestNormalMap");
-            textureMeshNormalMap2 = Content.Load<Texture2D>("wallnormmapGimp");  // wallnormmap
-            //textureMeshNormalMap2 = Content.Load<Texture2D>("Brick_Nmap_en_yfliped");  // argg Brick_Nmap_noyflip_em   Brick_Nmap_en_yfliped
+            textureMesh1NormalMapDemoQuad = Content.Load<Texture2D>("TestNormalMap");
+            textureMesh2NormalMapTerrain = Content.Load<Texture2D>("wallnormmapGimp"); 
+            textureMesh3NormalMapWater = Content.Load<Texture2D>("TestNormalMap"); //dotTextureWhite;
 
             TextureCubeTypeConverter.Load(Content);
-            textureCubeDiffuse = TextureCubeTypeConverter.ConvertSphericalTexture2DToTextureCube(GraphicsDevice, miscTexture, false, false, miscTexture.Width);
-            textureCubeEnv = TextureCubeTypeConverter.ConvertSphericalTexture2DToTextureCube(GraphicsDevice, textureHdrLdrSphere, false, false, textureHdrLdrSphere.Width);
+            textureCubeDiffuse = TextureCubeTypeConverter.ConvertSphericalTexture2DToTextureCube(GraphicsDevice, textureHdrLdrSphere, false, false, textureHdrLdrSphere.Width);
+            textureCubeDiffuseIrradiance = TextureCubeTypeConverter.ConvertSphericalTexture2DToTextureCube(GraphicsDevice, textureHdrLdrSphereIllumination , false, false, textureHdrLdrSphereIllumination.Width); //
+            
             textureCubeEnv2 = TextureCubeTypeConverter.ConvertTexture2DsToTextureCube
             (
                 GraphicsDevice,
-                textureMonogameLogo,
-                textureSphereNormalMap,
-                dotTextureBlue,
-                dotTextureRed,
-                dotTextureYellow,
-                dotTextureGreen,
+                faceRight,
+                faceTop,
+                faceFront,
+                faceLeft,
+                faceBottom,
+                faceBack,
                 false, false, textureMonogameLogo.Width
             );
             
             generatedTextureHdrLdrFromCubeMap = TextureCubeTypeConverter.ConvertTextureCubeToSphericalTexture2D(GraphicsDevice, textureCubeEnv2, false, false, 256); // textureCubeDiffuse
-            generatedTextureFaceArrayFromCubemap = TextureCubeTypeConverter.ConvertTextureCubeToTexture2DArray(GraphicsDevice, textureCubeDiffuse, false, false, 256);
+            generatedTextureFaceArrayFromCubemap = TextureCubeTypeConverter.ConvertTextureCubeToTexture2DArray(GraphicsDevice, textureCubeDiffuseIrradiance, false, false, 256);
             generatedTextureHdrLdrFromSingleImages = TextureCubeTypeConverter.ConvertTexture2DArrayToSphericalTexture2D(GraphicsDevice, generatedTextureFaceArrayFromCubemap, false, false, 256);
             generatedTextureFaceArrayFromHdrLdr = TextureCubeTypeConverter.ConvertSphericalTexture2DToTexture2DArray(GraphicsDevice, textureHdrLdrSphere, false, false, 256);
         }
@@ -204,47 +214,67 @@ namespace ShaderExamples
             switch (option)
             {
                 case "regularGrid":
-                    mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(300f, 250, 0f), false, false, false);
+                    mesh1DemoQuad = new PrimitiveIndexedMesh(5, 5, new Vector3(300f, 250, 0f), false, false, false);
                     thickness = .2f; normtanLinescale = 20f;
                     break;
                 case "heightMap":
-                    mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3(300f, 250, 70f), false, false, false);
+                    mesh1DemoQuad = new PrimitiveIndexedMesh(heightMap, 9, new Vector3(300f, 250, 70f), false, false, false);
                     thickness = .1f; normtanLinescale = 10f;
                     break;
                 case "textureAsHeightMap":
-                    PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_HIGHEST;
-                    mesh = new PrimitiveIndexedMesh(textureMesh, new Vector3(300f, 250, 5f), false, false, false);
+                    PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVG_OPTION_USE_HIGHEST_RGB;
+                    mesh1DemoQuad = new PrimitiveIndexedMesh(textureMesh1DemoQuad, new Vector3(300f, 250, 5f), false, false, false);
                     thickness = .01f; normtanLinescale = 10f;
                     break;
             }
-            mesh.SetWorldTransformation(new Vector3(0, 0, 0), Vector3.Forward, Vector3.Up , Vector3.One);
-            mesh.DiffuseTexture = textureMesh;
-            mesh.NormalMapTexture = textureMeshNormalMap;
+            mesh1DemoQuad.SetWorldTransformation(new Vector3(0, 0, 0), Vector3.Forward, Vector3.Up , Vector3.One);
+            mesh1DemoQuad.DiffuseTexture = textureMesh1DemoQuad;
+            mesh1DemoQuad.NormalMapTexture = textureMesh1NormalMapDemoQuad;
 
-            visualMeshNormals = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureGreen, thickness, normtanLinescale, false);
-            visualMeshTangents = CreateVisualNormalLines(mesh.vertices, mesh.indices, dotTextureYellow, thickness, normtanLinescale, true);
-            visualLightLineToMesh = CreateVisualLine(dotTextureWhite, mesh.Center, lightStartPosition, 1, Color.White);
+            visualMesh1Normals = CreateVisualNormalLines(mesh1DemoQuad.vertices, mesh1DemoQuad.indices, dotTextureGreen, thickness, normtanLinescale, false);
+            visualMesh1Tangents = CreateVisualNormalLines(mesh1DemoQuad.vertices, mesh1DemoQuad.indices, dotTextureYellow, thickness, normtanLinescale, true);
+            visualLightLineToMesh1 = CreateVisualLine(dotTextureWhite, mesh1DemoQuad.Center, lightStartPosition, 1, Color.White);
 
 
             // mesh 2
+
+            option = "textureAsHeightMap";
+            switch (option)
+            {
+                case "regularGrid":
+                    mesh2Terrain = new PrimitiveIndexedMesh(5, 5, new Vector3(1000f, 1000, 0f), false, false, false);
+                    break;
+                case "heightMap":
+                    mesh2Terrain = new PrimitiveIndexedMesh(heightMap, 9, new Vector3(1000f, 1000, 70f), false, false, false);
+                    break;
+                case "textureAsHeightMap":
+                    PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVG_OPTION_USE_PREMULT_NON_ALPHA_AS_ONE;
+                    mesh2Terrain = new PrimitiveIndexedMesh(textureMesh2Terrain, new Vector3(1000f, 1000, 50f), false, false, false);
+                    break;
+            }
+            mesh2Terrain.SetWorldTransformation(new Vector3(-300, +300, 550), Vector3.Down, Vector3.Forward, Vector3.One);
+            mesh2Terrain.DiffuseTexture = textureMesh2Terrain;
+            mesh2Terrain.NormalMapTexture = textureMesh2NormalMapTerrain;
+
+            // mesh 3
 
             option = "regularGrid";
             switch (option)
             {
                 case "regularGrid":
-                    mesh2 = new PrimitiveIndexedMesh(5, 5, new Vector3(1000f, 1000, 0f), false, false, false);
+                    mesh3Water = new PrimitiveIndexedMesh(5, 5, new Vector3(1000f, 1000, 0f), false, false, false);
                     break;
                 case "heightMap":
-                    mesh2 = new PrimitiveIndexedMesh(heightMap, 9, new Vector3(1000f, 1000, 70f), false, false, false);
+                    mesh3Water = new PrimitiveIndexedMesh(heightMap, 9, new Vector3(1000f, 1000, 70f), false, false, false);
                     break;
                 case "textureAsHeightMap":
-                    PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_HIGHEST;
-                    mesh2 = new PrimitiveIndexedMesh(textureMeshNormalMap2, new Vector3(1000f, 1000, 20f), false, false, false);
+                    PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVG_OPTION_USE_HIGHEST_RGB;
+                    mesh3Water = new PrimitiveIndexedMesh(textureMesh3NormalMapWater, new Vector3(1000f, 1000, 20f), false, false, false);
                     break;
             }
-            mesh2.SetWorldTransformation(new Vector3(-300, +300, 550), Vector3.Down, Vector3.Forward, Vector3.One);
-            mesh2.DiffuseTexture = textureMesh2;
-            mesh2.NormalMapTexture = textureMeshNormalMap2;
+            mesh3Water.SetWorldTransformation(new Vector3(-300, +280, 550), Vector3.Down, Vector3.Forward, Vector3.One);
+            mesh3Water.DiffuseTexture = textureMesh3Water;
+            mesh3Water.NormalMapTexture = textureMesh3NormalMapWater;
         }
 
         public void CreateSpheres()
@@ -268,7 +298,7 @@ namespace ShaderExamples
                     case 1:
                         usage = PrimitiveSphere.USAGE_SKYSPHERE_UNDER_CCW; 
                         scale = 500;
-                        CreateSphere(textureCubeEnv, ref spheres[index], ref visualSphereNormals[index], ref visualSphereTangents[index], ref visualLightLineToSpheres[index], sphereCenters[index], scale, usage, false, false);
+                        CreateSphere(textureCubeDiffuse, ref spheres[index], ref visualSphereNormals[index], ref visualSphereTangents[index], ref visualLightLineToSpheres[index], sphereCenters[index], scale, usage, false, false);
                         break;
                     case 2:
                         usage = PrimitiveSphere.USAGE_CUBE_UNDER_CW; 
@@ -278,7 +308,7 @@ namespace ShaderExamples
                     case 3:
                         usage = PrimitiveSphere.USAGE_SKYSPHERE_UNDER_CW; 
                         scale = 500;
-                        CreateSphere(textureCubeEnv, ref spheres[index], ref visualSphereNormals[index], ref visualSphereTangents[index], ref visualLightLineToSpheres[index], sphereCenters[index], scale, usage, false, false);
+                        CreateSphere(textureCubeDiffuse, ref spheres[index], ref visualSphereNormals[index], ref visualSphereTangents[index], ref visualLightLineToSpheres[index], sphereCenters[index], scale, usage, false, false);
                         break;
                 }
             }
@@ -327,9 +357,9 @@ namespace ShaderExamples
             ReflectionsEffectClass.Load(Content);
             ReflectionsEffectClass.Technique_Render_PhongWithNormMapEnviromentalLight();
             ReflectionsEffectClass.TextureCubeDiffuse = textureCubeDiffuse;
-            ReflectionsEffectClass.TextureCubeEnviromental = textureCubeEnv;
-            ReflectionsEffectClass.TextureDiffuse = textureMesh;
-            ReflectionsEffectClass.TextureNormalMap = textureMeshNormalMap;
+            ReflectionsEffectClass.TextureCubeEnviromental = textureCubeDiffuseIrradiance;
+            ReflectionsEffectClass.TextureDiffuse = textureMesh1DemoQuad;
+            ReflectionsEffectClass.TextureNormalMap = textureMesh1NormalMapDemoQuad;
             ReflectionsEffectClass.AmbientStrength = 0.4f;
             ReflectionsEffectClass.DiffuseStrength = .30f;
             ReflectionsEffectClass.SpecularStrength = .30f;
@@ -378,37 +408,37 @@ namespace ShaderExamples
 
             if (Keys.U.IsKeyDown())
             {
-                mesh.Position = mesh.Position + new Vector3(.1f, 0, 0);
+                mesh1DemoQuad.Position = mesh1DemoQuad.Position + new Vector3(.1f, 0, 0);
                 spheres[0].Position = spheres[0].Position + new Vector3(.1f, 0f, 0f);
             }
             if (Keys.J.IsKeyDown())
             {
-                mesh.Position = mesh.Position + new Vector3(-.1f, 0f, 0f);
+                mesh1DemoQuad.Position = mesh1DemoQuad.Position + new Vector3(-.1f, 0f, 0f);
                 spheres[0].Position = spheres[0].Position + new Vector3(-.1f, 0f, 0f);
             }
             if (Keys.H.IsKeyDown())
             {
-                mesh.Position = mesh.Position + new Vector3(0f, .1f, 0);
+                mesh1DemoQuad.Position = mesh1DemoQuad.Position + new Vector3(0f, .1f, 0);
                 spheres[0].Position = spheres[0].Position + new Vector3(0f, .1f, 0f);
             }
             if (Keys.K.IsKeyDown())
             {
-                mesh.Position = mesh.Position + new Vector3(0f, -.1f, 0f);
+                mesh1DemoQuad.Position = mesh1DemoQuad.Position + new Vector3(0f, -.1f, 0f);
                 spheres[0].Position = spheres[0].Position + new Vector3(0f, -.1f, 0f);
             }
             if (Keys.Y.IsKeyDown())
             {
-                mesh.Position = mesh.Position + new Vector3(0f, 0f, .1f);
+                mesh1DemoQuad.Position = mesh1DemoQuad.Position + new Vector3(0f, 0f, .1f);
                 spheres[0].Position = spheres[0].Position + new Vector3(0f, 0f, .1f);
             }
             if (Keys.I.IsKeyDown())
             {
-                mesh.Position = mesh.Position + new Vector3(0f, 0f, -.1f);
+                mesh1DemoQuad.Position = mesh1DemoQuad.Position + new Vector3(0f, 0f, -.1f);
                 spheres[0].Position = spheres[0].Position + new Vector3(0f, 0f, -.1f);
             }
             if (Keys.F12.IsKeyDown())
             {
-                mesh.Position = new Vector3(0f, 0f, 0);
+                mesh1DemoQuad.Position = new Vector3(0f, 0f, 0);
                 spheres[0].Position = new Vector3(0f, 0f, 0);
             }
 
@@ -449,7 +479,7 @@ namespace ShaderExamples
             if (lightRotationRadiansY < 0)
                 lightRotationRadiansY = 6.283f;
 
-            visualLightLineToMesh.ReCreateVisualLine(dotTextureRed, mesh.Center, lightPosition, 1, Color.Green);
+            visualLightLineToMesh1.ReCreateVisualLine(dotTextureRed, mesh1DemoQuad.Center, lightPosition, 1, Color.Green);
             for (int index = 0; index < spheres.Length; index++)
             {
                 visualLightLineToSpheres[index].ReCreateVisualLine(dotTextureWhite, spheres[index].Position, lightPosition, 1, Color.Blue);
@@ -511,7 +541,7 @@ namespace ShaderExamples
                 }
                 ReflectionsEffectClass.World = spheres[index].WorldTransformation;
                 ReflectionsEffectClass.TextureCubeDiffuse = spheres[index].textureCube;
-                ReflectionsEffectClass.TextureCubeEnviromental = textureCubeEnv;
+                ReflectionsEffectClass.TextureCubeEnviromental = textureCubeDiffuseIrradiance;
                 spheres[index].DrawPrimitiveSphere(GraphicsDevice, ReflectionsEffectClass.effect);
             }
 
@@ -519,22 +549,29 @@ namespace ShaderExamples
             // M E S H
 
             if (displayWhiteDiffuse)
-                mesh.DiffuseTexture = dotTextureWhite;
+                mesh1DemoQuad.DiffuseTexture = dotTextureWhite;
             else
-                mesh.DiffuseTexture = mesh.DiffuseTexture;
+                mesh1DemoQuad.DiffuseTexture = mesh1DemoQuad.DiffuseTexture;
 
             // mesh 1
             ReflectionsEffectClass.Technique_Render_PhongWithNormMapEnviromentalLight();
-            ReflectionsEffectClass.World = mesh.WorldTransformation;
-            ReflectionsEffectClass.TextureDiffuse = mesh.DiffuseTexture;
-            ReflectionsEffectClass.TextureNormalMap = mesh.NormalMapTexture;
-            mesh.DrawPrimitive(GraphicsDevice, ReflectionsEffectClass.effect);
+            ReflectionsEffectClass.World = mesh1DemoQuad.WorldTransformation;
+            ReflectionsEffectClass.TextureDiffuse = mesh1DemoQuad.DiffuseTexture;
+            ReflectionsEffectClass.TextureNormalMap = mesh1DemoQuad.NormalMapTexture;
+            mesh1DemoQuad.DrawPrimitive(GraphicsDevice, ReflectionsEffectClass.effect);
 
             // mesh 2
-            ReflectionsEffectClass.World = mesh2.WorldTransformation;
-            ReflectionsEffectClass.TextureDiffuse = mesh2.DiffuseTexture;
-            ReflectionsEffectClass.TextureNormalMap = mesh2.NormalMapTexture;
-            mesh2.DrawPrimitive(GraphicsDevice, ReflectionsEffectClass.effect);
+            ReflectionsEffectClass.World = mesh2Terrain.WorldTransformation;
+            ReflectionsEffectClass.TextureDiffuse = mesh2Terrain.DiffuseTexture;
+            ReflectionsEffectClass.TextureNormalMap = mesh2Terrain.NormalMapTexture;
+            mesh2Terrain.DrawPrimitive(GraphicsDevice, ReflectionsEffectClass.effect);
+
+            // mesh 3
+            ReflectionsEffectClass.World = mesh3Water.WorldTransformation;
+            ReflectionsEffectClass.TextureDiffuse = mesh3Water.DiffuseTexture;
+            ReflectionsEffectClass.TextureNormalMap = mesh3Water.NormalMapTexture;
+            ReflectionsEffectClass.TextureCubeEnviromental = textureCubeDiffuse;
+            mesh3Water.DrawPrimitive(GraphicsDevice, ReflectionsEffectClass.effect);
 
             // W I R E F R A M E
 
@@ -549,10 +586,10 @@ namespace ShaderExamples
                     spheres[index].DrawPrimitiveSphere(GraphicsDevice, ReflectionsEffectClass.effect);
                 }
 
-                ReflectionsEffectClass.World = mesh.WorldTransformation;
-                mesh.DrawPrimitive(GraphicsDevice, ReflectionsEffectClass.effect);
-                ReflectionsEffectClass.World = mesh2.WorldTransformation;
-                mesh2.DrawPrimitive(GraphicsDevice, ReflectionsEffectClass.effect);
+                ReflectionsEffectClass.World = mesh1DemoQuad.WorldTransformation;
+                mesh1DemoQuad.DrawPrimitive(GraphicsDevice, ReflectionsEffectClass.effect);
+                ReflectionsEffectClass.World = mesh2Terrain.WorldTransformation;
+                mesh2Terrain.DrawPrimitive(GraphicsDevice, ReflectionsEffectClass.effect);
             }
         }
 
@@ -574,15 +611,15 @@ namespace ShaderExamples
         public void DrawNormalsAndTangentsForMesh()
         {
             // these all use basic effect internally so we must set the world view projection up for them again seperately.
-            visualMeshNormals.World = mesh.WorldTransformation; //visualMeshNormals.WorldTransformation;
-            visualMeshNormals.View = cam.view;
-            visualMeshNormals.Projection = cam.projection;
-            visualMeshNormals.Draw(GraphicsDevice);
+            visualMesh1Normals.World = mesh1DemoQuad.WorldTransformation; //visualMeshNormals.WorldTransformation;
+            visualMesh1Normals.View = cam.view;
+            visualMesh1Normals.Projection = cam.projection;
+            visualMesh1Normals.Draw(GraphicsDevice);
 
-            visualMeshTangents.World = mesh.WorldTransformation; //visualMeshTangents.WorldTransformation; //Matrix.Identity;
-            visualMeshTangents.View = cam.view;
-            visualMeshTangents.Projection = cam.projection;
-            visualMeshTangents.Draw(GraphicsDevice);
+            visualMesh1Tangents.World = mesh1DemoQuad.WorldTransformation; //visualMeshTangents.WorldTransformation; //Matrix.Identity;
+            visualMesh1Tangents.View = cam.view;
+            visualMesh1Tangents.Projection = cam.projection;
+            visualMesh1Tangents.Draw(GraphicsDevice);
         }
 
         public void DrawNormalsAndTangentsForSphere()
@@ -603,10 +640,10 @@ namespace ShaderExamples
 
         public void DrawLightLineToMesh()
         {
-            visualLightLineToMesh.World = Matrix.Identity;
-            visualLightLineToMesh.View = cam.view;
-            visualLightLineToMesh.Projection = cam.projection;
-            visualLightLineToMesh.Draw(GraphicsDevice);
+            visualLightLineToMesh1.World = Matrix.Identity;
+            visualLightLineToMesh1.View = cam.view;
+            visualLightLineToMesh1.Projection = cam.projection;
+            visualLightLineToMesh1.Draw(GraphicsDevice);
         }
 
         public void DrawLightLineToSphere()
@@ -641,8 +678,8 @@ namespace ShaderExamples
             }
 
             var whatIdrewWithCullWise = (CullOutCounterClockWiseTriangles == true) ? "CounterClockwise" : "ClockWise";
-            var whatIMadeTheMeshWithCullWise = (mesh.IsWindingCcw == true) ? "CounterClockwise" : "ClockWise";
-            var whatIMadeTheSphereWithCullWise = (mesh.IsWindingCcw == true) ? "CounterClockwise" : "ClockWise";
+            var whatIMadeTheMeshWithCullWise = (mesh1DemoQuad.IsWindingCcw == true) ? "CounterClockwise" : "ClockWise";
+            var whatIMadeTheSphereWithCullWise = (mesh1DemoQuad.IsWindingCcw == true) ? "CounterClockwise" : "ClockWise";
 
             string msg =
                     $" \n The F2 toggle wireframe. F3 show normals. F4 mesh itself. F5 the texture used." +
@@ -661,7 +698,7 @@ namespace ShaderExamples
                     $"\n" +
                     $"\n cam : {cam.cameraWorld.ToWellFormatedString("cameraWorld")}" +
                     $"\n" +
-                    $"\n mesh : {mesh.WorldTransformation.ToWellFormatedString("World")}" +
+                    $"\n mesh : {mesh1DemoQuad.WorldTransformation.ToWellFormatedString("World")}" +
                     $"\n" +
                     $"\n spheres[0] : {spheres[0].WorldTransformation.ToWellFormatedString("World")}" +
                     $" \n  " +

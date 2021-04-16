@@ -93,6 +93,15 @@ namespace ShaderExamples
             if (Keyboard.GetState().IsKeyDown(Keys.W))
                 temp *= Matrix.CreateFromAxisAngle(cameraWorld.Right, lookatSpeed);
 
+            // Use the Z and C keys to rotate the camera.
+            if (Keyboard.GetState().IsKeyDown(Keys.Z))
+                temp *= Matrix.CreateFromAxisAngle(temp.Forward, lookatSpeed * .5f);
+            if (Keyboard.GetState().IsKeyDown(Keys.C))
+                temp *= Matrix.CreateFromAxisAngle(temp.Forward, - lookatSpeed * .5f);
+
+
+
+
             //// Use the Z and C keys to rotate the camera.
             //if (Keyboard.GetState().IsKeyDown(Keys.Z))
             //    ____ += speed * .01f;

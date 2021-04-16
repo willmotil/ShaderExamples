@@ -211,7 +211,7 @@ namespace ShaderExamples
                     thickness = .1f; normtanLinescale = 10f;
                     break;
                 case "textureAsHeightMap":
-                    PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_HIGHEST;
+                    PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVG_OPTION_USE_HIGHEST_RGB;
                     mesh = new PrimitiveIndexedMesh(textureMesh, new Vector3(300f, 250, 5f), false, false, false);
                     thickness = .01f; normtanLinescale = 10f;
                     break;
@@ -237,7 +237,7 @@ namespace ShaderExamples
                     mesh2 = new PrimitiveIndexedMesh(heightMap, 9, new Vector3(1000f, 1000, 70f), false, false, false);
                     break;
                 case "textureAsHeightMap":
-                    PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_HIGHEST;
+                    PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVG_OPTION_USE_HIGHEST_RGB;
                     mesh2 = new PrimitiveIndexedMesh(textureMeshNormalMap2, new Vector3(1000f, 1000, 20f), false, false, false);
                     break;
             }

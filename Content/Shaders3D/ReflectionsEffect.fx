@@ -221,7 +221,7 @@ float4 TexCubeLod(samplerCUBE samp, float3 normal, float miplevel) {
 
 
 
-//struct CommonVars
+//struct CommonOutput
 //{
 //	float3 N;
 //	float3 P;
@@ -236,9 +236,9 @@ float4 TexCubeLod(samplerCUBE samp, float3 normal, float miplevel) {
 //	float3 R2;
 //};
 //
-//CommonVars CalculateVariables(float3 Norm, float3 Pos)
+//CommonOutput CalculateVariables(float3 Pos, float3 Norm)
 //{
-//	CommonVars output = (CommonVars)0;
+//	CommonOutput output = (CommonOutput)0;
 //	output.N = Norm;
 //	output.P = Pos;
 //	output.C = CameraPosition;
@@ -249,7 +249,6 @@ float4 TexCubeLod(samplerCUBE samp, float3 normal, float miplevel) {
 //	output.NdotH = MaxDot(Norm, output.H);
 //	output.NdotV = MaxDot(Norm, output.V);
 //	output.R = 2.0f * output.NdotV * Norm - output.V;
-//	output.R2 = dot(output.V, reflect(-LightPosition, Norm));
 //	return output;
 //}
 
@@ -281,6 +280,26 @@ VertexShaderOutput VS(in VertexShaderInput input)
 //++++++++++++++++++++++++++++++++++++++++
 
 
+//// float3 N2 = float3(N.x, -N.y, N.z);
+//float4 PS_PhongWithNormalMapEnviromentalMap(VertexShaderOutput input) : COLOR
+//{ 	
+//	float3 N = FunctionBumpMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);
+//	float4 col = tex2D(TextureSamplerDiffuse, input.TextureCoordinates) * float4(LightColor, 1); // blending light color here isn't really close to correct however this isn't a pbr shader.
+//
+//	CommonOutput vars = CalculateVariables(input.Position3D, N);
+//	float Stheta = SpecularPhong(vars.V, vars.L, vars.N, 80.0f); // specularTheta or the amount of specular intensity.
+//
+//	float4 envSpecularReflectiveCol = TexEnvCubeLod(CubeMapEnviromentalSampler, vars.R, 0);
+//	//float4 envSpecularReflectiveCol = texCUBElod(CubeMapEnviromentalSampler, float4 (vars.R, 0));
+//
+//	float3 specularColor = col.rgb * envSpecularReflectiveCol * Stheta * SpecularStrength;
+//	float3 diffuseColor = col.rgb * vars.NdotL * DiffuseStrength; // normal mapping applys most directly to diffuse.
+//	float3 ambientColor = col.rgb * AmbientStrength;
+//	col.rgb = (diffuseColor + specularColor + ambientColor);  // * envSpecularReflectiveCol
+//
+//	return col;
+//}
+
 // float3 N2 = float3(N.x, -N.y, N.z);
 float4 PS_PhongWithNormalMapEnviromentalMap(VertexShaderOutput input) : COLOR
 {
@@ -298,22 +317,14 @@ float4 PS_PhongWithNormalMapEnviromentalMap(VertexShaderOutput input) : COLOR
 	float3 R = 2.0f * NdotV * N - V;  // this is the reflection vector to the viewer's eye.  
 	float Stheta = SpecularPhong(V, L, N, 80.0f); // specularTheta or the amount of specular intensity.
 	 
-	float4 envSpecularReflectiveCol = TexEnvCubeLod(CubeMapEnviromentalSampler,R, 0); 
-	//float4 envSpecularReflectiveCol = texCUBElod(CubeMapEnviromentalSampler, float4 (R, 0));
-
-	float killLightingAtribute = 0.01f;
-	float3 red = float3(1, 0, 0);
-	float3 green = float3(0, 1, 0);
-	float3 blue = float3(0, 0, 1);
+	//float4 envSpecularReflectiveCol = TexEnvCubeLod(CubeMapEnviromentalSampler,N, 0); 
+	float4 envSpecularReflectiveCol = texCUBElod(CubeMapEnviromentalSampler, float4 (R, 0));
 
 	float3 specularColor = col.rgb * envSpecularReflectiveCol * Stheta * SpecularStrength;
-	float3 diffuseColor = col.rgb * NdotL * DiffuseStrength; // normal mapping applys most directly to diffuse.
+	float3 diffuseColor = col.rgb * NdotL * DiffuseStrength;
 	float3 ambientColor = col.rgb * AmbientStrength;
-	col.rgb = (diffuseColor + specularColor + ambientColor);  // * envSpecularReflectiveCol
+	col.rgb = (diffuseColor + specularColor + ambientColor) * envSpecularReflectiveCol;  // just hack this in for the moment to see it.
 
-	//col.rgb *= 0.01f;
-	//col.rgb =  R;
-	//col.rgb += Stheta * 0.5f;
 	return col;
 }
 
@@ -347,7 +358,7 @@ float4 PS_RenderSkybox(VertexShaderOutput input) : COLOR
 {
 	float3 N = normalize(input.Normal.xyz);
 	//float3 ntex = float3(N.x, -N.y, N.z);
-	float4 col = TexEnvCubeLod(CubeMapEnviromentalSampler, N, 0);//texCUBElod(CubeMapSampler, float4 (ntex, 0));
+	float4 col = TexEnvCubeLod(CubeMapSampler, N, 0);//texCUBElod(CubeMapSampler, float4 (ntex, 0));
 	//clip(col.a - .01f); // straight clip low alpha.
 
 	float3 P = input.Position3D;

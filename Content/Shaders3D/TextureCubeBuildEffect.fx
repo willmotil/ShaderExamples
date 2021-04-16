@@ -5,6 +5,9 @@
 // 
 // https://www.fatalerrors.org/a/physical-based-ambient-lighting-diffuse-irradiance.html
 // http://www.cse.chalmers.se/edu/course/TDA362/tutorials/lab4.html
+// https://github.com/JoeyDeVries/LearnOpenGL/commit/534b6ec8c9851919649801d9c15c656c464ffb60
+
+// real time raytracing with links for explinations ect... https://morgan3d.github.io/articles/2019-04-01-ddgi/ https://morgan3d.github.io/articles/2019-04-01-ddgi/intro-to-gi.html  http://graphicscodex.com/ 14 chapters on pbr
 
 
 // nameing this version 4 april 12 cause i got to many of this class file copied and modified all over.

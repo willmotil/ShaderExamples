@@ -101,7 +101,7 @@ namespace ShaderExamples
             DiffuseLightEffectClass.Projection = cam.projection;
 
             PrimitiveIndexedMesh.ShowOutput = false;
-            PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_RED;
+            PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVG_OPTION_USE_RED;
 
             //mesh = new PrimitiveIndexedMesh(4,4, new Vector3(300f, 250, 0f ), false, false, false);
             //mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3( 300f, 250, 70f ), false, false, false);

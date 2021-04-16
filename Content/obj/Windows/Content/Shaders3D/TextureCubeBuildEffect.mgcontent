@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/TextureCubeBuildEffect.fx</SourceFile>
-  <SourceTime>2021-04-15T06:00:57.1643708-04:00</SourceTime>
-  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Content/Shaders3D/TextureCubeBuildEffect.xnb</DestFile>
-  <DestTime>2021-04-15T06:08:53.3472231-04:00</DestTime>
+  <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/TextureCubeBuildEffect.fx</SourceFile>
+  <SourceTime>2021-04-15T11:55:02.9025967-04:00</SourceTime>
+  <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Content/Shaders3D/TextureCubeBuildEffect.xnb</DestFile>
+  <DestTime>2021-04-15T20:33:07.6024505-04:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2020-08-10T16:17:54-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>

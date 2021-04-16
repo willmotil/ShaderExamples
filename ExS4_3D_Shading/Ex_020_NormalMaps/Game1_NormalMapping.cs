@@ -130,7 +130,7 @@ Finally the B channel in the image ranges from 128 to 255
 
 
             PrimitiveIndexedMesh.ShowOutput = false;
-            PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVERAGING_OPTION_USE_HIGHEST; //PrimitiveIndexedMesh.AVERAGING_OPTION_USE_RED;
+            PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVG_OPTION_USE_HIGHEST_RGB; //PrimitiveIndexedMesh.AVERAGING_OPTION_USE_RED;
 
             //mesh = new PrimitiveIndexedMesh(5, 5, new Vector3(300f, 250, 0f), false, false, false);
             //float thickness = .1f; float lineScale = 10f;

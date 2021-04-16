@@ -16,12 +16,13 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
         public static bool ShowOutput { get; set; } = false;
 
         public bool IsWindingCcw { get; private set; } = false;
-        public static int AveragingOption { get; set; } = AVERAGING_OPTION_USE_NONALPHACONSISTANTLY;
+        public static int AveragingOption { get; set; } = AVG_OPTION_USE_NON_ALPHA_AS_ONE;
 
-        public const int AVERAGING_OPTION_USE_NONALPHACONSISTANTLY = 3;
-        public const int AVERAGING_OPTION_USE_HIGHEST = 2;
-        public const int AVERAGING_OPTION_USE_AVERAGE = 1;
-        public const int AVERAGING_OPTION_USE_RED = 0;
+        public const int AVG_OPTION_USE_PREMULT_NON_ALPHA_AS_ONE = 4;
+        public const int AVG_OPTION_USE_NON_ALPHA_AS_ONE = 3;
+        public const int AVG_OPTION_USE_HIGHEST_RGB = 2;
+        public const int AVG_OPTION_USE_AVERAGE_RGB = 1;
+        public const int AVG_OPTION_USE_RED = 0;
 
         public VertexPositionNormalTextureTangentWeights[] vertices;
         public int[] indices;
@@ -118,7 +119,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
             Color[] heightColorArray = new Color[heightTexture.Width * heightTexture.Height];
             heightTexture.GetData<Color>(heightColorArray);
             CreatePrimitiveMesh(heightColorArray, heightTexture.Width, scale, windingCounterClockwise, negateNormalDirection, negateTangentDirection);
-            heightColorArray = new Color[0];
+            //heightColorArray = new Color[0];
         }
 
         /// <param name="scale"> scale id like to get rid of it and just use the transform scaling but... normals and stuff in these examples rely on it being set early. </param>
@@ -151,7 +152,7 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
                 {
                     float stepU = (float)(x) / (float)(subdivisionWidth - 1);
 
-                    float val = GetAvgHeightFromColorAsUnitLengthValue(heightColorArray[GetIndex(x, y, strideWidth)], AveragingOption);
+                    float val = GetHeightFromColorAsUnitLengthValue(heightColorArray[GetIndex(x, y, strideWidth)], AveragingOption);
                     float hval = -val;
 
                     float X = Interpolate(left, right, stepU);
@@ -211,10 +212,10 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
         /// CW
         /// 
         /// triangle 0
-        /// tl[0] > tr[1] > br[2]   
+        /// tl[0]=0 , tr[1]=1 , br[2]=2   
         /// 
         /// triangle 1
-        /// br[3] >  bl[4]  >  tl[5]
+        /// br[3]=2 , bl[4]=3 , tl[5]=0
         /// 
         /// left u=0   top v=0
         ///      -x            -y
@@ -398,29 +399,37 @@ namespace ShaderExamples   //.HelperClasses.EffectClasses
             return (byte)(v * 255f);
         }
 
-        private float GetAvgHeightFromColorAsUnitLengthValue(Color c, int option)
+        private float GetHeightFromColorAsUnitLengthValue(Color c, int option)
         {
             float result = 0;
-            float alphamult = (c.A / 255f);
+            float r = (c.R / 255f);
+            float g = (c.G / 255f);
+            float b = (c.B / 255f);
+            float a = (c.A / 255f);
             switch (option)
             {
-                case AVERAGING_OPTION_USE_NONALPHACONSISTANTLY:
-                    result = c.A > 0 ? 1f : 0f;
+                case AVG_OPTION_USE_NON_ALPHA_AS_ONE:
+                    result = a > .01f ? 1f : 0f;
                     break;
-                case AVERAGING_OPTION_USE_HIGHEST:
-                    result = c.R;
-                    result = c.G > result ? c.G : result;
-                    result = c.B > result ? c.B : result;
-                    result = (c.R / 255f) * alphamult;
+                case AVG_OPTION_USE_PREMULT_NON_ALPHA_AS_ONE:
+                    result = r;
+                    result = g > result ? g : result;
+                    result = b > result ? b : result;
+                    result = result > .01f ? 1.0f : 0.0f;
                     break;
-                case AVERAGING_OPTION_USE_AVERAGE:
-                    result = ((((c.R + c.G + c.B) / 3f) / 255f) * alphamult);
+                case AVG_OPTION_USE_HIGHEST_RGB:
+                    result = r;
+                    result = g > result ? g : result;
+                    result = b > result ? b : result;
                     break;
-                case AVERAGING_OPTION_USE_RED:
-                    result = (c.R / 255f);
+                case AVG_OPTION_USE_AVERAGE_RGB:
+                    result = (((r + g + b) / 3f) * a);
+                    break;
+                case AVG_OPTION_USE_RED:
+                    result = r;
                     break;
                 default:
-                    result = alphamult;
+                    result = a;
                     break;
             }
             return result;
