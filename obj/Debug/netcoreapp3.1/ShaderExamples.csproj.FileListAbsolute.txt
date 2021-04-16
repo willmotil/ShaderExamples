@@ -254,7 +254,6 @@ C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\S
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\ReflectionsEffect.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Eqr001_Diffuse.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Eqr001_Diffuse_irradiance.xnb
-C:\Users\Owner\GithubPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.csprojAssemblyReference.cache
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Eqr001_Diffuse.xnb
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Eqr001_Diffuse_irradiance.xnb
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Face_Back.xnb
@@ -263,3 +262,10 @@ C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\I
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Face_Left.xnb
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Face_Right.xnb
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Face_Top.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Face_Back.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Face_Bottom.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Face_Front.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Face_Left.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Face_Right.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Face_Top.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.csprojAssemblyReference.cache

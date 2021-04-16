@@ -279,27 +279,6 @@ VertexShaderOutput VS(in VertexShaderInput input)
 // P I X E L  S H A D E R S
 //++++++++++++++++++++++++++++++++++++++++
 
-
-//// float3 N2 = float3(N.x, -N.y, N.z);
-//float4 PS_PhongWithNormalMapEnviromentalMap(VertexShaderOutput input) : COLOR
-//{ 	
-//	float3 N = FunctionBumpMapGeneratedBiTangent(input.Normal, input.Tangent, input.TextureCoordinates);
-//	float4 col = tex2D(TextureSamplerDiffuse, input.TextureCoordinates) * float4(LightColor, 1); // blending light color here isn't really close to correct however this isn't a pbr shader.
-//
-//	CommonOutput vars = CalculateVariables(input.Position3D, N);
-//	float Stheta = SpecularPhong(vars.V, vars.L, vars.N, 80.0f); // specularTheta or the amount of specular intensity.
-//
-//	float4 envSpecularReflectiveCol = TexEnvCubeLod(CubeMapEnviromentalSampler, vars.R, 0);
-//	//float4 envSpecularReflectiveCol = texCUBElod(CubeMapEnviromentalSampler, float4 (vars.R, 0));
-//
-//	float3 specularColor = col.rgb * envSpecularReflectiveCol * Stheta * SpecularStrength;
-//	float3 diffuseColor = col.rgb * vars.NdotL * DiffuseStrength; // normal mapping applys most directly to diffuse.
-//	float3 ambientColor = col.rgb * AmbientStrength;
-//	col.rgb = (diffuseColor + specularColor + ambientColor);  // * envSpecularReflectiveCol
-//
-//	return col;
-//}
-
 // float3 N2 = float3(N.x, -N.y, N.z);
 float4 PS_PhongWithNormalMapEnviromentalMap(VertexShaderOutput input) : COLOR
 {
@@ -316,7 +295,38 @@ float4 PS_PhongWithNormalMapEnviromentalMap(VertexShaderOutput input) : COLOR
 	float NdotV = MaxDot(N, V);   // this essentially is a check to see if the pixel's is facing the camera.
 	float3 R = 2.0f * NdotV * N - V;  // this is the reflection vector to the viewer's eye.  
 	float Stheta = SpecularPhong(V, L, N, 80.0f); // specularTheta or the amount of specular intensity.
-	 
+
+	//float4 envSpecularReflectiveCol = TexEnvCubeLod(CubeMapEnviromentalSampler,N, 0); 
+	float4 envSpecularReflectiveCol = texCUBElod(CubeMapEnviromentalSampler, float4 (R, 0));
+
+	float3 specularColor = col.rgb * envSpecularReflectiveCol * Stheta * SpecularStrength;
+	float3 diffuseColor = col.rgb * NdotL * DiffuseStrength;
+	float3 ambientColor = col.rgb * AmbientStrength;
+	col.rgb = (diffuseColor + specularColor + ambientColor) * envSpecularReflectiveCol;  // just hack this in for the moment to see it.
+
+	return col;
+}
+
+// float3 N2 = float3(N.x, -N.y, N.z);
+float4 PS_PhongWithEnviromentalMap(VertexShaderOutput input) : COLOR
+{
+	float3 N = input.Normal;
+	float4 col = tex2D(TextureSamplerDiffuse, input.TextureCoordinates) * float4(LightColor, 1); // blending light color here isn't really close to correct however this isn't a pbr shader.
+	float3 P = input.Position3D;
+	float3 C = CameraPosition;
+	float3 V = normalize(C - P);
+	float3 L = normalize(LightPosition - P);
+	float3 H = normalize(L + V);   // H = HalfNormal(L, V);
+	float NdotL = MaxDot(N, L);    // this is a check to see if a pixel is facing the light it has no information on shadowed occlusions.
+	float NdotH = MaxDot(N, H);   // this is a aproximation to compare the reflection angle from the light on the pixel to the camera or eye vector.
+	float NdotV = MaxDot(N, V);   // this essentially is a check to see if the pixel's is facing the camera.
+	float3 R = 2.0f * NdotV * N - V;  // this is the reflection vector to the viewer's eye.  
+	float Stheta = SpecularPhong(V, L, N, 80.0f); // specularTheta or the amount of specular intensity.
+
+	//float3 InflectionOrReflectionVector = InflectionPositionFromPlane(P, N, C);
+	//float3 cubeDir = normalize(input.Position3D - InflectionOrReflectionVector);
+	//float4 envSpecularReflectiveCol = texCUBElod(CubeMapEnviromentalSampler, float4 (cubeDir, 0));
+
 	//float4 envSpecularReflectiveCol = TexEnvCubeLod(CubeMapEnviromentalSampler,N, 0); 
 	float4 envSpecularReflectiveCol = texCUBElod(CubeMapEnviromentalSampler, float4 (R, 0));
 
@@ -463,6 +473,17 @@ technique Render_PhongWithNormMap
 			VS();
 		PixelShader = compile PS_SHADERMODEL
 			PS_PhongWithNormalMap();
+	}
+};
+
+technique Render_PhongWithEnviromentalMap
+{
+	pass P0
+	{
+		VertexShader = compile VS_SHADERMODEL
+			VS();
+		PixelShader = compile PS_SHADERMODEL
+			PS_PhongWithEnviromentalMap();
 	}
 };
 

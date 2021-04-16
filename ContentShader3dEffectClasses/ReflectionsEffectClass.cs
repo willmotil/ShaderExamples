@@ -48,6 +48,11 @@ namespace ShaderExamples
             effect.CurrentTechnique = effect.Techniques["Render_PhongWithNormMap"];
         }
 
+        public static void Technique_Render_PhongWithEnviromentalMap()
+        {
+            effect.CurrentTechnique = effect.Techniques["Render_PhongWithEnviromentalMap"];
+        }
+
         public static void Technique_Render_Cube()
         {
             effect.CurrentTechnique = effect.Techniques["Render_Cube"];

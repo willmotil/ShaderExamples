@@ -149,6 +149,7 @@ namespace ShaderExamples
             // RefactionTexture has the opposite encoding walltomap wallnormmap TestNormalMap  Flower-normal , Flower-diffuse  Flower-bump  Flower-ambientocclusion  Quarry  QuarrySquare MG_Logo_Modifyed TextureAlignmentTestImage2
             // Brick_em , Brick_Nmap_en , Brick_Nmap_en_yfliped  ,  Brick_Nmap_noyflip_em  ,  walltomap wallnormmap  wallnormmapGimp
             // QuarrySquare  Eqr001_Diffuse  Eqr001_Diffuse_irradiance    Content.Load<Texture2D>("");
+            //
 
             faceFront = Content.Load<Texture2D>("Face_Front");
             faceBack = Content.Load<Texture2D>("Face_Back");
@@ -157,16 +158,17 @@ namespace ShaderExamples
             faceTop = Content.Load<Texture2D>("Face_Top");
             faceBottom = Content.Load<Texture2D>("Face_Bottom");
 
-            textureHdrLdrSphere = Content.Load<Texture2D>("Eqr001_Diffuse");  
+            textureHdrLdrSphere = Content.Load<Texture2D>("Eqr001_Diffuse");
             textureHdrLdrSphereIllumination = Content.Load<Texture2D>("Eqr001_Diffuse_irradiance");
             textureSphereNormalMap = Content.Load<Texture2D>("wallnormmap");
 
             textureMesh1DemoQuad = dotTextureWhite;
-            textureMesh2Terrain = Content.Load<Texture2D>("MG_Logo_Modifyed"); 
-            textureMesh3Water = dotTextureWhite;   
-
             textureMesh1NormalMapDemoQuad = Content.Load<Texture2D>("TestNormalMap");
-            textureMesh2NormalMapTerrain = Content.Load<Texture2D>("wallnormmapGimp"); 
+
+            textureMesh2Terrain = Content.Load<Texture2D>("MG_Logo_Modifyed");
+            textureMesh2NormalMapTerrain = Content.Load<Texture2D>("wallnormmapGimp");
+            
+            textureMesh3Water = dotTextureWhite;
             textureMesh3NormalMapWater = Content.Load<Texture2D>("TestNormalMap"); //dotTextureWhite;
 
             TextureCubeTypeConverter.Load(Content);
@@ -235,7 +237,6 @@ namespace ShaderExamples
             visualMesh1Tangents = CreateVisualNormalLines(mesh1DemoQuad.vertices, mesh1DemoQuad.indices, dotTextureYellow, thickness, normtanLinescale, true);
             visualLightLineToMesh1 = CreateVisualLine(dotTextureWhite, mesh1DemoQuad.Center, lightStartPosition, 1, Color.White);
 
-
             // mesh 2
 
             option = "textureAsHeightMap";
@@ -272,7 +273,9 @@ namespace ShaderExamples
                     mesh3Water = new PrimitiveIndexedMesh(textureMesh3NormalMapWater, new Vector3(1000f, 1000, 20f), false, false, false);
                     break;
             }
-            mesh3Water.SetWorldTransformation(new Vector3(-300, +280, 550), Vector3.Down, Vector3.Forward, Vector3.One);
+            // 
+            //mesh3Water.SetWorldTransformation(new Vector3(-300, +280, 550), Vector3.Down, Vector3.Forward, Vector3.One);
+            mesh3Water.SetWorldTransformation(new Vector3(-300, 0, 100), Vector3.Forward, Vector3.Up, Vector3.One);
             mesh3Water.DiffuseTexture = textureMesh3Water;
             mesh3Water.NormalMapTexture = textureMesh3NormalMapWater;
         }
@@ -567,6 +570,7 @@ namespace ShaderExamples
             mesh2Terrain.DrawPrimitive(GraphicsDevice, ReflectionsEffectClass.effect);
 
             // mesh 3
+            //ReflectionsEffectClass.Technique_Render_PhongWithEnviromentalMap();
             ReflectionsEffectClass.World = mesh3Water.WorldTransformation;
             ReflectionsEffectClass.TextureDiffuse = mesh3Water.DiffuseTexture;
             ReflectionsEffectClass.TextureNormalMap = mesh3Water.NormalMapTexture;
