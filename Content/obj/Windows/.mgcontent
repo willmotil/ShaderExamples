@@ -17,6 +17,7 @@
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Face_Left.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Face_Right.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Face_Top.png</File>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/FlatNormalMap.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/gamma_correction_brightness.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/GeneratedSphere.png</File>
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/GeneratedSphereBlue.png</File>
@@ -65,6 +66,7 @@
     <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/TextureCubeBuildEffect.fx</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

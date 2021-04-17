@@ -3,7 +3,7 @@
   <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/TextureCubeBuildEffect.fx</SourceFile>
   <SourceTime>2021-04-15T11:55:02.9025967-04:00</SourceTime>
   <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Shaders3D/TextureCubeBuildEffect.xnb</DestFile>
-  <DestTime>2021-04-15T23:28:15.1257692-04:00</DestTime>
+  <DestTime>2021-04-16T07:33:35.1367496-04:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2020-05-27T15:15:40-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>

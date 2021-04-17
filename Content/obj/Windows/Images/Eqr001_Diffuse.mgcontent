@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Eqr001_Diffuse.png</SourceFile>
-  <SourceTime>2021-04-15T09:03:45.9949599-04:00</SourceTime>
+  <SourceTime>2021-04-16T07:05:16.7479726-04:00</SourceTime>
   <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Images/Eqr001_Diffuse.xnb</DestFile>
-  <DestTime>2021-04-15T23:28:02.9490055-04:00</DestTime>
+  <DestTime>2021-04-16T07:33:22.7387312-04:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2020-05-27T15:15:40-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

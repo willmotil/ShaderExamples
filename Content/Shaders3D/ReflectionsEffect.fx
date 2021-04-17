@@ -293,11 +293,11 @@ float4 PS_PhongWithNormalMapEnviromentalMap(VertexShaderOutput input) : COLOR
 	float NdotL = MaxDot(N, L);    // this is a check to see if a pixel is facing the light it has no information on shadowed occlusions.
 	float NdotH = MaxDot(N, H);   // this is a aproximation to compare the reflection angle from the light on the pixel to the camera or eye vector.
 	float NdotV = MaxDot(N, V);   // this essentially is a check to see if the pixel's is facing the camera.
-	float3 R = 2.0f * NdotV * N - V;  // this is the reflection vector to the viewer's eye.  
 	float Stheta = SpecularPhong(V, L, N, 80.0f); // specularTheta or the amount of specular intensity.
+	float3 R = 2.0f * NdotV * N - V;  // this is the reflection vector to the viewer's eye.  
+	//float3 R = Reflection(N, V);
 
-	//float4 envSpecularReflectiveCol = TexEnvCubeLod(CubeMapEnviromentalSampler,N, 0); 
-	float4 envSpecularReflectiveCol = texCUBElod(CubeMapEnviromentalSampler, float4 (R, 0));
+	float4 envSpecularReflectiveCol = TexEnvCubeLod(CubeMapEnviromentalSampler,R, 0); 
 
 	float3 specularColor = col.rgb * envSpecularReflectiveCol * Stheta * SpecularStrength;
 	float3 diffuseColor = col.rgb * NdotL * DiffuseStrength;

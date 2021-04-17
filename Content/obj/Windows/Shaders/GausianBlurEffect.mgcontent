@@ -3,7 +3,7 @@
   <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/GausianBlurEffect.fx</SourceFile>
   <SourceTime>2021-04-08T15:19:26.9206947-04:00</SourceTime>
   <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Shaders/GausianBlurEffect.xnb</DestFile>
-  <DestTime>2021-04-15T23:28:05.6052106-04:00</DestTime>
+  <DestTime>2021-04-16T07:33:25.3229432-04:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2020-05-27T15:15:40-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>

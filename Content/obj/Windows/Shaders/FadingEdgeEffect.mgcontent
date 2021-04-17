@@ -3,7 +3,7 @@
   <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/FadingEdgeEffect.fx</SourceFile>
   <SourceTime>2021-04-11T06:15:51.5864408-04:00</SourceTime>
   <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Shaders/FadingEdgeEffect.xnb</DestFile>
-  <DestTime>2021-04-15T23:28:04.7025714-04:00</DestTime>
+  <DestTime>2021-04-16T07:33:24.461873-04:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2020-05-27T15:15:40-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>

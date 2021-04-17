@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/EnviromentalMapEffect.fx</SourceFile>
-  <SourceTime>2021-04-15T01:42:59.531929-04:00</SourceTime>
-  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Content/Shaders3D/EnviromentalMapEffect.xnb</DestFile>
-  <DestTime>2021-04-16T01:14:14.9825447-04:00</DestTime>
+  <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/EnviromentalMapEffect.fx</SourceFile>
+  <SourceTime>2021-04-14T11:27:11.8161556-04:00</SourceTime>
+  <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Content/Shaders3D/EnviromentalMapEffect.xnb</DestFile>
+  <DestTime>2021-04-16T06:36:30.8394448-04:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2020-08-10T16:17:54-04:00</ImporterTime>
   <Processor>EffectProcessor</Processor>
