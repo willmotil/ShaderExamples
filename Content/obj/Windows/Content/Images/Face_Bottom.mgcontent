@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Face_Bottom.png</SourceFile>
-  <SourceTime>2021-04-15T23:24:27.6742901-04:00</SourceTime>
-  <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Content/Images/Face_Bottom.xnb</DestFile>
-  <DestTime>2021-04-16T06:36:21.6937237-04:00</DestTime>
+  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/Face_Bottom.png</SourceFile>
+  <SourceTime>2021-04-16T00:56:01.9444308-04:00</SourceTime>
+  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Content/Images/Face_Bottom.xnb</DestFile>
+  <DestTime>2021-04-19T03:26:46.4358393-04:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2020-08-10T16:17:54-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

@@ -21,6 +21,8 @@ namespace ShaderExamples
         bool CullOutCounterClockWiseTriangles = true;
         int whichTechnique = 0;
 
+        bool lightAutoAxisFlip = false;
+
         RasterizerState rasterizerState_CULLNONE_WIREFRAME = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
         RasterizerState rasterizerState_CULLNONE_SOLID = new RasterizerState() { CullMode = CullMode.None, FillMode = FillMode.Solid };
 
@@ -47,7 +49,11 @@ namespace ShaderExamples
         Texture2D[]
             generatedTextureFaceArrayFromCubemap, generatedTextureFaceArrayFromHdrLdr //, loadedOrAssignedArray
             ;
+        RenderTargetCube renderTargetDepthCube;
+        RenderTargetCube renderTargetReflectionCube;
         RenderTarget2D rtScene;
+        Matrix mainProjection, shadowMapProjection, worldReflectionCameraCube;
+
         CameraAndKeyboardControls cam = new CameraAndKeyboardControls();
 
         PrimitiveIndexedMesh meshDemoQuad, meshTerrain, meshWater;
@@ -117,6 +123,12 @@ namespace ShaderExamples
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            // aspect ratio 1 needs a corresponding pfov aspect.
+            shadowMapProjection = Matrix.CreatePerspectiveFieldOfView((float)MathHelper.Pi * .5f, 1, .1f, 10000f);
+            // render target cubes 512
+            renderTargetDepthCube = new RenderTargetCube(GraphicsDevice, 512, false, SurfaceFormat.Single, DepthFormat.Depth24);
+            renderTargetReflectionCube = new RenderTargetCube(GraphicsDevice, 512, false, SurfaceFormat.Color, DepthFormat.Depth24);
 
             SetCamera();
 
@@ -494,10 +506,22 @@ namespace ShaderExamples
                 visualLightLineToSpheres[index].ReCreateVisualLine(dotTextureWhite, spheres[index].Position, lightPosition, 1, Color.Blue);
             }
 
+            // get the inflected position.
+            var ip = InflectionPositionFromPlane(cam.cameraWorld.Translation, meshWater.WorldTransformation.Up, meshWater.WorldTransformation.Translation);
+            worldReflectionCameraCube = Matrix.CreateWorld(ip, Vector3.Forward, Vector3.Up);
+
             base.Update(gameTime);
         }
 
-        bool lightAutoAxisFlip = false;
+        Vector3 InflectionPositionFromPlane(Vector3 theCameraPostion, Vector3 thePlanesSurfaceNormal, Vector3 anyPositionOnThePlane)
+        {
+            // the dot product also gives the length. 
+            // when placed againsts a unit normal so any unit n * a distance is the distance to that normals plane no matter the normals direction. 
+            // i didn't know that relation was so straight forward.
+            float camToPlaneDist = Vector3.Dot(thePlanesSurfaceNormal, theCameraPostion - anyPositionOnThePlane);
+            return theCameraPostion - thePlanesSurfaceNormal * camToPlaneDist * 2;
+        }
+
 
 
 
@@ -527,6 +551,122 @@ namespace ShaderExamples
 
             base.Draw(gameTime);
         }
+
+        #region drawscene with reflection and depth.
+
+        //public void DrawSteps()
+        //{
+        //    GraphicsDevice.Clear(Color.Black);
+        //    GraphicsDevice.SamplerStates[0] = new SamplerState() { Filter = TextureFilter.Point, FilterMode = TextureFilterMode.Comparison, AddressU = TextureAddressMode.Clamp, AddressV = TextureAddressMode.Clamp };
+        //    GraphicsDevice.DepthStencilState = new DepthStencilState() { DepthBufferEnable = true, DepthBufferFunction = CompareFunction.Less };
+        //    GraphicsDevice.BlendState = new BlendState() { };
+
+        //    // Render scene's Depth cube.
+        //    SetProjection(shadowMapProjection);
+        //    DepthRenderSceneFaces();
+        //    effect.Parameters["TextureDepth"].SetValue(renderTargetDepthCube); // update the result.
+
+        //    // Draw the scene to a reflection cube.
+        //    GraphicsDevice.RasterizerState = new RasterizerState() { FillMode = FillMode.Solid, CullMode = CullMode.CullCounterClockwiseFace };
+        //    ReflectionRenderToSceneFaces(worldReflectionCameraCube.Translation);
+        //    effect.Parameters["TextureSceneCube"].SetValue(renderTargetReflectionCube);
+
+        //    // Draw the scene to the back buffer.  
+        //    GraphicsDevice.SetRenderTarget(null);
+        //    GraphicsDevice.RasterizerState = new RasterizerState() { FillMode = FillMode.Solid, CullMode = CullMode.CullCounterClockwiseFace };
+        //    effect.Parameters["TextureNormalMap"].SetValue(wallnormalmap); 
+        //    SetProjection(mainProjection);
+        //    SetCreateView(worldCamera);
+        //    DrawScene();
+        //}
+
+        void DepthRenderSceneFaces()
+        {
+            
+            GraphicsDevice.SetRenderTarget(renderTargetDepthCube, CubeMapFace.NegativeX);
+            CreateAndSetCubeFaceView(lightPosition, Vector3.Left, Vector3.Up);
+            //DepthRenderScene();
+            GraphicsDevice.SetRenderTarget(renderTargetDepthCube, CubeMapFace.NegativeY);
+            CreateAndSetCubeFaceView(lightPosition, Vector3.Down, Vector3.Backward);
+            //DepthRenderScene();
+            GraphicsDevice.SetRenderTarget(renderTargetDepthCube, CubeMapFace.NegativeZ);
+            CreateAndSetCubeFaceView(lightPosition, Vector3.Forward, Vector3.Up);
+            //DepthRenderScene();
+            GraphicsDevice.SetRenderTarget(renderTargetDepthCube, CubeMapFace.PositiveX);
+            CreateAndSetCubeFaceView(lightPosition, Vector3.Right, Vector3.Up);
+            //DepthRenderScene();
+            GraphicsDevice.SetRenderTarget(renderTargetDepthCube, CubeMapFace.PositiveY);
+            CreateAndSetCubeFaceView(lightPosition, Vector3.Up, Vector3.Forward);
+            //DepthRenderScene();
+            GraphicsDevice.SetRenderTarget(renderTargetDepthCube, CubeMapFace.PositiveZ);
+            CreateAndSetCubeFaceView(lightPosition, Vector3.Backward, Vector3.Up);
+            //DepthRenderScene();
+        }
+        void ReflectionRenderToSceneFaces(Vector3 reflectionCameraPosition)
+        {
+            GraphicsDevice.SetRenderTarget(renderTargetReflectionCube, CubeMapFace.NegativeX);
+            CreateAndSetCubeFaceView(reflectionCameraPosition, Vector3.Left, Vector3.Up);
+            //ReflectionRenderScene();
+
+            GraphicsDevice.SetRenderTarget(renderTargetReflectionCube, CubeMapFace.NegativeY);
+            CreateAndSetCubeFaceView(reflectionCameraPosition, Vector3.Down, Vector3.Backward);
+            //ReflectionRenderScene();
+
+            GraphicsDevice.SetRenderTarget(renderTargetReflectionCube, CubeMapFace.NegativeZ);
+            CreateAndSetCubeFaceView(reflectionCameraPosition, Vector3.Forward, Vector3.Up);
+            //ReflectionRenderScene();
+
+            GraphicsDevice.SetRenderTarget(renderTargetReflectionCube, CubeMapFace.PositiveX);
+            CreateAndSetCubeFaceView(reflectionCameraPosition, Vector3.Right, Vector3.Up);
+            //ReflectionRenderScene();
+
+            GraphicsDevice.SetRenderTarget(renderTargetReflectionCube, CubeMapFace.PositiveY);
+            CreateAndSetCubeFaceView(reflectionCameraPosition, Vector3.Up, Vector3.Forward);
+            //ReflectionRenderScene();
+
+            GraphicsDevice.SetRenderTarget(renderTargetReflectionCube, CubeMapFace.PositiveZ);
+            CreateAndSetCubeFaceView(reflectionCameraPosition, Vector3.Backward, Vector3.Up);
+            //ReflectionRenderScene();
+        }
+
+        void CreateAndSetCubeFaceView(Vector3 position, Vector3 forward, Vector3 up)
+        {
+            var view = CreateCubeFaceLookAtViewMatrix(position, forward + position, up);
+            //effect.Parameters["View"].SetValue(view);
+        }
+        void SetProjection(Matrix Projection)
+        {
+            var projection = Projection;
+            //effect.Parameters["Projection"].SetValue(projection);
+        }
+
+        // creates a lh vm
+        public static Matrix CreateCubeFaceLookAtViewMatrix(Vector3 cameraPosition, Vector3 cameraTarget, Vector3 cameraUpVector)
+        {
+            var vector = Vector3.Normalize(cameraPosition - cameraTarget);
+            var vector2 = -Vector3.Normalize(Vector3.Cross(cameraUpVector, vector));
+            var vector3 = Vector3.Cross(-vector, vector2);
+            Matrix result = Matrix.Identity;
+            result.M11 = vector2.X;
+            result.M12 = vector3.X;
+            result.M13 = vector.X;
+            result.M14 = 0f;
+            result.M21 = vector2.Y;
+            result.M22 = vector3.Y;
+            result.M23 = vector.Y;
+            result.M24 = 0f;
+            result.M31 = vector2.Z;
+            result.M32 = vector3.Z;
+            result.M33 = vector.Z;
+            result.M34 = 0f;
+            result.M41 = -Vector3.Dot(vector2, cameraPosition);
+            result.M42 = -Vector3.Dot(vector3, cameraPosition);
+            result.M43 = -Vector3.Dot(vector, cameraPosition);
+            result.M44 = 1f;
+            return result;
+        }
+
+        #endregion
 
         public void DrawMeshAndSphere()
         {
