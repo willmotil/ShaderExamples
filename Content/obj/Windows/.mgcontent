@@ -1,71 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SourceFileCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<SourceFileCollection xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Profile>Reach</Profile>
   <Platform>Windows</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Fonts/MgFont.spritefont</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Fonts/MgFont2.spritefont</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Fonts/MgFont3.spritefont</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/BarBlueInside.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/BloomTestImage.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Eqr001_Diffuse.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Eqr001_Diffuse_irradiance.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Face_Back.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Face_Bottom.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Face_Front.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Face_Left.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Face_Right.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Face_Top.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/FlatNormalMap.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/gamma_correction_brightness.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/GeneratedSphere.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/GeneratedSphereBlue.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/MG_Logo_Med_exCanvs.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/MG_Logo_Modifyed.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/Nasa_DEM_Earth.jpg</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/OrientationImage_PartiallyTransparent.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/planet_stencil.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/planet-blue-atmosphere.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/planet-clouds-heavy.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/planet-terran02.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/prbStyleColors.jpg</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/puppy03.jpeg</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/QuarrySquare.jpg</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/RefractionTexture.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/TestNormalMap.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/TextureAlignmentTestImage2.jpg</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/wallnormmap.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/wallnormmapGimp.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/walltomap.png</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/BarFillColorReplaceEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/BloomGlowEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/FadingEdgeEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/GammaTestEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/GausianBlurEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/GreyScaleEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/MaskBlend.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/MaskBlendScroll.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/MeshDrawEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/RadialBlurEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/RefractionDirectionalEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/RefractionEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/ScrollEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/ShockwaveRippleEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/TestingCanidateEffects.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders/TextShadowEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/DiffuseLightEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/EnviromentalMapEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/ImprovedIndexMeshEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/NormalMapEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/ReflectionsEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/SimpleDirectDrawEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/SimpleDrawingWithMatriceEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/SkyBoxDrawingEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/SpecularLightEffect.fx</File>
-    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/TextureCubeBuildEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Fonts/MgFont.spritefont</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Fonts/MgFont2.spritefont</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Fonts/MgFont3.spritefont</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/BarBlueInside.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/BloomTestImage.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/Eqr001_Diffuse.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/Eqr001_Diffuse_irradiance.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/Face_Back.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/Face_Bottom.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/Face_Front.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/Face_Left.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/Face_Right.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/Face_Top.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/FlatNormalMap.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/gamma_correction_brightness.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/GeneratedSphere.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/GeneratedSphereBlue.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/MG_Logo_Med_exCanvs.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/MG_Logo_Modifyed.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/Nasa_DEM_Earth.jpg</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/OrientationImage_PartiallyTransparent.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/planet_stencil.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/planet-blue-atmosphere.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/planet-clouds-heavy.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/planet-terran02.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/prbStyleColors.jpg</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/puppy03.jpeg</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/QuarrySquare.jpg</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/RefractionTexture.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/TestNormalMap.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/TextureAlignmentTestImage2.jpg</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/wallnormmap.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/wallnormmapGimp.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/walltomap.png</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/BarFillColorReplaceEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/BloomGlowEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/FadingEdgeEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/GammaTestEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/GausianBlurEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/GreyScaleEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/MaskBlend.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/MaskBlendScroll.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/MeshDrawEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/RadialBlurEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/RefractionDirectionalEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/RefractionEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/ScrollEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/ShockwaveRippleEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/TestingCanidateEffects.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders/TextShadowEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/DiffuseLightEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/EnviromentalMapEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/ImprovedIndexMeshEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/NormalMapEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/ReflectionCubeEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/ReflectionsEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/SimpleDirectDrawEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/SimpleDrawingWithMatriceEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/SkyBoxDrawingEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/SpecularLightEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/TextureCubeBuildEffect.fx</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

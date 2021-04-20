@@ -58,6 +58,7 @@
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/EnviromentalMapEffect.fx</File>
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/ImprovedIndexMeshEffect.fx</File>
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/NormalMapEffect.fx</File>
+    <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/ReflectionCubeEffect.fx</File>
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/ReflectionsEffect.fx</File>
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/SimpleDirectDrawEffect.fx</File>
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/SimpleDrawingWithMatriceEffect.fx</File>
@@ -66,6 +67,7 @@
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/TextureCubeBuildEffect.fx</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

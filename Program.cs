@@ -49,7 +49,8 @@ namespace ShaderExamples
             //using (var game = new Game1_NormalMapping()) game.Run();
             //using (var game = new Game1_SpecularLighting()) game.Run();
             //using (var game = new Game1_SkyBoxes()) game.Run();
-            using (var game = new Game1_Reflections()) game.Run();
+            //using (var game = new Game1_Reflections()) game.Run();
+            using (var game = new Game1_ReflectionCube()) game.Run();
 
 
             // tests or imcomplete.

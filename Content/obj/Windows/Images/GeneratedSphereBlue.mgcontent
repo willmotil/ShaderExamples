@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/GeneratedSphereBlue.png</SourceFile>
-  <SourceTime>2021-04-11T06:15:51.5775589-04:00</SourceTime>
-  <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Images/GeneratedSphereBlue.xnb</DestFile>
-  <DestTime>2021-04-16T07:33:22.8637412-04:00</DestTime>
+<PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/GeneratedSphereBlue.png</SourceFile>
+  <SourceTime>2021-04-13T00:54:21.4468143-04:00</SourceTime>
+  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Images/GeneratedSphereBlue.xnb</DestFile>
+  <DestTime>2021-04-20T01:33:55.69653-04:00</DestTime>
   <Importer>TextureImporter</Importer>
-  <ImporterTime>2020-05-27T15:15:40-04:00</ImporterTime>
+  <ImporterTime>2018-09-23T17:55:52-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>
-  <ProcessorTime>2020-05-27T15:15:40-04:00</ProcessorTime>
+  <ProcessorTime>2018-09-23T17:55:52-04:00</ProcessorTime>
   <Parameters>
     <Key>ColorKeyColor</Key>
     <Value>255,0,255,255</Value>
