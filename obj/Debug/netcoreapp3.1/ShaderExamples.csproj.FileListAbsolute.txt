@@ -271,6 +271,6 @@ C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExa
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\FlatNormalMap.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\FlatNormalMap.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\ReflectionCubeEffect.xnb
-C:\Users\Owner\GithubPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.csprojAssemblyReference.cache
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\ReflectionCubeEffect.xnb
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\DepthCubeEffect.xnb
+C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\DepthCubeEffect.xnb

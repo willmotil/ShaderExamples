@@ -150,9 +150,11 @@ VsOutputCalcSceneDepth CreateDepthMapVertexShader(VsInputCalcSceneDepth input)//
 float4 PS_RenderDepthCube(VertexShaderOutput input) : COLOR
 {
 	float3 N = normalize(input.Normal.xyz);
-	float4 col = TexCubeLod(CubeMapSampler, N, 0);
+	float4 col = texCUBElod(CubeMapSampler, float4 (N, 0));
+	//float4 col = TexCubeLod(CubeMapSampler, N, 0);
+	//float4 col = TexCubeLod(CubeMapSampler, N, 0);
 	col.a = 1.0f;
-	col.rgb = col.rgb / 10000.0f;
+	col.rgb = col.r / float3(10000.0f, 1000.0f, 100.0f);
 
 	return col;
 }

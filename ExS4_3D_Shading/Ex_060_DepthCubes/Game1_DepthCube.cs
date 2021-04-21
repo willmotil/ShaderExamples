@@ -209,18 +209,14 @@ namespace ShaderExamples
 
         public void LoadAndSetupInitialEnvEffect()
         {
-            ReflectionCubeEffectClass.Load(Content);
-            ReflectionCubeEffectClass.Technique_Render_PhongWithNormMapEnviromentalLight();
-            ReflectionCubeEffectClass.TextureCubeDiffuse = textureCubeDiffuse;
-            ReflectionCubeEffectClass.TextureCubeEnviromental = textureCubeDiffuseIrradiance;
-            ReflectionCubeEffectClass.AmbientStrength = 0.4f;
-            ReflectionCubeEffectClass.DiffuseStrength = .30f;
-            ReflectionCubeEffectClass.SpecularStrength = .30f;
-            ReflectionCubeEffectClass.View = cam.view;
-            ReflectionCubeEffectClass.Projection = cam.projection;
-            ReflectionCubeEffectClass.CameraPosition = cam.cameraWorld.Translation;
-            ReflectionCubeEffectClass.LightPosition = lightPosition;
-            ReflectionCubeEffectClass.LightColor = new Vector3(1f, 1f, 1f);
+            DepthCubeEffectClass.Load(Content);
+            DepthCubeEffectClass.TextureCubeDiffuse = textureCubeDiffuse;
+            //DepthCubeEffectClass.TextureCubeEnviromental = textureCubeDiffuseIrradiance;
+            DepthCubeEffectClass.View = cam.view;
+            DepthCubeEffectClass.Projection = cam.projection;
+            DepthCubeEffectClass.CameraPosition = cam.cameraWorld.Translation;
+            DepthCubeEffectClass.LightPosition = lightPosition;
+            DepthCubeEffectClass.LightColor = new Vector3(1f, 1f, 1f);
         }
 
         protected override void UnloadContent()
@@ -280,9 +276,12 @@ namespace ShaderExamples
             else
                 GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;
 
+            SetProjection(shadowMapProjection);
             DepthRenderSceneFaces();
             GraphicsDevice.SetRenderTarget(null);
 
+            DepthCubeEffectClass.View = cam.view;
+            SetProjection(cam.projection);
             DrawDepthRender();
 
             DrawSpriteBatches(gameTime);
@@ -316,55 +315,53 @@ namespace ShaderExamples
 
         void CreateAndSetCubeFaceView(Matrix face)
         {
-            var view = Matrix.Invert(face);
-            ReflectionCubeEffectClass.View = view;
+            //var view = Matrix.Invert(face);
+            var view = face;
+            DepthCubeEffectClass.View = view;
         }
 
         void SetProjection(Matrix Projection)
         {
-            ReflectionCubeEffectClass.Projection = Projection;
+            DepthCubeEffectClass.Projection = Projection;
         }
 
         public void DepthRenderScene()
         {
-            ReflectionCubeEffectClass.View = cam.view;
-            ReflectionCubeEffectClass.Projection = cam.projection;
-            ReflectionCubeEffectClass.LightPosition = lightPosition;
-            ReflectionCubeEffectClass.CameraPosition = cam.cameraWorld.Translation;
+            DepthCubeEffectClass.LightPosition = lightPosition;
+            DepthCubeEffectClass.CameraPosition = cam.cameraWorld.Translation;
 
-            ReflectionCubeEffectClass.Technique_Render_LightDepth();
+            DepthCubeEffectClass.Technique_Render_LightDepth();
 
             // S P H E R E S   S K Y    
 
             for (int index = 0; index < spheres.Length; index++)
             {
-                ReflectionCubeEffectClass.World = spheres[index].WorldTransformation;
+                DepthCubeEffectClass.World = spheres[index].WorldTransformation;
                 if (spheres[index].IsSkyBox)
-                    spheres[index].DrawPrimitiveSphere(GraphicsDevice, ReflectionCubeEffectClass.effect);
+                    spheres[index].DrawPrimitiveSphere(GraphicsDevice, DepthCubeEffectClass.effect);
                 else
-                    spheres[index].DrawPrimitiveSphere(GraphicsDevice, ReflectionCubeEffectClass.effect);
+                    spheres[index].DrawPrimitiveSphere(GraphicsDevice, DepthCubeEffectClass.effect);
             }
 
             // M E S H
 
             if (displayMeshTerrain)
             {
-                ReflectionCubeEffectClass.World = meshTerrain.WorldTransformation;
-                meshTerrain.DrawPrimitive(GraphicsDevice, ReflectionCubeEffectClass.effect);
+                DepthCubeEffectClass.World = meshTerrain.WorldTransformation;
+                meshTerrain.DrawPrimitive(GraphicsDevice, DepthCubeEffectClass.effect);
             }
         }
 
         void DrawDepthRender()
         {
+            DepthCubeEffectClass.Technique_Render_VisualizationDepthCube();
+
             for (int index = 0; index < spheres.Length; index++)
             {
-                ReflectionCubeEffectClass.World = spheres[index].WorldTransformation;
-                ReflectionCubeEffectClass.TextureCubeDiffuse = renderTargetDepthCube;
-                ReflectionCubeEffectClass.TextureCubeEnviromental = renderTargetDepthCube;
-
-                ReflectionCubeEffectClass.Technique_Render_VisualizationDepthCube();
+                DepthCubeEffectClass.World = spheres[index].WorldTransformation;
+                DepthCubeEffectClass.TextureCubeDiffuse = renderTargetDepthCube;
                 if (spheres[index].IsSkyBox == false)
-                    spheres[index].DrawPrimitiveSphere(GraphicsDevice, ReflectionCubeEffectClass.effect);
+                    spheres[index].DrawPrimitiveSphere(GraphicsDevice, DepthCubeEffectClass.effect);
             }
         }
 

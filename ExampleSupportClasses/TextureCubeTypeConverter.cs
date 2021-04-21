@@ -21,13 +21,13 @@ namespace Microsoft.Xna.Framework
         public static string DirectoryForEffect = @"Content/Shaders3D";
         public static Effect _textureCubeBuildEffect;
 
-
-        public static Matrix MatrixNegativeX = Matrix.CreateWorld(Vector3.Zero, new Vector3(-1.0f, 0, 0), Vector3.Up);
-        public static Matrix MatrixNegativeZ = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 0, -1.0f), Vector3.Up);
-        public static Matrix MatrixPositiveX = Matrix.CreateWorld(Vector3.Zero, new Vector3(1.0f, 0, 0), Vector3.Up);
-        public static Matrix MatrixPositiveZ = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 0, 1.0f), Vector3.Up);
-        public static Matrix MatrixPositiveY = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 1.0f, 0), Vector3.Backward);
-        public static Matrix MatrixNegativeY = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, -1.0f, 0), Vector3.Forward);
+        // This matches the definitions for cubefaces but ... it doesn't matter cause the uv data just comes from normal direction on the texture cube.
+        public static Matrix MatrixPositiveX = Matrix.CreateWorld(Vector3.Zero, new Vector3(1.0f, 0, 0), Vector3.Up);  // 0
+        public static Matrix MatrixNegativeX = Matrix.CreateWorld(Vector3.Zero, new Vector3(-1.0f, 0, 0), Vector3.Up);  // 1
+        public static Matrix MatrixPositiveY = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 1.0f, 0), Vector3.Backward); //2
+        public static Matrix MatrixNegativeY = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, -1.0f, 0), Vector3.Forward);  //3
+        public static Matrix MatrixPositiveZ = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 0, 1.0f), Vector3.Up);   //4
+        public static Matrix MatrixNegativeZ = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 0, -1.0f), Vector3.Up);   // 5
 
         public static void Load(Microsoft.Xna.Framework.Content.ContentManager Content)
         {
