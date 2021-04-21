@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/wallnormmapGimp.png</SourceFile>
-  <SourceTime>2021-04-13T23:54:08.930918-04:00</SourceTime>
-  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Content/Images/wallnormmapGimp.xnb</DestFile>
-  <DestTime>2021-04-19T03:26:56.8556561-04:00</DestTime>
+  <SourceFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Images/wallnormmapGimp.png</SourceFile>
+  <SourceTime>2018-05-09T05:15:50.0233544-04:00</SourceTime>
+  <DestFile>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/bin/Windows/Content/Images/wallnormmapGimp.xnb</DestFile>
+  <DestTime>2021-04-20T06:48:43.1276964-04:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2020-08-10T16:17:54-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

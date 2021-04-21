@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SourceFileCollection xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<SourceFileCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Profile>Reach</Profile>
   <Platform>Windows</Platform>
   <Config />
   <SourceFiles>
+    <File>C:/Users/will/MainFiles/GitPrjs/ShaderExamples/Content/Shaders3D/DepthCubeEffect.fx</File>
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Fonts/MgFont.spritefont</File>
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Fonts/MgFont2.spritefont</File>
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Fonts/MgFont3.spritefont</File>
@@ -67,66 +68,6 @@
     <File>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Shaders3D/TextureCubeBuildEffect.fx</File>
   </SourceFiles>
   <DestFiles>
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
-    <File xsi:nil="true" />
     <File xsi:nil="true" />
   </DestFiles>
 </SourceFileCollection>

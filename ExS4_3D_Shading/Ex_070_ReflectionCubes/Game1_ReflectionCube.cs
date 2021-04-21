@@ -553,7 +553,7 @@ namespace ShaderExamples
 
                 ReflectionCubeEffectClass.Technique_Render_VisualizationDepthCube();
 
-                if (spheres[index].IsSkyBox)
+                if (spheres[index].IsSkyBox == false)
                     spheres[index].DrawPrimitiveSphere(GraphicsDevice, ReflectionCubeEffectClass.effect);
             }
 
