@@ -9,7 +9,6 @@ namespace ShaderExamples
 {
     public class Game1_DepthCube : Game
     {
-        bool manuallyRotateLight = false;
         bool displayMesh = true;
         bool displayMeshTerrain = true;
         bool displayWireframe = false;
@@ -27,23 +26,23 @@ namespace ShaderExamples
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         SpriteFont  font , font2, font3;
-        TextureCube textureCubeDiffuse,   textureCubeDiffuseIrradiance;
-        Texture2D  textureMeshTerrain, textureMeshNormalMapTerrain, textureHdrLdrSphere, textureHdrLdrSphereIllumination, textureHdrLdrSphereNormalMap, textureMonogameLogo ;
-        RenderTargetCube renderTargetDepthCube, renderTargetReflectionCube;
+        TextureCube textureCubeDiffuse,   textureCubeDiffuseIrradiance, textureCubeEnvGeneratedFromSixImages, textureCubeFromRenderTarget;
+        Texture2D  textureMeshTerrain, textureMeshNormalMapTerrain, textureHdrLdrSphere, textureHdrLdrSphereIllumination, textureHdrLdrSphereNormalMap, textureMonogameLogo;
+        Texture2D generatedTextureHdrLdrFromManuallySetSingleImages, generatedTextureHdrLdrFromGeneratedEnvCubeMap, generatedTextureHdrLdrFromRenderTargetCube,
+                        faceFront, faceBack, faceLeft, faceRight, faceTop, faceBottom
+                        ;
+        Texture2D[] textureArrayManuallySet, generatedTextureFaceArrayFromRenderTargetCubemap, generatedTextureFaceArrayFromGeneratedEnvCubemap ,  generatedTextureFaceArrayFromHdrLdr;
+
         RenderTarget2D rtScene;
+        RenderTargetCube renderTargetDepthCube, renderTargetReflectionCube;
         Matrix  shadowMapProjection;
 
         CameraAndKeyboardControls cam = new CameraAndKeyboardControls();
 
         PrimitiveIndexedMesh meshTerrain;
-        //VisualizationNormals visualMesh1Normals = new VisualizationNormals();
-        //VisualizationNormals visualMesh1Tangents = new VisualizationNormals();
 
         public static int numberOfSpheres = 2;
         PrimitiveSphere[] spheres = new PrimitiveSphere[numberOfSpheres];
-        //VisualizationNormals[] visualSphereNormals = new VisualizationNormals[numberOfSpheres];
-        //VisualizationNormals[] visualSphereTangents = new VisualizationNormals[numberOfSpheres];
-        //VisualizationLine[] visualLightLineToSpheres = new VisualizationLine[numberOfSpheres];
 
         float[] heightMap = new float[]
         {
@@ -58,9 +57,14 @@ namespace ShaderExamples
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
         };
 
-        Vector3 lightStartPosition = new Vector3(1, 125, 3000); // new Vector3(1, 800, 300)
+        Vector3 lightStartPosition = new Vector3(0, 0, 0);  //new Vector3(1, 125, 3000); // new Vector3(1, 800, 300)
         Vector3 lightPosition = new Vector3(0, 0, 0);
         Matrix lightTransform = Matrix.Identity;
+        float lightRotationRadiansX = 0f;
+        float lightRotationRadiansY = 0f;
+
+        bool manuallyRotateLight = true;
+        bool lightAutoAxisFlip = false;
 
 
         public Game1_DepthCube()
@@ -88,6 +92,7 @@ namespace ShaderExamples
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            MgDrawExt.Initialize(GraphicsDevice, spriteBatch);
 
             // aspect ratio 1 needs a corresponding pfov aspect.
             shadowMapProjection = Matrix.CreatePerspectiveFieldOfView((float)MathHelper.Pi * .5f, 1, .1f, 10000f);
@@ -124,9 +129,38 @@ namespace ShaderExamples
             textureHdrLdrSphereNormalMap = Content.Load<Texture2D>("wallnormmap");
             textureHdrLdrSphereIllumination = Content.Load<Texture2D>("Eqr001_Diffuse_irradiance");
 
+            faceFront = Content.Load<Texture2D>("Face_Front");
+            faceBack = Content.Load<Texture2D>("Face_Back");
+            faceLeft = Content.Load<Texture2D>("Face_Left");
+            faceRight = Content.Load<Texture2D>("Face_Right");
+            faceTop = Content.Load<Texture2D>("Face_Top");
+            faceBottom = Content.Load<Texture2D>("Face_Bottom");
+
             TextureCubeTypeConverter.Load(Content);
-            textureCubeDiffuse = TextureCubeTypeConverter.ConvertSphericalTexture2DToTextureCube(GraphicsDevice, textureHdrLdrSphere, false, false, textureHdrLdrSphere.Width);
-            textureCubeDiffuseIrradiance = TextureCubeTypeConverter.ConvertSphericalTexture2DToTextureCube(GraphicsDevice, textureHdrLdrSphereIllumination, false, false, textureHdrLdrSphereIllumination.Width);
+
+            textureCubeEnvGeneratedFromSixImages = TextureCubeTypeConverter.ConvertTexture2DsToTextureCube
+            (
+                GraphicsDevice,
+                faceRight,
+                faceLeft,
+                faceTop,
+                faceBottom,
+                faceFront,
+                faceBack,
+                false, false, 256 // textureMonogameLogo.Width
+            );
+            generatedTextureFaceArrayFromGeneratedEnvCubemap = TextureCubeTypeConverter.ConvertTextureCubeToTexture2DArray(GraphicsDevice, textureCubeEnvGeneratedFromSixImages, false, false, 256);
+            generatedTextureHdrLdrFromGeneratedEnvCubeMap = TextureCubeTypeConverter.ConvertTextureCubeToSphericalTexture2D(GraphicsDevice, textureCubeEnvGeneratedFromSixImages, false, false, 256);
+
+
+            textureArrayManuallySet = new Texture2D[] { faceRight, faceLeft, faceTop, faceBottom, faceFront, faceBack };
+            generatedTextureHdrLdrFromManuallySetSingleImages = TextureCubeTypeConverter.ConvertTexture2DArrayToSphericalTexture2D(GraphicsDevice, textureArrayManuallySet, false, false, 256);
+
+
+
+            textureCubeDiffuse = textureCubeEnvGeneratedFromSixImages;
+            //textureCubeDiffuse = TextureCubeTypeConverter.ConvertSphericalTexture2DToTextureCube(GraphicsDevice, textureHdrLdrSphere, false, false, textureHdrLdrSphere.Width);
+            //textureCubeDiffuseIrradiance = TextureCubeTypeConverter.ConvertSphericalTexture2DToTextureCube(GraphicsDevice, textureHdrLdrSphereIllumination, false, false, textureHdrLdrSphereIllumination.Width);
         }
 
         public void SetCamera()
@@ -211,7 +245,6 @@ namespace ShaderExamples
         {
             DepthCubeEffectClass.Load(Content);
             DepthCubeEffectClass.TextureCubeDiffuse = textureCubeDiffuse;
-            //DepthCubeEffectClass.TextureCubeEnviromental = textureCubeDiffuseIrradiance;
             DepthCubeEffectClass.View = cam.view;
             DepthCubeEffectClass.Projection = cam.projection;
             DepthCubeEffectClass.CameraPosition = cam.cameraWorld.Translation;
@@ -229,10 +262,14 @@ namespace ShaderExamples
         // update
         //++++++++++++++++++++++++++++++++++
 
+        float elapsed;
+
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+
+            elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             cam.Update(gameTime);
 
@@ -254,8 +291,49 @@ namespace ShaderExamples
             if (Keys.Home.IsKeyPressedWithDelay(gameTime))
                 cam.InitialView(GraphicsDevice);
 
+            UpdateLight(gameTime);
 
             base.Update(gameTime);
+        }
+
+
+        public void UpdateLight(GameTime gameTime)
+        {
+            if (Keys.Space.IsKeyPressedWithDelay(gameTime))
+                manuallyRotateLight = !manuallyRotateLight;
+            if (manuallyRotateLight)
+            {
+                if (Keys.OemPlus.IsKeyDown())
+                    lightRotationRadiansX += .05f;
+                if (Keys.OemMinus.IsKeyDown())
+                    lightRotationRadiansX -= .05f;
+                if (Keys.OemOpenBrackets.IsKeyDown())
+                    lightRotationRadiansY += .05f;
+                if (Keys.OemCloseBrackets.IsKeyDown())
+                    lightRotationRadiansY -= .05f;
+
+                lightTransform = Matrix.CreateRotationX(lightRotationRadiansX) * Matrix.CreateRotationY(lightRotationRadiansY);
+                lightPosition = Vector3.Transform(lightStartPosition, lightTransform);
+            }
+            else
+            {
+                lightRotationRadiansX += .01f;
+                if (lightRotationRadiansX > 6.28318f)
+                    lightAutoAxisFlip = !lightAutoAxisFlip;
+                var axisOfRotation = new Vector3(1, 0, 0);
+                if (lightAutoAxisFlip)
+                    axisOfRotation = new Vector3(0, 1, 0);
+                lightTransform = Matrix.CreateFromAxisAngle(axisOfRotation, lightRotationRadiansX);
+                lightPosition = Vector3.Transform(lightStartPosition, lightTransform);
+            }
+            if (lightRotationRadiansX > 6.28318f)
+                lightRotationRadiansX = 0;
+            if (lightRotationRadiansX < 0)
+                lightRotationRadiansX = 6.283f;
+            if (lightRotationRadiansY > 6.28318f)
+                lightRotationRadiansY = 0;
+            if (lightRotationRadiansY < 0)
+                lightRotationRadiansY = 6.283f;
         }
 
 
@@ -276,13 +354,33 @@ namespace ShaderExamples
             else
                 GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;
 
+            // depth render
+
+            //SetProjection(shadowMapProjection);
+            //DepthRenderSceneFaces(false);
+            //GraphicsDevice.SetRenderTarget(null);
+            //generatedTextureFaceArrayFromRenderTargetCubemap = TextureCubeTypeConverter.ConvertTextureCubeToTexture2DArray(GraphicsDevice, renderTargetDepthCube, false, false, 256);
+
+            //DepthCubeEffectClass.View = cam.view;
+            //SetProjection(cam.projection);
+            //DrawDepthRender();
+
+
+
+            // reflection render.
+
             SetProjection(shadowMapProjection);
-            DepthRenderSceneFaces();
+            ReflectionRenderSceneFaces(false);
             GraphicsDevice.SetRenderTarget(null);
+            generatedTextureFaceArrayFromRenderTargetCubemap = TextureCubeTypeConverter.ConvertTextureCubeToTexture2DArray(GraphicsDevice, renderTargetReflectionCube, false, false, 256);
+            generatedTextureHdrLdrFromRenderTargetCube = TextureCubeTypeConverter.ConvertTextureCubeToSphericalTexture2D(GraphicsDevice, renderTargetReflectionCube, false, false, 256);
 
             DepthCubeEffectClass.View = cam.view;
             SetProjection(cam.projection);
-            DrawDepthRender();
+            DrawReflectionRender();
+
+
+            //DrawRegularRender();
 
             DrawSpriteBatches(gameTime);
 
@@ -291,38 +389,187 @@ namespace ShaderExamples
 
         #region drawscene with reflection and depth.
 
-        void DepthRenderSceneFaces()
+
+        void CreateAndSetCubeFaceView(Matrix face, bool invert)
         {
-            GraphicsDevice.SetRenderTarget(renderTargetDepthCube, CubeMapFace.NegativeX);
-            CreateAndSetCubeFaceView(TextureCubeTypeConverter.MatrixNegativeX);
-            DepthRenderScene();
-            GraphicsDevice.SetRenderTarget(renderTargetDepthCube, CubeMapFace.NegativeY);
-            CreateAndSetCubeFaceView(TextureCubeTypeConverter.MatrixNegativeY);
-            DepthRenderScene();
-            GraphicsDevice.SetRenderTarget(renderTargetDepthCube, CubeMapFace.NegativeZ);
-            CreateAndSetCubeFaceView(TextureCubeTypeConverter.MatrixNegativeZ);
-            DepthRenderScene();
-            GraphicsDevice.SetRenderTarget(renderTargetDepthCube, CubeMapFace.PositiveX);
-            CreateAndSetCubeFaceView(TextureCubeTypeConverter.MatrixPositiveX);
-            DepthRenderScene();
-            GraphicsDevice.SetRenderTarget(renderTargetDepthCube, CubeMapFace.PositiveY);
-            CreateAndSetCubeFaceView(TextureCubeTypeConverter.MatrixPositiveY);
-            DepthRenderScene();
-            GraphicsDevice.SetRenderTarget(renderTargetDepthCube, CubeMapFace.PositiveZ);
-            CreateAndSetCubeFaceView(TextureCubeTypeConverter.MatrixPositiveZ);
-            DepthRenderScene();
+            if (invert)
+            {
+                face = Matrix.Invert(face);
+                //face =
+                //    new Matrix
+                //    (
+                //    -1, 0, 0, 0,
+                //    0, 1, 0, 0,
+                //    0, 0, 1, 0,
+                //    0, 0, 0, 1
+                //    )
+                //    * face
+                //    ;
+                //                 face = CreateLhLookAt(face.Translation, face.Forward + face.Translation, face.Up);
+            }
+            DepthCubeEffectClass.View = face;
         }
 
-        void CreateAndSetCubeFaceView(Matrix face)
+        public static Matrix CreateLhLookAt(Vector3 cameraPosition, Vector3 cameraTarget, Vector3 cameraUpVector)
         {
-            //var view = Matrix.Invert(face);
-            var view = face;
-            DepthCubeEffectClass.View = view;
+            var vector = Vector3.Normalize(cameraPosition - cameraTarget);
+            var vector2 = -Vector3.Normalize(Vector3.Cross(cameraUpVector, vector));
+            var vector3 = Vector3.Cross(-vector, vector2);
+            Matrix result = Matrix.Identity;
+            result.M11 = vector2.X;
+            result.M12 = vector3.X;
+            result.M13 = vector.X;
+            result.M14 = 0f;
+            result.M21 = vector2.Y;
+            result.M22 = vector3.Y;
+            result.M23 = vector.Y;
+            result.M24 = 0f;
+            result.M31 = vector2.Z;
+            result.M32 = vector3.Z;
+            result.M33 = vector.Z;
+            result.M34 = 0f;
+            result.M41 = -Vector3.Dot(vector2, cameraPosition);
+            result.M42 = -Vector3.Dot(vector3, cameraPosition);
+            result.M43 = -Vector3.Dot(vector, cameraPosition);
+            result.M44 = 1f;
+            return result;
         }
 
         void SetProjection(Matrix Projection)
         {
             DepthCubeEffectClass.Projection = Projection;
+        }
+
+        void ReflectionRenderSceneFaces(bool invert)
+        {
+            GraphicsDevice.SetRenderTarget(renderTargetReflectionCube, CubeMapFace.NegativeX);
+            var m = TextureCubeTypeConverter.MatrixNegativeX; m.Translation = lightPosition;
+            CreateAndSetCubeFaceView(m, invert);
+            ReflectionRenderScene();
+
+            GraphicsDevice.SetRenderTarget(renderTargetReflectionCube, CubeMapFace.NegativeY);
+            m = TextureCubeTypeConverter.MatrixNegativeY; m.Translation = lightPosition;
+            CreateAndSetCubeFaceView(m, invert);
+            ReflectionRenderScene();
+
+            GraphicsDevice.SetRenderTarget(renderTargetReflectionCube, CubeMapFace.NegativeZ);
+            m = TextureCubeTypeConverter.MatrixNegativeZ; m.Translation = lightPosition;
+            CreateAndSetCubeFaceView(m, invert);
+            ReflectionRenderScene();
+
+            GraphicsDevice.SetRenderTarget(renderTargetReflectionCube, CubeMapFace.PositiveX);
+            m = TextureCubeTypeConverter.MatrixPositiveX; m.Translation = lightPosition;
+            CreateAndSetCubeFaceView(m, invert);
+            ReflectionRenderScene();
+
+            GraphicsDevice.SetRenderTarget(renderTargetReflectionCube, CubeMapFace.PositiveY);
+            m = TextureCubeTypeConverter.MatrixPositiveY; m.Translation = lightPosition;
+            CreateAndSetCubeFaceView(m, invert);
+            ReflectionRenderScene();
+
+            GraphicsDevice.SetRenderTarget(renderTargetReflectionCube, CubeMapFace.PositiveZ);
+            m = TextureCubeTypeConverter.MatrixPositiveZ; m.Translation = lightPosition;
+            CreateAndSetCubeFaceView(m, invert);
+            ReflectionRenderScene();
+        }
+
+
+        public void ReflectionRenderScene()
+        {
+            DepthCubeEffectClass.LightPosition = lightPosition;
+            DepthCubeEffectClass.CameraPosition = cam.cameraWorld.Translation;
+
+
+            // S P H E R E S   S K Y    
+
+            //DepthCubeEffectClass.Technique_Render_BasicSkyCubeMapScene();
+            DepthCubeEffectClass.Technique_Render_BasicUnalteredRenderTargetCubeMap();
+
+            DepthCubeEffectClass.TextureCubeDiffuse = textureCubeEnvGeneratedFromSixImages;
+            DepthCubeEffectClass.World = spheres[1].WorldTransformation;
+            spheres[1].DrawPrimitiveSphere(GraphicsDevice, DepthCubeEffectClass.effect);
+
+            // M E S H
+
+            DepthCubeEffectClass.Technique_Render_BasicScene();
+
+            DepthCubeEffectClass.World = meshTerrain.WorldTransformation;
+            meshTerrain.DrawPrimitive(GraphicsDevice, DepthCubeEffectClass.effect);
+           
+        }
+
+        void DrawReflectionRender()
+        {
+            DepthCubeEffectClass.TextureCubeDiffuse = renderTargetReflectionCube;
+
+            DepthCubeEffectClass.Technique_Render_BasicUnalteredRenderTargetCubeMap();
+
+            //DepthCubeEffectClass.Technique_Render_BasicCubeMapScene();
+            DepthCubeEffectClass.World = spheres[0].WorldTransformation;
+            spheres[0].DrawPrimitiveSphere(GraphicsDevice, DepthCubeEffectClass.effect);
+
+
+            //DepthCubeEffectClass.Technique_Render_BasicSkyCubeMapScene();
+            DepthCubeEffectClass.World = spheres[1].WorldTransformation;
+            spheres[1].DrawPrimitiveSphere(GraphicsDevice, DepthCubeEffectClass.effect);
+        }
+
+        #endregion
+
+        public void DrawRegularRender()
+        {
+            DepthCubeEffectClass.Technique_Render_BasicScene();
+            DepthCubeEffectClass.World = meshTerrain.WorldTransformation;
+            DepthCubeEffectClass.TextureDiffuse = textureMonogameLogo;
+            meshTerrain.DrawPrimitive(GraphicsDevice, DepthCubeEffectClass.effect);
+
+
+            DepthCubeEffectClass.TextureCubeDiffuse = textureCubeEnvGeneratedFromSixImages;
+
+            DepthCubeEffectClass.Technique_Render_BasicCubeMapScene();
+            DepthCubeEffectClass.World = spheres[0].WorldTransformation;
+            spheres[0].DrawPrimitiveSphere(GraphicsDevice, DepthCubeEffectClass.effect);
+
+            DepthCubeEffectClass.Technique_Render_BasicSkyCubeMapScene();
+            DepthCubeEffectClass.World = spheres[1].WorldTransformation;
+            spheres[1].DrawPrimitiveSphere(GraphicsDevice, DepthCubeEffectClass.effect);
+        }
+
+
+        // __ depth
+
+
+        void DepthRenderSceneFaces(bool invert)
+        {
+            GraphicsDevice.SetRenderTarget(renderTargetDepthCube, CubeMapFace.NegativeX);
+            var m = TextureCubeTypeConverter.MatrixNegativeX; m.Translation = lightPosition;
+            CreateAndSetCubeFaceView(m, invert);
+            DepthRenderScene();
+
+            GraphicsDevice.SetRenderTarget(renderTargetDepthCube, CubeMapFace.NegativeY);
+            m = TextureCubeTypeConverter.MatrixNegativeY; m.Translation = lightPosition;
+            CreateAndSetCubeFaceView(m, invert);
+            DepthRenderScene();
+
+            GraphicsDevice.SetRenderTarget(renderTargetDepthCube, CubeMapFace.NegativeZ);
+            m = TextureCubeTypeConverter.MatrixNegativeZ; m.Translation = lightPosition;
+            CreateAndSetCubeFaceView(m, invert);
+            DepthRenderScene();
+
+            GraphicsDevice.SetRenderTarget(renderTargetDepthCube, CubeMapFace.PositiveX);
+            m = TextureCubeTypeConverter.MatrixPositiveX; m.Translation = lightPosition;
+            CreateAndSetCubeFaceView(m, invert);
+            DepthRenderScene();
+
+            GraphicsDevice.SetRenderTarget(renderTargetDepthCube, CubeMapFace.PositiveY);
+            m = TextureCubeTypeConverter.MatrixPositiveY; m.Translation = lightPosition;
+            CreateAndSetCubeFaceView(m, invert);
+            DepthRenderScene();
+
+            GraphicsDevice.SetRenderTarget(renderTargetDepthCube, CubeMapFace.PositiveZ);
+            m = TextureCubeTypeConverter.MatrixPositiveZ; m.Translation = lightPosition;
+            CreateAndSetCubeFaceView(m, invert);
+            DepthRenderScene();
         }
 
         public void DepthRenderScene()
@@ -334,14 +581,8 @@ namespace ShaderExamples
 
             // S P H E R E S   S K Y    
 
-            for (int index = 0; index < spheres.Length; index++)
-            {
-                DepthCubeEffectClass.World = spheres[index].WorldTransformation;
-                if (spheres[index].IsSkyBox)
-                    spheres[index].DrawPrimitiveSphere(GraphicsDevice, DepthCubeEffectClass.effect);
-                else
-                    spheres[index].DrawPrimitiveSphere(GraphicsDevice, DepthCubeEffectClass.effect);
-            }
+            DepthCubeEffectClass.World = spheres[1].WorldTransformation;
+            spheres[1].DrawPrimitiveSphere(GraphicsDevice, DepthCubeEffectClass.effect);
 
             // M E S H
 
@@ -366,7 +607,6 @@ namespace ShaderExamples
         }
 
 
-        #endregion
 
 
         public void DrawSpriteBatches(GameTime gameTime)
@@ -376,33 +616,118 @@ namespace ShaderExamples
             // Draw all the regular stuff
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
 
-            var whatIdrewWithCullWise = (CullOutCounterClockWiseTriangles == true) ? "CounterClockwise" : "ClockWise";
+            var r = new Rectangle();
+            //spriteBatch.Draw(textureSphereHdrLdr, new Rectangle(0, 10, 100, 120), Color.White);
+
+            r= new Rectangle(10, 10, 100, 100);
+            spriteBatch.Draw(generatedTextureHdrLdrFromGeneratedEnvCubeMap, r, Color.White);
+            spriteBatch.DrawRectangleOutline(r, 1, Color.White);
+
+            r = new Rectangle(10, 110, 100, 100);
+            spriteBatch.Draw(generatedTextureHdrLdrFromManuallySetSingleImages, r, Color.White);
+            spriteBatch.DrawRectangleOutline(r, 1, Color.Red);
+
+            r = new Rectangle(10, 210, 100, 100);
+            spriteBatch.Draw(generatedTextureHdrLdrFromRenderTargetCube, r, Color.White);
+            spriteBatch.DrawRectangleOutline(r, 1, Color.Red);
+
+            for (int i = 0; i < generatedTextureFaceArrayFromRenderTargetCubemap.Length; i++)
+            {
+                r = new Rectangle((i + 1) * 140 + 10, 10, 100, 100);
+                spriteBatch.Draw(generatedTextureFaceArrayFromGeneratedEnvCubemap[i], r, Color.White);
+                spriteBatch.DrawRectangleOutline(r, 1, Color.White);
+
+                r = new Rectangle((i + 1) * 140 + 40, 10 + 100, 100, 100);
+                spriteBatch.Draw(textureArrayManuallySet[i], r, Color.White);
+                spriteBatch.DrawRectangleOutline(r, 1, Color.Red);
+
+                r = new Rectangle((i + 1) * 140 + 80, 10 +200, 100, 100);
+                spriteBatch.Draw(generatedTextureFaceArrayFromRenderTargetCubemap[i], r, Color.White); 
+                spriteBatch.DrawRectangleOutline(r, 1, Color.Red);
+
+                //spriteBatch.Draw(generatedTextureFaceArrayFromHdrLdr[i], new Rectangle((i + 1) * 140 +70, 10 + 200, 100, 100), Color.White);
+            }
 
             string msg =
+                    $" \n The F2 toggle wireframe. F3 show normals. F4 mesh itself. F5 the texture used." +
+                    $" \n Space toggle light controls." +
+                    $" \n The keys WASD change the forward view direction (which is the major take away here). ZC allows for spin." +
+                    $" \n The Arrow keys move the camera translation as strafing motion. " +
                     $" \n  " +
+                    $" \n  CubeMaping and related techniques require a texture cube." +
+                    $" \n  This is to render scene data to the faces or sample that data." +
+                    $" \n  This example will rely on many other classes as we need geometry for examples." +
+                    $" \n  In this class well use two primitive spheres to draw out cubemap data." +
+                    $" \n  One of these will have its vertices wound backwards to be a skysphere or cube." +
+                    $" \n  A TextureTypeConverter class to load images into a TextureCube." +
+                    $" \n  That will call on the TextureCubeBuildEffect, a SkyCubeEffect to draw the prims." +
+                    $" \n  Currently in monogame TextureCubes seem to store data a bit inverted." +
+                    $" \n  While not ideal for the momemnt in the SkyCubeEffect class will flip the y on the normal." +
                     $" \n  " +
+                    $" \n  A texture cube holds data in six images the call on the shader texCubeLod or one of its cousins." +
+                    $" \n  Takes Texture Coordinates in the form  of  u,v,w or  x,y,z normal texturecoordinates." +
+                    $" \n  This then returns texel data at the corresponding directional faces u v." +
+                    $" \n  " +
+                    $" \n  The primitive sphere class here is a cube when its faces w h are set to 2,2." +
+                    $" \n  Higher values tesselate the cube towards a sphere on creation." +
                     $" \n  " +
                     $" \n  " +
                     $" \n"
                     ;
 
             if (displayOnScreenTextInfo)
-                spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Red);
+                spriteBatch.DrawString(font, msg, new Vector2(10, 110), Color.White);
             else
                 spriteBatch.DrawString(
-                    font, 
+                    font,
                     $"Press F1 for information  " +
-                    $"\n" +
-                    $"" , 
-                    new Vector2(10, 10), 
-                    Color.Red
+                    $"" +
+                    $"",
+                    new Vector2(10, 110),
+                    Color.White
                     );
 
+
             if (Keys.End.IsKeyPressedWithDelay(gameTime))
-                Console.WriteLine( $"{cam.cameraWorld.ToDisplayMatrixForCopy("cameraWorld") } ");
+                Console.WriteLine($"{cam.cameraWorld.ToDisplayMatrixForCopy("cameraWorld") } ");
 
             spriteBatch.End();
         }
+
+        //public void DrawSpriteBatches(GameTime gameTime)
+        //{
+        //    GraphicsDevice.DepthStencilState = DepthStencilState.None;
+        //    GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
+        //    // Draw all the regular stuff
+        //    spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
+
+        //    var whatIdrewWithCullWise = (CullOutCounterClockWiseTriangles == true) ? "CounterClockwise" : "ClockWise";
+
+        //    string msg =
+        //            $" \n  " +
+        //            $" \n  " +
+        //            $" \n  " +
+        //            $" \n  " +
+        //            $" \n"
+        //            ;
+
+        //    if (displayOnScreenTextInfo)
+        //        spriteBatch.DrawString(font, msg, new Vector2(10, 10), Color.Red);
+        //    else
+        //        spriteBatch.DrawString(
+        //            font, 
+        //            $"Press F1 for information  " +
+        //            $"\n {elapsed}" +
+        //            $"" , 
+        //            new Vector2(10, 10), 
+        //            Color.Red
+        //            );
+
+        //    if (Keys.End.IsKeyPressedWithDelay(gameTime))
+        //        Console.WriteLine( $"{cam.cameraWorld.ToDisplayMatrixForCopy("cameraWorld") } ");
+
+        //    spriteBatch.End();
+        //}
 
     }
 }

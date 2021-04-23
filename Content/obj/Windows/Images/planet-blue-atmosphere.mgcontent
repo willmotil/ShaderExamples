@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/planet-blue-atmosphere.png</SourceFile>
-  <SourceTime>2021-04-13T00:54:21.4689871-04:00</SourceTime>
-  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Images/planet-blue-atmosphere.xnb</DestFile>
-  <DestTime>2021-04-20T01:33:56.5449882-04:00</DestTime>
+<PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SourceFile>C:/Users/will/MainFiles/GitPrjs/zTemp/ShaderExamples/Content/Images/planet-blue-atmosphere.png</SourceFile>
+  <SourceTime>2021-04-11T06:15:51.5815594-04:00</SourceTime>
+  <DestFile>C:/Users/will/MainFiles/GitPrjs/zTemp/ShaderExamples/Content/bin/Windows/Images/planet-blue-atmosphere.xnb</DestFile>
+  <DestTime>2021-04-21T15:50:42.5807341-04:00</DestTime>
   <Importer>TextureImporter</Importer>
-  <ImporterTime>2018-09-23T17:55:52-04:00</ImporterTime>
+  <ImporterTime>2020-05-27T15:15:40-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>
-  <ProcessorTime>2018-09-23T17:55:52-04:00</ProcessorTime>
+  <ProcessorTime>2020-05-27T15:15:40-04:00</ProcessorTime>
   <Parameters>
     <Key>ColorKeyColor</Key>
     <Value>255,0,255,255</Value>

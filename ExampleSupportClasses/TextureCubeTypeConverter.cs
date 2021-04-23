@@ -121,6 +121,10 @@ namespace Microsoft.Xna.Framework
             source[5] = negativeZ;
             return ConvertTexture2DArrayToSphericalTexture2D(gd, source, generateMips, useHdrFormat, sizeSquarePerFace);
         }
+
+        /// <summary>
+        /// 0,1,2,3,4,5 faceRight, faceLeft, faceTop, faceBottom, faceFront, faceBack 
+        /// </summary>
         public static Texture2D ConvertTexture2DArrayToSphericalTexture2D(GraphicsDevice gd, Texture2D[] source, bool generateMips, bool useHdrFormat, int sizeSquarePerFace)
         {
             var pixelformat = SurfaceFormat.Color;
@@ -131,7 +135,7 @@ namespace Microsoft.Xna.Framework
             return destinationMap;
         }
 
-        public static TextureCube ConvertTexture2DsToTextureCube(GraphicsDevice gd, Texture2D positiveX, Texture2D positiveY, Texture2D positiveZ, Texture2D negativeX, Texture2D negativeY, Texture2D negativeZ, bool generateMips, bool useHdrFormat, int sizeSquarePerFace)
+        public static TextureCube ConvertTexture2DsToTextureCube(GraphicsDevice gd, Texture2D positiveX, Texture2D negativeX, Texture2D positiveY, Texture2D negativeY, Texture2D positiveZ, Texture2D negativeZ, bool generateMips, bool useHdrFormat, int sizeSquarePerFace)
         {
             Texture2D[] source = new Texture2D[6];
             source[0] = positiveX;

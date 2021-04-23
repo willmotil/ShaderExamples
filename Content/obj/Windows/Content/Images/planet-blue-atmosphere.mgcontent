@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/Images/planet-blue-atmosphere.png</SourceFile>
-  <SourceTime>2021-04-13T00:54:21.4689871-04:00</SourceTime>
-  <DestFile>C:/Users/Owner/GithubPrjs/ShaderExamples/Content/bin/Windows/Content/Images/planet-blue-atmosphere.xnb</DestFile>
-  <DestTime>2021-04-21T00:45:41.7757073-04:00</DestTime>
+  <SourceFile>C:/Users/will/MainFiles/GitPrjs/zTemp/ShaderExamples/Content/Images/planet-blue-atmosphere.png</SourceFile>
+  <SourceTime>2021-04-11T06:15:51.5815594-04:00</SourceTime>
+  <DestFile>C:/Users/will/MainFiles/GitPrjs/zTemp/ShaderExamples/Content/bin/Windows/Content/Images/planet-blue-atmosphere.xnb</DestFile>
+  <DestTime>2021-04-21T13:45:26.751409-04:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2020-08-10T16:17:54-04:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

@@ -15,7 +15,7 @@ namespace ShaderExamples
 
         public float moveSpeed = 1.6f; //.25f;
         public float lookatSpeed = .024f; //.008f;
-        public float fov = 0.85f;
+        public float fov = 3.14159f / 2f;
 
         public Matrix cameraWorld = Matrix.Identity;
         private Vector3 cameraWorldPosition = new Vector3(0, 0, 500f);

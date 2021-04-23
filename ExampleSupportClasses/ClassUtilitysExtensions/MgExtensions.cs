@@ -395,7 +395,6 @@ namespace Microsoft.Xna.Framework
         {
             // the dot product also gives the length. 
             // when placed againsts a unit normal so any unit n * a distance is the distance to that normals plane no matter the normals direction. 
-            // i didn't know that relation was so straight forward.
             float camToPlaneDist = Vector3.Dot(thePlanesSurfaceNormal, theCameraPostion - anyPositionOnThatSurfacePlane);
             return theCameraPostion - thePlanesSurfaceNormal * camToPlaneDist * 2;
         }
@@ -479,7 +478,7 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         public static bool IsIntBitOn(this int inValue, int bitIndexToTest)
         {
-            return ((inValue & (1 << (bitIndexToTest))) > 0) ? true : false;
+            return (inValue & (1 << (bitIndexToTest))) > 0 ? true : false;
         }
 
         /// <summary>

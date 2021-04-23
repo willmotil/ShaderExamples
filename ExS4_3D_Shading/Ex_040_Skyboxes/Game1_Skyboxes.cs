@@ -41,7 +41,9 @@ namespace ShaderExamples
         Texture2D[]
             generatedTextureFaceArrayFromCubemap, generatedTextureFaceArrayFromHdrLdr //, loadedOrAssignedArray
             ;
+
         RenderTarget2D rtScene;
+
         CameraAndKeyboardControls cam = new CameraAndKeyboardControls();
 
 
@@ -100,6 +102,7 @@ namespace ShaderExamples
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
 
             SetCamera();
 

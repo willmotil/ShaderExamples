@@ -72,17 +72,22 @@ namespace ShaderExamples
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+
+            Content.RootDirectory = @"Content/Fonts";
+
+            font = Content.Load<SpriteFont>("MgFont");
+            font2 = Content.Load<SpriteFont>("MgFont2");
+            font3 = Content.Load<SpriteFont>("MgFont3");
+
+
             Content.RootDirectory = @"Content/Images";
-            texture = Content.Load<Texture2D>("MG_Logo_Modifyed"); // MG_Logo_Med_exCanvs  blue_atmosphere
             
             dotTexture = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Red);
             dotTexture2 = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.Green);
             dotTexture3 = MgDrawExt.CreateDotTexture(GraphicsDevice, Color.White);
 
-            Content.RootDirectory = @"Content/Fonts";
-            font = Content.Load<SpriteFont>("MgFont");
-            font2 = Content.Load<SpriteFont>("MgFont2");
-            font3 = Content.Load<SpriteFont>("MgFont3");
+            texture = font.Texture; //Content.Load<Texture2D>("MG_Logo_Modifyed"); // MG_Logo_Med_exCanvs  blue_atmosphere
+
 
             cam.InitialView(GraphicsDevice, new Matrix
              (
@@ -101,7 +106,8 @@ namespace ShaderExamples
             DiffuseLightEffectClass.Projection = cam.projection;
 
             PrimitiveIndexedMesh.ShowOutput = false;
-            PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVG_OPTION_USE_RED;
+            //PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVG_OPTION_USE_RED;
+            PrimitiveIndexedMesh.AveragingOption = PrimitiveIndexedMesh.AVG_OPTION_USE_PREMULT_NON_ALPHA_AS_ONE;
 
             //mesh = new PrimitiveIndexedMesh(4,4, new Vector3(300f, 250, 0f ), false, false, false);
             //mesh = new PrimitiveIndexedMesh(heightMap, 9, new Vector3( 300f, 250, 70f ), false, false, false);

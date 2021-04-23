@@ -14,10 +14,6 @@ namespace ShaderExamples
 
         public static string DirectoryForEffect = @"Content/Shaders3D";
 
-        private static float ambientStrength = .1f;
-        private static float diffuseStrength = .6f;
-        private static float specularStrength = .4f;
-
         public static void Load(Microsoft.Xna.Framework.Content.ContentManager Content)
         {
             Content.RootDirectory = DirectoryForEffect;
@@ -44,6 +40,31 @@ namespace ShaderExamples
             effect.CurrentTechnique = effect.Techniques["Render_LightDepth"];
         }
 
+        public static void Technique_Render_BasicUnalteredRenderTargetCubeMap()
+        {
+            effect.CurrentTechnique = effect.Techniques["Render_BasicUnalteredRenderTargetCubeMap"];
+        }
+
+        public static void Technique_Render_BasicCubeMapScene()
+        {
+            effect.CurrentTechnique = effect.Techniques["Render_BasicCubeMapScene"];
+        }
+
+        public static void Technique_Render_BasicSkyCubeMapScene()
+        {
+            effect.CurrentTechnique = effect.Techniques["Render_BasicSkyCubeMapScene"];
+        }
+
+        public static void Technique_Render_BasicScene()
+        {
+            effect.CurrentTechnique = effect.Techniques["Render_BasicScene"];
+        }
+        
+
+        public static Texture2D TextureDiffuse
+        {
+            set { effect.Parameters["TextureDiffuse"].SetValue(value); }
+        }
         public static TextureCube TextureCubeDiffuse
         {
             set { effect.Parameters["TextureCubeDiffuse"].SetValue(value); }

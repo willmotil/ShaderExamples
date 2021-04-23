@@ -116,6 +116,7 @@ namespace ShaderExamples
         /// <param name="scale">  scale should either be 1 or the size of the mesh.</param>
         public PrimitiveIndexedMesh(Texture2D heightTexture, Vector3 scale, bool windingCounterClockwise, bool negateNormalDirection, bool negateTangentDirection)
         {
+            var test = heightTexture.Format;
             Color[] heightColorArray = new Color[heightTexture.Width * heightTexture.Height];
             heightTexture.GetData<Color>(heightColorArray);
             CreatePrimitiveMesh(heightColorArray, heightTexture.Width, scale, windingCounterClockwise, negateNormalDirection, negateTangentDirection);

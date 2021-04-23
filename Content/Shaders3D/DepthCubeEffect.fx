@@ -43,6 +43,12 @@ matrix Projection;
 // T E X T U R E S  A N D  S A M P L E R S
 //++++++++++++++++++++++++++++++++++++++++
 
+Texture2D TextureDiffuse;
+sampler2D TextureSamplerDiffuse = sampler_state
+{
+	texture = (TextureDiffuse);
+};
+
 TextureCube TextureCubeDiffuse;
 samplerCUBE CubeMapSampler = sampler_state
 {
@@ -130,7 +136,7 @@ VertexShaderOutput VS(in VertexShaderInput input)
 }
 
 // Shader.
-VsOutputCalcSceneDepth CreateDepthMapVertexShader(VsInputCalcSceneDepth input)//(float4 inPos : POSITION)
+VsOutputCalcSceneDepth VS_CreateDepthMapVertexShader(VsInputCalcSceneDepth input)//(float4 inPos : POSITION)
 {
 	VsOutputCalcSceneDepth output;
 	output.Position3D = mul(input.Position, World);
@@ -146,29 +152,91 @@ VsOutputCalcSceneDepth CreateDepthMapVertexShader(VsInputCalcSceneDepth input)//
 // P I X E L  S H A D E R S
 //++++++++++++++++++++++++++++++++++++++++
 
-// DX the texture cube stores data inverted  float3(N.x, -N.y, -N.z)
-float4 PS_RenderDepthCube(VertexShaderOutput input) : COLOR
+float4 PS_RenderBasicScene(VertexShaderOutput input) : COLOR
 {
 	float3 N = normalize(input.Normal.xyz);
-	float4 col = texCUBElod(CubeMapSampler, float4 (N, 0));
-	//float4 col = TexCubeLod(CubeMapSampler, N, 0);
-	//float4 col = TexCubeLod(CubeMapSampler, N, 0);
-	col.a = 1.0f;
-	col.rgb = col.r / float3(10000.0f, 1000.0f, 100.0f);
+	float4 col = tex2D(TextureSamplerDiffuse, input.TextureCoordinates);
 
 	return col;
 }
 
-float4 CreateDepthMapPixelShader(VsOutputCalcSceneDepth input) : COLOR
+float4 PS_CreateDepthMapPixelShader(VsOutputCalcSceneDepth input) : COLOR
 {
 	return length(LightPosition - input.Position3D);
 }
 
+// DX the texture cube stores data inverted  float3(N.x, -N.y, -N.z)
+float4 PS_RenderVisualizationDepthCube(VertexShaderOutput input) : COLOR
+{
+	float3 N = normalize(input.Normal.xyz);
+	//float4 col = texCUBElod(CubeMapSampler, float4 (N, 0));
+	float4 col = TexCubeLod(CubeMapSampler, N, 0);
+	//float4 col = TexEnvCubeLod(CubeMapSampler, N, 0);
+	col.a = 1.0f;
+	col.rgb = saturate(col.r / float3(10000.0f, 1000.0f, 100.0f));
+	col.b = 1.0f - col.r;
 
+	return col;
+}
+
+float4 PS_RenderBasicCubeMap(VertexShaderOutput input) : COLOR
+{
+	float3 N = normalize(input.Normal.xyz);
+	//float4 col = texCUBElod(CubeMapSampler, float4(N, 0));
+	float4 col = TexCubeLod(CubeMapSampler, N, 0); 
+
+	col.rgb += float3(0.05f, 0.05f, 0.05f); // little bit of ambient.
+
+	return col;
+}
+
+float4 PS_RenderBasicUnalteredRenderTargetCubeMap(VertexShaderOutput input) : COLOR
+{
+	float3 N = normalize(input.Normal.xyz);
+	float4 col = texCUBElod(CubeMapSampler, float4(N, 0));
+	//float4 col = TexCubeLod(CubeMapSampler, N, 0);
+
+	col.rgb += float3(0.05f, 0.05f, 0.05f); // little bit of ambient.
+
+	return col;
+}
+
+float4 PS_RenderBasicSkyCubeMap(VertexShaderOutput input) : COLOR
+{
+	float3 N = normalize(input.Normal.xyz);
+	//float4 col = texCUBElod(CubeMapSampler, float4(N, 0));
+	float4 col = TexEnvCubeLod(CubeMapSampler, N, 0);
+
+	col.rgb += float3(0.05f, 0.05f, 0.05f); // little bit of ambient.
+
+	return col;
+}
 
 //++++++++++++++++++++++++++++++++++++++++
 // T E C H N I Q U E S.
 //++++++++++++++++++++++++++++++++++++++++
+
+technique Render_BasicScene
+{
+	pass Pass0
+	{
+		VertexShader = compile VS_SHADERMODEL
+			VS();
+		PixelShader = compile PS_SHADERMODEL
+			PS_RenderBasicScene();
+	}
+}
+
+technique Render_LightDepth
+{
+	pass Pass0
+	{
+		VertexShader = compile VS_SHADERMODEL 
+			VS_CreateDepthMapVertexShader();
+		PixelShader = compile PS_SHADERMODEL 
+			PS_CreateDepthMapPixelShader();
+	}
+}
 
 technique Render_VisualizationDepthCube
 {
@@ -177,18 +245,41 @@ technique Render_VisualizationDepthCube
 		VertexShader = compile VS_SHADERMODEL
 			VS();
 		PixelShader = compile PS_SHADERMODEL
-			PS_RenderDepthCube();
+			PS_RenderVisualizationDepthCube();
 	}
 };
 
-technique Render_LightDepth
+technique Render_BasicCubeMapScene
 {
 	pass Pass0
 	{
-		VertexShader = compile VS_SHADERMODEL 
-			CreateDepthMapVertexShader();
-		PixelShader = compile PS_SHADERMODEL 
-			CreateDepthMapPixelShader();
+		VertexShader = compile VS_SHADERMODEL
+			VS();
+		PixelShader = compile PS_SHADERMODEL
+			PS_RenderBasicCubeMap();
 	}
 }
+
+technique Render_BasicSkyCubeMapScene
+{
+	pass Pass0
+	{
+		VertexShader = compile VS_SHADERMODEL
+			VS();
+		PixelShader = compile PS_SHADERMODEL
+			PS_RenderBasicSkyCubeMap();
+	}
+}
+
+technique Render_BasicUnalteredRenderTargetCubeMap
+{
+	pass Pass0
+	{
+		VertexShader = compile VS_SHADERMODEL
+			VS();
+		PixelShader = compile PS_SHADERMODEL
+			PS_RenderBasicUnalteredRenderTargetCubeMap();
+	}
+}
+
 
