@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "zhNHIXHEPnPKvVNolK6NgfaOP8+0NhvdNteXeNMZg+gbaM5ku0VoHIk1FxMRvfyG2cEsf8dUHCLKfyQmzkftAg==",
+  "dgSpecHash": "lFB70DitS0sr7ZzJQJP3l5SJl6cYB4u38NfMD49kSuuSzL8rmYNyDXvdened3vLCXOJ6Zn/jVaqgvbkfApfrog==",
   "success": true,
-  "projectFilePath": "C:\\Users\\will\\MainFiles\\GitPrjs\\zTemp\\ShaderExamples\\ShaderExamples.csproj",
+  "projectFilePath": "C:\\Users\\will\\MainFiles\\GitPrjs\\ShaderExamples\\ShaderExamples.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\will\\.nuget\\packages\\libuv\\1.9.1\\libuv.1.9.1.nupkg.sha512",
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\microsoft.codeanalysis.analyzers\\1.1.0\\microsoft.codeanalysis.analyzers.1.1.0.nupkg.sha512",

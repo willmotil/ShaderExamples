@@ -600,6 +600,65 @@ namespace Microsoft.Xna.Framework
             return (r >= 0 && r <= 1) && (s >= 0 && s <= 1);
         }
 
+        /// <summary>
+        /// untested. https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+        /// or try this one http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
+        /// </summary>
+        public static Vector3 QuaternionToEulerAngles(Quaternion q)
+        {
+            Vector3 angles;
+
+            // roll (x-axis rotation)
+            double sinr_cosp = 2 * (q.W * q.X + q.Y * q.Z);
+            double cosr_cosp = 1 - 2 * (q.X * q.X + q.Y * q.Y);
+            angles.Z = (float)Math.Atan2(sinr_cosp, cosr_cosp);
+
+            // pitch (y-axis rotation)
+            double sinp = 2 * (q.W * q.Y - q.Z * q.X);
+            if (Math.Abs(sinp) >= 1)
+                angles.X = (float)Math.CopySign(Math.PI / 2, sinp); // use 90 degrees if out of range
+            else
+                angles.X = (float)Math.Asin(sinp);
+
+            // yaw (z-axis rotation)
+            double siny_cosp = 2 * (q.W * q.Z + q.X * q.Y);
+            double cosy_cosp = 1 - 2 * (q.Y * q.Y + q.Y * q.Z);
+            angles.Y = (float)Math.Atan2(siny_cosp, cosy_cosp);
+            return angles;
+        }
+
+        // quat4 -> (roll, pitch, yaw)
+        /// <summary>
+        /// this is the assimp version so it may or may not work right.
+        /// </summary>
+        private static void QuatToEulerXyz(Quaternion q1, out Vector3 outVector)
+        {
+            // http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
+            double sqw = q1.W * q1.W;
+            double sqx = q1.X * q1.X;
+            double sqy = q1.Y * q1.Y;
+            double sqz = q1.Z * q1.Z;
+            double unit = sqx + sqy + sqz + sqw; // if normalised is one, otherwise is correction factor
+            double test = q1.X * q1.Y + q1.Z * q1.W;
+            if (test > 0.499 * unit)
+            { // singularity at north pole
+                outVector.Z = (float)(2 * Math.Atan2(q1.X, q1.W));
+                outVector.Y = (float)(Math.PI / 2);
+                outVector.X = 0;
+                return;
+            }
+            if (test < -0.499 * unit)
+            { // singularity at south pole
+                outVector.Z = (float)(-2 * Math.Atan2(q1.X, q1.W));
+                outVector.Y = (float)(-Math.PI / 2);
+                outVector.X = 0;
+                return;
+            }
+            outVector.Z = (float)Math.Atan2(2 * q1.Y * q1.W - 2 * q1.X * q1.Z, sqx - sqy - sqz + sqw);
+            outVector.Y = (float)Math.Asin(2 * test / unit);
+            outVector.X = (float)Math.Atan2(2 * q1.X * q1.W - 2 * q1.Y * q1.Z, -sqx + sqy - sqz + sqw);
+        }
+
         public static int ShortestTurnToTargetLeftOrRight(Vector2 pDirection, Vector2 position, Vector2 targetPosition)
         {
             Vector2 target_dir = Vector2.Normalize( targetPosition - position);

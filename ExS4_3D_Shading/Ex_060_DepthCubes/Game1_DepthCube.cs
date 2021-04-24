@@ -16,6 +16,7 @@ namespace ShaderExamples
         bool displayWhiteDiffuse = false;
         bool displayExtraVisualStuff = false;
         bool displayOnScreenTextInfo = false;
+        bool displayReflectionRender = true;
         bool CullOutCounterClockWiseTriangles = true;
 
         //bool lightAutoAxisFlip = false;
@@ -291,6 +292,10 @@ namespace ShaderExamples
             if (Keys.Home.IsKeyPressedWithDelay(gameTime))
                 cam.InitialView(GraphicsDevice);
 
+
+            if (Keys.F8.IsKeyPressedWithDelay(gameTime))
+                displayReflectionRender = !displayReflectionRender;
+
             UpdateLight(gameTime);
 
             base.Update(gameTime);
@@ -369,18 +374,23 @@ namespace ShaderExamples
 
             // reflection render.
 
+            DepthCubeEffectClass.UseFlips = false;
+
             SetProjection(shadowMapProjection);
             ReflectionRenderSceneFaces(false);
             GraphicsDevice.SetRenderTarget(null);
             generatedTextureFaceArrayFromRenderTargetCubemap = TextureCubeTypeConverter.ConvertTextureCubeToTexture2DArray(GraphicsDevice, renderTargetReflectionCube, false, false, 256);
             generatedTextureHdrLdrFromRenderTargetCube = TextureCubeTypeConverter.ConvertTextureCubeToSphericalTexture2D(GraphicsDevice, renderTargetReflectionCube, false, false, 256);
 
+            DepthCubeEffectClass.UseFlips = false;
+
             DepthCubeEffectClass.View = cam.view;
             SetProjection(cam.projection);
-            DrawReflectionRender();
 
-
-            //DrawRegularRender();
+            if (displayReflectionRender)
+                DrawReflectionRender();
+            else
+                DrawRegularRender();
 
             DrawSpriteBatches(gameTime);
 
@@ -680,9 +690,10 @@ namespace ShaderExamples
             else
                 spriteBatch.DrawString(
                     font,
-                    $"Press F1 for information  " +
-                    $"" +
-                    $"",
+                    $"\n Press F1 for information  " +
+                    $"\n displayReflectionRender: {displayReflectionRender}" +
+                    $"\n " +
+                    $"\n ",
                     new Vector2(10, 110),
                     Color.White
                     );

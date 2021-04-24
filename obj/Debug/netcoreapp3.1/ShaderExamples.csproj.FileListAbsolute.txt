@@ -273,7 +273,6 @@ C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\ReflectionCubeEffect.xnb
 C:\Users\will\MainFiles\GitPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\DepthCubeEffect.xnb
 C:\Users\Owner\GithubPrjs\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\DepthCubeEffect.xnb
-C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.csprojAssemblyReference.cache
 C:\Users\will\MainFiles\GitPrjs\zTemp\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Eqr001_Diffuse.xnb
 C:\Users\will\MainFiles\GitPrjs\zTemp\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Eqr001_Diffuse_irradiance.xnb
 C:\Users\will\MainFiles\GitPrjs\zTemp\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Images\Face_Back.xnb
@@ -291,3 +290,4 @@ C:\Users\will\MainFiles\GitPrjs\zTemp\ShaderExamples\bin\Debug\netcoreapp3.1\Con
 C:\Users\will\MainFiles\GitPrjs\zTemp\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\ReflectionCubeEffect.xnb
 C:\Users\will\MainFiles\GitPrjs\zTemp\ShaderExamples\bin\Debug\netcoreapp3.1\Content\Shaders3D\ReflectionsEffect.xnb
 C:\Users\will\MainFiles\GitPrjs\zTemp\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.csprojAssemblyReference.cache
+C:\Users\will\MainFiles\GitPrjs\ShaderExamples\obj\Debug\netcoreapp3.1\ShaderExamples.csprojAssemblyReference.cache

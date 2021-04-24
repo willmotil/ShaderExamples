@@ -37,7 +37,7 @@ matrix World;
 matrix View;
 matrix Projection;
 
-
+float UseFlips;
 
 //++++++++++++++++++++++++++++++++++++++++
 // T E X T U R E S  A N D  S A M P L E R S
@@ -169,9 +169,11 @@ float4 PS_CreateDepthMapPixelShader(VsOutputCalcSceneDepth input) : COLOR
 float4 PS_RenderVisualizationDepthCube(VertexShaderOutput input) : COLOR
 {
 	float3 N = normalize(input.Normal.xyz);
-	//float4 col = texCUBElod(CubeMapSampler, float4 (N, 0));
-	float4 col = TexCubeLod(CubeMapSampler, N, 0);
-	//float4 col = TexEnvCubeLod(CubeMapSampler, N, 0);
+	float4 col = float4(0, 0, 0, 0);
+	if (UseFlips == 1)
+		col = TexCubeLod(CubeMapSampler, N, 0);
+	else
+		col = texCUBElod(CubeMapSampler, float4 (N, 0));
 	col.a = 1.0f;
 	col.rgb = saturate(col.r / float3(10000.0f, 1000.0f, 100.0f));
 	col.b = 1.0f - col.r;
@@ -182,8 +184,11 @@ float4 PS_RenderVisualizationDepthCube(VertexShaderOutput input) : COLOR
 float4 PS_RenderBasicCubeMap(VertexShaderOutput input) : COLOR
 {
 	float3 N = normalize(input.Normal.xyz);
-	//float4 col = texCUBElod(CubeMapSampler, float4(N, 0));
-	float4 col = TexCubeLod(CubeMapSampler, N, 0); 
+	float4 col = float4(0, 0, 0, 0);
+	if (UseFlips == 1)
+		col = TexCubeLod(CubeMapSampler, N, 0);
+	else
+		col = texCUBElod(CubeMapSampler, float4 (N, 0));
 
 	col.rgb += float3(0.05f, 0.05f, 0.05f); // little bit of ambient.
 
@@ -193,8 +198,13 @@ float4 PS_RenderBasicCubeMap(VertexShaderOutput input) : COLOR
 float4 PS_RenderBasicUnalteredRenderTargetCubeMap(VertexShaderOutput input) : COLOR
 {
 	float3 N = normalize(input.Normal.xyz);
-	float4 col = texCUBElod(CubeMapSampler, float4(N, 0));
-	//float4 col = TexCubeLod(CubeMapSampler, N, 0);
+	float4 col = float4(0, 0, 0, 0);
+	//if (UseFlips == 1)
+	//	col = TexCubeLod(CubeMapSampler, N, 0);
+	//else
+	//	col = texCUBElod(CubeMapSampler, float4 (N, 0));
+
+	col = texCUBElod(CubeMapSampler, float4 (N, 0));
 
 	col.rgb += float3(0.05f, 0.05f, 0.05f); // little bit of ambient.
 
@@ -204,8 +214,11 @@ float4 PS_RenderBasicUnalteredRenderTargetCubeMap(VertexShaderOutput input) : CO
 float4 PS_RenderBasicSkyCubeMap(VertexShaderOutput input) : COLOR
 {
 	float3 N = normalize(input.Normal.xyz);
-	//float4 col = texCUBElod(CubeMapSampler, float4(N, 0));
-	float4 col = TexEnvCubeLod(CubeMapSampler, N, 0);
+	float4 col = float4(0, 0, 0, 0);
+	if (UseFlips == 1)
+		col = TexEnvCubeLod(CubeMapSampler, N, 0);
+	else
+		col = texCUBElod(CubeMapSampler, float4 (N, 0));
 
 	col.rgb += float3(0.05f, 0.05f, 0.05f); // little bit of ambient.
 

@@ -75,6 +75,17 @@ namespace ShaderExamples
             set { effect.Parameters["TextureCubeEnviromental"].SetValue(value); }
         }
 
+        public static bool UseFlips
+        {
+            set 
+            { 
+                if(value)
+                    effect.Parameters["UseFlips"].SetValue(1f); 
+                else
+                    effect.Parameters["UseFlips"].SetValue(0f);
+            }
+        }
+
         public static Matrix World
         {
             set { effect.Parameters["World"].SetValue(value); }
