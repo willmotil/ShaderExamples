@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace ShaderExamples
 {
-    public class Game1_NormalMapping : Game
+    public class Game1_DiffuseLightingWithNormalMapping : Game
     {
         /* Excerpt. https://dreamlight.com/how-to-create-normal-maps-from-photographs/
          Normal maps use the three color channels R-red, G-green and B-blue to encode the X, Y and Z normal vector data in an 8-bit image.
@@ -73,7 +73,7 @@ Finally the B channel in the image ranges from 128 to 255
         float lightRotationRadians = 0f;
 
 
-        public Game1_NormalMapping()
+        public Game1_DiffuseLightingWithNormalMapping()
         {
             graphics = new GraphicsDeviceManager(this);
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
@@ -123,10 +123,10 @@ Finally the B channel in the image ranges from 128 to 255
              ));
             cam.UpdateProjection(GraphicsDevice);
 
-            NormalMapEffectClass.Load(Content);
-            NormalMapEffectClass.TextureDiffuse = dotTextureWhite;
-            NormalMapEffectClass.View = cam.view;
-            NormalMapEffectClass.Projection = cam.projection;
+            DiffuseNormalMapEffectClass.Load(Content);
+            DiffuseNormalMapEffectClass.TextureDiffuse = dotTextureWhite;
+            DiffuseNormalMapEffectClass.View = cam.view;
+            DiffuseNormalMapEffectClass.Projection = cam.projection;
 
 
             PrimitiveIndexedMesh.ShowOutput = false;
@@ -228,10 +228,10 @@ Finally the B channel in the image ranges from 128 to 255
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_SOLID;
 
-            NormalMapEffectClass.View = cam.view;
-            NormalMapEffectClass.Projection = cam.projection;
-            NormalMapEffectClass.World = Matrix.Identity;
-            NormalMapEffectClass.LightPosition = lightPosition;
+            DiffuseNormalMapEffectClass.View = cam.view;
+            DiffuseNormalMapEffectClass.Projection = cam.projection;
+            DiffuseNormalMapEffectClass.World = Matrix.Identity;
+            DiffuseNormalMapEffectClass.LightPosition = lightPosition;
 
             if (displayMesh)
                 DrawMesh();
@@ -258,9 +258,9 @@ Finally the B channel in the image ranges from 128 to 255
                 mesh.DiffuseTexture = dotTextureWhite;
             else
                 mesh.DiffuseTexture = texture;
-            NormalMapEffectClass.TextureDiffuse = mesh.DiffuseTexture;
-            NormalMapEffectClass.TextureNormalMap = mesh.NormalMapTexture;
-            mesh.DrawPrimitive(GraphicsDevice, NormalMapEffectClass.effect);
+            DiffuseNormalMapEffectClass.TextureDiffuse = mesh.DiffuseTexture;
+            DiffuseNormalMapEffectClass.TextureNormalMap = mesh.NormalMapTexture;
+            mesh.DrawPrimitive(GraphicsDevice, DiffuseNormalMapEffectClass.effect);
         }
 
         public void DrawNormalsForMesh()
@@ -287,8 +287,8 @@ Finally the B channel in the image ranges from 128 to 255
         public void DrawWireFrameMesh()
         {
             GraphicsDevice.RasterizerState = rasterizerState_CULLNONE_WIREFRAME;
-            NormalMapEffectClass.TextureDiffuse = dotTextureRed;
-            mesh.DrawPrimitive(GraphicsDevice, NormalMapEffectClass.effect);
+            DiffuseNormalMapEffectClass.TextureDiffuse = dotTextureRed;
+            mesh.DrawPrimitive(GraphicsDevice, DiffuseNormalMapEffectClass.effect);
         }
 
 
@@ -306,12 +306,14 @@ Finally the B channel in the image ranges from 128 to 255
             $" \n The Arrow keys move the camera translation as strafing motion. " +
             $" \n The F2 toggle wireframe. F3 show normals. F4 mesh itself. F5 the texture used." +
             $" \n  " +
-            $" \n In this example we make a shader that creates a diffuse light." +
-            $" \n The light rotates around the mesh illuminating faces depending on the triangle normals." +
+            $" \n In this example we make a shader that uses the previous diffuse light and a normal map." +
+            $" \n The normal map offsets per pixel information of interpolated per vertice normal data." +
+            $" \n This surface normal pertabation changes the lighting calculations to be darker or lighter." +
+            $" \n" +
             $" \n We also create a class that allows us to visualize normals per vertice and for the light." +
             $" \n Well place the light into rotation so we can see how the diffuse shader works." +
             $" \n Simple diffuse lighting is achieved via a dot product on the light and normals aka NdotL ." +
-            $" \n this can be found in the shader" +
+            $" \n this can be found in the corresponding shader" +
             $" \n  " +
             $" \n { cam.cameraWorld.ToWellFormatedString("cameraWorld") }" +
             $" \n { cam.view.ToWellFormatedString("view") }" +

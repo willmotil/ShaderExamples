@@ -46,8 +46,9 @@ namespace ShaderExamples
 
             // 3D Shader examples
             //using (var game = new Game1_DiffuseLighting()) game.Run();
-            //using (var game = new Game1_NormalMapping()) game.Run();
+            //using (var game = new Game1_DiffuseLightingWithNormalMapping()) game.Run();
             //using (var game = new Game1_SpecularLighting()) game.Run();
+
             //using (var game = new Game1_SkyBoxes()) game.Run();
             //using (var game = new Game1_Reflections()) game.Run();
             using (var game = new Game1_DepthCube()) game.Run();

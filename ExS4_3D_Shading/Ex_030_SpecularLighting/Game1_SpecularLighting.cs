@@ -70,7 +70,7 @@ namespace ShaderExamples
             graphics.GraphicsProfile = GraphicsProfile.HiDef;
             Content.RootDirectory = "Content";
             Window.AllowUserResizing = true;
-            Window.Title = " ex Normal Mapping with Diffuse and Specular lighting ";
+            Window.Title = " ex  Specular lighting with diffuse using Normal Mapping.  ";
             IsMouseVisible = true;
             Window.ClientSizeChanged += OnResize;
         }
@@ -354,11 +354,13 @@ namespace ShaderExamples
                     $" \n The keys WASD change the forward view direction (which is the major take away here). ZC allows for spin." +
                     $" \n The Arrow keys move the camera translation as strafing motion. " +
                     $" \n  " +
-                    $" \n In this example we make a shader that creates a diffuse light." +
+                    $" \n In this example we make a shader that creates a diffuse and additionally a specular highlight." +
                     $" \n The light rotates around the mesh illuminating faces depending on the triangle normals." +
                     $" \n We also create a class that allows us to visualize normals per vertice and for the light." +
                     $" \n Well place the light into rotation so we can see how the diffuse shader works." +
                     $" \n Simple diffuse lighting is achieved via a dot product on the light and normals aka NdotL ." +
+                    $" \n Classic Phong shading is used for the specular highlight " +
+                    $" \n This gives visual information on the reflective position of the light to the viewer." +
                     $" \n this can be found in the shader" +
                     $" \n  " +
                     $" \n {lightPosition.ToTrimmedString("LightPosition")}" +

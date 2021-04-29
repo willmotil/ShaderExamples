@@ -11,7 +11,7 @@ namespace ShaderExamples  //.HelperClasses.EffectClasses
     /// <summary>
     /// This class is used to wrap up our effect to make it easier to use it.
     /// </summary>
-    public class NormalMapEffectClass
+    public class DiffuseNormalMapEffectClass
     {
         public static Effect effect;
 

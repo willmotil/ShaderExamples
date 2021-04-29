@@ -21,13 +21,50 @@ namespace Microsoft.Xna.Framework
         public static string DirectoryForEffect = @"Content/Shaders3D";
         public static Effect _textureCubeBuildEffect;
 
-        // This matches the definitions for cubefaces but ... it doesn't matter cause the uv data just comes from normal direction on the texture cube.
-        public static Matrix MatrixPositiveX = Matrix.CreateWorld(Vector3.Zero, new Vector3(1.0f, 0, 0), Vector3.Up);  // 0
-        public static Matrix MatrixNegativeX = Matrix.CreateWorld(Vector3.Zero, new Vector3(-1.0f, 0, 0), Vector3.Up);  // 1
-        public static Matrix MatrixPositiveY = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 1.0f, 0), Vector3.Backward); //2
-        public static Matrix MatrixNegativeY = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, -1.0f, 0), Vector3.Forward);  //3
-        public static Matrix MatrixPositiveZ = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 0, 1.0f), Vector3.Up);   //4
-        public static Matrix MatrixNegativeZ = Matrix.CreateWorld(Vector3.Zero, new Vector3(0, 0, -1.0f), Vector3.Up);   // 5
+        // This matches the definitions for cubefaces but ... It's a left handed build matrix.
+        public static Matrix RtMatrixPositiveX = CreateCubeFaceLookAtViewMatrix(Vector3.Zero, new Vector3(1.0f, 0, 0), Vector3.Up);  // 0
+        public static Matrix RtMatrixNegativeX = CreateCubeFaceLookAtViewMatrix(Vector3.Zero, new Vector3(-1.0f, 0, 0), Vector3.Up);  // 1
+        public static Matrix RtMatrixPositiveY = CreateCubeFaceLookAtViewMatrix(Vector3.Zero, new Vector3(0, 1.0f, 0), Vector3.Forward); //2
+        public static Matrix RtMatrixNegativeY = CreateCubeFaceLookAtViewMatrix(Vector3.Zero, new Vector3(0, -1.0f, 0), Vector3.Backward);  //3
+        public static Matrix RtMatrixPositiveZ = CreateCubeFaceLookAtViewMatrix(Vector3.Zero, new Vector3(0, 0, 1.0f), Vector3.Up);   //4
+        public static Matrix RtMatrixNegativeZ = CreateCubeFaceLookAtViewMatrix(Vector3.Zero, new Vector3(0, 0, -1.0f), Vector3.Up);   // 5
+
+        //// This matches the definitions for cubefaces but ... it doesn't matter cause the uv data just comes from normal direction on the texture cube.
+        //public static Matrix MatrixPositiveX = Matrix.CreateLookAt(Vector3.Zero, new Vector3(1.0f, 0, 0), Vector3.Up);  // 0
+        //public static Matrix MatrixNegativeX = Matrix.CreateLookAt(Vector3.Zero, new Vector3(-1.0f, 0, 0), Vector3.Up);  // 1
+        //public static Matrix MatrixPositiveY = Matrix.CreateLookAt(Vector3.Zero, new Vector3(0, 1.0f, 0), Vector3.Backward); //2
+        //public static Matrix MatrixNegativeY = Matrix.CreateLookAt(Vector3.Zero, new Vector3(0, -1.0f, 0), Vector3.Forward);  //3
+        //public static Matrix MatrixPositiveZ = Matrix.CreateLookAt(Vector3.Zero, new Vector3(0, 0, 1.0f), Vector3.Up);   //4
+        //public static Matrix MatrixNegativeZ = Matrix.CreateLookAt(Vector3.Zero, new Vector3(0, 0, -1.0f), Vector3.Up);   // 5
+
+        public static Matrix CreateCubeFaceLookAtViewMatrix(Vector3 cameraPosition, Vector3 cameraTarget, Vector3 cameraUpVector)
+        {
+            var forward = Vector3.Normalize(cameraPosition - cameraTarget);
+            var right = -Vector3.Normalize(Vector3.Cross(cameraUpVector, forward));
+            var up = Vector3.Cross(-forward, right);
+            Matrix result = Matrix.Identity;
+            result.M11 = right.X;
+            result.M12 = up.X;
+            result.M13 = forward.X;
+            result.M14 = 0f;
+            result.M21 = right.Y;
+            result.M22 = up.Y;
+            result.M23 = forward.Y;
+            result.M24 = 0f;
+            result.M31 = right.Z;
+            result.M32 = up.Z;
+            result.M33 = forward.Z;
+            result.M34 = 0f;
+            result.M41 = -Vector3.Dot(right, cameraPosition);
+            result.M42 = -Vector3.Dot(up, cameraPosition);
+            result.M43 = -Vector3.Dot(forward, cameraPosition);
+            result.M44 = 1f;
+            return result;
+        }
+        public static Matrix GetRenderTargetCubeProjectionMatrix(float near, float far)
+        {
+            return Matrix.CreatePerspectiveFieldOfView((float)MathHelper.Pi * .5f, 1, near, far);
+        }
 
         public static void Load(Microsoft.Xna.Framework.Content.ContentManager Content)
         {
