@@ -51,7 +51,7 @@ namespace ShaderExamples
 
             //using (var game = new Game1_SkyBoxes()) game.Run();
             //using (var game = new Game1_Reflections()) game.Run();
-            using (var game = new Game1_DepthCube()) game.Run();
+            //using (var game = new Game1_DepthCube()) game.Run();
             //using (var game = new Game1_ReflectionCube()) game.Run();
 
 
@@ -59,6 +59,8 @@ namespace ShaderExamples
 
             //using (var game = new Game1_XXXXXXX()) game.Run();
 
+            
+            using (var game = new Game1_ReducedIndexMesh()) game.Run();
             //using (var game = new Game1_EnviromentalMapping()) game.Run();
             //using (var game = new Game1_TestingCanidateEffects()) game.Run();
             // gonna have to make full orientation matrix waypoint system or at least a set of up vectors or a gravity system.
